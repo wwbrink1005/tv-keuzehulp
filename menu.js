@@ -6,13 +6,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuHtml = `
     <header class="menu-bar">
       <div class="menu-brand">
-        <a href="../Algemene%20website/landingspagina.html">producthulp.nl</a>
+        <a href="landingspagina.html">producthulp.nl</a>
       </div>
       <nav class="menu-right" aria-label="Hoofdmenu">
         <div class="menu-texts">
-          <a href="../Algemene%20website/contact.html">Contact</a>
-          <a href="../Algemene%20website/over-producthulp.html">Over ons</a>
-          <a href="../Algemene%20website/hoe-werkt-het.html">Hoe werkt het?</a>
+          <a href="contact.html">Contact</a>
+          <a href="over-producthulp.html">Over ons</a>
+          <a href="hoe-werkt-het.html">Hoe werkt het?</a>
         </div>
         <div class="menu-search" role="search">
           <div class="landing-search">

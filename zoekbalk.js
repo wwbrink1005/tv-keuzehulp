@@ -2,7 +2,7 @@ const keuzehulpen = [
   {
     title: "Televisie keuzehulp",
     keywords: ["tv", "televisie"],
-    url: "../TV%20keuzehulp/vragen.html",
+    url: "vragen.html",
   },
 ];
 
