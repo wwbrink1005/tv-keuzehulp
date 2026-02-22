@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>producthulp</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="../Algemene%20website/menu.css">
+ <link rel="stylesheet" href="../Algemene%20website/footer.css">
+ <script src="https://unpkg.com/lucide@latest"></script>
+ <script src="../Algemene%20website/menu.js" defer></script>
+ <script src="../Algemene%20website/footer.js" defer></script>
+ <style>
+   :root {
+     --base-width: 1242.21;
+     --base-height: 630.138;
+     --tv-right-offset: 490;
+     --tv-bottom-offset: 224;
+   }
+
+   * {
+     box-sizing: border-box;
+   }
+
+   body {
+     margin: 0;
+     padding: 0;
+     display: flex;
+     flex-direction: column;
+     align-items: stretch;
+     justify-content: flex-start;
+     min-height: 100vh;
+     font-family: "Inter", sans-serif;
+     background-color: #f0f0f0;
+     overflow-x: hidden;
+   }
+
+   .page-content {
+     width: 100%;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     padding: 0 clamp(12px, 2vw, 20px);
+   }
+
+   .landing-footer {
+     width: 100%;
+     box-sizing: border-box;
+   }
+
+   .landing-footer ul {
+     margin: 0;
+     padding: 0;
+   }
+   
+   .quiz-hero {
+     width: 100%;
+     max-width: calc(var(--base-width) * 1px);
+     position: relative;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+   }
+
+   .background-container {
+     --base-width: 1242.21;
+     --base-height: 630.138;
+     --scale: 1;
+     width: 100%;
+     max-width: calc(var(--base-width) * 1px);
+     aspect-ratio: 1242.21 / 630.138;
+     background-image: url('ja.png');
+     background-size: cover;
+     background-position: center;
+    border-radius: calc(5px * var(--scale));
+     border: 0px solid black;
+     position: relative;
+     box-sizing: border-box;
+     margin-top: 16vh;
+     margin-bottom: 16vh;
+     z-index: 1;
+   }
+
+   .questions-panel {
+     --scale: var(--page-scale, 1);
+     position: absolute;
+     left: 50%;
+     top: 16vh;
+     transform: translateX(-50%);
+     width: 100%;
+     max-width: calc(var(--base-width) * 1px);
+     aspect-ratio: 1242.21 / 630.138;
+     z-index: 2;
+   }
+   
+   .question-container {
+     position: absolute;
+     left: calc(36.9291px * var(--scale));
+     top: calc(70.11px * var(--scale));
+     max-width: calc(550px * var(--scale));
+     line-height: 0;
+   }
+   
+   .question-container h2 {
+     font-family: 'Inter', sans-serif;
+     font-weight: 700;
+     font-size: calc(30px * var(--scale));
+     color: #000000;
+     margin: 0;
+     line-height: 1.4;
+     max-width: calc(456.89px * var(--scale));
+     display: inline;
+   }
+   
+   /* Question info icon */
+   .question-info-icon {
+     width: calc(30px * var(--scale));
+     height: calc(30px * var(--scale));
+     color: #000000;
+     stroke-width: 2;
+     margin-left: calc(5px * var(--scale));
+     cursor: pointer;
+     display: inline-block;
+     vertical-align: baseline;
+     position: relative;
+     top: calc(5px * var(--scale));
+   }
+   
+   /* Question wrapper */
+   #question-1, #question-2, #question-3, #question-4, 
+   #question-5, #question-6, #question-7, #question-8 {
+     position: relative;
+     opacity: 0;
+     transform: translateY(4px);
+     transition: opacity 0.18s ease, transform 0.18s ease;
+     pointer-events: none;
+   }
+
+   #question-1.is-active, #question-2.is-active, #question-3.is-active, #question-4.is-active,
+   #question-5.is-active, #question-6.is-active, #question-7.is-active, #question-8.is-active {
+     opacity: 1;
+     transform: translateY(0);
+     pointer-events: auto;
+   }
+   
+   /* Antwoorden container */
+  .answers-container {
+  position: absolute;
+  left: calc(26.2291px * var(--scale));
+  display: flex;
+  flex-direction: column;
+  gap: calc(15px * var(--scale));
+}
+
+/* 2-koloms layout voor vraag 1 */
+#question-1 .answers-container {
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: calc(((160.984px * 2) + 8px) * var(--scale));
+  gap: calc(15px * var(--scale));
+  row-gap: calc(15px * var(--scale));
+  column-gap: calc(8px * var(--scale));
+}
+
+#question-1 .answer-option {
+  width: calc(160.984px * var(--scale));
+  height: calc(48.3935px * var(--scale));
+  flex-basis: calc(50% - calc(4px * var(--scale)));
+  margin-right: 0;
+}
+
+#question-1 .answer-option:nth-child(odd) {
+  margin-right: 0;
+}
+
+/* 3-koloms layout voor vraag 2 */
+#question-2 .answers-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: calc(((135.323px * 3) + (8px * 2)) * var(--scale));
+  gap: calc(15px * var(--scale));
+  row-gap: calc(15px * var(--scale));
+  column-gap: calc(8px * var(--scale));
+}
+
+#question-2 .answer-option {
+  width: calc(135.323px * var(--scale));
+  height: calc(48.3935px * var(--scale));
+  box-sizing: border-box;
+}
+
+#question-1 .answer-option:nth-child(odd) {
+  margin-right: 0;
+}
+   
+   /* Antwoord vak */
+   .answer-option {
+     width: calc(366.968px * var(--scale));
+     height: calc(58.3935px * var(--scale));
+     background-color: white;
+     border: 1px solid transparent;
+     border-radius: calc(5px * var(--scale));
+     display: flex;
+     align-items: center;
+     padding-left: calc(8.52303px * var(--scale));
+     cursor: pointer;
+     box-sizing: border-box;
+     gap: calc(3px * var(--scale));
+   }
+
+   /* Answer option border when checked */
+   .answer-option:has(input:checked) {
+     border-color: #0954A3;
+   }
+
+   /* Answer option hover effect */
+   .answer-option:hover {
+     border-color: rgba(0, 0, 0, 1);
+   }
+   
+   /* Radio/Checkbox styling */
+   .answer-option input[type="radio"],
+   .answer-option input[type="checkbox"] {
+     width: calc(21.08px * var(--scale));
+     height: calc(21.08px * var(--scale));
+     border: 1px solid black;
+     border-radius: 50%;
+     margin: 0;
+     margin-right: calc(8.52303px * var(--scale));
+     appearance: none;
+     cursor: pointer;
+     flex-shrink: 0;
+     background-color: white;
+     box-sizing: border-box;
+   }
+   
+   .answer-option input[type="radio"]:checked,
+   .answer-option input[type="checkbox"]:checked {
+     background-color: #0954A3;
+     border: 1px solid #0954A3;
+     box-shadow: inset 0 0 0 2px white;
+   }
+   
+   /* Antwoord tekst */
+   .answer-option span {
+     font-family: 'Inter', sans-serif;
+     font-weight: 500;
+     font-size: calc(16px * var(--scale));
+     color: #000000;
+     line-height: 1.4;
+   }
+
+   .answers-toggle {
+     display: none;
+     margin-left: auto;
+     width: 28px;
+     height: 28px;
+     border: 0;
+     background: transparent;
+     color: #000000;
+     cursor: pointer;
+     align-items: center;
+     justify-content: center;
+     padding: 0;
+   }
+
+   .answers-toggle svg {
+     width: 18px;
+     height: 18px;
+     transition: transform 0.2s ease;
+   }
+
+   .question-block.is-expanded .answers-toggle svg {
+     transform: rotate(180deg);
+   }
+
+   /* 30px afstand checkbox-icoon-tekst voor vragen 4-8 */
+   #question-4 input[type="checkbox"],
+   #question-4 input[type="radio"],
+   #question-5 input[type="radio"],
+   #question-6 input[type="radio"],
+   #question-7 input[type="radio"],
+   #question-8 input[type="checkbox"] {
+     margin-right: calc(30px * var(--scale));
+   }
+
+   /* Icoon in 30px ruimte gecentreerd */
+   #question-4 .answer-info-icon,
+   #question-5 .answer-info-icon,
+   #question-6 .answer-info-icon,
+   #question-7 .answer-info-icon,
+   #question-8 .answer-info-icon {
+     margin-left: calc(-20px * var(--scale));
+     margin-right: calc(10px * var(--scale));
+   }
+   
+   /* Knoppen container */
+   .button-container {
+     position: absolute;
+     display: flex;
+     gap: calc(11px * var(--scale));
+     justify-content: center;
+   }
+  
+   
+   /* Knop styling */
+   button {
+     width: calc(141.59px * var(--scale));
+     height: calc(43.95px * var(--scale));
+     background-color: #0954A3;
+     border: none;
+     border-radius: calc(25px * var(--scale));
+     font-family: 'Inter', sans-serif;
+     font-weight: 700;
+     font-size: calc(21px * var(--scale));
+     color: white;
+     cursor: pointer;
+     text-align: center;
+   }
+   
+   button:hover {
+     opacity: 0.9;
+   }
+   /* Terug button styling */
+   #restart-q1,
+   #back-to-question-1,
+   #back-to-question-2,
+   #back-to-question-3,
+   #back-to-question-4,
+   #back-to-question-5,
+   #back-to-question-6,
+   #back-to-question-7 {
+     background-color: #ffffff;
+     border: calc(3px * var(--scale)) solid #0954A3;
+     color: #0954A3;
+   }
+   /* Title wrapper */
+   .container-wrapper {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     width: 100%;
+     max-width: calc(var(--base-width) * 1px);
+     transition: opacity 0.18s ease, transform 0.18s ease;
+   }
+
+   .container-wrapper.is-exiting {
+     opacity: 0;
+     transform: translateY(2px);
+   }
+
+   .container-title {
+     font-family: 'Inter', sans-serif;
+     font-weight: 700;
+     font-size: calc(30px * var(--page-scale, 1));
+     color: #000000;
+     text-align: center;
+     margin-bottom: calc(15px * var(--page-scale, 1));
+     margin-top: 0;
+     line-height: 1.420
+   }
+
+   /* TV Display */
+   #tv-display {
+     position: absolute;
+     background-image: url('tv aarde.png');
+     background-size: cover;
+     background-position: center;
+     opacity: 0;
+     transition: opacity 0.12s ease, width 0.12s ease, height 0.12s ease, border-width 0.12s ease, right 0.12s ease, bottom 0.12s ease;
+     display: none;
+   }
+
+   /* Knoppen styling per vraag */
+   #question-1 .button-container {
+     left: calc(26.2291px * var(--scale));
+     width: calc(((160.984px * 2) + 8px) * var(--scale));
+   }
+
+   #question-2 .button-container {
+     left: calc(26.2291px * var(--scale));
+     width: calc(((135.323px * 3) + (8px * 2)) * var(--scale));
+   }
+
+   #question-3 .button-container,
+   #question-4 .button-container,
+   #question-5 .button-container,
+   #question-6 .button-container,
+   #question-7 .button-container,
+   #question-8 .button-container {
+     left: calc(26.2291px * var(--scale));
+     width: calc(331.968px * var(--scale));
+   }
+
+   /* Info icoon in antwoordvakken */
+   .answer-info-icon {
+     width: calc(20px * var(--scale));
+     height: calc(20px * var(--scale));
+     flex-shrink: 0;
+     color: #000000;
+     stroke-width: 1.5;
+   }
+
+   /* Popover styling */
+   .question-popover {
+     position: absolute;
+     width: calc(260px * var(--scale));
+     background-color: white;
+     border-radius: calc(8px * var(--scale));
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
+     padding: calc(16px * var(--scale));
+     z-index: 1000;
+     display: none;
+     opacity: 0;
+     transition: opacity 0.3s ease, transform 0.3s ease;
+     transform: translateY(0);
+   }
+
+   .question-popover.active {
+     display: block;
+     opacity: 1;
+     transform: translateY(0);
+   }
+
+   .question-popover-title {
+     font-family: 'Inter', sans-serif;
+     font-weight: 600;
+     font-size: calc(15px * var(--scale));
+     color: #000000;
+     margin: 0;
+     margin-bottom: calc(8px * var(--scale));
+     line-height: 1.2;
+   }
+
+   .question-popover-text {
+     font-family: 'Inter', sans-serif;
+     font-weight: 400;
+     font-size: calc(14px * var(--scale));
+     color: #555555;
+     margin: 0;
+     line-height: 1.4;
+   }
+
+   @media (max-width: 900px) {
+     .quiz-hero {
+       max-width: none;
+     }
+
+     .background-container {
+       --base-width: 605.5;
+       --base-height: 595;
+       --tv-right-offset: 302.75;
+       --tv-bottom-offset: 212;
+       background-image: url('ja telefoon.png');
+       aspect-ratio: 1211 / 1190;
+       width: min(92vw, 560px);
+       max-width: min(92vw, 560px);
+       margin-top: clamp(14px, 6vh, 36px);
+       margin-bottom: 0;
+       border-radius: 12px 12px 0 0;
+     }
+
+     .questions-panel {
+       --scale: 1;
+       position: static;
+      left: auto;
+      top: auto;
+      transform: none;
+      aspect-ratio: auto;
+       width: min(92vw, 560px);
+       max-width: min(92vw, 560px);
+       background: #c5bab2;
+       border-radius: 0 0 12px 12px;
+       padding: clamp(16px, 4vw, 22px);
+       margin-bottom: clamp(24px, 6vh, 48px);
+      margin-left: auto;
+      margin-right: auto;
+     }
+
+     .question-container {
+       position: static;
+       max-width: 100%;
+       line-height: 1.4;
+       margin-bottom: 12px;
+     }
+
+     .question-container h2 {
+       font-size: clamp(18px, 5vw, 22px);
+       max-width: 100%;
+       display: inline;
+     }
+
+     .question-info-icon {
+       width: 18px;
+       height: 18px;
+       margin-left: 4px;
+       top: 3px;
+     }
+
+     .answers-container {
+       position: static;
+       width: 100%;
+       gap: 10px;
+     }
+
+     #question-1 .answers-container,
+     #question-2 .answers-container {
+       display: flex;
+       flex-direction: column;
+       width: 100%;
+       gap: 10px;
+     }
+
+     #question-1.is-expanded .answers-container,
+     #question-2.is-expanded .answers-container {
+       display: grid;
+       grid-template-columns: repeat(2, minmax(0, 1fr));
+       gap: 10px 12px;
+     }
+
+     .answer-option {
+       width: 100%;
+       height: auto;
+       min-height: 46px;
+       padding: 10px 12px;
+       border-radius: 10px;
+       gap: 10px;
+     }
+
+    #question-4 input[type="checkbox"],
+    #question-4 input[type="radio"],
+    #question-5 input[type="radio"],
+    #question-6 input[type="radio"],
+    #question-7 input[type="radio"],
+    #question-8 input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    #question-4 .answer-info-icon,
+    #question-5 .answer-info-icon,
+    #question-6 .answer-info-icon,
+    #question-7 .answer-info-icon,
+    #question-8 .answer-info-icon {
+      margin-left: 0;
+      margin-right: 8px;
+    }
+
+     .answer-option span {
+       font-size: 15px;
+     }
+
+     .question-block:not(.is-expanded) .answer-option {
+       display: none;
+     }
+
+     .question-block:not(.is-expanded) .answer-option:first-child {
+       display: flex;
+     }
+
+     .question-block:not(.is-expanded) .answer-option input[type="radio"],
+     .question-block:not(.is-expanded) .answer-option input[type="checkbox"] {
+       display: none;
+     }
+
+     .question-block.is-expanded .answer-option input[type="radio"],
+     .question-block.is-expanded .answer-option input[type="checkbox"] {
+       display: inline-block;
+       width: 18px;
+       height: 18px;
+       margin-right: 10px;
+     }
+
+     .answers-toggle {
+       display: inline-flex;
+     }
+
+     .button-container {
+       position: static;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+      gap: 10px;
+      margin-top: 14px;
+     }
+
+     button {
+      width: 100%;
+      min-width: 0;
+      height: 38px;
+      font-size: clamp(14px, 3.6vw, 16px);
+      border-radius: 20px;
+      padding: 0 8px;
+     }
+
+     #restart-q1,
+     #back-to-question-1,
+     #back-to-question-2,
+     #back-to-question-3,
+     #back-to-question-4,
+     #back-to-question-5,
+     #back-to-question-6,
+     #back-to-question-7 {
+       border-width: 2px;
+     }
+
+     #question-1 .button-container,
+     #question-2 .button-container,
+     #question-3 .button-container,
+     #question-4 .button-container,
+     #question-5 .button-container,
+     #question-6 .button-container,
+     #question-7 .button-container,
+     #question-8 .button-container {
+       left: auto;
+      width: 100%;
+      max-width: 100%;
+     }
+   }
+ </style>
+</head>
+<body>
+ <main class="page-content">
+ <div class="container-wrapper">
+   <div class="quiz-hero">
+     <div class="background-container">
+       <div class="top-bar"></div>
+       <div class="progress-bar" id="progress-bar"></div>
+       <div id="tv-display"></div>
+     </div>
+
+     <div class="questions-panel">
+     <!-- VRAAG 1 -->
+  <div id="question-1" class="question-block">
+     <div class="question-container">
+       <h2>Hoe ver zit je van de televisie af?</h2>
+       <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+       <div class="question-popover" data-popover="1">
+         <h3 class="question-popover-title">Waarom deze vraag?</h3>
+         <p class="question-popover-text">Dit helpt ons bepalen hoe groot de televisie moet zijn. Bij bepaalde afstanden is het namelijk beter om een grotere televisie te nemen en soms een kleinere. Uit jouw antwoord volgt een advies, In de volgende vraag kun je een definitieve keuze maken over de grootte van de tv. </p>
+       </div>
+     </div>
+     <div class="answers-container">
+       <label class="answer-option">
+         <input type="radio" name="distance" value="1m">
+         <span>1 meter</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="distance" value="1.5m">
+         <span>1,5 meter</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="distance" value="2m">
+         <span>2 meter</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="distance" value="2.5m">
+         <span>2,5 meter</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="distance" value="3m">
+         <span>3 meter</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="distance" value="3.5m">
+         <span>3,5 meter</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="distance" value="4m">
+         <span>4 meter</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="distance" value="bioscoop">
+         <span>Ik wil een thuisbioscoop</span>
+       </label>
+     </div>
+    <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
+       <button id="restart-q1">Terug</button>
+       <button id="to-question-2">Volgende</button>
+     </div>
+   </div>
+
+   <!-- VRAAG 2 -->
+  <div id="question-2" class="question-block" style="display:none;">
+     <div class="question-container">
+       <h2 id="advies-tekst">Welke grootte past bij jou?</h2>
+       <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+       <div class="question-popover" data-popover="2">
+         <h3 class="question-popover-title">Waarom deze stap?</h3>
+         <p class="question-popover-text">Hier kun je kijken hoe jouw advies grootte er ongeveer uitziet en het verschil tussen formaten bekijken. De keuze die je hier maakt is je definitieve tv-afmeting voor de rest van de keuzehulp. </p>
+       </div>
+     </div>
+     <div class="answers-container" id="size-options"></div>
+     <div class="button-container" id="q2-buttons">
+       <button id="back-to-question-1">Terug</button>
+       <button id="to-question-3">Volgende</button>
+     </div>
+   </div>
+
+   <!-- VRAAG 3 -->
+  <div id="question-3" class="question-block" style="display:none;">
+     <div class="question-container">
+       <h2>Hoeveel geld ben je bereid uit te geven voor je tv?</h2>
+       <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+       <div class="question-popover" data-popover="3">
+         <h3 class="question-popover-title">Waarom deze vraag?</h3>
+         <p class="question-popover-text">Dit helpt ons bepalen in welke prijscategorie we tv's kunnen aanbevelen. Natuurlijk is het meestal wel zo: een hogere prijscategorie betekent ook betere kwaliteit. Denk dus goed na hoeveel geld je bereid bent te spenderen voor je nieuwe televisie. 
+</p>
+       </div>
+     </div>
+     <div class="answers-container" id="price-options"></div>
+     <div class="button-container" id="q3-buttons">
+       <button id="back-to-question-2">Terug</button>
+       <button id="to-question-4">Volgende</button>
+     </div>
+   </div>
+
+   <!-- VRAAG 4 -->
+  <div id="question-4" class="question-block" style="display:none;">
+     <div class="question-container">
+       <h2>Waar ga je de tv voornamelijk voor gebruiken?</h2>
+       <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+       <div class="question-popover" data-popover="4">
+         <h3 class="question-popover-title">Waarom deze vraag?</h3>
+         <p class="question-popover-text">Met deze vraag krijgen we een beter beeld van hoe jij je tv gebruikt. Dat is belangrijk, omdat niet elke televisie voor elk gebruik even geschikt is. Op basis van je antwoord kunnen we een televisie adviseren die goed past bij jouw kijkgedrag. </p>
+       </div>
+     </div>
+     <div class="answers-container">
+       <label class="answer-option">
+         <input type="checkbox" name="usage" value="films">
+         <svg class="answer-info-icon" data-icon="popcorn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Films en series kijken</span>
+       </label>
+       <label class="answer-option">
+         <input type="checkbox" name="usage" value="sport">
+         <svg class="answer-info-icon" data-icon="volleyball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Sport kijken</span>
+       </label>
+       <label class="answer-option">
+         <input type="checkbox" name="usage" value="gamen">
+         <svg class="answer-info-icon" data-icon="gamepad-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Gamen</span>
+       </label>
+       <label class="answer-option">
+         <input type="checkbox" name="usage" value="normaal">
+         <svg class="answer-info-icon" data-icon="tv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Normale televisie kijken</span>
+       </label>
+     </div>
+    <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
+       <button id="back-to-question-3">Terug</button>
+       <button id="to-question-5">Volgende</button>
+     </div>
+   </div>
+
+   <!-- VRAAG 5 -->
+  <div id="question-5" class="question-block" style="display:none;">
+     <div class="question-container">
+       <h2>Hoe belangrijk vind je de beeldkwaliteit?</h2>
+       <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+       <div class="question-popover" data-popover="5">
+         <h3 class="question-popover-title">Waarom deze vraag?</h3>
+         <p class="question-popover-text">Dit helpt ons jouw verwachtingen van je tv te achterhalen. Ben je altijd op zoek naar het beste of is dit niet nodig? Met deze informatie kunnen we jouw verwachtingen koppelen aan een televisie. </p>
+       </div>
+     </div>
+     <div class="answers-container">
+       <label class="answer-option">
+         <input type="radio" name="quality" value="best">
+         <svg class="answer-info-icon" data-icon="trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Ik wil de best mogelijke beeldkwaliteit</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="quality" value="belangrijk">
+         <svg class="answer-info-icon" data-icon="star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Belangrijk, maar ik hoef niet het beste</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="quality" value="prima">
+         <svg class="answer-info-icon" data-icon="thumbs-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Als het gewoon prima is ben ik tevreden</span>
+       </label>
+     </div>
+    <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
+       <button id="back-to-question-4">Terug</button>
+       <button id="to-question-6">Volgende</button>
+     </div>
+   </div>
+
+   <!-- VRAAG 6 -->
+  <div id="question-6" class="question-block" style="display:none;">
+     <div class="question-container">
+       <h2>Wanneer kijk je meestal tv?</h2>
+       <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+       <div class="question-popover" data-popover="6">
+         <h3 class="question-popover-title">Waarom deze vraag?</h3>
+         <p class="question-popover-text">Dit helpt ons om het juiste type tv te vinden voor jou. Niet alle tv’s zijn even goed overdag en sommige zijn juist extra mooi in het donker. Als je een vaste kijktijd hebt, kunnen we zorgen dat je gedurende dit tijdstip het allerbeste hebt. 
+</p>
+       </div>
+     </div>
+     <div class="answers-container">
+       <label class="answer-option">
+         <input type="radio" name="timing" value="avonds">
+         <svg class="answer-info-icon" data-icon="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>In de avond als het donker is</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="timing" value="overdag">
+         <svg class="answer-info-icon" data-icon="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Overdag als het licht is</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="timing" value="beide">
+         <svg class="answer-info-icon" data-icon="sun-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Beide</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="timing" value="nvt">
+         <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Dit is voor mij niet belangrijk</span>
+       </label>
+     </div>
+    <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
+       <button id="back-to-question-5">Terug</button>
+       <button id="to-question-7">Volgende</button>
+     </div>
+   </div>
+
+   <!-- VRAAG 7 -->
+  <div id="question-7" class="question-block" style="display:none;">
+     <div class="question-container">
+       <h2>Hoe kijk je meestal tv?</h2>
+       <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+       <div class="question-popover" data-popover="7">
+         <h3 class="question-popover-title">Waarom deze vraag?</h3>
+         <p class="question-popover-text">Dit helpt ons bepalen wat voor type tv bij jou past. Niet alle tv's zijn namelijk even goed in het behouden van beeldkwaliteit zodra je er niet recht voor zit. Als je dus van plan bent om met veel mensen tv te kijken heb je waarschijnlijk een tv nodig die vanuit alle kijkhoeken goede beeldkwaliteit kan behouden. </p>
+       </div>
+     </div>
+     <div class="answers-container">
+       <label class="answer-option">
+         <input type="radio" name="viewing" value="recht">
+         <svg class="answer-info-icon" data-icon="sofa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Met 1 of 2 mensen recht voor de tv</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="viewing" value="meerdere">
+         <svg class="answer-info-icon" data-icon="users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Met meerdere mensen die niet recht voor de tv zitten</span>
+       </label>
+       <label class="answer-option">
+         <input type="radio" name="viewing" value="nvt">
+         <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Dit is voor mij niet belangrijk</span>
+       </label>
+     </div>
+    <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
+       <button id="back-to-question-6">Terug</button>
+       <button id="to-question-8">Volgende</button>
+     </div>
+   </div>
+
+   <!-- VRAAG 8 -->
+  <div id="question-8" class="question-block" style="display:none;">
+     <div class="question-container">
+       <h2>Welke van de volgende dingen is extra belangrijk voor je tv?</h2>
+       <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+       <div class="question-popover" data-popover="8">
+         <h3 class="question-popover-title">Waarom deze vraag?</h3>
+         <p class="question-popover-text">Dit helpt ons achterhalen of er dingen zijn die extra belangrijk voor je zijn. Deze informatie kunnen we meenemen en extra mee laten tellen voor je aanbeveling. 
+</p>
+       </div>
+     </div>
+     <div class="answers-container">
+       <label class="answer-option">
+         <input type="checkbox" name="extra" value="zwart">
+         <svg class="answer-info-icon" data-icon="cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Zwarttinten; donkere beelden zijn extra mooi</span>
+       </label>
+       <label class="answer-option">
+         <input type="checkbox" name="extra" value="helderheid">
+         <svg class="answer-info-icon" data-icon="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Helderheid; de tv moet heel helder kunnen zijn</span>
+       </label>
+       <label class="answer-option">
+         <input type="checkbox" name="extra" value="kleur">
+         <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Kleur; de mooiste kleuren moeten naar voor komen</span>
+       </label>
+       <label class="answer-option">
+         <input type="checkbox" name="extra" value="ambilight">
+         <svg class="answer-info-icon" data-icon="lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Ambilight; verlichting voor achter de tv</span>
+       </label>
+       <label class="answer-option">
+         <input type="checkbox" name="extra" value="niks">
+         <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+         <span>Ik heb niks wat ik extra belangrijk vindt</span>
+       </label>
+     </div>
+    <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 51.3935px) + (4 * 8px) + 22px) * var(--scale));">
+       <button id="back-to-question-7">Terug</button>
+       <button id="start-matching">Resultaat</button>
+     </div>
+   </div>
+
+     </div>
+   </div>
+ </div>
+
+ </main>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>

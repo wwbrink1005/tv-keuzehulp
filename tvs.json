@@ -1,0 +1,5622 @@
+[
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 24PHS6000/12",
+    "prijs": "142",
+    "grootte": 24,
+    "merk": "Philips",
+    "scherpte": "HD Ready",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung F6000F 24",
+    "prijs": 199,
+    "grootte": 24,
+    "merk": "Samsung",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Hisense 32A4N",
+    "prijs": 159,
+    "grootte": 32,
+    "merk": "hisense",
+    "scherpte": "HD Ready",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 32S4K",
+    "prijs": "162,87",
+    "grootte": 32,
+    "merk": "TCL",
+    "scherpte": "HD Ready",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 32PHS6000/12",
+    "prijs": "164,04",
+    "grootte": 32,
+    "merk": "Philips",
+    "scherpte": "HD Ready",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "TCL 32S5409AF",
+    "prijs": 168,
+    "grootte": 32,
+    "merk": "TCL",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG 32LQ63006LA",
+    "prijs": "178,44",
+    "grootte": 32,
+    "merk": "LG",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 32PFS6900/12",
+    "prijs": "186,06",
+    "grootte": 32,
+    "merk": "Philips",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 32A5Q",
+    "prijs": 199,
+    "grootte": 32,
+    "merk": "hisense",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 32S5K",
+    "prijs": "199,49",
+    "grootte": 32,
+    "merk": "TCL",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung F6000F 27",
+    "prijs": 219,
+    "grootte": 27,
+    "merk": "Samsung",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung F6000F 32",
+    "prijs": 289,
+    "grootte": 32,
+    "merk": "Samsung",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung H5000F 32",
+    "prijs": 239,
+    "grootte": 32,
+    "merk": "Samsung",
+    "scherpte": "HD Ready",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 27TQ615S-PZ",
+    "prijs": "246,57",
+    "grootte": 27,
+    "merk": "LG",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 32S59K",
+    "prijs": 249,
+    "grootte": 32,
+    "merk": "TCL",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG 32LM637BPLA",
+    "prijs": 299,
+    "grootte": 32,
+    "merk": "LG",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 32LM6380PLC",
+    "prijs": 308,
+    "grootte": 32,
+    "merk": "LG",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony KD-32W804",
+    "prijs": "360,41",
+    "grootte": 32,
+    "merk": "Sony",
+    "scherpte": "HD Ready",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame QLED  32LS03C",
+    "prijs": 449,
+    "grootte": 32,
+    "merk": "Samsung",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q50A 32",
+    "prijs": 479,
+    "grootte": 32,
+    "merk": "Samsung",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Hisense 43A6N",
+    "prijs": 249,
+    "grootte": 43,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "TCL 40S5409A",
+    "prijs": 257,
+    "grootte": 40,
+    "merk": "TCL",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 43PUS7000/12",
+    "prijs": 259,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 40PFS6000/12",
+    "prijs": 279,
+    "grootte": 40,
+    "merk": "Philips",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG 43UT73006LA",
+    "prijs": 289,
+    "grootte": 43,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 43PUS8010/12",
+    "prijs": 289,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 43PUS7609/12",
+    "prijs": 296,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 43A7NQ",
+    "prijs": 299,
+    "grootte": 43,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG UR78 43",
+    "prijs": 299,
+    "grootte": 43,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 40S5K",
+    "prijs": 299,
+    "grootte": 40,
+    "merk": "TCL",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 43S5K",
+    "prijs": 349,
+    "grootte": 43,
+    "merk": "TCL",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 40S59K",
+    "prijs": 299,
+    "grootte": 40,
+    "merk": "TCL",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 43S59K",
+    "prijs": 349,
+    "grootte": 43,
+    "merk": "TCL",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 43P69B",
+    "prijs": 312,
+    "grootte": 43,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG Nanocell NANO81",
+    "prijs": 319,
+    "grootte": 43,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 43PUS8000/12",
+    "prijs": 329,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 43C69B",
+    "prijs": 329,
+    "grootte": 43,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 43E79Q",
+    "prijs": 333,
+    "grootte": 43,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 43PUS8079/12",
+    "prijs": 337,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 43PFS6805",
+    "prijs": 338,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Full HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 43PUS8309",
+    "prijs": 341,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 43P69K",
+    "prijs": 349,
+    "grootte": 43,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 43E7Q",
+    "prijs": 350,
+    "grootte": 43,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 43P79B",
+    "prijs": 357,
+    "grootte": 43,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 43PUS7800/12",
+    "prijs": 358,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 43P71K",
+    "prijs": 372,
+    "grootte": 43,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung F6000F 40",
+    "prijs": 399,
+    "grootte": 40,
+    "merk": "Samsung",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7FA 43",
+    "prijs": 419,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG Nanocell Nano82 (2024) 43",
+    "prijs": 438,
+    "grootte": 43,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 43UA75006LA",
+    "prijs": 449,
+    "grootte": 43,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG UA73 43",
+    "prijs": 449,
+    "grootte": 43,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG UA74 43",
+    "prijs": 449,
+    "grootte": 43,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 43P79K",
+    "prijs": 449,
+    "grootte": 43,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips The One 43PUS8909",
+    "prijs": 458,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8000F 43",
+    "prijs": 469,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony Bravia KD-43X75WL",
+    "prijs": 479,
+    "grootte": 43,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU7170 43",
+    "prijs": 492,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q68D 43",
+    "prijs": 498,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips The One 43PUS9010/12",
+    "prijs": 499,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F4 43",
+    "prijs": 529,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED82 (2025) 43",
+    "prijs": 549,
+    "grootte": 43,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F3 43",
+    "prijs": 549,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony KD-43X80L",
+    "prijs": 586,
+    "grootte": 43,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED86 (2025) 43",
+    "prijs": 599,
+    "grootte": 43,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips The One 43PUS9050/12",
+    "prijs": 599,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 43PUS9000/12",
+    "prijs": 649,
+    "grootte": 43,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony Bravia 3 43\" (K-43S32)",
+    "prijs": 649,
+    "grootte": 43,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony KD-43X80J",
+    "prijs": 699,
+    "grootte": 43,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C4 42",
+    "prijs": 798,
+    "grootte": 42,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN90D 43",
+    "prijs": 798,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame QLED LS03D (2024) 43",
+    "prijs": 803,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 42OLED809",
+    "prijs": 812,
+    "grootte": 42,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame LS03B (2023) 43",
+    "prijs": 892,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C54 42",
+    "prijs": 899,
+    "grootte": 42,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED The Serif LS01BG 43",
+    "prijs": 971,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 42OLED810/12",
+    "prijs": 999,
+    "grootte": 42,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame LS03FA 43",
+    "prijs": 1049,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93F 43",
+    "prijs": 1099,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S93F 42",
+    "prijs": 1099,
+    "grootte": 42,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN90F 43",
+    "prijs": 1199,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Serif 2024 43",
+    "prijs": 1399,
+    "grootte": 43,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia XR-42A90K",
+    "prijs": 1399,
+    "grootte": 42,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG 50UT73006LA",
+    "prijs": 333,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 50P69B",
+    "prijs": 342,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 50PUS8079/12",
+    "prijs": 361,
+    "grootte": 50,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 50PUS8000/12",
+    "prijs": 369,
+    "grootte": 50,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG UA73 50",
+    "prijs": 369,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 50E7Q",
+    "prijs": 369,
+    "grootte": 50,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 50PUS8309",
+    "prijs": 397,
+    "grootte": 50,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 50P69K",
+    "prijs": 399,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 50C6KS",
+    "prijs": 399,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 50C69B",
+    "prijs": 399,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 50S59K",
+    "prijs": 399,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Full HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 50P79B",
+    "prijs": 391,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 50PUS7609/12",
+    "prijs": 411,
+    "grootte": 50,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 50PUS7000/12",
+    "prijs": 412,
+    "grootte": 50,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "LG 50QNED80A6A",
+    "prijs": 449,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7FA 50",
+    "prijs": 459,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU7170 50",
+    "prijs": 458,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG Nanocell Nano82 (2024) 50",
+    "prijs": 467,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 50PUS7800/12",
+    "prijs": 479,
+    "grootte": 50,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 50UA75006LA",
+    "prijs": 499,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 50A79Q",
+    "prijs": 499,
+    "grootte": 50,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 50P7K",
+    "prijs": 499,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 50P79K",
+    "prijs": 499,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8000F 50",
+    "prijs": 529,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8070F 50",
+    "prijs": 529,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony Bravia KD-50X75WL",
+    "prijs": 535,
+    "grootte": 50,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q68D 50",
+    "prijs": 541,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F4 50",
+    "prijs": 569,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "LG QNED87 (2024) 50",
+    "prijs": 583,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED87 (2024) 50",
+    "prijs": 583,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 50U79Q",
+    "prijs": 599,
+    "grootte": 50,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 50C69K",
+    "prijs": 599,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 50C809",
+    "prijs": 599,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED82 (2025) 50",
+    "prijs": 613,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F3 50",
+    "prijs": 629,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony KD-50X80J",
+    "prijs": 637,
+    "grootte": 50,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 50NANO886PB",
+    "prijs": 649,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q80D 50",
+    "prijs": 679,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED48B4 (6LA)",
+    "prijs": 699,
+    "grootte": 48,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED86 (2025) 50",
+    "prijs": 699,
+    "grootte": 50,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips The One 50PUS9050/12",
+    "prijs": 699,
+    "grootte": 50,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED B5 48",
+    "prijs": 749,
+    "grootte": 48,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 48OLED759/12",
+    "prijs": 792,
+    "grootte": 48,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN82F 50",
+    "prijs": 799,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 50MQLED85K",
+    "prijs": 799,
+    "grootte": 50,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung S93D 48",
+    "prijs": 859,
+    "grootte": 48,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C4 48",
+    "prijs": 861,
+    "grootte": 48,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93D 50",
+    "prijs": 891,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame QLED LS03D (2024)",
+    "prijs": 886,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 48OLED809",
+    "prijs": 953,
+    "grootte": 48,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame LS03FA 50",
+    "prijs": 999,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Serif (2022) 50",
+    "prijs": 1078,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93F 50",
+    "prijs": 1199,
+    "grootte": 50,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 48OLED760/12",
+    "prijs": 1199,
+    "grootte": 48,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S93F 48",
+    "prijs": 1199,
+    "grootte": 48,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C54 48",
+    "prijs": 1199,
+    "grootte": 48,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 48OLED810/12",
+    "prijs": 1149,
+    "grootte": 48,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G56LS 48",
+    "prijs": 1299,
+    "grootte": 48,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia XR-48A90K",
+    "prijs": 1399,
+    "grootte": 48,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 55P69B 55",
+    "prijs": 347,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Hisense 55A6N 55",
+    "prijs": 349,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG UR78 55",
+    "prijs": 369,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 55P79B 55",
+    "prijs": 378,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG 55UT73006LA 55",
+    "prijs": 398,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 55PUS7009/12 55",
+    "prijs": 399,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 55PUS8000/12 55",
+    "prijs": 399,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG Nanocell NANO81 (2025) 55",
+    "prijs": 429,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 55E79Q 55",
+    "prijs": 449,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung CU7020 55",
+    "prijs": 449,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 55C6KS 55",
+    "prijs": 449,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 55E7NQ PRO 55",
+    "prijs": 455,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 55PUS7000/12 55",
+    "prijs": 458,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 55PUS7609/12 55",
+    "prijs": 461,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 55C69B Getest 55",
+    "prijs": 482,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 55PUS8009/12 55",
+    "prijs": 496,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG Nanocell Nano82 (2024) 55",
+    "prijs": 498,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 55P7K 55",
+    "prijs": 549,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 55PUS8079/12 55",
+    "prijs": 522,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 55PUS8309 55",
+    "prijs": 526,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 55PUS7800/12 55",
+    "prijs": 529,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q6FA 55",
+    "prijs": 529,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 55C749 55",
+    "prijs": 537,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 55A79Q 55",
+    "prijs": 546,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 55E77Q PRO 55",
+    "prijs": 649,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 55UA75006LA 55",
+    "prijs": 549,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG UA73 55",
+    "prijs": 549,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8000F 55",
+    "prijs": 549,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 55P79K 55",
+    "prijs": 549,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q68D 55",
+    "prijs": 558,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU7170 55",
+    "prijs": 561,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8070F 55",
+    "prijs": 579,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG Nanocell NANO81 (2024) 55",
+    "prijs": 581,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips The One 55PUS8909 55",
+    "prijs": 591,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q73D 55",
+    "prijs": 598,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED85 (2025) 55",
+    "prijs": 599,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F4 55",
+    "prijs": 599,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 55P8K 55",
+    "prijs": 599,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips The One 55PUS9010/12 55",
+    "prijs": 639,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips The Xtra 55PML9009/12 55",
+    "prijs": 648,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 55U7Q 55",
+    "prijs": 649,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 55E79Q PRO 55",
+    "prijs": 649,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F3 55",
+    "prijs": 649,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 55C809 55",
+    "prijs": 653,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED82 (2025) 55",
+    "prijs": 679,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG Nanocell 55NANO816PA 55",
+    "prijs": 698,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony KD-55X80L 55",
+    "prijs": 698,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 55MLED810/12 55",
+    "prijs": 699,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips The One 55PUS9050/12 55",
+    "prijs": 699,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN73F 55",
+    "prijs": 699,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony Bravia KD-55X85L 55",
+    "prijs": 699,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 55C69K 55",
+    "prijs": 699,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN88D 55",
+    "prijs": 812,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony KD-55X81J 55",
+    "prijs": 751,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "60Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "LG QNED87 (2024) 55",
+    "prijs": 762,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED86 (2025) 55",
+    "prijs": 777,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame QLED LS03D (2024) 55",
+    "prijs": 798,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN83F 55",
+    "prijs": 799,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q80D 55",
+    "prijs": 837,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL NXTFRAME 55A300W 55",
+    "prijs": 839,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93D 55",
+    "prijs": 847,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 55PUS9000/12 55",
+    "prijs": 849,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony Bravia 3 (K-55S39) 55",
+    "prijs": 899,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 55U79Q PRO 55",
+    "prijs": 899,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "165Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung S90D 55",
+    "prijs": 899,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 55Q7C 55",
+    "prijs": 899,
+    "grootte": 55,
+    "merk": "TCL",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED55B4 (2LA) 55",
+    "prijs": 908,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C4 55",
+    "prijs": 998,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 55U8Q 55",
+    "prijs": 999,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "165Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 55E8Q 55",
+    "prijs": 999,
+    "grootte": 55,
+    "merk": "hisense",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED B5 55",
+    "prijs": 999,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 55MLED910/12 55",
+    "prijs": 999,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony Bravia KD-55XD8005 55",
+    "prijs": 999,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S85F 55",
+    "prijs": 1099,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony Bravia XR-55X90L 55",
+    "prijs": 1163,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 55OLED759/12 55",
+    "prijs": 1164,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 55OLED809 55",
+    "prijs": 1168,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Serif (2022) 55",
+    "prijs": 1192,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG 55NANO966PA 55",
+    "prijs": 1196,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "8K",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED The Serif LS01BG 55",
+    "prijs": 1247,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung S95D 55",
+    "prijs": 1298,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C54 55",
+    "prijs": 1399,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 55OLED760/12 55",
+    "prijs": 1299,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED The Serif LS01BH 55",
+    "prijs": 1299,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame LS03FA 55",
+    "prijs": 1299,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Sony Bravia 5 (K-55XR59) 55",
+    "prijs": 1399,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G4 (G45LW, geen voet) 55",
+    "prijs": 1387,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93F 55",
+    "prijs": 1399,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia XR-55A84L 55",
+    "prijs": 1476,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 55OLED909/12 55",
+    "prijs": 1492,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S93F 55",
+    "prijs": 1499,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G56LS 55",
+    "prijs": 1799,
+    "grootte": 55,
+    "merk": "LG",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Serif 2024 55",
+    "prijs": 1557,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "50Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 55OLED810/12 55",
+    "prijs": 1699,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia K-55XR84 55",
+    "prijs": 1899,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 55OLED850/12 55",
+    "prijs": 1799,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "144Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S95F 55",
+    "prijs": 1999,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "100Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia 8 II 55",
+    "prijs": 2199,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 55OLED910/12 55",
+    "prijs": 2299,
+    "grootte": 55,
+    "merk": "Philips",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia XR-55A95L 55",
+    "prijs": 2999,
+    "grootte": 55,
+    "merk": "Sony",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Terrace Neo QLED LST7D 55",
+    "prijs": 3999,
+    "grootte": 55,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD (4K)",
+    "Hz": "120Hz",
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8000F 58",
+    "prijs": 466,
+    "grootte": 58,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 65P69B",
+    "prijs": 477,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 65P79B",
+    "prijs": 548,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG 65UT73006LA",
+    "prijs": 549,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 65PUS7810/12",
+    "prijs": 549,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung CU7020",
+    "prijs": 549,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 65E79Q PRO",
+    "prijs": 599,
+    "grootte": 65,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 65PUS8000/12",
+    "prijs": 599,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 65C6KS",
+    "prijs": 599,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 65P69K",
+    "prijs": 599,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 65P7K",
+    "prijs": 749,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 65C69B",
+    "prijs": 618,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 65PUS7009/12",
+    "prijs": 647,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 65PUS7609/12",
+    "prijs": 647,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 65C749",
+    "prijs": 647,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 65PUS8009/12",
+    "prijs": 648,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "LG 65QNED80A6A",
+    "prijs": 649,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG Nanocell Nano82 (2024) 65",
+    "prijs": 649,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 65PUS7000/12",
+    "prijs": 649,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7FA 65",
+    "prijs": 649,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 65PUS8079/12",
+    "prijs": 668,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 65PUS8309",
+    "prijs": 672,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU7170 65",
+    "prijs": 672,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8000F 65",
+    "prijs": 699,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 65UA75006LA",
+    "prijs": 699,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG UA73 65",
+    "prijs": 699,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q68D 65",
+    "prijs": 708,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips The One 65PUS8909",
+    "prijs": 716,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 65PUS7800/12",
+    "prijs": 719,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F4 65",
+    "prijs": 719,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony Bravia KD-65X75WL",
+    "prijs": 719,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 65E77Q PRO",
+    "prijs": 999,
+    "grootte": 65,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 65A79Q",
+    "prijs": 749,
+    "grootte": 65,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 65E79Q",
+    "prijs": 749,
+    "grootte": 65,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8070F 65",
+    "prijs": 749,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 65P79K",
+    "prijs": 749,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips The Xtra 65PML9009/12",
+    "prijs": 778,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "LG QNED87 (2024) 65",
+    "prijs": 799,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips The One 65PUS9010/12",
+    "prijs": 799,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 65P8K",
+    "prijs": 799,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 65P89K",
+    "prijs": 799,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 65C809",
+    "prijs": 817,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q73D 65",
+    "prijs": 833,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F3 65",
+    "prijs": 849,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED82 (2025) 65",
+    "prijs": 899,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 65MLED810/12",
+    "prijs": 899,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q6FA 65",
+    "prijs": 899,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony Bravia KD-65X85L",
+    "prijs": 899,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 65C69K",
+    "prijs": 899,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL NXTFRAME 65A300W",
+    "prijs": 899,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 65PUS9000/12",
+    "prijs": 959,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips The One 65PUS9050/12",
+    "prijs": 960,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony Bravia 3 65\" (K-65S39)",
+    "prijs": 1199,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony KD-65X80J",
+    "prijs": 1016,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED86 (2025) 65",
+    "prijs": 1049,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 65C89B",
+    "prijs": 1092,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93D 65",
+    "prijs": 1097,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q80D 65",
+    "prijs": 1097,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame LS03B (2023) 65",
+    "prijs": 1097,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN74F 65",
+    "prijs": 1099,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN82F 65",
+    "prijs": 1199,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN88D 65",
+    "prijs": 1108,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame 65LS03B (2022)",
+    "prijs": 1148,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 65NANO886PB",
+    "prijs": 1196,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 65MLED910/12",
+    "prijs": 1199,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 65C79K",
+    "prijs": 1199,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame QLED LS03D (2024) 65",
+    "prijs": 1228,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED65B4 (2LA)",
+    "prijs": 1237,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 65U72Q",
+    "prijs": 1249,
+    "grootte": 65,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 65E8Q",
+    "prijs": 1249,
+    "grootte": 65,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C4 65",
+    "prijs": 1293,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung S93D 65",
+    "prijs": 1293,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony Bravia XR-65X90L",
+    "prijs": 1322,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 65U8Q",
+    "prijs": 1349,
+    "grootte": 65,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 165,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 65U8KQ",
+    "prijs": 1357,
+    "grootte": 65,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 65U72Q PRO",
+    "prijs": 1399,
+    "grootte": 65,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 165,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 65OLED759/12",
+    "prijs": 1438,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED91 (2024) 65",
+    "prijs": 1447,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S85F 65",
+    "prijs": 1449,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 65OLED809",
+    "prijs": 1487,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED B5 65",
+    "prijs": 1499,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 65OLED760/12",
+    "prijs": 1499,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED The Serif LS01BG 65",
+    "prijs": 1596,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 65C89K",
+    "prijs": 1599,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C54 65",
+    "prijs": 1695,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Sony Bravia 5 65\" (K-65XR59)",
+    "prijs": 1699,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 65MLED950/12",
+    "prijs": 1699,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G4 65\" (G45LW, geen voet)",
+    "prijs": 1738,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Samsung The Frame Pro LS03FW 65",
+    "prijs": 1749,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Serif 2024 65",
+    "prijs": 1767,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Sony Bravia 7 65",
+    "prijs": 1768,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung S95D 65",
+    "prijs": 1792,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 65PML9506/12",
+    "prijs": 1799,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93F 65",
+    "prijs": 1849,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 65OLED850/12",
+    "prijs": 1899,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 65OLED909/12",
+    "prijs": 1943,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia XR-65A84L",
+    "prijs": 1978,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S93F 65",
+    "prijs": 1999,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 65C9K",
+    "prijs": 1999,
+    "grootte": 65,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 65OLED810/12",
+    "prijs": 2099,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG 65QNED916PA",
+    "prijs": 2199,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G56LS 65",
+    "prijs": 2499,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia K-65XR84",
+    "prijs": 2549,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN800D 65",
+    "prijs": 2691,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S95F 65",
+    "prijs": 2699,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Sony Bravia K-65XR90",
+    "prijs": 2699,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo M4 65",
+    "prijs": 2871,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN900D 65",
+    "prijs": 2891,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QD OLED",
+    "naam": "Sony Bravia 8 II 65",
+    "prijs": 2899,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo M59LA 65",
+    "prijs": 2918,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 65OLED910/12",
+    "prijs": 2999,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung Neo QLED QN900F 65",
+    "prijs": 2999,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 65OLED950/12",
+    "prijs": 3299,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED The Terrace (2023) 65",
+    "prijs": 3371,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia XR-65A95L",
+    "prijs": 3699,
+    "grootte": 65,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 65OLED959/12",
+    "prijs": 3799,
+    "grootte": 65,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG 65QNED996PB",
+    "prijs": 3999,
+    "grootte": 65,
+    "merk": "LG",
+    "scherpte": "8K Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN990F 65",
+    "prijs": 4499,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Terrace Neo QLED LST7D 65",
+    "prijs": 4999,
+    "grootte": 65,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 75P69B",
+    "prijs": 632,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 75PUS7009/12",
+    "prijs": 647,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU7100 70",
+    "prijs": 649,
+    "grootte": 70,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 75PUS7000/12",
+    "prijs": 669,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG UA74 75",
+    "prijs": 675,
+    "grootte": 75,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 75PUS7609/12",
+    "prijs": 678,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU7150 75",
+    "prijs": 699,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 75C69B",
+    "prijs": 718,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 75E7Q",
+    "prijs": 729,
+    "grootte": 75,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 75PUS8079/12",
+    "prijs": 743,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 75PUS8309",
+    "prijs": 796,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 75UA75006LA",
+    "prijs": 799,
+    "grootte": 75,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F5 75",
+    "prijs": 799,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7FA 75",
+    "prijs": 799,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 75C6KS",
+    "prijs": 799,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 75P79B",
+    "prijs": 842,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 75P69K",
+    "prijs": 849,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 75C749",
+    "prijs": 897,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 75E79Q",
+    "prijs": 899,
+    "grootte": 75,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 75PUS7800/12",
+    "prijs": 899,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8000F 75",
+    "prijs": 899,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips The One 75PUS8909",
+    "prijs": 912,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F4 75",
+    "prijs": 959,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q70D 75",
+    "prijs": 1032,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU7170 75",
+    "prijs": 998,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q68D 75",
+    "prijs": 998,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips The One 75PUS9010/12",
+    "prijs": 1049,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG Nanocell Nano82 (2024) 75",
+    "prijs": 1052,
+    "grootte": 75,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "LG QNED87 (2024) 75",
+    "prijs": 1071,
+    "grootte": 75,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 75A79Q",
+    "prijs": 1099,
+    "grootte": 75,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 75U79Q",
+    "prijs": 1099,
+    "grootte": 75,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 75MLED810/12",
+    "prijs": 1099,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7F3 75",
+    "prijs": 1099,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 75E79Q PRO",
+    "prijs": 1199,
+    "grootte": 75,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED82 (2025) 75",
+    "prijs": 1199,
+    "grootte": 75,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony Bravia KD-75X85L",
+    "prijs": 1199,
+    "grootte": 75,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 75P71K",
+    "prijs": 1199,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 75P79K",
+    "prijs": 1199,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 75P89K",
+    "prijs": 1199,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 75C809",
+    "prijs": 1233,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN73F",
+    "prijs": 1249,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 75E77Q PRO",
+    "prijs": 1299,
+    "grootte": 75,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 75PUS9000/12",
+    "prijs": 1299,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 75Q6C",
+    "prijs": 1299,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL NXTFRAME 75A300W",
+    "prijs": 1299,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN88D",
+    "prijs": 1376,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony Bravia 3 75\" (K-75S39)",
+    "prijs": 1549,
+    "grootte": 75,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 77OLED759/12",
+    "prijs": 1593,
+    "grootte": 77,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame QLED LS03D",
+    "prijs": 1596,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame LS03B (2023)",
+    "prijs": 1597,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED86 (2025)",
+    "prijs": 1599,
+    "grootte": 75,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 75MLED910/12",
+    "prijs": 1599,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 75MQLED85K",
+    "prijs": 1599,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93C",
+    "prijs": 1623,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony Bravia XR-75X90L",
+    "prijs": 1623,
+    "grootte": 75,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 75C89B",
+    "prijs": 1683,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 75E8Q",
+    "prijs": 1699,
+    "grootte": 75,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN83F",
+    "prijs": 1699,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93D",
+    "prijs": 1726,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 77OLED808",
+    "prijs": 1796,
+    "grootte": 77,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 75U72Q PRO",
+    "prijs": 1799,
+    "grootte": 75,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 165,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 75MLED950/12",
+    "prijs": 1929,
+    "grootte": 75,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C4 77",
+    "prijs": 1947,
+    "grootte": 77,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED91 (2024)",
+    "prijs": 1999,
+    "grootte": 75,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Sony Bravia 5 75\" (K-75XR59)",
+    "prijs": 2099,
+    "grootte": 75,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung S93D 77",
+    "prijs": 2068,
+    "grootte": 77,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN800D",
+    "prijs": 2098,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 75U8Q",
+    "prijs": 2099,
+    "grootte": 75,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 165,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame 75LS03B (2022)",
+    "prijs": 2118,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED77B4",
+    "prijs": 2128,
+    "grootte": 77,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 77OLED809",
+    "prijs": 2133,
+    "grootte": 77,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S85F 77",
+    "prijs": 2169,
+    "grootte": 77,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Sony Bravia 7 75",
+    "prijs": 2173,
+    "grootte": 75,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED B5 77",
+    "prijs": 2199,
+    "grootte": 77,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 77OLED760/12",
+    "prijs": 2399,
+    "grootte": 77,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN90F",
+    "prijs": 2489,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 75Q8C",
+    "prijs": 2499,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 75C9K",
+    "prijs": 2499,
+    "grootte": 75,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung S95D 77",
+    "prijs": 2528,
+    "grootte": 77,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G4 77",
+    "prijs": 2641,
+    "grootte": 77,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia XR-77A84L",
+    "prijs": 2642,
+    "grootte": 77,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C54 77",
+    "prijs": 2699,
+    "grootte": 77,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Sony Bravia XR-75X95L",
+    "prijs": 2741,
+    "grootte": 75,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Samsung The Frame Pro LS03FW 75",
+    "prijs": 2899,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 77OLED909/12",
+    "prijs": 2978,
+    "grootte": 77,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 77OLED810/12",
+    "prijs": 2999,
+    "grootte": 77,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S93F 77",
+    "prijs": 2999,
+    "grootte": 77,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Sony Bravia K-75XR90",
+    "prijs": 2999,
+    "grootte": 75,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia K-77XR84",
+    "prijs": 2999,
+    "grootte": 77,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN900C 75",
+    "prijs": 3287,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G55LW 77",
+    "prijs": 3299,
+    "grootte": 77,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo M4 77",
+    "prijs": 3499,
+    "grootte": 77,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN900D 75",
+    "prijs": 3748,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S95F 77",
+    "prijs": 3799,
+    "grootte": 77,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN900F 75",
+    "prijs": 3999,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia XR-77A95L",
+    "prijs": 3999,
+    "grootte": 77,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED The Terrace 75",
+    "prijs": 4348,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 77OLED910/12",
+    "prijs": 4599,
+    "grootte": 77,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Philips 77OLED950/12",
+    "prijs": 4799,
+    "grootte": 77,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo M59LA 77",
+    "prijs": 4999,
+    "grootte": 77,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Terrace Neo QLED LST7D 75",
+    "prijs": 4999,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN990F 75",
+    "prijs": 6499,
+    "grootte": 75,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Philips 85PUS8309",
+    "prijs": 927,
+    "grootte": 85,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "TCL 85P69B",
+    "prijs": 1017,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 85C69B",
+    "prijs": 1032,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "LG 86QNED80A6A",
+    "prijs": 1099,
+    "grootte": 86,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7FA 85",
+    "prijs": 1149,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 85E7Q",
+    "prijs": 1199,
+    "grootte": 85,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG 86UA75006LA",
+    "prijs": 1199,
+    "grootte": 86,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "LG Nanocell NANO81 86",
+    "prijs": 1236,
+    "grootte": 86,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 85E79Q",
+    "prijs": 1249,
+    "grootte": 85,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony KD-85X80L",
+    "prijs": 1249,
+    "grootte": 85,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU7170 85",
+    "prijs": 1287,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU8000 85",
+    "prijs": 1292,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q60D 85",
+    "prijs": 1293,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q70D 85",
+    "prijs": 1297,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 85E77Q PRO",
+    "prijs": 1699,
+    "grootte": 85,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung U8000F 85",
+    "prijs": 1299,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED QNED82 (2025) 86",
+    "prijs": 1499,
+    "grootte": 86,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED85 (2025) 86",
+    "prijs": 1499,
+    "grootte": 86,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN85D 85",
+    "prijs": 1547,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED86 (2024) 86",
+    "prijs": 1553,
+    "grootte": 86,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 85C809",
+    "prijs": 1558,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN73F 85",
+    "prijs": 1599,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 85P71K",
+    "prijs": 1599,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 85P8K",
+    "prijs": 1599,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips The Xtra 85PML9009/12",
+    "prijs": 1658,
+    "grootte": 85,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 85E7NQ",
+    "prijs": 1699,
+    "grootte": 85,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Philips 85PUS9000/12",
+    "prijs": 1699,
+    "grootte": 85,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 85P89K",
+    "prijs": 1699,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 85MQLED75K",
+    "prijs": 1799,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 85U72Q",
+    "prijs": 1999,
+    "grootte": 85,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED86 (2025) 86",
+    "prijs": 1899,
+    "grootte": 86,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame QLED LS03D 85",
+    "prijs": 1983,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung The Frame LS03B 85",
+    "prijs": 1998,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Sony Bravia 3 85",
+    "prijs": 1999,
+    "grootte": 85,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony Bravia XR-85X90L",
+    "prijs": 2037,
+    "grootte": 85,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 85U79Q PRO",
+    "prijs": 2099,
+    "grootte": 85,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 165,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 85C89B",
+    "prijs": 2192,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Philips 85MLED910/12",
+    "prijs": 2299,
+    "grootte": 85,
+    "merk": "Philips",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "TRUE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 85C79K",
+    "prijs": 2299,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN93D 85",
+    "prijs": 2497,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN90D 85",
+    "prijs": 2491,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN90C 85",
+    "prijs": 2497,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 85U8Q",
+    "prijs": 2499,
+    "grootte": 85,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 165,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN80F 85",
+    "prijs": 2499,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Sony Bravia 5 85",
+    "prijs": 2649,
+    "grootte": 85,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Sony Bravia 7 85",
+    "prijs": 2798,
+    "grootte": 85,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C4 83",
+    "prijs": 2853,
+    "grootte": 83,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung S93D 83",
+    "prijs": 2873,
+    "grootte": 83,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 85Q8C",
+    "prijs": 2999,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN800D 85",
+    "prijs": 3297,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED B5 83",
+    "prijs": 3299,
+    "grootte": 83,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN800C 85",
+    "prijs": 3397,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S85F 83",
+    "prijs": 3499,
+    "grootte": 83,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 85C9K",
+    "prijs": 3499,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G4 83",
+    "prijs": 3568,
+    "grootte": 83,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 85X11K",
+    "prijs": 3799,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo C54 83",
+    "prijs": 3899,
+    "grootte": 83,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Samsung The Frame Pro LS03FW 85",
+    "prijs": 3999,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Sony Bravia XR-83A80L",
+    "prijs": 3999,
+    "grootte": 83,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN90F 85",
+    "prijs": 4099,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S90F 83",
+    "prijs": 4299,
+    "grootte": 83,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Sony Bravia K-85XR90",
+    "prijs": 4444,
+    "grootte": 85,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G55LW 83",
+    "prijs": 4499,
+    "grootte": 83,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 85X955",
+    "prijs": 4599,
+    "grootte": 85,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN900D 85",
+    "prijs": 4791,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo M4 83",
+    "prijs": 4812,
+    "grootte": 83,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "Samsung OLED S95F 83",
+    "prijs": 4899,
+    "grootte": 83,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN900F 85",
+    "prijs": 5499,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo M59LA 83",
+    "prijs": 6499,
+    "grootte": 83,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN990F 85",
+    "prijs": 9999,
+    "grootte": 85,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 98C69B",
+    "prijs": 1497,
+    "grootte": 98,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "LG UT91 98",
+    "prijs": 1599,
+    "grootte": 98,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (edge)",
+    "naam": "Samsung DU9070 98",
+    "prijs": 1599,
+    "grootte": 98,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 100E7Q PRO",
+    "prijs": 1999,
+    "grootte": 100,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Hisense 100E79Q PRO",
+    "prijs": 1999,
+    "grootte": 100,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 60,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 98P8K",
+    "prijs": 1999,
+    "grootte": 98,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q80C 98",
+    "prijs": 2136,
+    "grootte": 98,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 100U79Q",
+    "prijs": 2199,
+    "grootte": 100,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 98P89K",
+    "prijs": 2299,
+    "grootte": 98,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 98C809",
+    "prijs": 2448,
+    "grootte": 98,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung QLED Q7FA 98",
+    "prijs": 2499,
+    "grootte": 98,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 50,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 98Q6C",
+    "prijs": 2499,
+    "grootte": 98,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "LG QNED86 (2025) 100",
+    "prijs": 2999,
+    "grootte": 100,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN80F 100",
+    "prijs": 2999,
+    "grootte": 100,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 98C89B",
+    "prijs": 3162,
+    "grootte": 98,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Hisense 100U79Q PRO",
+    "prijs": 3299,
+    "grootte": 100,
+    "merk": "Hisense",
+    "scherpte": "Ultra HD",
+    "Hz": 165,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "TCL 98MQLED85K",
+    "prijs": 3499,
+    "grootte": 98,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "LED (direct)",
+    "naam": "Sony Bravia XR-98X90L",
+    "prijs": 4999,
+    "grootte": 98,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 98C89K",
+    "prijs": 4999,
+    "grootte": 98,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 98X11K",
+    "prijs": 4999,
+    "grootte": 98,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN90D 98",
+    "prijs": 5072,
+    "grootte": 98,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "Sony Bravia 5 98",
+    "prijs": 5299,
+    "grootte": 98,
+    "merk": "Sony",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN90F 98",
+    "prijs": 7999,
+    "grootte": 98,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "Mini LED",
+    "naam": "TCL 115C7K",
+    "prijs": 9999,
+    "grootte": 115,
+    "merk": "TCL",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN90F 115",
+    "prijs": 19999,
+    "grootte": 115,
+    "merk": "Samsung",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G4 97",
+    "prijs": 17293,
+    "grootte": 97,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo G54LW 97",
+    "prijs": 24999,
+    "grootte": 97,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 120,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "OLED",
+    "naam": "LG OLED evo M59LA 97",
+    "prijs": 27999,
+    "grootte": 97,
+    "merk": "LG",
+    "scherpte": "Ultra HD",
+    "Hz": 144,
+    "Ambilight": "FALSE"
+  },
+  {
+    "type": "QLED",
+    "naam": "Samsung Neo QLED QN990F 98",
+    "prijs": 29999,
+    "grootte": 98,
+    "merk": "Samsung",
+    "scherpte": "8K Ultra HD",
+    "Hz": 100,
+    "Ambilight": "FALSE"
+  }
+]

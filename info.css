@@ -1,0 +1,144 @@
+:root {
+  --info-bg: #f1efee;
+  --info-card-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+  --info-accent: #0954a3;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: var(--info-bg);
+  color: #000000;
+}
+
+.info-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-main {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 48px 6vw 64px 5%;
+}
+
+.info-layout {
+  display: flex;
+  gap: clamp(24px, 4vw, 56px);
+  width: 100%;
+}
+
+.info-nav {
+  width: 250px;
+  height: 500px;
+  background: #ffffff;
+  box-shadow: var(--info-card-shadow);
+  border-radius: 12px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-nav-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.info-nav-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 30px;
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.info-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-decoration: none;
+  color: #1e1e1e;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.info-nav-link .chevron-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--info-accent);
+  flex-shrink: 0;
+}
+
+.info-nav-link.is-active {
+  color: var(--info-accent);
+  font-weight: 700;
+}
+
+.info-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  gap: 18px;
+}
+
+.info-hero {
+  width: min(520px, 90%);
+  height: auto;
+  border-radius: 12px;
+  box-shadow: var(--info-card-shadow);
+}
+
+.info-title {
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 700;
+}
+
+.info-text {
+  max-width: 640px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #2b2b2b;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (max-width: 920px) {
+  .info-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .info-nav {
+    width: min(420px, 100%);
+    height: auto;
+  }
+
+  .info-nav-list {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .info-main {
+    padding: 32px 5vw 48px 5%;
+  }
+
+  .info-title {
+    text-align: center;
+  }
+}
