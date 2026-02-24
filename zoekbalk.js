@@ -1,6 +1,6 @@
 const keuzehulpen = [
   {
-    title: "Televisie euzehulp",
+    title: "Televisie keuzehulp",
     keywords: ["tv", "televisie"],
     url: "vragen.html",
   },
