@@ -318,6 +318,15 @@ function applySortAndRender(sortValue) {
   if (window.lucide && typeof window.lucide.createIcons === "function") {
     window.lucide.createIcons();
   }
+
+  return sortedMatches;
+}
+
+export function updateResultMatches(matches, answers, type, scores) {
+  setResultState(matches, answers, type);
+  const sortedMatches = applySortAndRender(currentSort);
+  updateMatchCount(sortedMatches.length);
+  updateResultMatchUI(sortedMatches[0] || null, scores, answers);
 }
 
 function initSortControl() {

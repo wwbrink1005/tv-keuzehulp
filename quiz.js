@@ -361,8 +361,6 @@ function handleStartMatching() {
 export function initQuizPage() {
   if (!qs("#question-1")) return;
 
-  initMobileAccordion();
-
   qs("#to-question-2")?.addEventListener("click", () => {
     const checked = qs('input[name="distance"]:checked');
     if (!checked) return alert("Kies een kijkafstand");

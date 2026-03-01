@@ -24,6 +24,10 @@
 				--line: #ccced1;
 				--sort-text: #000000;
 				--container-max: 1100px;
+				--layout-max: 1280px;
+				--filter-width: 240px;
+				--filter-gap: 32px;
+				--filter-card-min-height: 210px;
 				--container-padding: clamp(16px, 4vw, 48px);
 			}
 
@@ -57,6 +61,10 @@
 				display: inline-flex;
 				align-items: center;
 				gap: 7px;
+				padding: 8px 14px;
+				border-radius: 999px;
+				background: #ffffff;
+				box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 				font-size: 16px;
 				font-weight: 400;
 				color: #000000;
@@ -92,14 +100,187 @@
 
 			.results-section {
 				width: 100%;
-				max-width: var(--container-max);
 				margin: 0 auto;
 				background: var(--page-bg);
 				padding: var(--container-padding);
+				padding-left: 50px;
+				padding-right: 50px;
+			}
+
+			.results-layout {
+				width: 100%;
+				max-width: none;
+				margin: 0;
+				display: grid;
+				grid-template-columns: var(--filter-width) minmax(0, 1fr);
+				gap: var(--filter-gap);
+				align-items: start;
+			}
+
+			.results-content {
+				width: 100%;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				gap: clamp(1.5rem, 3vw, 2.25rem);
+			}
+
+			.filters-panel {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				gap: 16px;
+			}
+
+			.filter-cta {
+				display: inline-flex;
+				align-items: center;
+				gap: 10px;
+				background: var(--accent);
+				color: #ffffff;
+				border: none;
+				border-radius: 10px;
+				padding: 11px 16px;
+				font-size: 16px;
+				font-weight: 600;
+				cursor: pointer;
+			}
+
+			.filter-cta svg {
+				width: 18px;
+				height: 18px;
+			}
+
+			.mobile-actions {
+				display: none;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.icon-button {
+				width: 34px;
+				height: 34px;
+				border-radius: 10px;
+				border: none;
+				background: #ffffff;
+				box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				color: #000000;
+				cursor: pointer;
+			}
+
+			.icon-button svg {
+				width: 18px;
+				height: 18px;
+			}
+
+			.restart-toggle {
+				position: relative;
+			}
+
+			.restart-popover {
+				position: absolute;
+				top: calc(100% + 8px);
+				left: 0;
+				min-width: 150px;
+				background: #ffffff;
+				border-radius: 12px;
+				box-shadow: 0 10px 20px rgba(0, 0, 0, 0.14);
+				padding: 8px;
+				display: none;
+				z-index: 20;
+			}
+
+			.restart-popover.is-open {
+				display: block;
+			}
+
+			.restart-confirm {
+				width: 100%;
+				border: none;
+				border-radius: 999px;
+				padding: 8px 12px;
+				background: var(--accent);
+				color: #ffffff;
+				font-size: 14px;
+				font-weight: 600;
+				cursor: pointer;
+			}
+
+			.filter-drawer-close {
+				display: none;
+				align-self: flex-end;
+				width: 34px;
+				height: 34px;
+				border-radius: 12px;
+				border: none;
+				background: #ffffff;
+				box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+				cursor: pointer;
+				align-items: center;
+				justify-content: center;
+				color: var(--accent);
+			}
+
+			.filter-drawer-close svg {
+				width: 18px;
+				height: 18px;
+			}
+
+			.filter-card {
+				background: #ffffff;
+				border-radius: 12px;
+				box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+				padding: 14px 16px 18px;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+				min-height: var(--filter-card-min-height);
+			}
+
+			.filter-title {
+				font-size: 15px;
+				font-weight: 700;
+				text-align: center;
+			}
+
+			.filter-options {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				align-items: flex-start;
+			}
+
+			.filter-option {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				font-size: 15px;
+				font-weight: 500;
+				color: #000000;
+				cursor: pointer;
+			}
+
+			.filter-option input[type="radio"],
+			.filter-option input[type="checkbox"] {
+				width: 18px;
+				height: 18px;
+				border: 1px solid #000000;
+				border-radius: 50%;
+				appearance: none;
+				background: #ffffff;
+				cursor: pointer;
+				flex-shrink: 0;
+				margin: 0;
+			}
+
+			.filter-option input[type="radio"]:checked,
+			.filter-option input[type="checkbox"]:checked {
+				background: var(--accent);
+				border-color: var(--accent);
+				box-shadow: inset 0 0 0 2px #ffffff;
 			}
 
 			.results-toolbar {
@@ -557,8 +738,76 @@
 
 			@media (max-width: 700px) {
 				.title-bar {
-					gap: 0.6rem 0.8rem;
-					padding: 0.85rem 0.95rem 1rem;
+					height: auto;
+					display: grid;
+					grid-template-columns: 1fr auto;
+					grid-template-rows: auto auto;
+					align-items: center;
+					gap: 0.7rem 0.9rem;
+					padding: 0.75rem 0.95rem 0.9rem;
+				}
+
+				.mobile-actions {
+					display: flex;
+					grid-column: 1;
+					grid-row: 1;
+					justify-self: start;
+				}
+
+				.restart-link {
+					display: none;
+				}
+
+				.results-toolbar {
+					position: static;
+					grid-column: 2;
+					grid-row: 1;
+					justify-self: end;
+					margin: 0;
+				}
+
+				.result-title {
+					grid-column: 1 / -1;
+					grid-row: 2;
+					margin-top: 0.35rem;
+				}
+
+				.results-section {
+					padding-left: 16px;
+					padding-right: 16px;
+				}
+
+				.results-layout {
+					display: block;
+					gap: 0;
+				}
+
+				.filters-panel {
+					position: fixed;
+					top: var(--menu-height);
+					left: 0;
+					bottom: 0;
+					width: min(78vw, 280px);
+					background: #f0f0f0;
+					padding: 16px 14px 24px;
+					box-shadow: 10px 0 20px rgba(0, 0, 0, 0.16);
+					transform: translateX(-105%);
+					transition: transform 0.25s ease;
+					z-index: 900;
+					overflow-y: auto;
+				}
+
+				.filters-panel.is-open {
+					transform: translateX(0);
+				}
+
+				.filter-drawer-close {
+					display: inline-flex;
+				}
+
+				.filter-cta {
+					width: 100%;
+					justify-content: flex-start;
 				}
 
 				.result-title {
@@ -719,6 +968,19 @@
 	</head>
 	<body>
 		<div class="title-bar">
+			<div class="mobile-actions" aria-label="Snelle acties">
+				<button class="icon-button filter-toggle" type="button" aria-label="Open filters" aria-expanded="false" aria-controls="filtersPanel">
+					<i data-lucide="funnel"></i>
+				</button>
+				<div class="restart-toggle">
+					<button class="icon-button restart-trigger" type="button" aria-label="Begin opnieuw" aria-expanded="false" aria-controls="restartPopover">
+						<i data-lucide="rotate-ccw"></i>
+					</button>
+					<div id="restartPopover" class="restart-popover" role="dialog" aria-hidden="true">
+						<button class="restart-confirm" type="button">Begin opnieuw</button>
+					</div>
+				</div>
+			</div>
 			<a class="restart-link" href="vragen.html">
 				<span>Begin opnieuw</span>
 				<i data-lucide="rotate-ccw"></i>
@@ -745,30 +1007,53 @@
 		</div>
 
 		<main class="results-section">
-			<section id="bestMatchCard" class="best-match-card">
-				<button class="best-match-close" type="button" aria-label="Sluit">
-					<i data-lucide="x"></i>
-				</button>
-				<div class="best-match-row">
-					<div class="best-match-media" aria-hidden="true">
-						<img src="tv%20aarde2.png" alt="" role="presentation" />
+			<div class="results-layout">
+				<aside id="filtersPanel" class="filters-panel" aria-label="Filters">
+					<button class="filter-drawer-close" type="button" aria-label="Sluit filters">
+						<i data-lucide="chevron-left"></i>
+					</button>
+					<button class="filter-cta" type="button">
+						<i data-lucide="funnel"></i>
+						<span>Filter door:</span>
+					</button>
+					<div class="filter-card" data-filter="price">
+						<h3 class="filter-title">Verander prijscategorie</h3>
+						<div id="priceFilterOptions" class="filter-options"></div>
 					</div>
-					<div class="best-match-body">
-						<h2 id="bestMatchName" class="best-match-name"></h2>
-						<ul id="bestMatchPoints" class="best-match-points"></ul>
-						<div id="bestMatchSpecs" class="best-match-specs"></div>
-						<div id="bestMatchPrice" class="best-match-price"></div>
+					<div class="filter-card" data-filter="brand">
+						<h3 class="filter-title">Kies een merk</h3>
+						<div id="brandFilterOptions" class="filter-options"></div>
 					</div>
-				</div>
-				<div class="best-match-divider" aria-hidden="true"></div>
-				<div class="best-match-footer"></div>
-			</section>
+				</aside>
+				<div class="results-content">
+					<section id="bestMatchCard" class="best-match-card">
+						<button class="best-match-close" type="button" aria-label="Sluit">
+							<i data-lucide="x"></i>
+						</button>
+						<div class="best-match-row">
+							<div class="best-match-media" aria-hidden="true">
+								<img src="tv%20aarde2.png" alt="" role="presentation" />
+							</div>
+							<div class="best-match-body">
+								<h2 id="bestMatchName" class="best-match-name"></h2>
+								<ul id="bestMatchPoints" class="best-match-points"></ul>
+								<div id="bestMatchSpecs" class="best-match-specs"></div>
+								<div id="bestMatchPrice" class="best-match-price"></div>
+							</div>
+						</div>
+						<div class="best-match-divider" aria-hidden="true"></div>
+						<div class="best-match-footer"></div>
+					</section>
 
-			<section class="other-matches">
-				<div id="otherMatchesGrid" class="other-matches-grid"></div>
-			</section>
+					<section class="other-matches">
+						<div id="otherMatchesGrid" class="other-matches-grid"></div>
+					</section>
+				</div>
+			</div>
 		</main>
 
+		<script src="result-ui.js" defer></script>
+		<script type="module" src="result-filters.js"></script>
 		<script type="module" src="main.js"></script>
 	</body>
 </html>
