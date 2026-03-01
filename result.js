@@ -173,20 +173,13 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
 
       return `
         <article class="other-match-card" data-match-index="${index}">
-          <h3 class="other-match-title">${tv.naam}</h3>
-          <div class="other-match-content">
-            <div class="other-match-media" aria-hidden="true">
-              <img src="tv%20aarde2.png" alt="" role="presentation">
-            </div>
-            <div class="other-match-text">
-              <div class="other-match-price">Vanaf \u20ac${formatPriceLabel(price)}</div>
-              <ul class="other-match-specs">${specsHtml}</ul>
-            </div>
+          <div class="other-match-media" aria-hidden="true">
+            <img src="tv.png" alt="" role="presentation">
           </div>
-          <button class="other-match-action" type="button">
-            <span>Bekijk</span>
-            <i data-lucide="chevron-right"></i>
-          </button>
+          <h3 class="other-match-title">${tv.naam}</h3>
+          <ul class="other-match-specs">${specsHtml}</ul>
+          <div class="other-match-price">Vanaf \u20ac${formatPriceLabel(price)}</div>
+          <button class="other-match-action" type="button">Bekijk</button>
         </article>
       `;
     })

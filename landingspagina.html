@@ -30,80 +30,101 @@
 
       body {
         font-family: "Inter", sans-serif;
-        background: #ffffff;
-        color: #000000;
+        background: #f5f5f8;
+        color: #0f0f19;
       }
 
+      /* ── Hero section ── */
       .landing-block {
         width: 100%;
-        min-height: min(92vh, 860px);
-        background: radial-gradient(circle at top, #ffffff 0%, #f0f0f4 55%, #ececf1 100%);
-        position: relative;
-        display: grid;
-        align-items: start;
-        justify-items: center;
-        padding: clamp(48px, 7vh, 90px) 6vw clamp(120px, 18vh, 200px);
-        overflow: hidden;
-        font-family:"Inter", sans-serif;
+        min-height: min(88vh, 840px);
+        background: linear-gradient(180deg, #f7f7fa 0%, #edeef3 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 0 20px;
+        overflow: visible;
+        text-align: center;
+        gap: 50px;
       }
 
       .landing-content {
-        max-width: 620px;
+        width: min(780px, 100%);
+        padding: 0 24px;
         display: flex;
         flex-direction: column;
-        gap: 18px;
-        text-align: center;
         align-items: center;
         position: relative;
-        z-index: 3;
-        margin-top: clamp(6px, 3vh, 24px);
+        z-index: 1;
       }
 
       .landing-title {
-        color: #000000;
-        font-size: clamp(34px, 3.8vw, 48px);
+        color: #0f0f19;
+        font-size: 62px;
         font-weight: 700;
-        text-align: center;
-        font-family: "Inter", sans-serif;
-        line-height: 1.15;
+        line-height: 1.08;
+        letter-spacing: -0.025em;
+        margin-bottom: 18px;
       }
 
       .landing-subtitle {
-        color: #2b2b2b;
-        font-size: clamp(15px, 1.4vw, 19px);
-        line-height: 1.45;
-        max-width: 520px;
+        color: #666;
+        font-size: 18px;
+        line-height: 1.55;
+        max-width: 460px;
+        margin-bottom: 34px;
       }
 
+      /* ── Hero search bar ── */
       .landing-block .landing-search {
         position: relative;
-        max-width: 560px;
-        width: min(84vw, 520px);
-        margin-top: 8px;
+        width: min(640px, 100%);
       }
 
-      .landing-block .landing-search {
-        margin-bottom: clamp(70px, 10vh, 110px);
+      .landing-block .landing-search input {
+        height: 58px;
+        padding: 0 52px;
+        border-radius: 999px;
+        border: none;
+        font-size: 17px;
+        background: #ffffff;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.07);
       }
 
       .landing-block .landing-search input.has-results {
-        border-radius: 30px;
+        border-radius: 999px;
       }
 
+      .landing-block .landing-search .search-icon {
+        left: 22px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .landing-block .landing-search .search-clear {
+        right: 22px;
+        width: 20px;
+        height: 20px;
+        color: #70717d;
+      }
+
+      /* ── Hero search dropdown (fixed) ── */
       .landing-block .landing-search-dropdown {
         position: absolute;
-        top: calc(100% + 6px);
-        left: 10px;
-        right: 10px;
+        top: calc(100% + 8px);
+        left: 14px;
+        right: 14px;
         background: #ffffff;
         border: none;
-        border-radius: 12px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 16px 48px rgba(16, 21, 40, 0.12);
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
         transition: opacity 140ms ease, visibility 140ms ease;
         z-index: 10;
+        overflow: hidden;
       }
 
       .landing-block .landing-search-dropdown.visible {
@@ -115,162 +136,48 @@
       .landing-block .landing-search-dropdown-header {
         display: flex;
         justify-content: flex-end;
-        padding: 6px 12px 2px;
+        padding: 8px 14px 2px;
         font-size: 11px;
         font-family: "Inter", sans-serif;
         color: #9aa0a6;
         text-transform: lowercase;
       }
 
-      .landing-block .landing-search-results {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      .landing-block .landing-search-results li + li {
-        border-top: 1px solid #eef0f2;
-      }
-
-      .landing-block .landing-search-results .landing-search-empty {
-        padding: 9px 12px 10px;
-        color: #7a7a7a;
-        font-size: 14px;
-        font-family: "Inter", sans-serif;
-      }
-
-      .landing-block .landing-search-results a {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 9px 12px;
-        color: #1e1e1e;
-        text-decoration: none;
-        font-size: 14px;
-        font-family: "Inter", sans-serif;
-      }
-
-      .landing-block .landing-search-results a:hover,
-      .landing-block .landing-search-results a:focus {
-        background: #f5f6f7;
-      }
-
-      .landing-block .landing-search-results .chevron-icon {
-        width: 16px;
-        height: 16px;
-        color: #0954a3;
-        flex-shrink: 0;
-      }
-
-      .landing-block .landing-search-dropdown-footer {
-        padding: 12px 14px 1px;
-      }
-
-      .landing-block .landing-search input {
+      /* ── Product images row ── */
+      .landing-products {
         width: 100%;
-        height: 52px;
-        padding: 0 42px 0 40px;
-        border-radius: 30px;
-        border: 0px solid #0954a3;
-        font-size: 16px;
-        font-family: "Inter", sans-serif;
-        outline: none;
-        background: #ffffff;
-      }
-
-      .landing-block .landing-search .search-icon,
-      .landing-block .landing-search .search-clear {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 18px;
-        height: 18px;
-        color: #0954a3;
-      }
-
-      .landing-block .landing-search .search-icon {
-        left: 14px;
-      }
-
-      .landing-block .landing-search .search-clear {
-        right: 14px;
-        color: #1e1e1e;
-      }
-
-      .landing-scene {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
+        max-width: 1400px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        align-items: end;
+        justify-items: center;
+        gap: 24px;
+        padding: 0 24px;
         z-index: 1;
       }
 
-      .float-item {
-        position: absolute;
-        width: clamp(270px, 18vw, 220px);
+      .landing-product {
+        width: 100%;
+        min-width: 0;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+      .landing-product img {
+        width: 100%;
+        max-width: 260px;
         height: auto;
-        filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.16));
-        animation: floaty 6s ease-in-out infinite;
-        transform-origin: center;
-        z-index: 2;
-        --tx: 0px;
-        --ty: 0px;
-        --spin: 0deg;
+        object-fit: contain;
+        filter: drop-shadow(0 14px 24px rgba(28, 32, 60, 0.15));
+        transition: transform 0.35s ease, filter 0.35s ease;
       }
 
-      .float-tv {
-        top: clamp(180px, 30vh, 260px);
-        left: clamp(2vw, 8vw, 10vw);
-        --spin: -6deg;
-        animation-duration: 7.2s;
+      .landing-product img:hover {
+        transform: translateY(-6px) scale(1.02);
+        filter: drop-shadow(0 28px 40px rgba(28, 32, 60, 0.22));
       }
 
-      .float-bbq {
-        top: calc(100% - 6px);
-        left: 50%;
-        --tx: -50%;
-        --spin: 5deg;
-        width: clamp(300px, 15vw, 190px);
-        animation-duration: 6.6s;
-        animation-delay: -1.5s;
-      }
-
-      .float-washer {
-        top: clamp(190px, 32vh, 270px);
-        right: clamp(4vw, 10vw, 12vw);
-        --spin: 7deg;
-        width: clamp(120px, 17vw, 210px);
-        animation-duration: 7.8s;
-        animation-delay: -2.4s;
-      }
-
-      .float-bike {
-        bottom: clamp(24px, 10vh, 80px);
-        left: clamp(4vw, 28vw, 14vw);
-        --spin: -4deg;
-        width: clamp(350px, 24vw, 260px);
-        animation-duration: 8.2s;
-        animation-delay: -3s;
-      }
-
-      .float-laptop {
-        bottom: clamp(30px, 12vh, 90px);
-        right: clamp(8vw, 140vw, 18vw);
-        --spin: 3deg;
-        width: clamp(330px, 20vw, 240px);
-        animation-duration: 6.9s;
-        animation-delay: -2s;
-      }
-
-      @keyframes floaty {
-        0%,
-        100% {
-          transform: translate(var(--tx), var(--ty)) rotate(var(--spin));
-        }
-        50% {
-          transform: translate(var(--tx), calc(var(--ty) - 10px)) rotate(var(--spin));
-        }
-      }
 
       .popular-block {
         width: 100%;
@@ -281,10 +188,10 @@
 
       .popular-title {
         color: #000000;
-        font-size: clamp(29px, 2.2vw, 30px);
+        font-size: 30px;
         font-weight: 400;
         font-family: "Inter", sans-serif;
-        line-height: 1.2;
+        line-height: 1.3;
         text-align: center;
         margin-bottom: 45px;
       }
@@ -299,15 +206,25 @@
       }
 
       .popular-card {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 16px 20px 18px;
-        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+        background: #f6f6f8;
+        border-radius: 16px;
+        padding: 26px 24px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
         display: flex;
         flex-direction: column;
-        min-height: 240px;
+        min-height: 420px;
         width: 100%;
         max-width: 320px;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .popular-card .popular-image {
+        width: 100%;
+        max-width: 260px;
+        height: 170px;
+        object-fit: contain;
+        margin-bottom: 10px;
       }
 
       .popular-card h3 {
@@ -343,28 +260,27 @@
       .popular-card .popular-button {
         margin-top: auto;
         align-self: center;
-        background: #ffffff;
+        background: linear-gradient(180deg, #eeeeee 0%, #ececf0 100%);
         color: #000000;
-        border: 0px solid #000000;
-        border-radius: 6px;
-        padding: 6px 12px;
-        font-size: 14px;
+        border: 1px solid #c9c9c9;
+        border-radius: 28px;
+        padding: 12px 22px;
+        font-size: 15px;
         font-weight: 600;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         cursor: pointer;
         text-decoration: none;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
       }
 
-      .popular-card .popular-image {
-        width: 100%;
-        max-width: 220px;
-        height: auto;
-        margin: 0 auto 20px;
-        display: block;
-        border-radius: 0px;
+      .popular-card .popular-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
       }
+
 
       .popular-card .popular-button .chevron-icon {
         width: 14px;
@@ -413,66 +329,131 @@
         stroke-width: 2.2;
       }
 
-      @media (max-width: 980px) {
+      @media (max-width: 1100px) {
         .landing-block {
-          min-height: 740px;
-          padding-top: 96px;
-        }
-
-        .float-bike {
-          left: clamp(2vw, 6vw, 10vw);
-        }
-
-        .float-laptop {
-          right: clamp(4vw, 8vw, 12vw);
-        }
-      }
-
-      @media (max-width: 720px) {
-        .landing-block {
-          min-height: 680px;
-          padding: 86px 5vw 120px;
-        }
-
-        .landing-content {
-          max-width: 520px;
-        }
-
-        .float-tv,
-        .float-washer {
-          top: 170px;
-        }
-
-        .float-bbq {
-          top: calc(100% - 4px);
-        }
-
-        .float-bike,
-        .float-laptop {
-          bottom: 30px;
-        }
-      }
-
-      @media (max-width: 560px) {
-        .landing-block {
-          min-height: 620px;
-          padding-top: 78px;
+          padding: 100px 0 16px;
+          gap: 40px;
         }
 
         .landing-title {
-          font-size: clamp(28px, 7vw, 36px);
+          font-size: 50px;
+        }
+
+        .landing-products {
+          gap: 16px;
+          padding: 0 16px;
+        }
+
+        .landing-product img {
+          max-width: 200px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .landing-block {
+          padding: 88px 0 12px;
+          min-height: auto;
+          gap: 32px;
+        }
+
+        .landing-title {
+          font-size: 36px;
+          margin-bottom: 12px;
         }
 
         .landing-subtitle {
           font-size: 15px;
+          margin-bottom: 24px;
         }
 
-        .float-item {
-          width: clamp(90px, 28vw, 150px);
+        .landing-block .landing-search input {
+          height: 50px;
+          font-size: 15px;
+          padding: 0 44px;
         }
 
-        .float-bike {
-          width: clamp(120px, 38vw, 180px);
+        .landing-block .landing-search .search-icon {
+          left: 18px;
+          width: 18px;
+          height: 18px;
+        }
+
+        .landing-block .landing-search .search-clear {
+          right: 18px;
+          width: 18px;
+          height: 18px;
+        }
+
+        .landing-products {
+          grid-template-columns: repeat(4, 1fr);
+          gap: 10px;
+          padding: 0 12px;
+        }
+
+        .landing-product:nth-child(4) {
+          display: none;
+        }
+
+        .landing-product img {
+          max-width: 140px;
+        }
+
+        .popular-title {
+          font-size: 26px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .landing-block {
+          padding: 78px 0 10px;
+          gap: 24px;
+        }
+
+        .landing-content {
+          padding: 0 20px;
+        }
+
+        .landing-title {
+          font-size: 30px;
+          margin-bottom: 10px;
+        }
+
+        .landing-subtitle {
+          font-size: 14px;
+          margin-bottom: 20px;
+          max-width: 300px;
+        }
+
+        .landing-block .landing-search input {
+          height: 46px;
+          font-size: 14px;
+          padding: 0 38px;
+        }
+
+        .landing-block .landing-search .search-icon {
+          left: 14px;
+          width: 16px;
+          height: 16px;
+        }
+
+        .landing-block .landing-search .search-clear {
+          right: 14px;
+          width: 16px;
+          height: 16px;
+        }
+
+        .landing-products {
+          gap: 6px;
+          padding: 0 6px;
+        }
+
+        .landing-product img {
+          max-width: 78px;
+        }
+
+        .popular-title {
+          font-size: 22px;
+          margin-bottom: 28px;
         }
       }
     </style>
@@ -481,9 +462,9 @@
     <main>
       <section class="landing-block" aria-label="Intro sectie">
         <div class="landing-content">
-          <h1 class="landing-title">Vind producten die perfect bij je passen</h1>
+          <h1 class="landing-title">Vind producten<br>die perfect bij je passen!</h1>
           <p class="landing-subtitle">
-            Wij helpen je met onze keuzehulpen eenvoudig het beste product te vinden
+            Vind eenvoudig het beste product voor jou met onze keuzehulpen
           </p>
           <div class="landing-search" role="search">
             <i data-lucide="search" class="search-icon" aria-hidden="true"></i>
@@ -498,26 +479,31 @@
               <ul class="landing-search-results" role="listbox"></ul>
               <div class="landing-search-dropdown-footer"></div>
             </div>
-            <img src="bbq.png" alt="" class="float-item float-bbq" />
           </div>
         </div>
-        <div class="landing-scene" aria-hidden="true">
-          <img src="tv.png" alt="" class="float-item float-tv" />
-          <img src="wasmachine.png" alt="" class="float-item float-washer" />
-          <img src="fiets.png" alt="" class="float-item float-bike" />
-          <img src="laptop.png" alt="" class="float-item float-laptop" />
+        <div class="landing-products">
+          <div class="landing-product">
+            <img src="tv.png" alt="Televisie" loading="lazy" decoding="async" />
+          </div>
+          <div class="landing-product">
+            <img src="bbq.png" alt="Kamado barbecue" loading="lazy" decoding="async" />
+          </div>
+          <div class="landing-product">
+            <img src="fiets.png" alt="Elektrische fiets" loading="lazy" decoding="async" />
+          </div>
+          <div class="landing-product">
+            <img src="laptop.png" alt="Laptop" loading="lazy" decoding="async" />
+          </div>
+          <div class="landing-product">
+            <img src="wasmachine.png" alt="Wasmachine" loading="lazy" decoding="async" />
+          </div>
         </div>
       </section>
       <section class="popular-block" aria-label="Populaire keuzehulpen">
         <h2 class="popular-title">Populaire keuzehulpen</h2>
         <div class="popular-grid">
           <article class="popular-card">
-            <!-- Popular card order update (image -> h3 -> list -> button) -->
-            <img
-              src="tv aarde2.png"
-              alt="Voorbeeld televisie"
-              class="popular-image"
-            />
+            <img class="popular-image" src="tv.png" alt="Televisie" loading="lazy" decoding="async" />
             <h3>Televisies</h3>
             <ul>
               <li><i data-lucide="check" class="check-icon"></i>Kies uit meer dan 500 tv's</li>
@@ -525,7 +511,7 @@
               <li><i data-lucide="check" class="check-icon"></i>100% onafhankelijk advies</li>
             </ul>
             <a class="popular-button" href="vragen.html">
-              Start de keuzehulp
+              Start keuzehulp
               <i data-lucide="chevron-right" class="chevron-icon"></i>
             </a>
           </article>

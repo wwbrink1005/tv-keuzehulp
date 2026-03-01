@@ -513,14 +513,16 @@
 
 			.other-match-card {
 				width: 100%;
-				min-height: clamp(14rem, 30vw, 16.875rem);
+				min-height: clamp(19.5rem, 34vw, 11.5rem);
 				background: var(--card-bg);
 				border-radius: 16px;
 				border: 2px solid transparent;
-				padding: clamp(1rem, 3vw, 1.25rem);
+				padding: clamp(1.35rem, 3.2vw, 1.75rem);
 				display: flex;
 				flex-direction: column;
-				gap: clamp(0.75rem, 2.5vw, 1rem);
+				gap: clamp(0.55rem, 1.8vw, 0.75rem);
+				align-items: flex-start;
+				text-align: left;
 				transition: box-shadow 0.2s ease, transform 0.2s ease;
 			}
 
@@ -535,41 +537,30 @@
 			}
 
 			.other-match-title {
-				font-size: 18px;
-				line-height: 20px;
+				font-size: 17px;
+				line-height: 1.25;
 				font-weight: 700;
 				text-align: left;
 				color: #000000;
 				margin: 0;
 			}
 
-			.other-match-content {
-				display: flex;
-				flex-direction: column;
-				gap: clamp(0.75rem, 2.5vw, 1rem);
-			}
-
 			.other-match-media {
 				width: 100%;
-				max-width: clamp(8rem, 45vw, 10rem);
+				display: flex;
+				justify-content: flex-start;
 			}
 
 			.other-match-media img {
-				width: 100%;
+				width: clamp(10rem, 52vw, 12.5rem);
 				height: auto;
 				max-width: 100%;
 				object-fit: contain;
 				display: block;
 			}
 
-			.other-match-text {
-				display: flex;
-				flex-direction: column;
-				gap: clamp(0.5rem, 2vw, 0.75rem);
-			}
-
 			.other-match-price {
-				font-size: 16px;
+				font-size: 15px;
 				font-weight: 700;
 				color: #000000;
 			}
@@ -577,38 +568,43 @@
 			.other-match-specs {
 				list-style: none;
 				display: flex;
-				flex-direction: column;
-				gap: clamp(0.4rem, 1.6vw, 0.6rem);
-				font-size: 14px;
-				color: #3d3d3d;
+				flex-wrap: wrap;
+				gap: 0.25rem 0.65rem;
+				font-size: 12.5px;
+				color: #4a4a4a;
 			}
 
 			.other-match-specs li {
 				display: flex;
 				align-items: center;
-				gap: 8px;
+				gap: 6px;
 			}
 
-			.other-match-specs li::before {
+			.other-match-specs li::after {
+				content: "\2022";
+				color: #a3a2a2;
+				margin-left: 0.45rem;
+			}
+
+			.other-match-specs li:last-child::after {
 				content: "";
-				width: 6px;
-				height: 6px;
-				border-radius: 50%;
-				background: #a3a2a2;
-				flex: 0 0 6px;
+				margin-left: 0;
 			}
 
 			.other-match-action {
-				background: transparent;
+				background: #ededed;
 				border: none;
-				color: var(--accent);
-				font-size: 20px;
-				font-weight: 200;
+				color: #353535;
+				font-size: 13px;
+				font-weight: 600;
 				display: inline-flex;
 				align-items: center;
-				gap: clamp(0.25rem, 1vw, 0.4rem);
+				justify-content: center;
+				padding: 0.4rem 2.4rem;
+				border-radius: 999px;
 				cursor: pointer;
 				margin-top: auto;
+				align-self: center;
 			}
 
 			@keyframes fadeLift {
@@ -720,19 +716,8 @@
 					align-items: flex-start;
 				}
 
-				.other-match-content {
-					flex-direction: row;
-					align-items: center;
-					gap: clamp(1rem, 2.5vw, 1.5rem);
-				}
-
-				.other-match-media {
-					flex: 0 0 clamp(7.5rem, 18vw, 8.625rem);
-					max-width: clamp(7.5rem, 18vw, 8.625rem);
-				}
-
-				.other-match-text {
-					flex: 1;
+				.other-match-media img {
+					width: clamp(10.5rem, 18vw, 12rem);
 				}
 			}
 
@@ -861,46 +846,16 @@
 				}
 
 				.other-match-card {
-					padding: 0.9rem 1rem 0.85rem;
-					gap: 0.55rem;
+					padding: 1rem 1.1rem 0.95rem;
+					gap: 0.5rem;
 				}
 
-				.other-match-content {
-					display: grid;
-					grid-template-columns: 1fr minmax(140px, 165px);
-					align-items: center;
-					gap: 0.95rem;
-					text-align: left;
-				}
-
-				.other-match-title {
-					margin-bottom: 0.2rem;
-				}
-
-				.other-match-media {
-					max-width: 165px;
-					margin: 0;
-					order: 2;
-				}
-
-				.other-match-text {
-					order: 1;
-				}
-
-				.other-match-text {
-					gap: 0.4rem;
-				}
-
-				.other-match-specs {
-					gap: 0.35rem;
+				.other-match-media img {
+					width: clamp(9rem, 55vw, 11rem);
 				}
 
 				.other-match-action {
-					padding: 0.35rem 0;
-					justify-content: flex-start;
-					width: auto;
-					border-top: none;
-					margin-top: 0.2rem;
+					width: min(70%, 220px);
 				}
 			}
 
@@ -923,12 +878,8 @@
 					display: none;
 				}
 
-				.other-match-content {
-					grid-template-columns: 1fr minmax(130px, 150px);
-				}
-
-				.other-match-media {
-					max-width: 150px;
+				.other-match-media img {
+					width: clamp(8.5rem, 65vw, 10rem);
 				}
 			}
 
@@ -1014,7 +965,7 @@
 					</button>
 					<button class="filter-cta" type="button">
 						<i data-lucide="funnel"></i>
-						<span>Filter door:</span>
+						<span>Extra filters:</span>
 					</button>
 					<div class="filter-card" data-filter="price">
 						<h3 class="filter-title">Verander prijscategorie</h3>
@@ -1032,7 +983,7 @@
 						</button>
 						<div class="best-match-row">
 							<div class="best-match-media" aria-hidden="true">
-								<img src="tv%20aarde2.png" alt="" role="presentation" />
+								<img src="tv.png" alt="" role="presentation" />
 							</div>
 							<div class="best-match-body">
 								<h2 id="bestMatchName" class="best-match-name"></h2>
