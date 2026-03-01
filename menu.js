@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuHtml = `
     <header class="menu-bar">
       <div class="menu-brand">
-        <a href="landingspagina.html">producthulp.nl</a>
+        <a href="index.html">producthulp.nl</a>
       </div>
       <nav class="menu-right" aria-label="Hoofdmenu">
         <div class="menu-texts">
