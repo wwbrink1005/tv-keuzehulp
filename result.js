@@ -409,8 +409,20 @@ function placeBestMatchCardAtIndex(matchIndex) {
 
   const cards = Array.from(container.querySelectorAll(".other-match-card"));
   const safeIndex = Math.max(0, Math.min(matchIndex, cards.length - 1));
-  const rowStartIndex = Math.floor(safeIndex / 3) * 3;
-  const anchorCard = cards[rowStartIndex];
+
+  const getColumnCount = () => {
+    const style = window.getComputedStyle(container);
+    const template = style.getPropertyValue("grid-template-columns") || "";
+    const columns = template
+      .split(" ")
+      .map(part => part.trim())
+      .filter(Boolean).length;
+    return columns > 0 ? columns : 1;
+  };
+
+  const columnCount = getColumnCount();
+  const rowStartIndex = Math.floor(safeIndex / columnCount) * columnCount;
+  const anchorCard = cards[rowStartIndex] || cards[safeIndex];
 
   bestMatchCard.classList.remove("is-hidden");
   bestMatchCard.classList.add("inline");
