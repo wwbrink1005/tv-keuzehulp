@@ -104,14 +104,10 @@ function updateProgressBar(questionNum) {
   const progressBar = qs("#progress-bar");
   if (!progressBar) return;
 
-  const scale = getContainerScale(progressBar);
-  const totalWidth = 294 * scale;
-  const unitWidth = totalWidth / 8;
-
   if (questionNum === "result") {
-    progressBar.style.width = `${totalWidth}px`;
+    progressBar.style.width = "100%";
   } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 8) {
-    progressBar.style.width = `${questionNum * unitWidth}px`;
+    progressBar.style.width = `${(questionNum / 8) * 100}%`;
   }
 }
 
@@ -479,6 +475,53 @@ export function initQuizPage() {
   });
 
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
+
+  // Explanation drawer toggle (desktop)
+  const explanationTab = qs("#explanation-tab");
+  const explanationDrawer = qs("#explanation-drawer");
+  if (explanationTab && explanationDrawer) {
+    explanationTab.addEventListener("click", () => {
+      const isOpen = explanationDrawer.classList.toggle("is-open");
+      explanationTab.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (explanationDrawer.classList.contains("is-open") &&
+          !explanationDrawer.contains(e.target)) {
+        explanationDrawer.classList.remove("is-open");
+        explanationTab.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  // Explanation panel toggle (mobile)
+  const mobileBtn = qs("#explanation-mobile-btn");
+  const mobilePanel = qs("#explanation-mobile-panel");
+  const mobileClose = qs("#explanation-mobile-close");
+  if (mobileBtn && mobilePanel) {
+    mobileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      mobilePanel.classList.add("is-open");
+      mobileBtn.style.display = "none";
+    });
+
+    if (mobileClose) {
+      mobileClose.addEventListener("click", (e) => {
+        e.stopPropagation();
+        mobilePanel.classList.remove("is-open");
+        mobileBtn.style.display = "";
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      if (mobilePanel.classList.contains("is-open") &&
+          !mobilePanel.contains(e.target) &&
+          e.target !== mobileBtn) {
+        mobilePanel.classList.remove("is-open");
+        mobileBtn.style.display = "";
+      }
+    });
+  }
 
   window.addEventListener("load", () => {
     if (qs("#question-1")) {
