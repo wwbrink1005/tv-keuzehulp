@@ -425,11 +425,11 @@
    /* Popover styling */
    .question-popover {
      position: absolute;
-     width: calc(260px * var(--scale));
+     width: calc(260px * 1.25 * var(--scale));
      background-color: white;
-     border-radius: calc(8px * var(--scale));
+     border-radius: calc(8px * 1.25 * var(--scale));
      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
-     padding: calc(16px * var(--scale));
+     padding: calc(16px * 1.25 * var(--scale));
      z-index: 1000;
      display: none;
      opacity: 0;
@@ -446,17 +446,17 @@
    .question-popover-title {
      font-family: 'Inter', sans-serif;
      font-weight: 600;
-     font-size: calc(15px * var(--scale));
+     font-size: calc(15px * 1.25 * var(--scale));
      color: #000000;
      margin: 0;
-     margin-bottom: calc(8px * var(--scale));
+     margin-bottom: calc(8px * 1.25 * var(--scale));
      line-height: 1.2;
    }
 
    .question-popover-text {
      font-family: 'Inter', sans-serif;
      font-weight: 400;
-     font-size: calc(14px * var(--scale));
+     font-size: calc(14px * 1.25 * var(--scale));
      color: #555555;
      margin: 0;
      line-height: 1.4;
@@ -729,12 +729,14 @@
        display: inline;
      }
 
-     .question-info-icon {
-       width: 18px;
-       height: 18px;
-       margin-left: 4px;
-       top: 3px;
-     }
+    .question-info-icon {
+      /* Scale with text size so icon stays proportionate on mobile */
+      width: clamp(1.05em, 4vw, 1.25em);
+      height: clamp(1.05em, 4vw, 1.25em);
+      margin-left: 0.35em;
+      top: 0.1em;
+      stroke-width: 2.3;
+    }
 
      .answers-container {
        position: static;
@@ -747,25 +749,35 @@
        display: grid;
        grid-template-columns: repeat(2, minmax(0, 1fr));
        width: 100%;
-       gap: 10px 12px;
+       gap: clamp(10px, 2vw, 14px);
+       column-gap: clamp(12px, 2.5vw, 18px);
+       align-items: stretch;
+       justify-items: stretch;
+     }
+
+     #question-1 .answer-option,
+     #question-2 .answer-option {
+       width: 100%;
+       min-height: 56px;
+       height: auto;
      }
 
      .answer-option {
        width: 100%;
        height: auto;
-       min-height: 48px;
-       padding: 10px 12px;
+       min-height: 52px;
+       padding: 12px 14px;
        border-radius: 10px;
        gap: 10px;
      }
 
      #question-2 .answer-option {
-       min-height: 52px;
+       min-height: 56px;
        justify-content: flex-start;
      }
 
      #question-2 .answer-option span {
-       text-align: center;
+       text-align: left;
        width: 100%;
      }
 
@@ -874,6 +886,31 @@
      .explanation-mobile-panel.is-open {
        display: block;
      }
+    }
+
+    /* Tighten question 1/2 text on very small phones */
+    @media (max-width: 360px) {
+      #question-1 .answer-option,
+      #question-2 .answer-option {
+        min-height: 48px;
+        padding: 10px 11px;
+        gap: 8px;
+      }
+
+      #question-1 .answer-option span,
+      #question-2 .answer-option span {
+        font-size: 11px;
+        line-height: 1.15;
+        text-align: center;
+        word-break: break-word;
+      }
+
+      #question-1 .answer-option input[type="radio"],
+      #question-2 .answer-option input[type="radio"] {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+      }
    }
 
  </style>
@@ -892,7 +929,9 @@
      <!-- Mobile explanation button -->
      <button class="explanation-mobile-btn" id="explanation-mobile-btn" type="button" aria-label="Uitleg over deze keuzehulp">
        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-         <path d="M9 18l6-6-6-6"/>
+         <circle cx="12" cy="12" r="10"></circle>
+         <path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 5"></path>
+         <path d="M12 17h.01"></path>
        </svg>
      </button>
      <!-- Mobile explanation panel -->
@@ -902,7 +941,9 @@
        </button>
        <div class="explanation-mobile-arrow">
          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-           <path d="M9 18l6-6-6-6"/>
+           <circle cx="12" cy="12" r="10"></circle>
+           <path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 5"></path>
+           <path d="M12 17h.01"></path>
          </svg>
        </div>
        <h3>Uitleg over deze keuzehulp</h3>
