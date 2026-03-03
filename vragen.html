@@ -337,12 +337,21 @@
      position: relative;
      top: calc(5px * var(--scale));
      opacity: .6;
-     transition: opacity .2s, transform .2s;
+     transition: opacity .2s, transform .2s, background .2s, color .2s, box-shadow .2s;
    }
 
    .question-info-icon:hover {
      opacity: 1;
      transform: scale(1.12);
+   }
+
+   .question-info-icon.info-icon-active {
+     opacity: 1;
+     color: #fff;
+     background: var(--c-accent);
+     border-radius: 50%;
+     transform: scale(1.08);
+     box-shadow: 0 0 0 4px var(--c-accent-glow);
    }
 
    /* Question visibility */
@@ -590,6 +599,9 @@
      width: calc(331.968px * var(--scale));
    }
 
+   /* Questions panel needs overflow:hidden to clip the sliding panel animation */
+   .questions-panel { overflow: hidden; }
+
    /* ====== CONTAINER WRAPPER ====== */
    .container-wrapper {
      display: flex;
@@ -598,6 +610,7 @@
      width: 100%;
      max-width: calc(var(--base-width) * 1px);
      transition: opacity .3s ease, transform .3s ease;
+     margin-bottom: clamp(48px, 8vh, 80px);
    }
    .container-wrapper.is-exiting {
      opacity: 0;
@@ -640,42 +653,199 @@
      stroke-width: 1.5;
    }
 
-   /* ====== POPOVERS ====== */
-   .question-popover {
+   /* ====== POPOVERS — hidden data containers only ====== */
+   .question-popover { display: none !important; }
+
+   /* ====== INFO PANEL (slides in from right of the image) ====== */
+   .info-panel {
      position: absolute;
-     width: calc(260px * 1.25 * var(--scale));
-     background: rgba(255,255,255,.94);
-     backdrop-filter: blur(24px) saturate(180%);
-     -webkit-backdrop-filter: blur(24px) saturate(180%);
-     border-radius: calc(var(--r-md) * 1.25 * var(--scale));
-     box-shadow: 0 12px 40px rgba(0,0,0,.10),
-                 0 2px 8px rgba(0,0,0,.04),
-                 0 0 0 1px rgba(0,0,0,.03);
-     padding: calc(16px * 1.25 * var(--scale));
-     z-index: 1000;
-     display: none;
+     top: 0;
+     right: 0;
+     bottom: 0;
+     width: 38%;
+     min-width: 260px;
+     background: rgba(247,248,252,.97);
+     backdrop-filter: blur(32px) saturate(200%);
+     -webkit-backdrop-filter: blur(32px) saturate(200%);
+     border-left: 1px solid rgba(255,255,255,.7);
+     border-radius: 0 var(--r-lg) var(--r-lg) 0;
+     z-index: 100;
+     transform: translateX(102%);
+     transition: transform .42s cubic-bezier(.4,0,.2,1),
+                 opacity .35s ease;
      opacity: 0;
-     transition: opacity .25s ease, transform .25s ease;
-     transform: translateY(6px);
+     pointer-events: none;
+     display: flex;
+     flex-direction: column;
+     overflow: hidden;
+     box-shadow: -6px 0 32px rgba(0,0,0,.10),
+                 -1px 0 0 rgba(0,0,0,.04);
    }
-   .question-popover.active {
-     display: block;
+
+   .info-panel.is-open {
+     transform: translateX(0);
      opacity: 1;
-     transform: translateY(0);
+     pointer-events: auto;
    }
-   .question-popover-title {
-     font-weight: 600;
-     font-size: calc(15px * 1.25 * var(--scale));
+
+   /* Accent stripe at top */
+   .info-panel::before {
+     content: '';
+     display: block;
+     height: 3px;
+     background: linear-gradient(90deg, var(--c-accent), #3b8fe8);
+     flex-shrink: 0;
+   }
+
+   .info-panel-header {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     padding: 14px 16px 12px;
+     border-bottom: 1px solid rgba(0,0,0,.06);
+     flex-shrink: 0;
+   }
+
+   .info-panel-icon-wrap {
+     width: 34px;
+     height: 34px;
+     background: var(--c-accent-soft);
+     border-radius: 50%;
+     display: grid;
+     place-items: center;
+     color: var(--c-accent);
+     flex-shrink: 0;
+   }
+
+   .info-panel-icon-wrap svg {
+     width: 17px;
+     height: 17px;
+     stroke-width: 2.2;
+   }
+
+   .info-panel-header-label {
+     font-size: 11px;
+     font-weight: 700;
+     letter-spacing: .07em;
+     text-transform: uppercase;
+     color: var(--c-accent);
+     flex: 1;
+     line-height: 1;
+   }
+
+   .info-panel-close {
+     width: 28px;
+     height: 28px;
+     border: none;
+     background: rgba(0,0,0,.055);
+     border-radius: 50%;
+     cursor: pointer;
+     display: grid;
+     place-items: center;
+     color: var(--c-text-3);
+     transition: background .18s, color .18s, transform .18s;
+     flex-shrink: 0;
+     padding: 0;
+     font-family: inherit;
+   }
+
+   .info-panel-close:hover {
+     background: rgba(0,0,0,.11);
      color: var(--c-text);
-     margin: 0 0 calc(8px * 1.25 * var(--scale));
-     line-height: 1.2;
+     transform: scale(1.08);
    }
-   .question-popover-text {
-     font-weight: 400;
-     font-size: calc(14px * 1.25 * var(--scale));
-     color: var(--c-text-2);
+
+   .info-panel-close svg {
+     width: 14px;
+     height: 14px;
+     stroke-width: 2.6;
+   }
+
+   .info-panel-body {
+     padding: 18px 18px 20px;
+     overflow-y: auto;
+     flex: 1;
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+   }
+
+   .info-panel-title {
+     font-size: 15px;
+     font-weight: 700;
+     color: var(--c-text);
+     line-height: 1.35;
+     letter-spacing: -.012em;
      margin: 0;
-     line-height: 1.5;
+   }
+
+   .info-panel-text {
+     font-size: 13.5px;
+     color: var(--c-text-2);
+     line-height: 1.68;
+     margin: 0;
+   }
+
+   /* Mobile drag handle (hidden on desktop) */
+   .info-panel-drag-handle { display: none; }
+
+   /* Scrim — dims the image behind the panel */
+   .info-panel-scrim {
+     position: absolute;
+     inset: 0;
+     background: rgba(10,20,50,.18);
+     opacity: 0;
+     pointer-events: none;
+     transition: opacity .4s ease;
+     z-index: 99;
+     border-radius: inherit;
+   }
+
+   .questions-panel.panel-open .info-panel-scrim {
+     opacity: 1;
+   }
+
+   /* Mobile: panel as a fixed bottom sheet */
+   @media (max-width: 900px) {
+     .info-panel-drag-handle {
+       display: block;
+       width: 36px;
+       height: 4px;
+       background: rgba(0,0,0,.12);
+       border-radius: 2px;
+       margin: 10px auto 4px;
+       flex-shrink: 0;
+     }
+     .info-panel {
+       position: fixed;
+       top: auto;
+       left: 0;
+       right: 0;
+       bottom: 0;
+       width: 100%;
+       min-width: 0;
+       height: 72%;
+       border-radius: var(--r-lg) var(--r-lg) 0 0;
+       border-left: none;
+       border-top: 1px solid rgba(255,255,255,.7);
+       transform: translateY(104%);
+       box-shadow: 0 -8px 40px rgba(0,0,0,.14);
+       z-index: 9999;
+     }
+     .info-panel.is-open { transform: translateY(0); }
+     .info-panel::before {
+       border-radius: var(--r-lg) var(--r-lg) 0 0;
+     }
+     /* Mobile bottom-sheet dimmed backdrop */
+     .info-panel-scrim {
+       position: fixed;
+       inset: 0;
+       z-index: 9998;
+     }
+     .questions-panel.panel-open .info-panel-scrim {
+       opacity: 1;
+       pointer-events: auto;
+     }
    }
 
    /* ====== PROGRESS BAR ====== */
@@ -1000,6 +1170,35 @@
        </div>
 
        <div class="questions-panel">
+
+         <!-- Scrim — dims the question area behind the info panel -->
+         <div class="info-panel-scrim" aria-hidden="true"></div>
+
+         <!-- INFO PANEL — slides in from the right of the image -->
+         <div id="info-panel" class="info-panel" role="dialog" aria-modal="false" aria-label="Vraag uitleg">
+           <div class="info-panel-drag-handle" aria-hidden="true"></div>
+           <div class="info-panel-header">
+             <div class="info-panel-icon-wrap">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                 <circle cx="12" cy="12" r="10"/>
+                 <line x1="12" y1="8" x2="12" y2="12"/>
+                 <line x1="12" y1="16" x2="12.01" y2="16"/>
+               </svg>
+             </div>
+             <span class="info-panel-header-label">Vraag uitleg</span>
+             <button class="info-panel-close" id="info-panel-close" type="button" aria-label="Sluit uitleg">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                 <line x1="18" y1="6" x2="6" y2="18"/>
+                 <line x1="6" y1="6" x2="18" y2="18"/>
+               </svg>
+             </button>
+           </div>
+           <div class="info-panel-body">
+             <h3 class="info-panel-title" id="info-panel-title"></h3>
+             <div class="info-panel-divider"></div>
+             <p class="info-panel-text" id="info-panel-text"></p>
+           </div>
+         </div>
 
        <!-- VRAAG 1 -->
        <div id="question-1" class="question-block">
