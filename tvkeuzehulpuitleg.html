@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TV Keuzehulp Uitleg – Hoe het werkt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="menu.css" />
+  <link rel="stylesheet" href="footer.css" />
+  <link rel="stylesheet" href="info.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="menu.js" defer></script>
+  <script src="footer.js" defer></script>
+  <style>
+    /* =========================================
+       EXTRA STYLES — TV Keuzehulp Uitleg Page
+       ========================================= */
+    :root {
+      --accent: #0954a3;
+      --accent-soft: rgba(9, 84, 163, 0.07);
+      --accent-glow: rgba(9, 84, 163, 0.14);
+      --text: #1d1d1f;
+      --text-2: #424245;
+      --text-3: #86868b;
+      --surface: #ffffff;
+      --border: rgba(0, 0, 0, 0.07);
+      --r-md: 14px;
+      --r-lg: 20px;
+      --r-pill: 100px;
+    }
+
+    /* ---- LAYOUT ---- */
+    .info-page { background: #f5f5f7; }
+
+    .uitleg-main {
+      padding: 52px 6vw 80px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .uitleg-back {
+      width: 100%;
+      max-width: 860px;
+      margin-bottom: 22px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 6px 0;
+      transition: opacity .2s;
+    }
+    .back-link:hover { opacity: .75; }
+    .back-link svg { width: 16px; height: 16px; }
+
+    /* ---- HERO ---- */
+    .uitleg-hero {
+      width: 100%;
+      max-width: 860px;
+      margin-bottom: 48px;
+    }
+
+    .uitleg-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: var(--r-pill);
+      margin-bottom: 16px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .uitleg-hero h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: -.025em;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .uitleg-hero p {
+      font-size: clamp(15px, 1.5vw, 17px);
+      color: var(--text-3);
+      line-height: 1.55;
+      max-width: 600px;
+    }
+
+    .uitleg-hero .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: var(--r-pill);
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 24px;
+      transition: background .2s, box-shadow .2s, transform .18s;
+    }
+    .uitleg-hero .cta-btn:hover {
+      background: #0a66c2;
+      box-shadow: 0 6px 18px rgba(9,84,163,.22);
+      transform: translateY(-1px);
+    }
+    .uitleg-hero .cta-btn svg { width: 16px; height: 16px; }
+
+    /* ---- CONTENT WRAPPER ---- */
+    .uitleg-body {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ---- SECTION CARD ---- */
+    .uitleg-card {
+      background: var(--surface);
+      border-radius: var(--r-lg);
+      box-shadow: 0 2px 12px rgba(0,0,0,.05), 0 0 0 1px var(--border);
+      padding: 36px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--accent-soft);
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .card-icon svg {
+      width: 22px;
+      height: 22px;
+      color: var(--accent);
+    }
+
+    .card-header h2 {
+      font-size: clamp(18px, 2vw, 22px);
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.015em;
+      line-height: 1.25;
+    }
+
+    .uitleg-card p {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+
+    .uitleg-card p + p { margin-top: -6px; }
+
+    /* ---- STEP LIST ---- */
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-content strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .step-content span {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.55;
+    }
+
+    /* ---- TV TYPE GRID ---- */
+    .tv-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 4px;
+    }
+
+    .tv-card {
+      background: var(--accent-soft);
+      border-radius: var(--r-md);
+      padding: 20px 20px 18px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .tv-card-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .tv-card-desc {
+      font-size: 13.5px;
+      color: var(--text-2);
+      line-height: 1.55;
+    }
+
+    .tv-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .tv-tag {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 3px 10px;
+      background: rgba(9,84,163,.10);
+      color: var(--accent);
+      border-radius: var(--r-pill);
+    }
+
+    /* ---- SIZE TABLE ---- */
+    .size-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .size-table th {
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-3);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 0 12px 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .size-table td {
+      padding: 10px 12px 10px 0;
+      color: var(--text-2);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .size-table tr:last-child td { border-bottom: none; }
+
+    .size-table td:first-child {
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .size-badge {
+      display: inline-block;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: var(--r-pill);
+      white-space: nowrap;
+    }
+
+    /* ---- TIP BOX ---- */
+    .tip-box {
+      background: #f0f6ff;
+      border-radius: var(--r-md);
+      padding: 18px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .tip-box svg {
+      width: 18px; height: 18px;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .tip-box p {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.55;
+      margin: 0 !important;
+    }
+
+    /* ---- DIVIDER ---- */
+    hr.uitleg-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 4px 0;
+    }
+
+    /* ---- CTA FOOTER CARD ---- */
+    .cta-card {
+      background: linear-gradient(135deg, #0954a3 0%, #1a7ddc 100%);
+      border-radius: var(--r-lg);
+      padding: 40px 40px;
+      text-align: center;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .cta-card h2 {
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+    .cta-card p {
+      font-size: 15px;
+      color: rgba(255,255,255,.8);
+      line-height: 1.55;
+      max-width: 480px;
+    }
+    .cta-card a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      color: var(--accent);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 12px 32px;
+      border-radius: var(--r-pill);
+      text-decoration: none;
+      transition: box-shadow .2s, transform .18s;
+      margin-top: 4px;
+    }
+    .cta-card a:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,.15);
+      transform: translateY(-1px);
+    }
+    .cta-card a svg { width: 16px; height: 16px; }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 760px) {
+      .uitleg-main { padding: 32px 5vw 60px; }
+
+      .uitleg-card { padding: 24px 22px; }
+      .cta-card   { padding: 28px 22px; }
+
+      .tv-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tv-grid {
+        grid-template-columns: 1fr;
+      }
+      .size-table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body class="info-page">
+
+  <main class="uitleg-main">
+
+    <!-- Back link -->
+    <nav class="uitleg-back">
+      <a href="vragen2.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
+        Terug naar de keuzehulp
+      </a>
+    </nav>
+
+    <!-- Hero -->
+    <header class="uitleg-hero">
+      <div class="uitleg-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+        TV Keuzehulp
+      </div>
+      <h1>Hoe werkt de TV&nbsp;Keuzehulp?</h1>
+      <p>Alles wat je moet weten over hoe de keuzehulp is opgebouwd, welke vragen we stellen, hoe de matching werkt en welke televisies zijn meegenomen.</p>
+      <a href="vragen2.html" class="cta-btn">
+        Start de keuzehulp
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+      </a>
+    </header>
+
+    <!-- Content cards -->
+    <div class="uitleg-body">
+
+      <!-- 1. Wat is de keuzehulp? -->
+      <section class="uitleg-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 5"/><path d="M12 17h.01"/></svg>
+          </div>
+          <h2>Wat is de TV Keuzehulp?</h2>
+        </div>
+        <p>De TV Keuzehulp is een interactieve tool die je in acht korte vragen helpt om de televisie te vinden die het beste bij jouw situatie past. Je hoeft geen technisch expert te zijn — de keuzehulp vertaalt jouw gewoonten en wensen automatisch naar de geschikte televisietechnologie en het juiste formaat.</p>
+        <p>De tool is volledig onafhankelijk opgebouwd. Er wordt geen enkel merk bevoordeeld; de aanbevelingen zijn uitsluitend gebaseerd op technische kenmerken die aansluiten bij jouw antwoorden. Zo weet je zeker dat het advies écht bij jou past.</p>
+        <div class="tip-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 1 7 7c0 2.74-1.56 5.1-3.84 6.33L14 17H10l-1.16-1.67A7 7 0 0 1 12 2z"/></svg>
+          <p>De keuzehulp duurt gemiddeld slechts <strong>2 minuten</strong>. Je kunt op elk moment terug om je antwoorden aan te passen zonder opnieuw te beginnen.</p>
+        </div>
+      </section>
+
+      <!-- 2. De acht vragen -->
+      <section class="uitleg-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+          </div>
+          <h2>De acht vragen uitgelegd</h2>
+        </div>
+        <p>Elke vraag heeft een specifiek doel in het bepalen van het beste tv-advies. Hieronder lees je precies waarom we elke vraag stellen.</p>
+
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <strong>Kijkafstand</strong>
+              <span>De afstand bepaalt het optimale tv-formaat. Te dicht bij een te grote tv is vermoeiend voor de ogen; te ver van een kleine tv mis je detail. Op basis van deze vraag berekenen we een aanbevolen schermgrootte.</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <strong>Schermgrootte</strong>
+              <span>Na het advies kun je de aanbevolen grootte bevestigen of aanpassen. Op vraag 2 zie je in de woonkamerafbeelding hoe groot elke optie er in de praktijk uitziet — zo maak je een weloverwogen keuze.</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <strong>Budget</strong>
+              <span>Het budget filtert de selectie direct op prijscategorie. Hogere categorieën bieden in de regel betere beeldkwaliteit en meer functies. We tonen de meest relevante opties binnen jouw gekozen bandbreedte.</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">4</span>
+            <div class="step-content">
+              <strong>Gebruik (max. 2 antwoorden)</strong>
+              <span>Films, sport, gamen of normaal tv-kijken stellen elk andere eisen aan de televisie. Films vragen om rijke kleur en diepe zwarten; sport om een hoge verversingssnelheid; gamen om lage inputlag. Je kunt twee gebruikswijzen combineren.</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">5</span>
+            <div class="step-content">
+              <strong>Belang van beeldkwaliteit</strong>
+              <span>Ben je een echte beeldkwaliteitsfanaat, wil je gewoon goede kwaliteit, of is een prima beeld al voldoende? Dit bepaalt of we inzetten op premium schermtechnologie of een betaalbaar alternatief.</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">6</span>
+            <div class="step-content">
+              <strong>Kijktijd (dag of avond)</strong>
+              <span>Overdag heeft een tv veel helderheid nodig om concurrentie met zonlicht aan te kunnen. 's Avonds in een donkere kamer blinken bepaalde technologieën uit in contrastratio en diepte van zwart.</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">7</span>
+            <div class="step-content">
+              <strong>Kijksituatie (alleen of met groep)</strong>
+              <span>Sommige schermtechnologieën verliezen beeldkwaliteit bij een hoek. Kijk je met meerdere mensen die verspreid in de kamer zitten, dan adviseren we een tv met brede kijkhoeken.</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">8</span>
+            <div class="step-content">
+              <strong>Extra prioriteiten (max. 2 antwoorden)</strong>
+              <span>Hier kun je aangeven of je bijzondere waarde hecht aan zwartniveaus, extreme helderheid, kleurnauwkeurigheid of Ambilight-verlichting. Deze antwoorden wegen extra zwaar mee in de uiteindelijke aanbeveling.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Hoe werkt de matching -->
+      <section class="uitleg-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+          </div>
+          <h2>Hoe wordt de beste tv berekend?</h2>
+        </div>
+        <p>Na het invullen van de vragen werkt de keuzehulp in twee fases:</p>
+
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <strong>Scoren van tv-typen</strong>
+              <span>Elk antwoord past een scoremodel toe op de vijf tv-technologieën (LED, Mini LED, QLED, OLED). Positieve en negatieve punten worden opgeteld. Het type met de hoogste eindscore wordt het <em>best passende type</em> voor jou.</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <strong>Filteren op grootte en prijs</strong>
+              <span>Alleen tv's die vallen binnen de gekozen schermgrootte én het gekozen budgetbereik worden meegenomen. Binnen die selectie worden tv's van het aanbevolen type als beste match getoond; daarna volgen tv's van de dichtstbijzijnde technologie.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          <p>De tool gebruikt uitsluitend <strong>technische criteria</strong> — merkbekendheid, promoties of andere commerciële factoren spelen <strong>geen enkele rol</strong> bij het advies.</p>
+        </div>
+      </section>
+
+      <!-- 4. TV typen -->
+      <section class="uitleg-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h2>Welke tv-technologieën zijn meegenomen?</h2>
+        </div>
+        <p>De keuzehulp houdt rekening met vijf tv-technologieën. Hieronder vind je een korte omschrijving van elke technologie en voor wie die het meest geschikt is.</p>
+
+        <div class="tv-grid">
+          <div class="tv-card">
+            <div class="tv-card-label">LED (edge-lit)</div>
+            <div class="tv-card-desc">Instapniveau met ledverlichting aan de zijkanten. Dun en betaalbaar, ideaal voor casual gebruik overdag in een lichte kamer.</div>
+            <div class="tv-card-tags">
+              <span class="tv-tag">Betaalbaar</span>
+              <span class="tv-tag">Helder</span>
+              <span class="tv-tag">Normaal gebruik</span>
+            </div>
+          </div>
+          <div class="tv-card">
+            <div class="tv-card-label">LED (direct-lit)</div>
+            <div class="tv-card-desc">Ledverlichting achter het hele scherm voor een gelijkmatigere helderheid dan edge-lit. Goede prijs-kwaliteitsverhouding.</div>
+            <div class="tv-card-tags">
+              <span class="tv-tag">Gelijkmatig</span>
+              <span class="tv-tag">Sport</span>
+              <span class="tv-tag">Veelzijdig</span>
+            </div>
+          </div>
+          <div class="tv-card">
+            <div class="tv-card-label">Mini LED</div>
+            <div class="tv-card-desc">Duizenden kleine leds achter het scherm met lokale dimsegmenten. Hoge helderheid én goede contrasten — het beste van beide werelden.</div>
+            <div class="tv-card-tags">
+              <span class="tv-tag">Hoge helderheid</span>
+              <span class="tv-tag">Goed contrast</span>
+              <span class="tv-tag">Allrounder</span>
+            </div>
+          </div>
+          <div class="tv-card">
+            <div class="tv-card-label">QLED</div>
+            <div class="tv-card-desc">Led-tv met een kwantumpuntlaag voor levendige, nauwkeurige kleuren. Uitstekend overdag of in een felle kamer. Populair voor gaming en sport.</div>
+            <div class="tv-card-tags">
+              <span class="tv-tag">Levendige kleuren</span>
+              <span class="tv-tag">Gaming</span>
+              <span class="tv-tag">Overdag</span>
+            </div>
+          </div>
+          <div class="tv-card">
+            <div class="tv-card-label">OLED</div>
+            <div class="tv-card-desc">Elk pixel licht individueel op én gaat individueel uit voor perfecte zwartniveaus en oneindig contrast. Premium keuze voor films en donkere ruimtes.</div>
+            <div class="tv-card-tags">
+              <span class="tv-tag">Perfecte zwarten</span>
+              <span class="tv-tag">Films</span>
+              <span class="tv-tag">Brede kijkhoek</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 1 7 7c0 2.74-1.56 5.1-3.84 6.33L14 17H10l-1.16-1.67A7 7 0 0 1 12 2z"/></svg>
+          <p>Sommige merken gebruiken eigen namen zoals <strong>Neo QLED</strong> (Samsung), <strong>QNED</strong> (LG) of <strong>Quantum Dot OLED</strong>. De keuzehulp groepeert deze onder de dichtstbijzijnde standaardcategorie.</p>
+        </div>
+      </section>
+
+      <!-- 5. Schermformaten & kijkafstand -->
+      <section class="uitleg-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          </div>
+          <h2>Schermformaten en aanbevolen kijkafstanden</h2>
+        </div>
+        <p>De keuzehulp werkt met negen formaatgroepen. Hieronder zie je welke formaten daarin vallen en bij welke kijkafstand elk group het best tot z'n recht komt.</p>
+
+        <table class="size-table">
+          <thead>
+            <tr>
+              <th>Groep</th>
+              <th>Formaten</th>
+              <th>Aanbevolen kijkafstand</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="size-badge">24″</span></td>
+              <td>24 inch</td>
+              <td>±&nbsp;1 meter</td>
+            </tr>
+            <tr>
+              <td><span class="size-badge">27–32″</span></td>
+              <td>27, 28, 29, 30, 31, 32 inch</td>
+              <td>±&nbsp;1,5 meter</td>
+            </tr>
+            <tr>
+              <td><span class="size-badge">40–43″</span></td>
+              <td>40, 42, 43 inch</td>
+              <td>±&nbsp;2 meter</td>
+            </tr>
+            <tr>
+              <td><span class="size-badge">48–50″</span></td>
+              <td>48, 50 inch</td>
+              <td>±&nbsp;2,5 meter</td>
+            </tr>
+            <tr>
+              <td><span class="size-badge">55″</span></td>
+              <td>55 inch</td>
+              <td>±&nbsp;2,5–3 meter</td>
+            </tr>
+            <tr>
+              <td><span class="size-badge">58–65″</span></td>
+              <td>58, 60, 65 inch</td>
+              <td>±&nbsp;3 meter</td>
+            </tr>
+            <tr>
+              <td><span class="size-badge">70–77″</span></td>
+              <td>70, 75, 77 inch</td>
+              <td>±&nbsp;3,5 meter</td>
+            </tr>
+            <tr>
+              <td><span class="size-badge">83–86″</span></td>
+              <td>83, 85, 86 inch</td>
+              <td>±&nbsp;4 meter</td>
+            </tr>
+            <tr>
+              <td><span class="size-badge">97–115″</span></td>
+              <td>97, 98, 100, 115 inch</td>
+              <td>4+ meter (thuisbioscoop)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="tip-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          <p>Het advies op vraag 2 is een <strong>aanbeveling</strong>, geen verplichting. Je kunt altijd een groter of kleiner formaat kiezen als je een ander gevoel prefereert. De woonkamerafbeelding in de keuzehulp geeft een visuele indruk van de verhoudingen.</p>
+        </div>
+      </section>
+
+      <!-- 6. Prijscategorieën -->
+      <section class="uitleg-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <h2>Prijscategorieën per formaat</h2>
+        </div>
+        <p>De beschikbare prijsbereiken zijn per schermgrootte vastgesteld op basis van het werkelijke marktaanbod. Zo zie je altijd realistische opties — je wordt nooit doorgestuurd naar een budgetcategorie die nauwelijks tv's bevat.</p>
+        <p>Algemene richtlijn: hoe hoger de categorie, hoe geavanceerder de technologie. Zo zijn OLED-modellen vrijwel uitsluitend te vinden in de hogere prijsklassen, terwijl LED-modellen het gehele spectrum beslaan.</p>
+        <div class="tip-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 1 7 7c0 2.74-1.56 5.1-3.84 6.33L14 17H10l-1.16-1.67A7 7 0 0 1 12 2z"/></svg>
+          <p>Alle getoonde prijzen zijn <strong>adviesverkoopprijzen</strong>. Actuele aanbiedingen kunnen lager uitvallen. Controleer altijd de actuele prijs bij de betreffende retailer.</p>
+        </div>
+      </section>
+
+      <!-- 7. Woonkamer visualisatie -->
+      <section class="uitleg-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          </div>
+          <h2>De woonkamer-visualisatie</h2>
+        </div>
+        <p>Bij vraag 2 (schermgrootte) zie je een realistische woonkamerafbeelding waarop de geselecteerde tv op schaal wordt weergegeven. De tv is precies zo gepositioneerd en geschaald als in een echte woonkamer — de afmetingen kloppen exact met de werkelijke inch-maten en de verhouding tot de kamer.</p>
+        <p>Dit geeft je een intuïtief gevoel voor hoe groot een bepaald formaat in de praktijk is, iets wat centimeters of inches alleen nooit volledig overbrengen. Je kunt eenvoudig door de formaten scrollen om de visuele impact te vergelijken.</p>
+      </section>
+
+      <!-- CTA -->
+      <div class="cta-card">
+        <h2>Klaar om te beginnen?</h2>
+        <p>Beantwoord acht korte vragen en ontdek in twee minuten welke televisie het beste bij jouw situatie past.</p>
+        <a href="vragen2.html">
+          Start de TV Keuzehulp
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>
