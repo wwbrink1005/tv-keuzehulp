@@ -17,6 +17,18 @@ export function initQuestionPopovers() {
   // Track which icon is currently active so we can toggle
   let activeIcon = null;
 
+  function lockBodyScroll() {
+    if (window.innerWidth <= 900) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    }
+  }
+
+  function unlockBodyScroll() {
+    document.body.style.overflow = "";
+    document.body.style.touchAction = "";
+  }
+
   function openPanel(icon, popover) {
     if (!infoPanel || !popover) return;
 
@@ -48,6 +60,7 @@ export function initQuestionPopovers() {
 
     infoPanel.classList.add("is-open");
     if (questionsPanel) questionsPanel.classList.add("panel-open");
+    lockBodyScroll();
   }
 
   function closePanel() {
@@ -58,6 +71,7 @@ export function initQuestionPopovers() {
       activeIcon.classList.remove("info-icon-active");
       activeIcon = null;
     }
+    unlockBodyScroll();
   }
 
   if (panelClose) {
@@ -85,6 +99,7 @@ export function initQuestionPopovers() {
     if (!isDragging) return;
     const dy = e.touches[0].clientY - dragStartY;
     if (dy < 0) return; // don't allow dragging upward
+    e.preventDefault(); // block page scroll while dragging panel
     currentDragY = dy;
     infoPanel.style.transform = `translateY(${dy}px)`;
   }
@@ -111,7 +126,7 @@ export function initQuestionPopovers() {
 
   if (infoPanel) {
     infoPanel.addEventListener("touchstart", onDragStart, { passive: true });
-    infoPanel.addEventListener("touchmove", onDragMove, { passive: true });
+    infoPanel.addEventListener("touchmove", onDragMove, { passive: false });
     infoPanel.addEventListener("touchend", onDragEnd);
   }
 
