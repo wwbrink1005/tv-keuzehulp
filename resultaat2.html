@@ -100,10 +100,17 @@
 				animation: fadeIn 0.5s ease-out;
 			}
 
-			.restart-link {
+			/* ── Left action group (restart + info, desktop) ── */
+			.title-left-wrap {
 				position: absolute;
 				left: 50px;
 				bottom: 20px;
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.restart-link {
 				display: inline-flex;
 				align-items: center;
 				gap: 8px;
@@ -116,6 +123,193 @@
 				color: var(--text-secondary);
 				text-decoration: none;
 				transition: all var(--transition);
+			}
+
+			/* ── Info toggle wrapper (anchor for the card) ── */
+			.info-toggle-wrap {
+				position: relative;
+			}
+
+			/* ── Info button ── */
+			.info-btn {
+				width: 38px;
+				height: 38px;
+				border-radius: 999px;
+				border: 1px solid var(--line);
+				background: var(--card-bg);
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--text-secondary);
+				cursor: pointer;
+				transition: all var(--transition);
+				padding: 0;
+				font-family: inherit;
+			}
+
+			.info-btn:hover {
+				color: var(--accent);
+				border-color: var(--accent);
+				background: var(--accent-soft);
+			}
+
+			.info-btn.is-active {
+				background: var(--accent);
+				color: #fff;
+				border-color: var(--accent);
+				box-shadow: 0 2px 10px var(--accent-glow);
+			}
+
+			.info-btn svg {
+				width: 16px;
+				height: 16px;
+			}
+
+			/* ── Info card (fixed portal — works on both mobile & desktop) ── */
+			.info-card {
+				position: fixed;
+				top: 116px; /* approx below nav + title-bar on desktop */
+				left: 50px;
+				width: 310px;
+				background: var(--card-bg);
+				border-radius: var(--radius-lg);
+				border: 1px solid var(--line);
+				box-shadow: var(--shadow-elevated);
+				overflow: hidden;
+				opacity: 0;
+				transform: translateY(-8px) scale(0.97);
+				pointer-events: none;
+				transition: opacity 0.22s ease,
+							transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+				z-index: 1000;
+			}
+
+			.info-card.is-open {
+				opacity: 1;
+				transform: translateY(0) scale(1);
+				pointer-events: auto;
+			}
+
+			/* Accent stripe at top */
+			.info-card::before {
+				content: '';
+				display: block;
+				height: 3px;
+				background: linear-gradient(90deg, var(--accent), #3b8fe8);
+			}
+
+			.info-card-header {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				padding: 13px 14px 10px;
+				border-bottom: 1px solid var(--line);
+			}
+
+			.info-card-icon-wrap {
+				width: 32px;
+				height: 32px;
+				background: var(--accent-soft);
+				border-radius: 50%;
+				display: grid;
+				place-items: center;
+				color: var(--accent);
+				flex-shrink: 0;
+			}
+
+			.info-card-icon-wrap svg {
+				width: 15px;
+				height: 15px;
+				stroke-width: 2.2;
+			}
+
+			.info-card-label {
+				font-size: 11px;
+				font-weight: 700;
+				letter-spacing: 0.07em;
+				text-transform: uppercase;
+				color: var(--accent);
+				flex: 1;
+				line-height: 1;
+			}
+
+			.info-card-close {
+				width: 26px;
+				height: 26px;
+				border: none;
+				background: rgba(0, 0, 0, 0.05);
+				border-radius: 50%;
+				cursor: pointer;
+				display: grid;
+				place-items: center;
+				color: var(--text-tertiary);
+				transition: background 0.18s, color 0.18s;
+				padding: 0;
+				font-family: inherit;
+				flex-shrink: 0;
+			}
+
+			.info-card-close:hover {
+				background: rgba(0, 0, 0, 0.1);
+				color: var(--text-primary);
+			}
+
+			.info-card-close svg {
+				width: 12px;
+				height: 12px;
+				stroke-width: 2.6;
+			}
+
+			.info-card-body {
+				padding: 14px 16px 18px;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+
+			.info-card-title {
+				font-size: 15px;
+				font-weight: 700;
+				color: var(--text-primary);
+				letter-spacing: -0.012em;
+				line-height: 1.35;
+				margin: 0;
+			}
+
+			.info-card-text {
+				font-size: 13.5px;
+				line-height: 1.65;
+				color: var(--text-secondary);
+				margin: 0;
+			}
+
+			.info-card-cta {
+				display: inline-flex;
+				align-items: center;
+				gap: 7px;
+				background: var(--accent);
+				color: #fff;
+				border: none;
+				font-family: inherit;
+				font-size: 14px;
+				font-weight: 600;
+				padding: 10px 20px;
+				border-radius: 999px;
+				cursor: pointer;
+				text-decoration: none;
+				align-self: flex-start;
+				transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
+			}
+
+			.info-card-cta:hover {
+				background: #073d7a;
+				box-shadow: 0 4px 14px rgba(9, 84, 163, 0.22);
+				transform: translateY(-1px);
+			}
+
+			.info-card-cta svg {
+				width: 14px;
+				height: 14px;
 			}
 
 			.restart-link:visited {
@@ -408,6 +602,13 @@
 			.icon-button:hover {
 				color: var(--accent);
 				border-color: var(--accent);
+			}
+
+			.icon-button.is-active {
+				background: var(--accent);
+				color: #fff;
+				border-color: var(--accent);
+				box-shadow: 0 2px 10px var(--accent-glow);
 			}
 
 			.icon-button svg {
@@ -792,12 +993,12 @@
 					padding: 20px 24px 16px;
 				}
 
-				.restart-link,
+				.title-left-wrap,
 				.results-toolbar {
 					position: static;
 				}
 
-				.restart-link {
+				.title-left-wrap {
 					grid-column: 1;
 					grid-row: 1;
 					justify-self: start;
@@ -845,12 +1046,12 @@
 					padding: 16px 20px 14px;
 				}
 
-				.restart-link,
+				.title-left-wrap,
 				.results-toolbar {
 					position: static;
 				}
 
-				.restart-link {
+				.title-left-wrap {
 					grid-column: 1;
 					grid-row: 1;
 					justify-self: start;
@@ -898,8 +1099,16 @@
 					justify-self: start;
 				}
 
-				.restart-link {
+				.title-left-wrap {
 					display: none;
+				}
+
+				/* On mobile the info-card becomes a full-width panel below the title bar */
+				.info-card {
+					left: 12px;
+					right: 12px;
+					width: auto;
+					top: 108px;
 				}
 
 				.results-toolbar {
@@ -1080,12 +1289,22 @@
 						<button class="restart-confirm" type="button">Begin opnieuw</button>
 					</div>
 				</div>
+				<!-- Info trigger — mobile only -->
+				<button class="icon-button" id="infoTriggerMobile" type="button" aria-label="Hoe werkt het?" aria-expanded="false" aria-controls="infoCard">
+					<i data-lucide="info"></i>
+				</button>
 			</div>
 
-			<a class="restart-link" href="vragen.html">
-				<i data-lucide="arrow-left"></i>
-				<span>Opnieuw beginnen</span>
-			</a>
+			<!-- Desktop: restart + info buttons grouped left -->
+			<div class="title-left-wrap">
+				<a class="restart-link" href="vragen.html">
+					<i data-lucide="arrow-left"></i>
+					<span>Opnieuw beginnen</span>
+				</a>
+				<button class="info-btn" id="infoTriggerDesktop" type="button" aria-label="Hoe werkt het?" aria-expanded="false" aria-controls="infoCard">
+					<i data-lucide="info"></i>
+				</button>
+			</div>
 
 			<h1 id="resultTitle" class="result-title">
 				<span id="resultTitleText">De tv die het beste bij je keuzes past!</span>
@@ -1164,5 +1383,101 @@
 		<script src="result-ui.js" defer></script>
 		<script type="module" src="result-filters.js"></script>
 		<script type="module" src="main.js"></script>
+
+		<!-- ── Info card (fixed portal) ── -->
+		<div id="infoCard" class="info-card" role="dialog" aria-hidden="true" aria-label="Over deze keuzehulp">
+			<div class="info-card-header">
+				<div class="info-card-icon-wrap">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+				</div>
+				<span class="info-card-label">Hoe werkt het?</span>
+				<button class="info-card-close" id="infoCardClose" type="button" aria-label="Sluit">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+			</div>
+			<div class="info-card-body">
+				<p class="info-card-title">Over deze keuzehulp</p>
+				<p class="info-card-text">Voor een volledige uitleg over deze keuzehulp, hoe die is opgebouwd en welke tv's worden meegenomen, lees de uitlegpagina.</p>
+				<a href="tvkeuzehulpuitleg.html" class="info-card-cta">
+					Lees de volledige uitleg
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+				</a>
+			</div>
+		</div>
+
+		<script>
+			// ── Info card toggle ──────────────────────────────────────────────────
+			(function () {
+				var card             = document.getElementById('infoCard');
+				var triggerDesktop   = document.getElementById('infoTriggerDesktop');
+				var triggerMobile    = document.getElementById('infoTriggerMobile');
+				var closeBtn         = document.getElementById('infoCardClose');
+
+				if (!card) return;
+
+				function positionCard(trigger) {
+					var rect = trigger.getBoundingClientRect();
+					var vw   = window.innerWidth;
+					var cardW = Math.min(310, vw - 24);
+
+					// Prefer aligning card's left edge with button left
+					var left = rect.left;
+					// If it would overflow viewport right, shift left
+					if (left + cardW > vw - 12) left = vw - cardW - 12;
+					if (left < 12) left = 12;
+
+					card.style.top    = (rect.bottom + 10) + 'px';
+					card.style.left   = left + 'px';
+					card.style.width  = cardW + 'px';
+					card.style.right  = 'auto';
+				}
+
+				function openCard(trigger) {
+					positionCard(trigger);
+					card.classList.add('is-open');
+					card.setAttribute('aria-hidden', 'false');
+					if (triggerDesktop) { triggerDesktop.setAttribute('aria-expanded', 'true');  triggerDesktop.classList.add('is-active'); }
+					if (triggerMobile)  { triggerMobile.setAttribute('aria-expanded', 'true');   triggerMobile.classList.add('is-active'); }
+				}
+
+				function closeCard() {
+					card.classList.remove('is-open');
+					card.setAttribute('aria-hidden', 'true');
+					if (triggerDesktop) { triggerDesktop.setAttribute('aria-expanded', 'false'); triggerDesktop.classList.remove('is-active'); }
+					if (triggerMobile)  { triggerMobile.setAttribute('aria-expanded', 'false');  triggerMobile.classList.remove('is-active'); }
+				}
+
+				function toggleCard(trigger) {
+					card.classList.contains('is-open') ? closeCard() : openCard(trigger);
+				}
+
+				if (triggerDesktop) triggerDesktop.addEventListener('click', function (e) { e.stopPropagation(); toggleCard(triggerDesktop); });
+				if (triggerMobile)  triggerMobile.addEventListener('click',  function (e) { e.stopPropagation(); toggleCard(triggerMobile); });
+				if (closeBtn)       closeBtn.addEventListener('click', closeCard);
+
+				// Close when clicking outside the card
+				document.addEventListener('click', function (e) {
+					if (!card.classList.contains('is-open')) return;
+					if (card.contains(e.target)) return;
+					var clickedTrigger =
+						(triggerDesktop && (e.target === triggerDesktop || triggerDesktop.contains(e.target))) ||
+						(triggerMobile  && (e.target === triggerMobile  || triggerMobile.contains(e.target)));
+					if (clickedTrigger) return;
+					closeCard();
+				});
+
+				// Close on Escape
+				document.addEventListener('keydown', function (e) {
+					if (e.key === 'Escape' && card.classList.contains('is-open')) closeCard();
+				});
+
+				// Reposition if window resizes while open
+				window.addEventListener('resize', function () {
+					if (!card.classList.contains('is-open')) return;
+					var activeTrigger = triggerDesktop && triggerDesktop.offsetParent ? triggerDesktop : triggerMobile;
+					if (activeTrigger) positionCard(activeTrigger);
+				});
+			})();
+		</script>
 	</body>
 </html>

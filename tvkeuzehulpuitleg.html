@@ -411,9 +411,9 @@
 
     <!-- Back link -->
     <nav class="uitleg-back">
-      <a href="vragen.html" class="back-link">
+      <a href="vragen.html" class="back-link" id="backLink">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
-        Terug naar de keuzehulp
+        <span id="backLinkText">Terug naar de keuzehulp</span>
       </a>
     </nav>
 
@@ -425,10 +425,6 @@
       </div>
       <h1>Hoe werkt de TV&nbsp;Keuzehulp?</h1>
       <p>Alles wat je moet weten over hoe de keuzehulp is opgebouwd, welke vragen we stellen, hoe de matching werkt en welke televisies zijn meegenomen.</p>
-      <a href="vragen.html" class="cta-btn">
-        Start de keuzehulp
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-      </a>
     </header>
 
     <!-- Content cards -->
@@ -730,6 +726,19 @@
 
     </div>
   </main>
+
+  <script>
+    (function () {
+      var link = document.getElementById('backLink');
+      var text = document.getElementById('backLinkText');
+      if (!link) return;
+      var ref = document.referrer;
+      if (ref && ref.includes('resultaat2.html')) {
+        link.href = 'resultaat2.html';
+        if (text) text.textContent = 'Terug naar de resultaten';
+      }
+    })();
+  </script>
 
 </body>
 </html>
