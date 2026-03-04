@@ -100,7 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
               placeholder="Zoek een keuzehulp…"
               aria-label="Zoek naar een keuzehulp"
             />
-            <i data-lucide="x" class="search-clear" aria-hidden="true"></i>
             <div class="landing-search-dropdown" aria-hidden="true">
               <div class="landing-search-dropdown-header">keuzehulpen</div>
               <ul class="landing-search-results" role="listbox"></ul>
@@ -155,7 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
             placeholder="Zoek een keuzehulp…"
             aria-label="Zoek naar een keuzehulp"
           />
-          <i data-lucide="x" class="search-clear" aria-hidden="true"></i>
           <div class="landing-search-dropdown" aria-hidden="true">
             <div class="landing-search-dropdown-header">keuzehulpen</div>
             <ul class="landing-search-results" role="listbox"></ul>

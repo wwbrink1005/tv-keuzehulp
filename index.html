@@ -147,7 +147,7 @@
 
       .hero-content {
         position: relative;
-        z-index: 2;
+        z-index: 3;
         max-width: 760px;
         display: flex;
         flex-direction: column;
@@ -215,7 +215,7 @@
       .hero .landing-search input {
         width: 100%;
         height: 60px;
-        padding: 0 54px;
+        padding: 0 20px 0 54px;
         border-radius: var(--radius-full);
         border: 1.5px solid var(--color-border);
         font-size: 16px;
@@ -246,19 +246,6 @@
         left: 22px;
         width: 20px;
         height: 20px;
-      }
-
-      .hero .landing-search .search-clear {
-        right: 22px;
-        width: 20px;
-        height: 20px;
-        color: #9ca3af;
-        cursor: pointer;
-        transition: color 0.2s ease;
-      }
-
-      .hero .landing-search .search-clear:hover {
-        color: var(--color-text);
       }
 
       /* Hero search dropdown */
@@ -459,6 +446,11 @@
         font-size: 14px;
         line-height: 1.65;
         color: var(--color-text-secondary);
+      }
+
+      /* Carousel dot indicators — hidden on desktop, shown on mobile */
+      .how-carousel-dots {
+        display: none;
       }
 
       /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -711,12 +703,11 @@
 
         .hero .landing-search input {
           height: 52px;
-          padding: 0 46px;
+          padding: 0 18px 0 46px;
           font-size: 15px;
         }
 
         .hero .landing-search .search-icon { left: 18px; width: 18px; height: 18px; }
-        .hero .landing-search .search-clear { right: 18px; width: 18px; height: 18px; }
 
         .hero-products {
           grid-template-columns: repeat(4, 1fr);
@@ -740,14 +731,51 @@
           font-size: 13px;
         }
 
+        /* ── How-it-works: horizontal swipe carousel ── */
         .how-grid {
-          grid-template-columns: 1fr;
-          max-width: 400px;
-          margin: 0 auto;
+          display: flex;
+          overflow-x: scroll;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          gap: 16px;
+          padding: 4px 24px 28px;
+          margin: 0 -24px;
+          max-width: none;
+        }
+
+        .how-grid::-webkit-scrollbar {
+          display: none;
         }
 
         .how-card {
-          padding: 32px 24px;
+          flex: 0 0 min(360px, 82vw);
+          scroll-snap-align: center;
+          padding: 36px 28px;
+        }
+
+        .how-carousel-dots {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 8px;
+          padding: 4px 0 0;
+        }
+
+        .how-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 99px;
+          background: var(--color-border);
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          transition: background 0.3s ease, width 0.3s ease;
+        }
+
+        .how-dot.active {
+          background: var(--color-primary);
+          width: 24px;
         }
 
         .popular-grid {
@@ -793,11 +821,10 @@
         .hero .landing-search input {
           height: 48px;
           font-size: 14px;
-          padding: 0 40px;
+          padding: 0 16px 0 40px;
         }
 
         .hero .landing-search .search-icon { left: 15px; width: 16px; height: 16px; }
-        .hero .landing-search .search-clear { right: 15px; width: 16px; height: 16px; }
 
         .hero-products {
           grid-template-columns: repeat(3, 1fr);
@@ -834,6 +861,11 @@
 
         .how-section, .popular-section, .categories-section {
           padding: 56px 16px 64px;
+        }
+
+        .how-grid {
+          margin: 0 -16px;
+          padding: 4px 16px 28px;
         }
 
         .categories-grid {
@@ -874,7 +906,6 @@
               placeholder="Zoek naar een keuzehulp…"
               aria-label="Zoek naar een keuzehulp"
             />
-            <i data-lucide="x" class="search-clear" aria-hidden="true"></i>
             <div class="landing-search-dropdown" aria-hidden="true">
               <div class="landing-search-dropdown-header">keuzehulpen</div>
               <ul class="landing-search-results" role="listbox"></ul>
@@ -933,7 +964,7 @@
         <div class="how-inner">
           <span class="section-label reveal">Hoe het werkt</span>
           <h2 class="section-title reveal">In drie stappen naar jouw ideale product</h2>
-          <div class="how-grid">
+          <div class="how-grid" id="howGrid">
             <div class="how-card reveal reveal-delay-1">
               <div class="how-step-number">1</div>
               <h3>Kies een keuzehulp</h3>
@@ -949,6 +980,11 @@
               <h3>Ontvang jouw advies</h3>
               <p>Krijg direct een persoonlijk advies met de producten die het beste bij jou passen.</p>
             </div>
+          </div>
+          <div class="how-carousel-dots" aria-hidden="true">
+            <button class="how-dot active" data-index="0" aria-label="Stap 1"></button>
+            <button class="how-dot" data-index="1" aria-label="Stap 2"></button>
+            <button class="how-dot" data-index="2" aria-label="Stap 3"></button>
           </div>
         </div>
       </section>
@@ -1106,6 +1142,49 @@
         );
 
         revealElements.forEach(el => observer.observe(el));
+      })();
+
+      /* ── How-it-works carousel dots (mobile only) ── */
+      (() => {
+        const grid = document.getElementById('howGrid');
+        const dots = document.querySelectorAll('.how-dot');
+        if (!grid || !dots.length) return;
+
+        function getActiveIndex() {
+          const cards = grid.querySelectorAll('.how-card');
+          const center = grid.scrollLeft + grid.offsetWidth / 2;
+          let activeIndex = 0;
+          let minDist = Infinity;
+          cards.forEach((card, i) => {
+            const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+            const dist = Math.abs(cardCenter - center);
+            if (dist < minDist) { minDist = dist; activeIndex = i; }
+          });
+          return activeIndex;
+        }
+
+        function updateDots() {
+          const active = getActiveIndex();
+          dots.forEach((dot, i) => dot.classList.toggle('active', i === active));
+        }
+
+        let ticking = false;
+        grid.addEventListener('scroll', () => {
+          if (ticking) return;
+          requestAnimationFrame(() => { updateDots(); ticking = false; });
+          ticking = true;
+        }, { passive: true });
+
+        dots.forEach((dot, i) => {
+          dot.addEventListener('click', () => {
+            const cards = grid.querySelectorAll('.how-card');
+            if (!cards[i]) return;
+            const cardLeft = cards[i].offsetLeft;
+            const cardWidth = cards[i].offsetWidth;
+            const scrollTo = cardLeft - (grid.offsetWidth - cardWidth) / 2;
+            grid.scrollTo({ left: scrollTo, behavior: 'smooth' });
+          });
+        });
       })();
     </script>
   </body>

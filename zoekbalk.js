@@ -87,14 +87,6 @@ const updateResults = (elements) => {
   renderResults(matches, query, elements);
 };
 
-const clearSearch = (elements) => {
-  const { searchInput } = elements;
-  if (!searchInput) return;
-  searchInput.value = "";
-  hideDropdown(elements);
-  searchInput.focus();
-};
-
 document.addEventListener("input", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
@@ -118,11 +110,6 @@ document.addEventListener("click", (event) => {
   if (!(target instanceof Element)) return;
 
   const searchWrapper = target.closest(".landing-search");
-  if (searchWrapper && target.closest(".search-clear")) {
-    clearSearch(getElements(searchWrapper));
-    return;
-  }
-
   if (!searchWrapper) {
     document.querySelectorAll(".landing-search").forEach((wrapper) => {
       hideDropdown(getElements(wrapper));

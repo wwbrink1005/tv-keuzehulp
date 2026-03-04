@@ -162,7 +162,7 @@
    }
 
    .how-content.is-open {
-     max-height: 340px;
+     max-height: 700px;
      opacity: 1;
    }
 
@@ -424,6 +424,7 @@
      display: flex;
      align-items: center;
      padding-left: calc(8.52303px * var(--scale));
+     padding-right: calc(10px * var(--scale));
      cursor: pointer;
      gap: calc(3px * var(--scale));
      transition: border-color .22s ease,
@@ -784,6 +785,15 @@
      color: var(--c-text-2);
      line-height: 1.68;
      margin: 0;
+   }
+
+   .info-panel-img {
+     width: 100%;
+     border-radius: var(--r-sm);
+     margin-top: 2px;
+     display: block;
+     object-fit: cover;
+     max-height: 180px;
    }
 
    /* Mobile drag handle (hidden on desktop) */
@@ -1197,6 +1207,7 @@
              <h3 class="info-panel-title" id="info-panel-title"></h3>
              <div class="info-panel-divider"></div>
              <p class="info-panel-text" id="info-panel-text"></p>
+             <img id="info-panel-img" class="info-panel-img" src="" alt="Voorbeeld afbeelding" style="display:none;">
            </div>
          </div>
 
@@ -1207,7 +1218,7 @@
            <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="1">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Dit helpt ons bepalen hoe groot de televisie moet zijn. Bij bepaalde afstanden is het namelijk beter om een grotere televisie te nemen en soms een kleinere. Uit jouw antwoord volgt een advies, In de volgende vraag kun je een definitieve keuze maken over de grootte van de tv.</p>
+             <p class="question-popover-text">De kijkafstand bepaalt mede welke tv-grootte het meest comfortabel is. Te dichtbij geeft een overweldigend en vermoeiend beeld; te ver weg en je mist fijne details. Als vuistregel geldt: deel je kijkafstand in centimeters door twee om de aanbevolen schermdiagonaal in centimeter te benaderen. Op basis van jouw antwoord berekenen wij een advies. In de volgende stap maak je de definitieve groottekeuze voor de rest van de keuzehulp.</p>
            </div>
          </div>
          <div class="answers-container">
@@ -1257,7 +1268,7 @@
            <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="2">
              <h3 class="question-popover-title">Waarom deze stap?</h3>
-             <p class="question-popover-text">Hier kun je kijken hoe jouw advies grootte er ongeveer uitziet en het verschil tussen formaten bekijken. De keuze die je hier maakt is je definitieve tv-afmeting voor de rest van de keuzehulp.</p>
+             <p class="question-popover-text">Op basis van jouw kijkafstand laten we hier de aanbevolen schermgrootte zien. Je kunt dit advies opvolgen of zelf een andere maat kiezen. Een grotere tv bij een te korte kijkafstand kan vermoeiend zijn voor de ogen; een te kleine tv op grote afstand laat details verloren gaan. De maat die je hier kiest, wordt gebruikt voor alle verdere aanbevelingen in de keuzehulp.</p>
            </div>
          </div>
          <div class="answers-container" id="size-options"></div>
@@ -1274,7 +1285,7 @@
            <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="3">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Dit helpt ons bepalen in welke prijscategorie we tv's kunnen aanbevelen. Natuurlijk is het meestal wel zo: een hogere prijscategorie betekent ook betere kwaliteit. Denk dus goed na hoeveel geld je bereid bent te spenderen voor je nieuwe televisie.</p>
+             <p class="question-popover-text">Het budget bepaalt in welke prijscategorie we zoeken. Als algemene lijn geldt: meer budget staat gelijk aan betere beeldtechnologie, snellere verwerking en meer functies. Budgettelevisies bieden prima kwaliteit voor dagelijks gebruik, terwijl duurdere modellen uitblinken in beeldkwaliteit, piekhelderheid en geavanceerde mogelijkheden zoals een betere beeldprocessor of nauwkeurige dimmingzones. Kies het bedrag dat voor jou realistisch is – ook in de lagere categorieën zijn uitstekende opties te vinden.</p>
            </div>
          </div>
          <div class="answers-container" id="price-options"></div>
@@ -1291,7 +1302,7 @@
            <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="4">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Met deze vraag krijgen we een beter beeld van hoe jij je tv gebruikt. Dat is belangrijk, omdat niet elke televisie voor elk gebruik even geschikt is. Op basis van je antwoord kunnen we een televisie adviseren die goed past bij jouw kijkgedrag.</p>
+             <p class="question-popover-text">Het gebruik heeft grote invloed op welk type tv het beste bij je past. Voor films en series is een hoge contrastratio cruciaal zodat donkere scènes er diep en gedetailleerd uitzien. Sportkijkers profiteren van een hoge beeldverversing (120 Hz of hoger) om bewegingsonscherpte te vermijden. Gamers hebben baat bij lage invoervertraging (input lag) en ondersteuning voor VRR of G-Sync. Je kunt meerdere opties aanvinken als je de tv voor een combinatie van doeleinden gebruikt.</p>
            </div>
          </div>
          <div class="answers-container">
@@ -1329,7 +1340,7 @@
            <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="5">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Dit helpt ons jouw verwachtingen van je tv te achterhalen. Ben je altijd op zoek naar het beste of is dit niet nodig? Met deze informatie kunnen we jouw verwachtingen koppelen aan een televisie.</p>
+             <p class="question-popover-text">Beeldkwaliteit is een breed begrip: het omvat scherpte, kleurnauwkeurigheid, contrastratio en helderheid. Wie absoluut het beste wil, kiest doorgaans voor een OLED- of high-end Mini-LED-tv met uitstekende HDR-prestaties. Wie een goede maar betaalbare keuze maakt, heeft genoeg aan een moderne LCD met degelijk lokaal dimmen. Voor casual gebruik zijn er aangenamere opties met een uitstekende prijs-kwaliteitverhouding. Hoe ambitieuzer je beeldwens, hoe geavanceerder en duurder het geadviseerde model wordt.</p>
            </div>
          </div>
          <div class="answers-container">
@@ -1362,7 +1373,7 @@
            <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="6">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Dit helpt ons om het juiste type tv te vinden voor jou. Niet alle tv's zijn even goed overdag en sommige zijn juist extra mooi in het donker. Als je een vaste kijktijd hebt, kunnen we zorgen dat je gedurende dit tijdstip het allerbeste hebt.</p>
+             <p class="question-popover-text">Het moment waarop je kijkt, bepaalt welk type tv het meest geschikt is. In een donkere kamer kunnen OLED-tv's prachtig diepe zwarttinten tonen doordat elk pixel afzonderlijk wordt uitgeschakeld. Overdag zijn heldere LCD- of QLED-tv's beter bestand tegen invallend omgevingslicht en spiegelende reflecties op het scherm. Kijk je zowel overdag als 's avonds, dan zoeken we een model dat in beide situaties goed presteert — een goede balans tussen helderheid en contrast.</p>
            </div>
          </div>
          <div class="answers-container">
@@ -1400,7 +1411,7 @@
            <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="7">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Dit helpt ons bepalen wat voor type tv bij jou past. Niet alle tv's zijn namelijk even goed in het behouden van beeldkwaliteit zodra je er niet recht voor zit. Als je dus van plan bent om met veel mensen tv te kijken heb je waarschijnlijk een tv nodig die vanuit alle kijkhoeken goede beeldkwaliteit kan behouden.</p>
+             <p class="question-popover-text">De kijkhoek bepaalt hoeveel de beeldkwaliteit afneemt naarmate je verder opzij kijkt. OLED- en IPS/QLED-panelen zijn daarin het sterkst: kleuren en contrast blijven vrijwel ongewijzigd, zelfs bij ruime kijkhoeken. Standaard VA-LCD-panelen vertonen bij een schuine kijkhoek kleurvervaging en een duidelijk lager contrast. Kijk je altijd recht voor het scherm, dan is dit minder relevant en kun je budget besparen op dit onderdeel van de tv.</p>
            </div>
          </div>
          <div class="answers-container">
@@ -1433,7 +1444,8 @@
            <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="8">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Dit helpt ons achterhalen of er dingen zijn die extra belangrijk voor je zijn. Deze informatie kunnen we meenemen en extra mee laten tellen voor je aanbeveling.</p>
+             <p class="question-popover-text">Hier geef je aan welke extra eigenschappen zwaarder mogen meewegen. Perfecte zwarttinten zijn het specialisme van OLED: elk pixel kan afzonderlijk worden uitgeschakeld voor oneindig contrast. Extreme helderheid is het domein van Mini-LED/QLED-tv's met krachtige achtergrondverlichting. Ambilight – exclusief bij Philips – projecteert de dominante schermkleuren via LED-strips op de muur achter en naast de tv, wat het gevoel van onderdompeling sterk vergroot (zie afbeelding). Je kunt meerdere opties aanvinken.</p>
+             <img class="question-popover-img" src="ambilight voorbeeld.png" alt="Ambilight voorbeeld">
            </div>
          </div>
          <div class="answers-container">

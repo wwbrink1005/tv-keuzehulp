@@ -10,6 +10,7 @@ export function initQuestionPopovers() {
   const infoPanel      = qs("#info-panel");
   const panelTitle     = qs("#info-panel-title");
   const panelText      = qs("#info-panel-text");
+  const panelImg       = qs("#info-panel-img");
   const panelClose     = qs("#info-panel-close");
   const questionsPanel = qs(".questions-panel");
 
@@ -24,6 +25,19 @@ export function initQuestionPopovers() {
 
     if (panelTitle) panelTitle.textContent = title;
     if (panelText)  panelText.textContent  = text;
+
+    // Show or hide the optional image (used for e.g. ambilight in Q8)
+    const imgEl = popover.querySelector(".question-popover-img");
+    if (panelImg) {
+      if (imgEl) {
+        panelImg.src   = imgEl.src;
+        panelImg.alt   = imgEl.alt;
+        panelImg.style.display = "block";
+      } else {
+        panelImg.style.display = "none";
+        panelImg.src = "";
+      }
+    }
 
     // Animate icon to active state
     if (activeIcon && activeIcon !== icon) {
@@ -51,6 +65,54 @@ export function initQuestionPopovers() {
       e.stopPropagation();
       closePanel();
     });
+  }
+
+  // ── Mobile drag-to-close (bottom sheet) ──
+  let dragStartY = 0;
+  let currentDragY = 0;
+  let isDragging = false;
+
+  function onDragStart(e) {
+    if (window.innerWidth > 900) return;
+    if (!infoPanel?.classList.contains("is-open")) return;
+    dragStartY = e.touches[0].clientY;
+    currentDragY = 0;
+    isDragging = true;
+    infoPanel.style.transition = "none";
+  }
+
+  function onDragMove(e) {
+    if (!isDragging) return;
+    const dy = e.touches[0].clientY - dragStartY;
+    if (dy < 0) return; // don't allow dragging upward
+    currentDragY = dy;
+    infoPanel.style.transform = `translateY(${dy}px)`;
+  }
+
+  function onDragEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    if (currentDragY > 120) {
+      // Animate the rest of the way off screen, then close cleanly
+      infoPanel.style.transition = "transform 0.28s ease";
+      infoPanel.style.transform = "translateY(104%)";
+      setTimeout(() => {
+        closePanel(); // removes is-open → CSS holds translateY(104%)
+        infoPanel.style.transition = "";
+        infoPanel.style.transform = "";
+      }, 280);
+    } else {
+      // Snap back to open position
+      infoPanel.style.transition = "transform 0.3s cubic-bezier(.4,0,.2,1)";
+      infoPanel.style.transform = "";
+      setTimeout(() => { infoPanel.style.transition = ""; }, 300);
+    }
+  }
+
+  if (infoPanel) {
+    infoPanel.addEventListener("touchstart", onDragStart, { passive: true });
+    infoPanel.addEventListener("touchmove", onDragMove, { passive: true });
+    infoPanel.addEventListener("touchend", onDragEnd);
   }
 
   document.addEventListener("click", function(e) {
