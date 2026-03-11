@@ -190,50 +190,10 @@
 				pointer-events: auto;
 			}
 
-			/* Accent stripe at top */
-			.info-card::before {
-				content: '';
-				display: block;
-				height: 3px;
-				background: linear-gradient(90deg, var(--accent), #3b8fe8);
-			}
-
-			.info-card-header {
-				display: flex;
-				align-items: center;
-				gap: 10px;
-				padding: 13px 14px 10px;
-				border-bottom: 1px solid var(--line);
-			}
-
-			.info-card-icon-wrap {
-				width: 32px;
-				height: 32px;
-				background: var(--accent-soft);
-				border-radius: 50%;
-				display: grid;
-				place-items: center;
-				color: var(--accent);
-				flex-shrink: 0;
-			}
-
-			.info-card-icon-wrap svg {
-				width: 15px;
-				height: 15px;
-				stroke-width: 2.2;
-			}
-
-			.info-card-label {
-				font-size: 11px;
-				font-weight: 700;
-				letter-spacing: 0.07em;
-				text-transform: uppercase;
-				color: var(--accent);
-				flex: 1;
-				line-height: 1;
-			}
-
 			.info-card-close {
+				position: absolute;
+				top: 10px;
+				right: 10px;
 				width: 26px;
 				height: 26px;
 				border: none;
@@ -246,7 +206,6 @@
 				transition: background 0.18s, color 0.18s;
 				padding: 0;
 				font-family: inherit;
-				flex-shrink: 0;
 			}
 
 			.info-card-close:hover {
@@ -261,7 +220,7 @@
 			}
 
 			.info-card-body {
-				padding: 14px 16px 18px;
+				padding: 18px 16px 18px;
 				display: flex;
 				flex-direction: column;
 				gap: 10px;
@@ -1386,15 +1345,9 @@
 
 		<!-- ── Info card (fixed portal) ── -->
 		<div id="infoCard" class="info-card" role="dialog" aria-hidden="true" aria-label="Over deze keuzehulp">
-			<div class="info-card-header">
-				<div class="info-card-icon-wrap">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-				</div>
-				<span class="info-card-label">Hoe werkt het?</span>
-				<button class="info-card-close" id="infoCardClose" type="button" aria-label="Sluit">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-				</button>
-			</div>
+			<button class="info-card-close" id="infoCardClose" type="button" aria-label="Sluit">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+			</button>
 			<div class="info-card-body">
 				<p class="info-card-title">Over deze keuzehulp</p>
 				<p class="info-card-text">Voor een volledige uitleg over deze keuzehulp, hoe die is opgebouwd en welke tv's worden meegenomen, lees de uitlegpagina.</p>
