@@ -46,7 +46,7 @@ const infoPages = [
           <div class="info-step-number">1</div>
           <div class="info-step-body">
             <span class="info-step-title">Beantwoord een paar vragen</span>
-            <span class="info-step-desc">We stellen je gerichte vragen over je gebruik, wensen en budget. Denk aan: hoe groot is de kamer? Kijk je veel op Netflix? Heb je een spelconsole? Er zijn geen goede of foute antwoorden.</span>
+            <span class="info-step-desc">We stellen je gerichte vragen over je gebruik, wensen en budget. Er zijn geen goede of foute antwoorden.</span>
           </div>
         </li>
         <li class="info-step">

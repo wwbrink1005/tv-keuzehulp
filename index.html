@@ -106,15 +106,14 @@
       .hero {
         position: relative;
         width: 100%;
-        min-height: min(90vh, 880px);
+        min-height: min(75vh, 600px);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 120px 24px 40px;
+        padding: 120px 24px 72px;
         overflow: hidden;
         text-align: center;
-        gap: 56px;
         background: linear-gradient(168deg, #f8f9fc 0%, #eef2f9 40%, #e4ecf7 100%);
       }
 
@@ -282,50 +281,63 @@
         text-transform: lowercase;
       }
 
-      /* ── Product Showcase ── */
-      .hero-products {
-        position: relative;
-        z-index: 2;
-        width: 100%;
-        max-width: 1100px;
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        align-items: end;
-        justify-items: center;
-        gap: 20px;
-        padding: 0 24px;
+      /* ── Hero Background Icons ── */
+      .hero-bg-icons {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        mask-image: radial-gradient(ellipse 62% 78% at 50% 52%, transparent 18%, rgba(0,0,0,0.55) 48%, black 70%);
+        -webkit-mask-image: radial-gradient(ellipse 62% 78% at 50% 52%, transparent 18%, rgba(0,0,0,0.55) 48%, black 70%);
       }
 
-      .hero-product {
+      .hbi {
+        position: absolute;
+        color: var(--color-primary);
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         justify-content: center;
-        animation: float-product 6s ease-in-out infinite;
       }
 
-      .hero-product:nth-child(2) { animation-delay: -1s; }
-      .hero-product:nth-child(3) { animation-delay: -2s; }
-      .hero-product:nth-child(4) { animation-delay: -3s; }
-      .hero-product:nth-child(5) { animation-delay: -4s; }
-
-      @keyframes float-product {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-      }
-
-      .hero-product img {
+      .hbi svg {
+        display: block;
         width: 100%;
-        max-width: 200px;
-        height: auto;
-        object-fit: contain;
-        filter: drop-shadow(0 16px 32px rgba(10, 10, 26, 0.12));
-        transition: transform var(--transition-smooth),
-                    filter var(--transition-smooth);
+        height: 100%;
+        stroke-width: 1.4;
       }
 
-      .hero-product img:hover {
-        transform: translateY(-8px) scale(1.04);
-        filter: drop-shadow(0 28px 48px rgba(10, 10, 26, 0.18));
+      /* Left column */
+      .hbi-1  { left: 5%;   top: 40%; width: 52px; height: 52px; opacity: 0.18; animation: hbi-b  9s ease-in-out infinite; }
+      .hbi-2  { left: 13%;  top: 16%; width: 40px; height: 40px; opacity: 0.13; animation: hbi-a  7s ease-in-out infinite 0.8s; }
+      .hbi-3  { left: 6%;   top: 74%; width: 48px; height: 48px; opacity: 0.15; animation: hbi-c 10s ease-in-out infinite 1.5s; }
+      /* Right column */
+      .hbi-4  { right: 13%; top: 16%; width: 38px; height: 38px; opacity: 0.13; animation: hbi-a  8s ease-in-out infinite 2s; }
+      .hbi-5  { right: 3%;  top: 44%; width: 54px; height: 54px; opacity: 0.18; animation: hbi-b  9s ease-in-out infinite 1s; }
+      .hbi-6  { right: 10%; top: 73%; width: 44px; height: 44px; opacity: 0.15; animation: hbi-c 11s ease-in-out infinite 0.3s; }
+      /* Top center */
+      .hbi-7  { left: 36%;  top: 6%;  width: 32px; height: 32px; opacity: 0.10; animation: hbi-a  7s ease-in-out infinite 2.5s; }
+      .hbi-8  { left: 62%;  top: 5%;  width: 34px; height: 34px; opacity: 0.10; animation: hbi-b  8s ease-in-out infinite 1.2s; }
+      /* Bottom */
+      .hbi-9  { left: 19%;  top: 84%; width: 38px; height: 38px; opacity: 0.12; animation: hbi-c  9s ease-in-out infinite 3s; }
+      .hbi-10 { right: 14%; top: 82%; width: 52px; height: 52px; opacity: 0.15; animation: hbi-a 12s ease-in-out infinite 0.7s; }
+      /* Subtle inner accents */
+      .hbi-11 { right: 25%; top: 36%; width: 28px; height: 28px; opacity: 0.08; animation: hbi-b  8s ease-in-out infinite 4s; }
+      .hbi-12 { left: 23%;  top: 44%; width: 30px; height: 30px; opacity: 0.08; animation: hbi-c 10s ease-in-out infinite 0.5s; }
+
+      @keyframes hbi-a {
+        0%, 100% { transform: translateY(0px); }
+        50%       { transform: translateY(-10px); }
+      }
+
+      @keyframes hbi-b {
+        0%, 100% { transform: translate(0px, 0px); }
+        40%       { transform: translate(5px, -8px); }
+        70%       { transform: translate(-3px, -5px); }
+      }
+
+      @keyframes hbi-c {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50%       { transform: translateY(-8px) rotate(3deg); }
       }
 
       /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -400,7 +412,7 @@
 
       .how-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 32px;
       }
 
@@ -668,27 +680,170 @@
       }
 
       /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         HERO CATEGORIES BROWSE
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .hero-or-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 16px 0 0;
+        width: min(280px, 100%);
+        color: var(--color-text-secondary);
+        font-size: 13px;
+      }
+
+      .hero-or-divider::before,
+      .hero-or-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: rgba(100, 116, 139, 0.22);
+      }
+
+      .hero-categories-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin-top: 14px;
+        padding: 11px 22px;
+        border-radius: var(--radius-full);
+        background: rgba(255, 255, 255, 0.9);
+        border: 1.5px solid var(--color-border);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        font-size: 14px;
+        font-weight: 600;
+        font-family: var(--font-body);
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        transition: all var(--transition-smooth);
+        white-space: nowrap;
+      }
+
+      .hero-categories-btn:hover {
+        border-color: rgba(9, 84, 163, 0.35);
+        color: var(--color-primary);
+        background: var(--color-primary-light);
+        box-shadow: 0 4px 16px rgba(9, 84, 163, 0.1);
+      }
+
+      .hero-categories-btn[aria-expanded="true"] {
+        border-color: rgba(9, 84, 163, 0.35);
+        color: var(--color-primary);
+        background: var(--color-primary-light);
+      }
+
+      .hero-cat-btn-icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      .hero-cat-btn-chevron {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+        transition: transform 0.25s ease;
+      }
+
+      .hero-categories-btn[aria-expanded="true"] .hero-cat-btn-chevron {
+        transform: rotate(180deg);
+      }
+
+      /* Dropdown — position: fixed, positioned by JS */
+      .hero-cat-dropdown {
+        position: fixed;
+        top: 0; left: 0; /* overridden by JS */
+        background: var(--color-white);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 24px 60px rgba(10, 10, 26, 0.12),
+                    0 4px 16px rgba(9, 84, 163, 0.06);
+        padding: 24px 24px 20px;
+        z-index: 9000;
+        width: min(680px, calc(100vw - 48px));
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px 24px;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.2s ease,
+                    visibility 0.2s ease,
+                    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: translateY(8px);
+      }
+
+      .hero-cat-dropdown.open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+
+      .hero-cat-col h4 {
+        font-family: var(--font-heading);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text);
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--color-primary-light);
+      }
+
+      .hero-cat-col ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .hero-cat-col li a,
+      .hero-cat-col li span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 14px;
+        color: var(--color-text-secondary);
+        transition: color 0.2s ease;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .hero-cat-col li a:hover,
+      .hero-cat-col li span:hover {
+        color: var(--color-primary);
+      }
+
+      .hero-cat-badge {
+        font-size: 10px;
+        font-weight: 600;
+        background: var(--color-primary-light);
+        color: var(--color-primary);
+        padding: 2px 7px;
+        border-radius: var(--radius-full);
+        white-space: nowrap;
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
          RESPONSIVE
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
       @media (max-width: 1024px) {
         .hero {
-          padding: 110px 24px 32px;
-          gap: 44px;
-        }
-
-        .hero-product img {
-          max-width: 160px;
+          padding: 110px 24px 58px;
         }
 
         .how-grid {
+          grid-template-columns: repeat(2, 1fr);
           gap: 24px;
         }
       }
 
       @media (max-width: 768px) {
         .hero {
-          padding: 100px 20px 24px;
-          gap: 36px;
+          padding: 100px 20px 48px;
           min-height: auto;
         }
 
@@ -708,20 +863,6 @@
         }
 
         .hero .landing-search .search-icon { left: 18px; width: 18px; height: 18px; }
-
-        .hero-products {
-          grid-template-columns: repeat(4, 1fr);
-          gap: 12px;
-          padding: 0 16px;
-        }
-
-        .hero-product:last-child {
-          display: none;
-        }
-
-        .hero-product img {
-          max-width: 120px;
-        }
 
         .trust-bar-inner {
           gap: 24px;
@@ -785,6 +926,12 @@
           margin-right: auto;
         }
 
+        .hero-cat-dropdown {
+          grid-template-columns: 1fr 1fr;
+          gap: 16px 20px;
+          padding: 20px 18px 16px;
+        }
+
         .categories-grid {
           grid-template-columns: repeat(2, 1fr);
           gap: 36px 32px;
@@ -797,8 +944,7 @@
 
       @media (max-width: 480px) {
         .hero {
-          padding: 88px 16px 20px;
-          gap: 28px;
+          padding: 88px 16px 48px;
         }
 
         .hero-badge {
@@ -826,19 +972,10 @@
 
         .hero .landing-search .search-icon { left: 15px; width: 16px; height: 16px; }
 
-        .hero-products {
-          grid-template-columns: repeat(3, 1fr);
-          gap: 8px;
-          padding: 0 8px;
-        }
-
-        .hero-product:nth-child(4) {
-          display: none;
-        }
-
-        .hero-product img {
-          max-width: 80px;
-        }
+        .hbi-11, .hbi-12 { display: none; }
+        .hbi-1,  .hbi-3,  .hbi-5,  .hbi-6  { width: 36px; height: 36px; }
+        .hbi-2,  .hbi-4,  .hbi-9,  .hbi-10 { width: 28px; height: 28px; }
+        .hbi-7,  .hbi-8                     { width: 22px; height: 22px; }
 
         .trust-bar {
           padding: 16px 16px;
@@ -876,6 +1013,16 @@
         .popular-card {
           padding: 24px 22px 24px;
         }
+
+        .hero-categories-btn {
+          font-size: 13px;
+          padding: 10px 18px;
+        }
+
+        .hero-cat-dropdown {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
       }
     </style>
   </head>
@@ -886,6 +1033,23 @@
            HERO
            ════════════════════════════════════════════ -->
       <section class="hero" aria-label="Hero sectie">
+
+        <!-- Decorative icon background -->
+        <div class="hero-bg-icons" aria-hidden="true">
+          <span class="hbi hbi-1"><i data-lucide="monitor"></i></span>
+          <span class="hbi hbi-2"><i data-lucide="camera"></i></span>
+          <span class="hbi hbi-3"><i data-lucide="refrigerator"></i></span>
+          <span class="hbi hbi-4"><i data-lucide="printer"></i></span>
+          <span class="hbi hbi-5"><i data-lucide="tablet"></i></span>
+          <span class="hbi hbi-6"><i data-lucide="headphones"></i></span>
+          <span class="hbi hbi-7"><i data-lucide="smartphone"></i></span>
+          <span class="hbi hbi-8"><i data-lucide="washing-machine"></i></span>
+          <span class="hbi hbi-9"><i data-lucide="tv-minimal"></i></span>
+          <span class="hbi hbi-10"><i data-lucide="bike"></i></span>
+          <span class="hbi hbi-11"><i data-lucide="speaker"></i></span>
+          <span class="hbi hbi-12"><i data-lucide="tv"></i></span>
+        </div>
+
         <div class="hero-content reveal">
           <span class="hero-badge">
             <span class="hero-badge-dot"></span>
@@ -896,7 +1060,7 @@
           </h1>
           <p class="hero-subtitle">
             Beantwoord een paar simpele vragen en ontdek welk product het
-            beste bij jou past — onafhankelijk en altijd gratis.
+            beste bij jou past.
           </p>
 
           <div class="landing-search" role="search">
@@ -912,25 +1076,25 @@
               <div class="landing-search-dropdown-footer"></div>
             </div>
           </div>
+
+          <!-- or divider -->
+          <div class="hero-or-divider">of</div>
+
+          <!-- Categories browse button -->
+          <button
+            class="hero-categories-btn"
+            id="heroCatBtn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="heroCatDropdown"
+            aria-haspopup="true"
+          >
+            <i data-lucide="layout-grid" class="hero-cat-btn-icon" aria-hidden="true"></i>
+            Bekijk alle categorieën
+            <i data-lucide="chevron-down" class="hero-cat-btn-chevron" aria-hidden="true"></i>
+          </button>
         </div>
 
-        <div class="hero-products">
-          <div class="hero-product reveal reveal-delay-1">
-            <img src="tv.png" alt="Televisie" loading="lazy" decoding="async" />
-          </div>
-          <div class="hero-product reveal reveal-delay-2">
-            <img src="bbq.png" alt="Kamado barbecue" loading="lazy" decoding="async" />
-          </div>
-          <div class="hero-product reveal reveal-delay-3">
-            <img src="fiets.png" alt="Elektrische fiets" loading="lazy" decoding="async" />
-          </div>
-          <div class="hero-product reveal reveal-delay-4">
-            <img src="laptop.png" alt="Laptop" loading="lazy" decoding="async" />
-          </div>
-          <div class="hero-product reveal reveal-delay-5">
-            <img src="wasmachine.png" alt="Wasmachine" loading="lazy" decoding="async" />
-          </div>
-        </div>
       </section>
 
       <!-- ════════════════════════════════════════════
@@ -948,46 +1112,14 @@
           </div>
           <div class="trust-item">
             <i data-lucide="bar-chart-3" class="trust-icon" aria-hidden="true"></i>
-            500+ producten vergeleken
+            Duizenden producten vergeleken
           </div>
           <div class="trust-item">
             <i data-lucide="zap" class="trust-icon" aria-hidden="true"></i>
-            Resultaat in 2 minuten
+            Snelle resultaten
           </div>
         </div>
       </div>
-
-      <!-- ════════════════════════════════════════════
-           HOW IT WORKS
-           ════════════════════════════════════════════ -->
-      <section class="how-section" aria-label="Hoe het werkt">
-        <div class="how-inner">
-          <span class="section-label reveal">Hoe het werkt</span>
-          <h2 class="section-title reveal">In drie stappen naar jouw ideale product</h2>
-          <div class="how-grid" id="howGrid">
-            <div class="how-card reveal reveal-delay-1">
-              <div class="how-step-number">1</div>
-              <h3>Kies een keuzehulp</h3>
-              <p>Selecteer de productcategorie waarvoor je advies wilt — van televisies tot wasmachines.</p>
-            </div>
-            <div class="how-card reveal reveal-delay-2">
-              <div class="how-step-number">2</div>
-              <h3>Beantwoord vragen</h3>
-              <p>Een paar eenvoudige vragen over jouw wensen en situatie. Duurt maximaal 2 minuten.</p>
-            </div>
-            <div class="how-card reveal reveal-delay-3">
-              <div class="how-step-number">3</div>
-              <h3>Ontvang jouw advies</h3>
-              <p>Krijg direct een persoonlijk advies met de producten die het beste bij jou passen.</p>
-            </div>
-          </div>
-          <div class="how-carousel-dots" aria-hidden="true">
-            <button class="how-dot active" data-index="0" aria-label="Stap 1"></button>
-            <button class="how-dot" data-index="1" aria-label="Stap 2"></button>
-            <button class="how-dot" data-index="2" aria-label="Stap 3"></button>
-          </div>
-        </div>
-      </section>
 
       <!-- ════════════════════════════════════════════
            POPULAR KEUZEHULPEN
@@ -1027,6 +1159,44 @@
               </a>
             </article>
 
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════
+           HOW IT WORKS
+           ════════════════════════════════════════════ -->
+      <section class="how-section" aria-label="Hoe het werkt">
+        <div class="how-inner">
+          <span class="section-label reveal">Hoe het werkt</span>
+          <h2 class="section-title reveal">In vier stappen naar jouw ideale product</h2>
+          <div class="how-grid" id="howGrid">
+            <div class="how-card reveal reveal-delay-1">
+              <div class="how-step-number">1</div>
+              <h3>Kies een keuzehulp</h3>
+              <p>Selecteer de productcategorie waarvoor je advies wilt — van televisies tot wasmachines.</p>
+            </div>
+            <div class="how-card reveal reveal-delay-2">
+              <div class="how-step-number">2</div>
+              <h3>Beantwoord vragen</h3>
+              <p>Een paar eenvoudige vragen over jouw wensen en situatie. Duurt maximaal 2 minuten.</p>
+            </div>
+            <div class="how-card reveal reveal-delay-3">
+              <div class="how-step-number">3</div>
+              <h3>Ontvang jouw advies</h3>
+              <p>Krijg direct een persoonlijk advies met de producten die het beste bij jou passen.</p>
+            </div>
+            <div class="how-card reveal reveal-delay-4">
+              <div class="how-step-number">4</div>
+              <h3>Kies en koop waar jij dat wil</h3>
+              <p>Wij sturen je door naar bekende webshops waar je het product kunt bekijken en bestellen. Jij bepaalt zelf waar je koopt.</p>
+            </div>
+          </div>
+          <div class="how-carousel-dots" aria-hidden="true">
+            <button class="how-dot active" data-index="0" aria-label="Stap 1"></button>
+            <button class="how-dot" data-index="1" aria-label="Stap 2"></button>
+            <button class="how-dot" data-index="2" aria-label="Stap 3"></button>
+            <button class="how-dot" data-index="3" aria-label="Stap 4"></button>
           </div>
         </div>
       </section>
@@ -1113,6 +1283,50 @@
           </div>
         </div>
       </section>
+
+      <!-- ════════════════════════════════════════════
+           HERO CATEGORIES DROPDOWN (position: fixed)
+           ════════════════════════════════════════════ -->
+      <div
+        class="hero-cat-dropdown"
+        id="heroCatDropdown"
+        role="dialog"
+        aria-label="Alle categorieën"
+        aria-hidden="true"
+      >
+        <div class="hero-cat-col">
+          <h4>Beeld, Geluid &amp; Foto</h4>
+          <ul>
+            <li><a href="vragen.html">Televisies <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+            <li><span>Soundbars <span class="hero-cat-badge">binnenkort</span></span></li>
+            <li><span>Fototoestellen <span class="hero-cat-badge">binnenkort</span></span></li>
+            <li><span>Koptelefoons <span class="hero-cat-badge">binnenkort</span></span></li>
+          </ul>
+        </div>
+        <div class="hero-cat-col">
+          <h4>Huishoudelijke Apparaten</h4>
+          <ul>
+            <li><span>Koelkasten <span class="hero-cat-badge">binnenkort</span></span></li>
+            <li><span>Wasmachines <span class="hero-cat-badge">binnenkort</span></span></li>
+            <li><span>Koffiemachines <span class="hero-cat-badge">binnenkort</span></span></li>
+            <li><span>Vaatwassers <span class="hero-cat-badge">binnenkort</span></span></li>
+            <li><span>Stofzuigers <span class="hero-cat-badge">binnenkort</span></span></li>
+          </ul>
+        </div>
+        <div class="hero-cat-col">
+          <h4>Computer &amp; Telefonie</h4>
+          <ul>
+            <li><span>Laptop <span class="hero-cat-badge">binnenkort</span></span></li>
+            <li><span>Smartphone <span class="hero-cat-badge">binnenkort</span></span></li>
+            <li><span>Tablets <span class="hero-cat-badge">binnenkort</span></span></li>
+          </ul>
+          <h4 style="margin-top: 16px;">Buiten &amp; Tuin</h4>
+          <ul>
+            <li><span>Barbecues <span class="hero-cat-badge">binnenkort</span></span></li>
+            <li><span>Grasmaaiers <span class="hero-cat-badge">binnenkort</span></span></li>
+          </ul>
+        </div>
+      </div>
     </main>
 
     <!-- ═══ SCRIPTS ═══ -->
@@ -1184,6 +1398,58 @@
             const scrollTo = cardLeft - (grid.offsetWidth - cardWidth) / 2;
             grid.scrollTo({ left: scrollTo, behavior: 'smooth' });
           });
+        });
+      })();
+
+      /* ── Hero categories dropdown ── */
+      (() => {
+        const btn = document.getElementById('heroCatBtn');
+        const dropdown = document.getElementById('heroCatDropdown');
+        if (!btn || !dropdown) return;
+
+        function positionDropdown() {
+          const rect = btn.getBoundingClientRect();
+          const dropWidth = dropdown.offsetWidth;
+          const viewportW = window.innerWidth;
+          let left = rect.left + rect.width / 2 - dropWidth / 2;
+          left = Math.max(24, Math.min(left, viewportW - dropWidth - 24));
+          dropdown.style.top  = (rect.bottom + 12) + 'px';
+          dropdown.style.left = left + 'px';
+        }
+
+        function openDropdown() {
+          dropdown.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+          dropdown.removeAttribute('aria-hidden');
+          positionDropdown();
+          lucide.createIcons();
+        }
+
+        function closeDropdown() {
+          dropdown.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+          dropdown.setAttribute('aria-hidden', 'true');
+        }
+
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdown.classList.contains('open') ? closeDropdown() : openDropdown();
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!dropdown.contains(e.target) && e.target !== btn) closeDropdown();
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') closeDropdown();
+        });
+
+        window.addEventListener('scroll', () => {
+          if (dropdown.classList.contains('open')) positionDropdown();
+        }, { passive: true });
+
+        window.addEventListener('resize', () => {
+          if (dropdown.classList.contains('open')) positionDropdown();
         });
       })();
     </script>
