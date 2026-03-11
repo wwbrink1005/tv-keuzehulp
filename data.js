@@ -107,6 +107,6 @@ export const scoringSystem = {
     helderheid: { "LED (edge)": 6, "LED (direct)": 7, "Mini LED": 9, "QLED": 10, "OLED": 6 },
     kleur: { "LED (edge)": 5, "LED (direct)": 6, "Mini LED": 8, "QLED": 10, "OLED": 9 },
     ambilight: { "LED (edge)": 0, "LED (direct)": 0, "Mini LED": 0, "QLED": 0, "OLED": 0 },
-    niks: { "LED (edge)": 10, "LED (direct)": 9, "Mini LED": 5, "QLED": 5, "OLED": 5 }
+    niks: { "LED (edge)": 7, "LED (direct)": 6, "Mini LED": 5, "QLED": 5, "OLED": 5 }
   }
 };

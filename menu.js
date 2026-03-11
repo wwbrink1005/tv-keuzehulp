@@ -8,7 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <!-- Brand -->
       <div class="menu-brand">
-        <a href="index.html">producthulp.nl</a>
+        <a href="index.html" aria-label="producthulp.nl — home">
+          <img
+            src="producthulp-logo%20(1).svg"
+            alt="producthulp.nl"
+            class="menu-logo"
+            height="38"
+          />
+        </a>
       </div>
 
       <!-- Center nav (desktop) -->
