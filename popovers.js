@@ -5,7 +5,7 @@ function clamp(value, min, max) {
 }
 
 export function initQuestionPopovers() {
-  if (!qs(".question-info-icon")) return;
+  if (!qs(".question-hint-btn") && !qs(".question-hint-btn-mobile")) return;
 
   const infoPanel      = qs("#info-panel");
   const panelTitle     = qs("#info-panel-title");
@@ -13,9 +13,8 @@ export function initQuestionPopovers() {
   const panelImg       = qs("#info-panel-img");
   const panelClose     = qs("#info-panel-close");
   const questionsPanel = qs(".questions-panel");
-
-  // Track which icon is currently active so we can toggle
-  let activeIcon = null;
+  const hintBtn        = qs("#question-hint-btn");
+  const hintBtnMobile  = qs("#question-hint-btn-mobile");
 
   function lockBodyScroll() {
     if (window.innerWidth <= 900) {
@@ -29,7 +28,7 @@ export function initQuestionPopovers() {
     document.body.style.touchAction = "";
   }
 
-  function openPanel(icon, popover) {
+  function openPanel(popover) {
     if (!infoPanel || !popover) return;
 
     const title = popover.querySelector(".question-popover-title")?.textContent.trim() ?? "";
@@ -51,12 +50,8 @@ export function initQuestionPopovers() {
       }
     }
 
-    // Animate icon to active state
-    if (activeIcon && activeIcon !== icon) {
-      activeIcon.classList.remove("info-icon-active");
-    }
-    icon.classList.add("info-icon-active");
-    activeIcon = icon;
+    hintBtn?.classList.add("hint-btn-active");
+    hintBtnMobile?.classList.add("hint-btn-active");
 
     infoPanel.classList.add("is-open");
     if (questionsPanel) questionsPanel.classList.add("panel-open");
@@ -67,10 +62,8 @@ export function initQuestionPopovers() {
     if (!infoPanel) return;
     infoPanel.classList.remove("is-open");
     if (questionsPanel) questionsPanel.classList.remove("panel-open");
-    if (activeIcon) {
-      activeIcon.classList.remove("info-icon-active");
-      activeIcon = null;
-    }
+    hintBtn?.classList.remove("hint-btn-active");
+    hintBtnMobile?.classList.remove("hint-btn-active");
     unlockBodyScroll();
   }
 
@@ -131,20 +124,21 @@ export function initQuestionPopovers() {
   }
 
   document.addEventListener("click", function(e) {
-    const infoIcon = e.target.closest(".question-info-icon");
+    const isHintBtn = e.target.closest(".question-hint-btn") ||
+                      e.target.closest(".question-hint-btn-mobile");
 
-    if (infoIcon) {
+    if (isHintBtn) {
       e.stopPropagation();
 
-      // Toggle: clicking the same icon closes the panel
-      if (infoPanel?.classList.contains("is-open") && activeIcon === infoIcon) {
+      // Toggle: clicking while panel is open → close
+      if (infoPanel?.classList.contains("is-open")) {
         closePanel();
         return;
       }
 
-      const questionContainer = infoIcon.closest(".question-container");
-      const popover = questionContainer?.querySelector(".question-popover");
-      openPanel(infoIcon, popover);
+      const activeBlock = qs(".question-block.is-active");
+      const popover = activeBlock?.querySelector(".question-popover");
+      openPanel(popover);
       return;
     }
 

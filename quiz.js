@@ -201,6 +201,12 @@ function showQuestion(num) {
     const topBar = qs(".top-bar");
     if (topBar) topBar.style.display = "none";
 
+    // Hide hint buttons on result screen
+    const hintBtn = qs("#question-hint-btn");
+    const hintBtnMobile = qs("#question-hint-btn-mobile");
+    if (hintBtn) hintBtn.style.display = "none";
+    if (hintBtnMobile) hintBtnMobile.style.display = "none";
+
     const bgContainer = qs(".background-container");
     if (bgContainer) {
       bgContainer.style.backgroundImage = 'url("ja vervaagd.png")';
@@ -223,6 +229,15 @@ function showQuestion(num) {
       setQuestionExpanded(currentQuestion, false);
       positionElements(num);
       updateProgressBar(num);
+
+      // Update hint button text and ensure visibility
+      const hintBtn = qs("#question-hint-btn");
+      if (hintBtn) {
+        hintBtn.style.display = "";
+        hintBtn.textContent = num === 2 ? "Waarom deze stap?" : "Waarom deze vraag?";
+      }
+      const hintBtnMobile = qs("#question-hint-btn-mobile");
+      if (hintBtnMobile) hintBtnMobile.style.display = "";
     });
   });
 }

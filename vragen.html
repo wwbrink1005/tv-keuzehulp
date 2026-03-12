@@ -309,7 +309,6 @@
      left: calc(36.9291px * var(--scale));
      top: calc(70.11px * var(--scale));
      max-width: calc(550px * var(--scale));
-     line-height: 0;
    }
 
    .question-container h2 {
@@ -320,38 +319,86 @@
      margin: 0;
      line-height: 1.35;
      max-width: calc(456.89px * var(--scale));
-     display: inline;
+     display: block;
      letter-spacing: -.015em;
    }
 
-   /* Question info icon */
-   .question-info-icon {
-     width: calc(28px * var(--scale));
-     height: calc(28px * var(--scale));
-     color: var(--c-accent);
-     stroke-width: 2;
-     margin-left: calc(6px * var(--scale));
+   /* Desktop hint button — positioned bottom-right inside the living room image */
+   button.question-hint-btn {
+     position: absolute;
+     bottom: calc(14px * var(--scale, 1));
+     right: calc(14px * var(--scale, 1));
+     z-index: 5;
+     width: auto;
+     height: auto;
+     display: inline-flex;
+     align-items: center;
+     background: rgba(255,255,255,.78);
+     backdrop-filter: blur(10px) saturate(160%);
+     -webkit-backdrop-filter: blur(10px) saturate(160%);
+     border: 1px solid rgba(255,255,255,.55);
+     border-radius: 100px;
+     font-family: 'Inter', sans-serif;
+     font-size: calc(12.5px * var(--scale, 1));
+     font-weight: 500;
+     color: var(--c-text-2);
+     padding: calc(6px * var(--scale, 1)) calc(15px * var(--scale, 1));
      cursor: pointer;
-     display: inline-block;
-     vertical-align: baseline;
-     position: relative;
-     top: calc(5px * var(--scale));
-     opacity: .6;
-     transition: opacity .2s, transform .2s, background .2s, color .2s, box-shadow .2s;
+     letter-spacing: 0;
+     text-align: left;
+     box-shadow: none;
+     transition: background .2s, color .2s, border-color .2s;
    }
 
-   .question-info-icon:hover {
-     opacity: 1;
-     transform: scale(1.12);
+   button.question-hint-btn:hover {
+     background: rgba(255,255,255,.94);
+     color: var(--c-accent);
+     border-color: rgba(9,84,163,.25);
+     box-shadow: none;
+     transform: none;
    }
 
-   .question-info-icon.info-icon-active {
-     opacity: 1;
-     color: #fff;
-     background: var(--c-accent);
+   button.question-hint-btn.hint-btn-active {
+     background: rgba(255,255,255,.94);
+     color: var(--c-accent);
+     border-color: rgba(9,84,163,.25);
+   }
+
+   /* Mobile hint button — small ? circle inside the image */
+   button.question-hint-btn-mobile {
+     position: absolute;
+     bottom: 12px;
+     right: 12px;
+     z-index: 10;
+     width: 32px;
+     height: 32px;
+     min-width: 0;
+     background: rgba(255,255,255,.80);
+     backdrop-filter: blur(8px) saturate(150%);
+     -webkit-backdrop-filter: blur(8px) saturate(150%);
+     border: 1px solid rgba(255,255,255,.55);
      border-radius: 50%;
-     transform: scale(1.08);
-     box-shadow: 0 0 0 4px var(--c-accent-glow);
+     box-shadow: 0 1px 6px rgba(0,0,0,.12);
+     cursor: pointer;
+     display: none;
+     place-items: center;
+     padding: 0;
+     color: var(--c-text-2);
+     transition: background .2s, color .2s;
+   }
+
+   button.question-hint-btn-mobile svg {
+     width: 18px;
+     height: 18px;
+     stroke-width: 1.75;
+   }
+
+   button.question-hint-btn-mobile:hover,
+   button.question-hint-btn-mobile.hint-btn-active {
+     background: rgba(255,255,255,.96);
+     color: var(--c-accent);
+     box-shadow: none;
+     transform: none;
    }
 
    /* Question visibility */
@@ -601,7 +648,7 @@
    }
 
    /* Questions panel needs overflow:hidden to clip the sliding panel animation */
-   .questions-panel { overflow: hidden; }
+   .questions-panel { overflow: hidden; border-radius: var(--r-lg); }
 
    /* ====== CONTAINER WRAPPER ====== */
    .container-wrapper {
@@ -665,10 +712,8 @@
      bottom: 0;
      width: 38%;
      min-width: 260px;
-     background: rgba(247,248,252,.97);
-     backdrop-filter: blur(32px) saturate(200%);
-     -webkit-backdrop-filter: blur(32px) saturate(200%);
-     border-left: 1px solid rgba(255,255,255,.7);
+     background: #ffffff;
+     border-left: 1px solid rgba(0,0,0,.06);
      border-radius: 0 var(--r-lg) var(--r-lg) 0;
      z-index: 100;
      transform: translateX(102%);
@@ -679,8 +724,7 @@
      display: flex;
      flex-direction: column;
      overflow: hidden;
-     box-shadow: -6px 0 32px rgba(0,0,0,.10),
-                 -1px 0 0 rgba(0,0,0,.04);
+     box-shadow: -4px 0 24px rgba(0,0,0,.07);
    }
 
    .info-panel.is-open {
@@ -689,71 +733,36 @@
      pointer-events: auto;
    }
 
-   /* Accent stripe at top */
-   .info-panel::before {
-     content: '';
-     display: block;
-     height: 3px;
-     background: linear-gradient(90deg, var(--c-accent), #3b8fe8);
-     flex-shrink: 0;
-   }
-
    .info-panel-header {
      display: flex;
      align-items: center;
-     gap: 10px;
-     padding: 14px 16px 12px;
-     border-bottom: 1px solid rgba(0,0,0,.06);
+     justify-content: flex-end;
+     padding: 12px 14px 0;
      flex-shrink: 0;
    }
 
-   .info-panel-icon-wrap {
-     width: 34px;
-     height: 34px;
-     background: var(--c-accent-soft);
-     border-radius: 50%;
-     display: grid;
-     place-items: center;
-     color: var(--c-accent);
-     flex-shrink: 0;
-   }
-
-   .info-panel-icon-wrap svg {
-     width: 17px;
-     height: 17px;
-     stroke-width: 2.2;
-   }
-
-   .info-panel-header-label {
-     font-size: 11px;
-     font-weight: 700;
-     letter-spacing: .07em;
-     text-transform: uppercase;
-     color: var(--c-accent);
-     flex: 1;
-     line-height: 1;
-   }
+   .info-panel-icon-wrap { display: none; }
+   .info-panel-header-label { display: none; }
 
    .info-panel-close {
      width: 28px;
      height: 28px;
      border: none;
-     background: rgba(0,0,0,.055);
+     background: rgba(0,0,0,.05);
      border-radius: 50%;
      cursor: pointer;
      display: grid;
      place-items: center;
      color: var(--c-text-3);
-     transition: background .18s, color .18s, transform .18s;
+     transition: background .18s, color .18s;
      flex-shrink: 0;
      padding: 0;
      font-family: inherit;
    }
 
    .info-panel-close:hover {
-     background: rgba(0,0,0,.11);
+     background: rgba(0,0,0,.1);
      color: var(--c-text);
-     transform: scale(1.08);
    }
 
    .info-panel-close svg {
@@ -763,7 +772,7 @@
    }
 
    .info-panel-body {
-     padding: 18px 18px 20px;
+     padding: 10px 20px 20px;
      overflow-y: auto;
      flex: 1;
      display: flex;
@@ -984,16 +993,12 @@
      .question-container h2 {
        font-size: clamp(18px, 5vw, 22px);
        max-width: 100%;
-       display: inline;
+       display: block;
      }
 
-     .question-info-icon {
-       width: clamp(1.05em, 4vw, 1.25em);
-       height: clamp(1.05em, 4vw, 1.25em);
-       margin-left: .35em;
-       top: .1em;
-       stroke-width: 2.3;
-     }
+     /* Hide desktop pill button, show mobile circle icon */
+     button.question-hint-btn { display: none; }
+     button.question-hint-btn-mobile { display: grid; }
 
      .answers-container {
        position: static;
@@ -1239,6 +1244,14 @@
            <div class="progress-bar" id="progress-bar"></div>
          </div>
          <div id="tv-display"></div>
+         <!-- Mobile hint button: small ? circle at bottom-right of the image -->
+         <button id="question-hint-btn-mobile" class="question-hint-btn-mobile" type="button" aria-label="Waarom deze vraag?">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+             <circle cx="12" cy="12" r="10"/>
+             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+             <circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/>
+           </svg>
+         </button>
        </div>
 
        <div class="questions-panel">
@@ -1273,11 +1286,13 @@
            </div>
          </div>
 
+         <!-- Desktop hint button: frosted pill at bottom-right of the image -->
+         <button id="question-hint-btn" class="question-hint-btn" type="button">Waarom deze vraag?</button>
+
        <!-- VRAAG 1 -->
        <div id="question-1" class="question-block">
          <div class="question-container">
            <h2>Hoe ver zit je van de televisie af?</h2>
-           <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="1">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">De kijkafstand bepaalt mede welke tv-grootte het meest comfortabel is. Te dichtbij geeft een overweldigend en vermoeiend beeld; te ver weg en je mist fijne details. Als vuistregel geldt: deel je kijkafstand in centimeters door twee om de aanbevolen schermdiagonaal in centimeter te benaderen. Op basis van jouw antwoord berekenen wij een advies. In de volgende stap maak je de definitieve groottekeuze voor de rest van de keuzehulp.</p>
@@ -1327,7 +1342,6 @@
        <div id="question-2" class="question-block" style="display:none;">
          <div class="question-container">
            <h2 id="advies-tekst">Welke grootte past bij jou?</h2>
-           <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="2">
              <h3 class="question-popover-title">Waarom deze stap?</h3>
              <p class="question-popover-text">Op basis van jouw kijkafstand laten we hier de aanbevolen schermgrootte zien. Je kunt dit advies opvolgen of zelf een andere maat kiezen. Een grotere tv bij een te korte kijkafstand kan vermoeiend zijn voor de ogen; een te kleine tv op grote afstand laat details verloren gaan. De maat die je hier kiest, wordt gebruikt voor alle verdere aanbevelingen in de keuzehulp.</p>
@@ -1344,7 +1358,6 @@
        <div id="question-3" class="question-block" style="display:none;">
          <div class="question-container">
            <h2>Hoeveel geld ben je bereid uit te geven voor je tv?</h2>
-           <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="3">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">Het budget bepaalt in welke prijscategorie we zoeken. Als algemene lijn geldt: meer budget staat gelijk aan betere beeldtechnologie, snellere verwerking en meer functies. Budgettelevisies bieden prima kwaliteit voor dagelijks gebruik, terwijl duurdere modellen uitblinken in beeldkwaliteit, piekhelderheid en geavanceerde mogelijkheden zoals een betere beeldprocessor of nauwkeurige dimmingzones. Kies het bedrag dat voor jou realistisch is – ook in de lagere categorieën zijn uitstekende opties te vinden.</p>
@@ -1361,7 +1374,6 @@
        <div id="question-4" class="question-block" style="display:none;">
          <div class="question-container">
            <h2>Waar ga je de tv voornamelijk voor gebruiken?</h2>
-           <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="4">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">Het gebruik heeft grote invloed op welk type tv het beste bij je past. Voor films en series is een hoge contrastratio cruciaal zodat donkere scènes er diep en gedetailleerd uitzien. Sportkijkers profiteren van een hoge beeldverversing (120 Hz of hoger) om bewegingsonscherpte te vermijden. Gamers hebben baat bij lage invoervertraging (input lag) en ondersteuning voor VRR of G-Sync. Je kunt meerdere opties aanvinken als je de tv voor een combinatie van doeleinden gebruikt.</p>
@@ -1399,7 +1411,6 @@
        <div id="question-5" class="question-block" style="display:none;">
          <div class="question-container">
            <h2>Hoe belangrijk vind je de beeldkwaliteit?</h2>
-           <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="5">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">Beeldkwaliteit is een breed begrip: het omvat scherpte, kleurnauwkeurigheid, contrastratio en helderheid. Wie absoluut het beste wil, kiest doorgaans voor een OLED- of high-end Mini-LED-tv met uitstekende HDR-prestaties. Wie een goede maar betaalbare keuze maakt, heeft genoeg aan een moderne LCD met degelijk lokaal dimmen. Voor casual gebruik zijn er aangenamere opties met een uitstekende prijs-kwaliteitverhouding. Hoe ambitieuzer je beeldwens, hoe geavanceerder en duurder het geadviseerde model wordt.</p>
@@ -1432,7 +1443,6 @@
        <div id="question-6" class="question-block" style="display:none;">
          <div class="question-container">
            <h2>Wanneer kijk je meestal tv?</h2>
-           <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="6">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">Het moment waarop je kijkt, bepaalt welk type tv het meest geschikt is. In een donkere kamer kunnen OLED-tv's prachtig diepe zwarttinten tonen doordat elk pixel afzonderlijk wordt uitgeschakeld. Overdag zijn heldere LCD- of QLED-tv's beter bestand tegen invallend omgevingslicht en spiegelende reflecties op het scherm. Kijk je zowel overdag als 's avonds, dan zoeken we een model dat in beide situaties goed presteert — een goede balans tussen helderheid en contrast.</p>
@@ -1470,7 +1480,6 @@
        <div id="question-7" class="question-block" style="display:none;">
          <div class="question-container">
            <h2>Hoe kijk je meestal tv?</h2>
-           <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="7">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">De kijkhoek bepaalt hoeveel de beeldkwaliteit afneemt naarmate je verder opzij kijkt. OLED- en IPS/QLED-panelen zijn daarin het sterkst: kleuren en contrast blijven vrijwel ongewijzigd, zelfs bij ruime kijkhoeken. Standaard VA-LCD-panelen vertonen bij een schuine kijkhoek kleurvervaging en een duidelijk lager contrast. Kijk je altijd recht voor het scherm, dan is dit minder relevant en kun je budget besparen op dit onderdeel van de tv.</p>
@@ -1503,7 +1512,6 @@
        <div id="question-8" class="question-block" style="display:none;">
          <div class="question-container">
            <h2>Welke van de volgende dingen is extra belangrijk voor je tv?</h2>
-           <svg class="question-info-icon" data-icon="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
            <div class="question-popover" data-popover="8">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">Hier geef je aan welke extra eigenschappen zwaarder mogen meewegen. Perfecte zwarttinten zijn het specialisme van OLED: elk pixel kan afzonderlijk worden uitgeschakeld voor oneindig contrast. Extreme helderheid is het domein van Mini-LED/QLED-tv's met krachtige achtergrondverlichting. Ambilight – exclusief bij Philips – projecteert de dominante schermkleuren via LED-strips op de muur achter en naast de tv, wat het gevoel van onderdompeling sterk vergroot (zie afbeelding). Je kunt meerdere opties aanvinken.</p>
