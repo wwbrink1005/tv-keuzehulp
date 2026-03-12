@@ -307,22 +307,22 @@
       }
 
       /* Left column */
-      .hbi-1  { left: 5%;   top: 40%; width: 52px; height: 52px; opacity: 0.18; animation: hbi-b  9s ease-in-out infinite; }
-      .hbi-2  { left: 13%;  top: 16%; width: 40px; height: 40px; opacity: 0.13; animation: hbi-a  7s ease-in-out infinite 0.8s; }
-      .hbi-3  { left: 6%;   top: 74%; width: 48px; height: 48px; opacity: 0.15; animation: hbi-c 10s ease-in-out infinite 1.5s; }
+      .hbi-1  { left: 4%;   top: 38%; width: 52px; height: 52px; opacity: 0.15; animation: hbi-b 14s ease-in-out infinite; }
+      .hbi-2  { left: 11%;  top: 14%; width: 40px; height: 40px; opacity: 0.11; animation: hbi-a 12s ease-in-out infinite 1.2s; }
+      .hbi-3  { left: 5%;   top: 73%; width: 48px; height: 48px; opacity: 0.13; animation: hbi-c 15s ease-in-out infinite 2s; }
       /* Right column */
-      .hbi-4  { right: 13%; top: 16%; width: 38px; height: 38px; opacity: 0.13; animation: hbi-a  8s ease-in-out infinite 2s; }
-      .hbi-5  { right: 3%;  top: 44%; width: 54px; height: 54px; opacity: 0.18; animation: hbi-b  9s ease-in-out infinite 1s; }
-      .hbi-6  { right: 10%; top: 73%; width: 44px; height: 44px; opacity: 0.15; animation: hbi-c 11s ease-in-out infinite 0.3s; }
+      .hbi-4  { right: 11%; top: 14%; width: 38px; height: 38px; opacity: 0.11; animation: hbi-a 13s ease-in-out infinite 2.5s; }
+      .hbi-5  { right: 3%;  top: 42%; width: 54px; height: 54px; opacity: 0.15; animation: hbi-b 14s ease-in-out infinite 1.4s; }
+      .hbi-6  { right: 9%;  top: 72%; width: 44px; height: 44px; opacity: 0.13; animation: hbi-c 16s ease-in-out infinite 0.5s; }
       /* Top center */
-      .hbi-7  { left: 36%;  top: 6%;  width: 32px; height: 32px; opacity: 0.10; animation: hbi-a  7s ease-in-out infinite 2.5s; }
-      .hbi-8  { left: 62%;  top: 5%;  width: 34px; height: 34px; opacity: 0.10; animation: hbi-b  8s ease-in-out infinite 1.2s; }
+      .hbi-7  { left: 33%;  top: 5%;  width: 32px; height: 32px; opacity: 0.08; animation: hbi-a 12s ease-in-out infinite 3s; }
+      .hbi-8  { left: 60%;  top: 4%;  width: 34px; height: 34px; opacity: 0.08; animation: hbi-b 13s ease-in-out infinite 1.5s; }
       /* Bottom */
-      .hbi-9  { left: 19%;  top: 84%; width: 38px; height: 38px; opacity: 0.12; animation: hbi-c  9s ease-in-out infinite 3s; }
-      .hbi-10 { right: 14%; top: 82%; width: 52px; height: 52px; opacity: 0.15; animation: hbi-a 12s ease-in-out infinite 0.7s; }
+      .hbi-9  { left: 18%;  top: 85%; width: 38px; height: 38px; opacity: 0.10; animation: hbi-c 14s ease-in-out infinite 3.5s; }
+      .hbi-10 { right: 13%; top: 83%; width: 52px; height: 52px; opacity: 0.13; animation: hbi-a 17s ease-in-out infinite 0.8s; }
       /* Subtle inner accents */
-      .hbi-11 { right: 25%; top: 36%; width: 28px; height: 28px; opacity: 0.08; animation: hbi-b  8s ease-in-out infinite 4s; }
-      .hbi-12 { left: 23%;  top: 44%; width: 30px; height: 30px; opacity: 0.08; animation: hbi-c 10s ease-in-out infinite 0.5s; }
+      .hbi-11 { right: 24%; top: 34%; width: 28px; height: 28px; opacity: 0.06; animation: hbi-b 13s ease-in-out infinite 4.5s; }
+      .hbi-12 { left: 22%;  top: 42%; width: 30px; height: 30px; opacity: 0.06; animation: hbi-c 15s ease-in-out infinite 0.8s; }
 
       @keyframes hbi-a {
         0%, 100% { transform: translateY(0px); }
@@ -338,6 +338,11 @@
       @keyframes hbi-c {
         0%, 100% { transform: translateY(0px) rotate(0deg); }
         50%       { transform: translateY(-8px) rotate(3deg); }
+      }
+
+      /* ── Mobile decorative rings (hidden on desktop) ── */
+      .hero-mobile-ring {
+        display: none;
       }
 
       /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -845,6 +850,68 @@
         .hero {
           padding: 100px 20px 48px;
           min-height: auto;
+          background: linear-gradient(180deg, #f4f7fc 0%, #e9f0f9 50%, #dde8f4 100%);
+        }
+
+        /* Hide floating icons — show clean background instead */
+        .hero-bg-icons {
+          display: none;
+        }
+
+        /* Make gradient orbs more prominent as the sole decoration */
+        .hero::before {
+          opacity: 0.45;
+          width: 480px;
+          height: 480px;
+          top: -140px;
+          right: -120px;
+        }
+
+        .hero::after {
+          opacity: 0.38;
+          width: 400px;
+          height: 400px;
+          bottom: -80px;
+          left: -100px;
+        }
+
+        /* Concentric decorative rings */
+        .hero-mobile-ring {
+          display: block;
+          position: absolute;
+          z-index: 1;
+          pointer-events: none;
+          width: 380px;
+          height: 380px;
+          border-radius: 50%;
+          border: 1px solid rgba(9, 84, 163, 0.07);
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -52%);
+        }
+
+        .hero-mobile-ring::before {
+          content: "";
+          position: absolute;
+          width: 240px;
+          height: 240px;
+          border-radius: 50%;
+          border: 1px solid rgba(9, 84, 163, 0.05);
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        .hero-mobile-ring::after {
+          content: "";
+          position: absolute;
+          width: 480px;
+          height: 480px;
+          border-radius: 50%;
+          border: 1px solid rgba(9, 84, 163, 0.04);
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
         }
 
         .hero-title {
@@ -972,11 +1039,6 @@
 
         .hero .landing-search .search-icon { left: 15px; width: 16px; height: 16px; }
 
-        .hbi-11, .hbi-12 { display: none; }
-        .hbi-1,  .hbi-3,  .hbi-5,  .hbi-6  { width: 36px; height: 36px; }
-        .hbi-2,  .hbi-4,  .hbi-9,  .hbi-10 { width: 28px; height: 28px; }
-        .hbi-7,  .hbi-8                     { width: 22px; height: 22px; }
-
         .trust-bar {
           padding: 16px 16px;
         }
@@ -1033,6 +1095,9 @@
            HERO
            ════════════════════════════════════════════ -->
       <section class="hero" aria-label="Hero sectie">
+
+        <!-- Mobile decorative rings (desktop: hidden) -->
+        <div class="hero-mobile-ring" aria-hidden="true"></div>
 
         <!-- Decorative icon background -->
         <div class="hero-bg-icons" aria-hidden="true">

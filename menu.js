@@ -10,10 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="menu-brand">
         <a href="index.html" aria-label="producthulp.nl — home">
           <img
-            src="producthulp-logo%20(1).svg"
+            src="file.svg"
             alt="producthulp.nl"
             class="menu-logo"
-            height="38"
+            height="44"
           />
         </a>
       </div>

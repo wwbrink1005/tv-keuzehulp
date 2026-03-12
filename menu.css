@@ -77,7 +77,7 @@ body.has-menu {
 }
 
 .menu-logo {
-  height: clamp(28px, 2.8vw, 38px);
+  height: clamp(30px, 3.4vw, 30px);
   width: auto;
   display: block;
   transition: opacity var(--menu-transition), transform var(--menu-transition);
