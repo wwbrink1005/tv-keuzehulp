@@ -19,13 +19,13 @@ export function initQuestionPopovers() {
   function lockBodyScroll() {
     if (window.innerWidth <= 900) {
       document.body.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
+      // Do NOT set touch-action:none on body — that would suppress scrolling
+      // inside the panel body as well. overflow:hidden alone stops page drift.
     }
   }
 
   function unlockBodyScroll() {
     document.body.style.overflow = "";
-    document.body.style.touchAction = "";
   }
 
   function openPanel(popover) {
@@ -82,6 +82,12 @@ export function initQuestionPopovers() {
   function onDragStart(e) {
     if (window.innerWidth > 900) return;
     if (!infoPanel?.classList.contains("is-open")) return;
+
+    // If the touch started inside the scrollable body, let the browser
+    // handle it as a scroll rather than a drag-to-close gesture.
+    const panelBody = infoPanel.querySelector(".info-panel-body");
+    if (panelBody?.contains(e.target) && panelBody.scrollHeight > panelBody.clientHeight) return;
+
     dragStartY = e.touches[0].clientY;
     currentDragY = 0;
     isDragging = true;

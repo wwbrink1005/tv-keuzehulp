@@ -141,7 +141,9 @@ document.addEventListener("DOMContentLoaded", () => {
       aria-hidden="true"
     >
       <div class="mobile-nav-header">
-        <a class="mobile-brand" href="index.html">producthulp.nl</a>
+        <a class="mobile-brand" href="index.html">
+          <img src="file.svg" alt="producthulp.nl" class="menu-logo" />
+        </a>
         <button
           class="mobile-nav-close"
           type="button"

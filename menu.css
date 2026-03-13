@@ -499,11 +499,9 @@ body.has-menu {
 }
 
 .mobile-nav-header .mobile-brand {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--menu-text);
-  letter-spacing: -0.03em;
   text-decoration: none;
+  display: inline-block;
+  line-height: 0;
 }
 
 .mobile-nav-close {

@@ -30,17 +30,20 @@
 }
 
 .footer-logo {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1d1d1f;
-  letter-spacing: -0.03em;
   text-decoration: none;
   display: inline-block;
-  transition: color 0.2s ease;
+  line-height: 0;
 }
 
-.footer-logo:hover {
-  color: #0954a3;
+.footer-logo-img {
+  height: 28px;
+  width: auto;
+  display: block;
+  transition: opacity 0.2s ease;
+}
+
+.footer-logo:hover .footer-logo-img {
+  opacity: 0.75;
 }
 
 .footer-tagline {
