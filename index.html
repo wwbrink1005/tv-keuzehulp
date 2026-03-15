@@ -256,11 +256,12 @@
         background: var(--color-white);
         border: 1px solid var(--color-border);
         border-radius: var(--radius-md);
-        box-shadow: 0 20px 60px rgba(10, 10, 26, 0.1);
+        box-shadow: 0 8px 32px rgba(9, 84, 163, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
-        transition: opacity 160ms ease, visibility 160ms ease;
+        transform: translateY(-6px);
+        transition: opacity 180ms ease, visibility 180ms ease, transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
         z-index: 10;
         overflow: hidden;
       }
@@ -269,16 +270,16 @@
         opacity: 1;
         visibility: visible;
         pointer-events: auto;
+        transform: translateY(0);
       }
 
       .hero .landing-search-dropdown-header {
-        display: flex;
-        justify-content: flex-end;
-        padding: 8px 16px 2px;
-        font-size: 11px;
-        font-family: var(--font-body);
-        color: #9ca3af;
-        text-transform: lowercase;
+        padding: 10px 16px 5px;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--color-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
       }
 
       /* ── Hero Background Icons ── */
@@ -472,26 +473,9 @@
         overflow: hidden;
       }
 
-      .popular-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--color-primary) 0%, #2d7dd2 100%);
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        opacity: 0;
-        transition: opacity var(--transition-smooth);
-      }
-
       .popular-card:hover {
         box-shadow: var(--color-card-shadow-hover);
         transform: translateY(-6px);
-      }
-
-      .popular-card:hover::before {
-        opacity: 1;
       }
 
       .popular-card-image {
@@ -1315,7 +1299,20 @@
 
       /* ── Scroll-reveal observer ── */
       (() => {
-        const revealElements = document.querySelectorAll('.reveal');
+        const popularSection = document.querySelector('.popular-section');
+        const allReveal = document.querySelectorAll('.reveal');
+
+        // Elements inside the popular section are always visible (no animation)
+        allReveal.forEach(el => {
+          if (popularSection && popularSection.contains(el)) {
+            el.classList.add('is-visible');
+          }
+        });
+
+        const revealElements = Array.from(allReveal).filter(el =>
+          !(popularSection && popularSection.contains(el))
+        );
+
         if (!('IntersectionObserver' in window)) {
           revealElements.forEach(el => el.classList.add('is-visible'));
           return;
