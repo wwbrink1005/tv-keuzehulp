@@ -442,94 +442,70 @@
 				top: calc(var(--menu-height, 64px) + 16px);
 			}
 
-			.filter-cta {
-				display: inline-flex;
-				align-items: center;
-				gap: 10px;
-				background: var(--accent);
-				color: #ffffff;
-				border: none;
-				border-radius: var(--radius-md);
-				padding: 12px 16px;
-				font-size: 14px;
-				font-weight: 600;
-				cursor: pointer;
-				transition: all var(--transition);
-			}
-
-			.filter-cta:hover {
-				background: #073d7a;
-			}
-
-			.filter-cta svg {
-				width: 16px;
-				height: 16px;
-			}
-
 			.filter-card {
 				background: var(--card-bg);
 				border-radius: var(--radius-lg);
 				border: 1px solid var(--line);
-				padding: 16px 18px 20px;
+				padding: 14px 16px 16px;
 				display: flex;
 				flex-direction: column;
-				gap: 14px;
-				transition: box-shadow var(--transition);
-			}
-
-			.filter-card:hover {
-				box-shadow: var(--shadow-card);
+				gap: 10px;
 			}
 
 			.filter-title {
-				font-size: 13px;
+				font-size: 10.5px;
 				font-weight: 600;
-				color: var(--text-primary);
+				color: var(--text-tertiary);
 				text-transform: uppercase;
-				letter-spacing: 0.04em;
+				letter-spacing: 0.08em;
 			}
 
 			.filter-options {
 				display: flex;
-				flex-direction: column;
-				gap: 10px;
+				flex-wrap: wrap;
+				gap: 6px;
 				align-items: flex-start;
 			}
 
 			.filter-option {
-				display: flex;
-				align-items: center;
-				gap: 10px;
-				font-size: 14px;
-				font-weight: 500;
-				color: var(--text-secondary);
 				cursor: pointer;
-				transition: color 0.15s ease;
-			}
-
-			.filter-option:hover {
-				color: var(--text-primary);
 			}
 
 			.filter-option input[type="radio"],
 			.filter-option input[type="checkbox"] {
-				width: 18px;
-				height: 18px;
-				border: 1.5px solid #c4c7cc;
-				border-radius: 50%;
-				appearance: none;
-				background: var(--card-bg);
-				cursor: pointer;
-				flex-shrink: 0;
-				margin: 0;
-				transition: all 0.2s ease;
+				position: absolute;
+				opacity: 0;
+				width: 0;
+				height: 0;
+				pointer-events: none;
 			}
 
-			.filter-option input[type="radio"]:checked,
-			.filter-option input[type="checkbox"]:checked {
-				background: var(--accent);
+			.filter-option span {
+				display: inline-flex;
+				align-items: center;
+				height: 30px;
+				padding: 0 13px;
+				border: 1.5px solid var(--line);
+				border-radius: 999px;
+				font-size: 13px;
+				font-weight: 500;
+				color: var(--text-secondary);
+				background: transparent;
+				transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+				white-space: nowrap;
+				user-select: none;
+			}
+
+			.filter-option:hover span {
 				border-color: var(--accent);
-				box-shadow: inset 0 0 0 2.5px #ffffff;
+				color: var(--accent);
+			}
+
+			.filter-option:has(input:checked) span {
+				background: var(--accent-soft);
+				border-color: var(--accent);
+				color: var(--accent);
+				font-weight: 600;
 			}
 
 			/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -609,23 +585,40 @@
 				background: #073d7a;
 			}
 
+			.filters-panel-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--line);
+			}
+
+			.filters-panel-label {
+				font-size: 13px;
+				font-weight: 600;
+				color: var(--text-primary);
+				letter-spacing: -0.01em;
+			}
+
 			.filter-drawer-close {
 				display: none;
-				align-self: flex-end;
-				width: 36px;
-				height: 36px;
-				border-radius: var(--radius-sm);
-				border: 1px solid var(--line);
-				background: var(--card-bg);
+				width: 30px;
+				height: 30px;
+				border-radius: 50%;
+				border: none;
+				background: transparent;
 				cursor: pointer;
 				align-items: center;
 				justify-content: center;
-				color: var(--accent);
-				transition: all var(--transition);
+				color: var(--text-tertiary);
+				transition: background var(--transition), color var(--transition);
+				padding: 0;
+				font-family: inherit;
 			}
 
 			.filter-drawer-close:hover {
-				background: var(--accent-soft);
+				background: var(--line);
+				color: var(--text-primary);
 			}
 
 			.filter-drawer-close svg {
@@ -901,30 +894,33 @@
 			}
 
 			.other-match-action {
-				background: var(--accent-soft);
-				border: none;
+				background: transparent;
+				border: 1.5px solid var(--accent);
 				color: var(--accent);
+				font-family: inherit;
 				font-size: 13px;
 				font-weight: 600;
+				letter-spacing: 0.01em;
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;
-				padding: 8px 28px;
+				padding: 8px 24px;
 				border-radius: 999px;
 				cursor: pointer;
 				margin-top: auto;
 				align-self: center;
-				transition: all var(--transition);
+				transition: background var(--transition), color var(--transition), box-shadow var(--transition);
 			}
 
 			.other-match-action:hover {
 				background: var(--accent);
 				color: #ffffff;
+				box-shadow: 0 4px 14px rgba(9, 84, 163, 0.22);
 			}
 
 			.other-match-action svg {
-				width: 18px;
-				height: 18px;
+				width: 14px;
+				height: 14px;
 			}
 
 			.no-matches {
@@ -1114,10 +1110,12 @@
 					display: inline-flex;
 				}
 
-				.filter-cta {
-					width: 100%;
-					justify-content: flex-start;
+				.filters-panel-header {
+					padding-bottom: 14px;
+					margin-bottom: 4px;
 				}
+
+
 
 				/* Best match mobile */
 				.best-match-card {
@@ -1287,13 +1285,12 @@
 			<div class="results-layout">
 				<!-- Filters Sidebar -->
 				<aside id="filtersPanel" class="filters-panel" aria-label="Filters">
-					<button class="filter-drawer-close" type="button" aria-label="Sluit filters">
-						<i data-lucide="chevron-left"></i>
-					</button>
-					<button class="filter-cta" type="button">
-						<i data-lucide="sliders-horizontal"></i>
-						<span>Extra filters</span>
-					</button>
+					<div class="filters-panel-header">
+						<span class="filters-panel-label">Filters</span>
+						<button class="filter-drawer-close" type="button" aria-label="Sluit filters">
+							<i data-lucide="chevron-left"></i>
+						</button>
+					</div>
 					<div class="filter-card" data-filter="price">
 						<h3 class="filter-title">Prijscategorie</h3>
 						<div id="priceFilterOptions" class="filter-options"></div>

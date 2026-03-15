@@ -229,7 +229,8 @@
      flex-wrap: nowrap;
      gap: 8px;
      justify-content: center;
-     margin-top: 4px;
+     margin: 4px auto 0;
+     max-width: 560px;
    }
 
    /* Uitleg link button inside the collapsible card */
@@ -586,8 +587,8 @@
    }
 
    button {
-     width: calc(141.59px * var(--scale));
-     height: calc(33.95px * var(--scale));
+     flex: 1;
+     height: calc(42px * var(--scale));
      background: var(--c-accent);
      border: none;
      border-radius: var(--r-pill);
@@ -596,7 +597,10 @@
      font-size: calc(15px * var(--scale));
      color: #fff;
      cursor: pointer;
-     text-align: center;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     padding: 0 calc(20px * var(--scale));
      transition: background .2s, box-shadow .2s, transform .18s;
      letter-spacing: .01em;
    }
@@ -737,7 +741,7 @@
      display: flex;
      align-items: center;
      justify-content: flex-end;
-     padding: 12px 14px 0;
+     padding: 0;
      flex-shrink: 0;
    }
 
@@ -745,6 +749,10 @@
    .info-panel-header-label { display: none; }
 
    .info-panel-close {
+     position: absolute;
+     top: 12px;
+     right: 12px;
+     z-index: 2;
      width: 28px;
      height: 28px;
      border: none;
@@ -761,8 +769,8 @@
    }
 
    .info-panel-close:hover {
-     background: rgba(0,0,0,.1);
-     color: var(--c-text);
+     background: rgba(0,0,0,.07);
+     color: var(--c-text-2);
    }
 
    .info-panel-close svg {
@@ -772,7 +780,7 @@
    }
 
    .info-panel-body {
-     padding: 10px 20px 20px;
+     padding: 44px 20px 20px;
      overflow-y: auto;
      flex: 1;
      display: flex;
