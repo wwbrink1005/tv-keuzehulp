@@ -27,7 +27,7 @@ function updateMatchCount(count) {
   const countEl = qs("#resultMatchCount");
   if (!countEl) return;
   const safeCount = Number.isFinite(count) ? count : 0;
-  countEl.textContent = `(${safeCount})`;
+  countEl.textContent = `${safeCount}`;
 }
 
 function buildSpecList(tv) {

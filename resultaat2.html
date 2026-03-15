@@ -94,17 +94,14 @@
 				background: var(--page-bg);
 				display: flex;
 				align-items: center;
-				justify-content: center;
-				padding: 28px 50px 20px;
-				position: relative;
+				justify-content: space-between;
+				padding: 14px 50px;
+				border-bottom: 1px solid var(--line);
 				animation: fadeIn 0.5s ease-out;
 			}
 
 			/* ── Left action group (restart + info, desktop) ── */
 			.title-left-wrap {
-				position: absolute;
-				left: 50px;
-				bottom: 20px;
 				display: flex;
 				align-items: center;
 				gap: 10px;
@@ -283,24 +280,40 @@
 				height: 14px;
 			}
 
+			.results-heading {
+				grid-column: 2;
+				grid-row: 1;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 10px;
+				padding-bottom: clamp(1rem, 2vw, 1.5rem);
+			}
+
 			.result-title {
-				font-size: 22px;
+				font-size: 18px;
 				font-weight: 600;
 				color: var(--text-primary);
-				text-align: center;
-				letter-spacing: -0.02em;
+				letter-spacing: -0.018em;
 				line-height: 1.3;
+				margin: 0;
 			}
 
-			.result-count {
-				color: var(--muted);
-				font-weight: 500;
-				font-size: 18px;
-				margin-left: 0.25em;
-			}
-
-			#resultTitleText::after {
-				content: "";
+			.result-count-badge {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				background: var(--accent-soft);
+				color: var(--accent);
+				font-size: 13px;
+				font-weight: 600;
+				padding: 3px 10px;
+				border-radius: 999px;
+				flex-shrink: 0;
+				font-family: inherit;
+				min-width: 28px;
+				margin-left: 8px;
+				vertical-align: middle;
 			}
 
 			/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -310,7 +323,7 @@
 				width: 100%;
 				margin: 0 auto;
 				background: var(--page-bg);
-				padding: 0 50px var(--container-padding);
+				padding: 24px 50px var(--container-padding);
 			}
 
 			.results-layout {
@@ -319,11 +332,19 @@
 				margin: 0;
 				display: grid;
 				grid-template-columns: var(--filter-width) minmax(0, 1fr);
-				gap: var(--filter-gap);
+				grid-template-rows: auto 1fr;
+				gap: 0 var(--filter-gap);
 				align-items: start;
 			}
 
+			.filters-panel {
+				grid-column: 1;
+				grid-row: 1 / 3;
+			}
+
 			.results-content {
+				grid-column: 2;
+				grid-row: 2;
 				width: 100%;
 				display: flex;
 				flex-direction: column;
@@ -335,9 +356,6 @@
 			   SORT TOOLBAR
 			   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 			.results-toolbar {
-				position: absolute;
-				right: 50px;
-				bottom: 20px;
 				display: flex;
 				align-items: center;
 			}
@@ -935,37 +953,7 @@
 			   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 			@media (max-width: 1200px) {
 				.title-bar {
-					display: grid;
-					grid-template-columns: 1fr auto;
-					grid-template-rows: auto auto;
-					align-items: center;
-					gap: 0.5rem 1rem;
-					padding: 20px 24px 16px;
-				}
-
-				.title-left-wrap,
-				.results-toolbar {
-					position: static;
-				}
-
-				.title-left-wrap {
-					grid-column: 1;
-					grid-row: 1;
-					justify-self: start;
-				}
-
-				.result-title {
-					grid-column: 1 / -1;
-					grid-row: 2;
-					max-width: 36rem;
-					line-height: 1.3;
-					justify-self: center;
-				}
-
-				.results-toolbar {
-					grid-column: 2;
-					grid-row: 1;
-					justify-self: end;
+					padding: 14px 24px;
 				}
 			}
 
@@ -988,36 +976,7 @@
 			   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 			@media (max-width: 900px) {
 				.title-bar {
-					display: grid;
-					grid-template-columns: 1fr auto;
-					grid-template-rows: auto auto;
-					align-items: center;
-					gap: 0.5rem 1rem;
-					padding: 16px 20px 14px;
-				}
-
-				.title-left-wrap,
-				.results-toolbar {
-					position: static;
-				}
-
-				.title-left-wrap {
-					grid-column: 1;
-					grid-row: 1;
-					justify-self: start;
-				}
-
-				.result-title {
-					grid-column: 1 / -1;
-					grid-row: 2;
-					font-size: 20px;
-					justify-self: center;
-				}
-
-				.results-toolbar {
-					grid-column: 2;
-					grid-row: 1;
-					justify-self: end;
+					padding: 14px 20px;
 				}
 
 				.best-match-card {
@@ -1034,19 +993,11 @@
 			   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 			@media (max-width: 700px) {
 				.title-bar {
-					display: grid;
-					grid-template-columns: 1fr auto;
-					grid-template-rows: auto auto;
-					align-items: center;
-					gap: 0.6rem 0.9rem;
-					padding: 12px 16px 12px;
+					padding: 12px 16px;
 				}
 
 				.mobile-actions {
 					display: flex;
-					grid-column: 1;
-					grid-row: 1;
-					justify-self: start;
 				}
 
 				.title-left-wrap {
@@ -1062,28 +1013,24 @@
 				}
 
 				.results-toolbar {
-					position: static;
-					grid-column: 2;
-					grid-row: 1;
-					justify-self: end;
 					margin: 0;
 				}
 
-				.result-title {
-					grid-column: 1 / -1;
-					grid-row: 2;
-					font-size: clamp(1.1rem, 4.5vw, 1.35rem);
-					text-align: center;
-				}
-
 				.results-section {
-					padding-left: 16px;
-					padding-right: 16px;
+					padding: 16px 16px var(--container-padding);
 				}
 
 				.results-layout {
 					display: block;
 					gap: 0;
+				}
+
+				.results-heading {
+					padding-bottom: 1rem;
+				}
+
+				.result-title {
+					text-align: center;
 				}
 
 				/* Filter drawer */
@@ -1177,11 +1124,6 @@
 			   RESPONSIVE — SMALL MOBILE (≤520px)
 			   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 			@media (max-width: 520px) {
-				.result-title {
-					gap: 0.4rem;
-					max-width: 18rem;
-				}
-
 				.best-match-points {
 					grid-template-columns: 1fr;
 					max-width: 300px;
@@ -1258,11 +1200,6 @@
 				</button>
 			</div>
 
-			<h1 id="resultTitle" class="result-title">
-				<span id="resultTitleText">De tv die het beste bij je keuzes past!</span>
-				<span id="resultMatchCount" class="result-count">(0)</span>
-			</h1>
-
 			<div class="results-toolbar">
 				<div id="sortControl" class="sort-control">
 					<span class="sort-label">Sorteer:</span>
@@ -1300,6 +1237,13 @@
 						<div id="brandFilterOptions" class="filter-options"></div>
 					</div>
 				</aside>
+
+				<!-- Results Heading -->
+				<div class="results-heading">
+					<h1 id="resultTitle" class="result-title">
+						<span id="resultTitleText">De tv die het beste bij je keuzes past!</span><span id="resultMatchCount" class="result-count-badge">0</span>
+					</h1>
+				</div>
 
 				<!-- Results Content -->
 				<div class="results-content">
