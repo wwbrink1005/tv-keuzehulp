@@ -586,7 +586,7 @@
      justify-content: center;
    }
 
-   button {
+   .button-container button {
      flex: 1;
      height: calc(42px * var(--scale));
      background: var(--c-accent);
@@ -605,12 +605,12 @@
      letter-spacing: .01em;
    }
 
-   button:hover {
+   .button-container button:hover {
      background: var(--c-accent-hover);
      box-shadow: 0 4px 14px rgba(0,113,227,.22);
      transform: translateY(-1px);
    }
-   button:active { transform: translateY(0); box-shadow: none; }
+   .button-container button:active { transform: translateY(0); box-shadow: none; }
 
    /* Back buttons — ghost style */
    #restart-q1,
@@ -1115,7 +1115,7 @@
        margin-top: 16px;
      }
 
-     button {
+     .button-container button {
        width: 100%;
        min-width: 0;
        height: 42px;

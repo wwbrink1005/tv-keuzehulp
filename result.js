@@ -144,6 +144,12 @@ function updateBestMatchCard(tv, type, answers) {
 
   renderBestMatchPoints(buildResultPoints(tv, answers));
 
+  const bestMatchCard = qs("#bestMatchCard");
+  if (bestMatchCard) {
+    const isBest = originalBestMatchNaam !== null && tv.naam === originalBestMatchNaam;
+    bestMatchCard.classList.toggle("is-best-match", isBest);
+  }
+
   if (window.lucide && typeof window.lucide.createIcons === "function") {
     window.lucide.createIcons();
   }
@@ -173,6 +179,7 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
 
       return `
         <article class="other-match-card" data-match-index="${index}">
+          <span class="other-match-selected-label" aria-hidden="true">Geselecteerd</span>
           <div class="other-match-media" aria-hidden="true">
             <img src="tv.png" alt="" role="presentation">
           </div>
@@ -196,6 +203,7 @@ let baseMatches = [];
 let currentAnswers = null;
 let currentType = "";
 let currentSort = "price-asc";
+let originalBestMatchNaam = null;
 
 const SORT_LABELS = {
   "price-asc": "Prijs (laag-hoog)",
@@ -469,6 +477,8 @@ export function initResultPage() {
   const scores = scoresData ? JSON.parse(scoresData) : {};
   const answers = answersData ? JSON.parse(answersData) : null;
   const filteredMatchedTVs = filteredTVsData ? JSON.parse(filteredTVsData) : [];
+
+  originalBestMatchNaam = bestMatch?.naam ?? null;
 
   showResultRedesign(bestMatch, bestType, answers, filteredMatchedTVs, bestMatch);
   updateMatchCount(filteredMatchedTVs.length);

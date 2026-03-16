@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="nl">
   <head>
     <meta charset="UTF-8" />
@@ -430,8 +430,12 @@
         color: var(--color-text-secondary);
       }
 
-      /* Carousel dot indicators — hidden on desktop, shown on mobile */
+      /* How-it-works nav — hidden on desktop, shown on mobile */
       .how-carousel-dots {
+        display: none;
+      }
+
+      .how-nav {
         display: none;
       }
 
@@ -584,14 +588,58 @@
         flex-direction: column;
       }
 
-      .category-col h4 {
+      .category-header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid var(--color-primary-light);
+        padding: 0 0 12px 0;
+        margin-bottom: 18px;
+        cursor: default;
+        text-align: left;
+        font-family: inherit;
+      }
+
+      .cat-header-inner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .cat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        color: var(--color-primary);
+        flex-shrink: 0;
+      }
+
+      .cat-icon svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
+      }
+
+      .cat-label {
         font-family: var(--font-heading);
         font-size: 17px;
         font-weight: 700;
         color: var(--color-text);
-        margin-bottom: 18px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid var(--color-primary-light);
+      }
+
+      .cat-toggle-chevron {
+        display: none;
+        width: 18px;
+        height: 18px;
+        color: var(--color-text-secondary);
+        flex-shrink: 0;
+        transition: transform 0.3s ease;
       }
 
       .category-col ul {
@@ -879,35 +927,70 @@
 
         .hero .landing-search .search-icon { left: 18px; width: 18px; height: 18px; }
 
-        /* ── How-it-works: horizontal swipe carousel ── */
+        /* ── How-it-works: arrow navigation (mobile) ── */
         .how-grid {
-          display: flex;
-          overflow-x: scroll;
-          scroll-snap-type: x mandatory;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-          gap: 16px;
-          padding: 4px 24px 28px;
-          margin: 0 -24px;
-          max-width: none;
+          display: block;
         }
 
-        .how-grid::-webkit-scrollbar {
-          display: none;
+        @keyframes how-fade-in {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .how-card {
-          flex: 0 0 min(360px, 82vw);
-          scroll-snap-align: center;
+          display: none;
           padding: 36px 28px;
+        }
+
+        .how-card.is-active {
+          display: block;
+          animation: how-fade-in 0.28s ease forwards;
+        }
+
+        .how-nav {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          margin-top: 16px;
+        }
+
+        .how-arrow {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: var(--color-white);
+          border: 1.5px solid var(--color-border);
+          color: var(--color-text);
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: background 0.2s ease, border-color 0.2s ease,
+                      color 0.2s ease, opacity 0.2s ease;
+        }
+
+        .how-arrow:hover:not(:disabled) {
+          background: var(--color-primary-light);
+          border-color: var(--color-primary);
+          color: var(--color-primary);
+        }
+
+        .how-arrow:disabled {
+          opacity: 0.3;
+          cursor: default;
+        }
+
+        .how-arrow svg {
+          width: 18px;
+          height: 18px;
         }
 
         .how-carousel-dots {
           display: flex;
-          justify-content: center;
           align-items: center;
           gap: 8px;
-          padding: 4px 0 0;
         }
 
         .how-dot {
@@ -940,8 +1023,61 @@
         }
 
         .categories-grid {
-          grid-template-columns: repeat(2, 1fr);
-          gap: 36px 32px;
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+
+        .category-col {
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-md);
+          overflow: hidden;
+          background: var(--color-white);
+        }
+
+        .category-col + .category-col {
+          margin-top: 10px;
+        }
+
+        .category-header {
+          border-bottom: none;
+          margin-bottom: 0;
+          padding: 16px 18px;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+
+        .category-header:hover {
+          background: var(--color-primary-light);
+        }
+
+        .category-header[aria-expanded="true"] {
+          border-bottom: 1px solid var(--color-border);
+          background: var(--color-primary-light);
+        }
+
+        .category-header[aria-expanded="true"] .cat-label {
+          color: var(--color-primary);
+        }
+
+        .cat-toggle-chevron {
+          display: block;
+        }
+
+        .category-header[aria-expanded="true"] .cat-toggle-chevron {
+          transform: rotate(180deg);
+        }
+
+        .category-col ul {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                      padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 0 18px;
+        }
+
+        .category-col.is-open ul {
+          max-height: 500px;
+          padding: 14px 18px 18px;
         }
 
         .section-title {
@@ -981,16 +1117,6 @@
 
         .how-section, .popular-section, .categories-section {
           padding: 56px 16px 64px;
-        }
-
-        .how-grid {
-          margin: 0 -16px;
-          padding: 4px 16px 28px;
-        }
-
-        .categories-grid {
-          grid-template-columns: 1fr;
-          gap: 28px;
         }
 
         .popular-card {
@@ -1154,11 +1280,19 @@
               <p>Wij sturen je door naar bekende webshops waar je het product kunt bekijken en bestellen. Jij bepaalt zelf waar je koopt.</p>
             </div>
           </div>
-          <div class="how-carousel-dots" aria-hidden="true">
-            <button class="how-dot active" data-index="0" aria-label="Stap 1"></button>
-            <button class="how-dot" data-index="1" aria-label="Stap 2"></button>
-            <button class="how-dot" data-index="2" aria-label="Stap 3"></button>
-            <button class="how-dot" data-index="3" aria-label="Stap 4"></button>
+          <div class="how-nav" aria-hidden="true">
+            <button class="how-arrow" id="howPrev" aria-label="Vorige stap" disabled>
+              <i data-lucide="chevron-left" aria-hidden="true"></i>
+            </button>
+            <div class="how-carousel-dots">
+              <button class="how-dot active" data-index="0" aria-label="Stap 1"></button>
+              <button class="how-dot" data-index="1" aria-label="Stap 2"></button>
+              <button class="how-dot" data-index="2" aria-label="Stap 3"></button>
+              <button class="how-dot" data-index="3" aria-label="Stap 4"></button>
+            </div>
+            <button class="how-arrow" id="howNext" aria-label="Volgende stap">
+              <i data-lucide="chevron-right" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
       </section>
@@ -1173,7 +1307,13 @@
           <div class="categories-grid">
 
             <div class="category-col reveal reveal-delay-1">
-              <h4>Beeld, Geluid &amp; Foto</h4>
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="monitor" aria-hidden="true"></i></span>
+                  <span class="cat-label">Beeld, Geluid &amp; Foto</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
               <ul>
                 <li>
                   <a href="vragen.html">
@@ -1197,7 +1337,13 @@
             </div>
 
             <div class="category-col reveal reveal-delay-2">
-              <h4>Huishoudelijke Apparaten</h4>
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="washing-machine" aria-hidden="true"></i></span>
+                  <span class="cat-label">Huishoudelijke Apparaten</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
               <ul>
                 <li><span>Koelkasten <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
                 <li><span>Vriezers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
@@ -1210,14 +1356,26 @@
             </div>
 
             <div class="category-col reveal reveal-delay-3">
-              <h4>Klimaat &amp; Comfort</h4>
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="thermometer" aria-hidden="true"></i></span>
+                  <span class="cat-label">Klimaat &amp; Comfort</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
               <ul>
                 <li><span>Airco <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
               </ul>
             </div>
 
             <div class="category-col reveal reveal-delay-1">
-              <h4>Computer &amp; Telefonie</h4>
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="laptop" aria-hidden="true"></i></span>
+                  <span class="cat-label">Computer &amp; Telefonie</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
               <ul>
                 <li><span>Laptop <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
                 <li><span>PC <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
@@ -1228,7 +1386,13 @@
             </div>
 
             <div class="category-col reveal reveal-delay-2">
-              <h4>Buiten &amp; Tuin</h4>
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="leaf" aria-hidden="true"></i></span>
+                  <span class="cat-label">Buiten &amp; Tuin</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
               <ul>
                 <li><span>Grasmaaiers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
                 <li><span>Barbecues <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
@@ -1236,7 +1400,13 @@
             </div>
 
             <div class="category-col reveal reveal-delay-3">
-              <h4>Mobiliteit</h4>
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="bike" aria-hidden="true"></i></span>
+                  <span class="cat-label">Mobiliteit</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
               <ul>
                 <li><span>Elektrische fiets <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
               </ul>
@@ -1333,47 +1503,51 @@
         revealElements.forEach(el => observer.observe(el));
       })();
 
-      /* ── How-it-works carousel dots (mobile only) ── */
+      /* ── How-it-works arrow navigation (mobile only) ── */
       (() => {
-        const grid = document.getElementById('howGrid');
-        const dots = document.querySelectorAll('.how-dot');
-        if (!grid || !dots.length) return;
+        const grid    = document.getElementById('howGrid');
+        const dots    = document.querySelectorAll('.how-dot');
+        const prevBtn = document.getElementById('howPrev');
+        const nextBtn = document.getElementById('howNext');
+        if (!grid || !dots.length || !prevBtn || !nextBtn) return;
 
-        function getActiveIndex() {
-          const cards = grid.querySelectorAll('.how-card');
-          const center = grid.scrollLeft + grid.offsetWidth / 2;
-          let activeIndex = 0;
-          let minDist = Infinity;
-          cards.forEach((card, i) => {
-            const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-            const dist = Math.abs(cardCenter - center);
-            if (dist < minDist) { minDist = dist; activeIndex = i; }
-          });
-          return activeIndex;
+        const cards = Array.from(grid.querySelectorAll('.how-card'));
+        const total = cards.length;
+        let current = 0;
+
+        function isMobile() {
+          return window.matchMedia('(max-width: 768px)').matches;
         }
 
-        function updateDots() {
-          const active = getActiveIndex();
-          dots.forEach((dot, i) => dot.classList.toggle('active', i === active));
+        function goTo(index) {
+          current = Math.max(0, Math.min(index, total - 1));
+          cards.forEach(function(card, i) {
+            card.classList.toggle('is-active', i === current);
+            card.classList.add('is-visible');
+          });
+          dots.forEach(function(dot, i) {
+            dot.classList.toggle('active', i === current);
+          });
+          prevBtn.disabled = current === 0;
+          nextBtn.disabled = current === total - 1;
         }
 
-        let ticking = false;
-        grid.addEventListener('scroll', () => {
-          if (ticking) return;
-          requestAnimationFrame(() => { updateDots(); ticking = false; });
-          ticking = true;
-        }, { passive: true });
+        function setup() {
+          if (isMobile()) {
+            goTo(current);
+          } else {
+            cards.forEach(function(card) { card.classList.remove('is-active'); });
+          }
+        }
 
-        dots.forEach((dot, i) => {
-          dot.addEventListener('click', () => {
-            const cards = grid.querySelectorAll('.how-card');
-            if (!cards[i]) return;
-            const cardLeft = cards[i].offsetLeft;
-            const cardWidth = cards[i].offsetWidth;
-            const scrollTo = cardLeft - (grid.offsetWidth - cardWidth) / 2;
-            grid.scrollTo({ left: scrollTo, behavior: 'smooth' });
-          });
+        prevBtn.addEventListener('click', function() { goTo(current - 1); });
+        nextBtn.addEventListener('click', function() { goTo(current + 1); });
+        dots.forEach(function(dot, i) {
+          dot.addEventListener('click', function() { goTo(i); });
         });
+
+        window.addEventListener('resize', setup);
+        setup();
       })();
 
       /* ── Hero categories dropdown ── */
@@ -1425,6 +1599,22 @@
 
         window.addEventListener('resize', () => {
           if (dropdown.classList.contains('open')) positionDropdown();
+        });
+      })();
+
+      /* ── Categories accordion (mobile only) ── */
+      (() => {
+        const headers = document.querySelectorAll('.category-header');
+        if (!headers.length) return;
+
+        headers.forEach(function(header) {
+          header.addEventListener('click', function() {
+            if (!window.matchMedia('(max-width: 768px)').matches) return;
+            const col = this.closest('.category-col');
+            const isOpen = col.classList.contains('is-open');
+            col.classList.toggle('is-open', !isOpen);
+            this.setAttribute('aria-expanded', String(!isOpen));
+          });
         });
       })();
     </script>
