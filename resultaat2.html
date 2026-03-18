@@ -23,8 +23,13 @@
 				--page-bg: #f5f5f7;
 				--card-bg: #ffffff;
 				--accent: #0954a3;
+				--accent-dark: #073d7a;
+				--accent-mid: #0b5fba;
 				--accent-soft: rgba(9, 84, 163, 0.08);
 				--accent-glow: rgba(9, 84, 163, 0.14);
+				--accent-green: #10b981;
+				--accent-green-soft: rgba(16, 185, 129, 0.12);
+				--accent-green-dark: #059669;
 				--muted: #86868b;
 				--text-primary: #1d1d1f;
 				--text-secondary: #424245;
@@ -39,7 +44,7 @@
 				--radius-lg: 20px;
 				--radius-xl: 24px;
 				--shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
-				--shadow-card-hover: 0 8px 30px rgba(9, 84, 163, 0.12);
+				--shadow-card-hover: 0 12px 40px rgba(9, 84, 163, 0.12);
 				--shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.1);
 				--transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 			}
@@ -91,12 +96,14 @@
 			   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 			.title-bar {
 				width: 100%;
+				position: relative;
+				overflow: visible;
 				background: var(--page-bg);
+				border-bottom: 1px solid var(--line);
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				padding: 14px 50px;
-				border-bottom: 1px solid var(--line);
+				padding: 16px 50px;
 				animation: fadeIn 0.5s ease-out;
 			}
 
@@ -105,6 +112,8 @@
 				display: flex;
 				align-items: center;
 				gap: 10px;
+				position: relative;
+				z-index: 2;
 			}
 
 			.restart-link {
@@ -114,6 +123,8 @@
 				padding: 9px 18px;
 				border-radius: 999px;
 				background: var(--card-bg);
+				backdrop-filter: none;
+				-webkit-backdrop-filter: none;
 				border: 1px solid var(--line);
 				font-size: 14px;
 				font-weight: 500;
@@ -134,6 +145,8 @@
 				border-radius: 999px;
 				border: 1px solid var(--line);
 				background: var(--card-bg);
+				backdrop-filter: none;
+				-webkit-backdrop-filter: none;
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;
@@ -145,13 +158,15 @@
 			}
 
 			.info-btn:hover {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
 				color: var(--accent);
-				border-color: var(--accent);
 			}
 
 			.info-btn.is-active {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
 				color: var(--accent);
-				border-color: var(--accent);
 			}
 
 			.info-btn svg {
@@ -162,7 +177,7 @@
 			/* ── Info card (fixed portal — works on both mobile & desktop) ── */
 			.info-card {
 				position: fixed;
-				top: 116px; /* approx below nav + title-bar on desktop */
+				top: 144px;
 				left: 50px;
 				width: 310px;
 				background: var(--card-bg);
@@ -270,9 +285,9 @@
 			}
 
 			.restart-link:hover {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
 				color: var(--accent);
-				border-color: var(--accent);
-				box-shadow: 0 2px 8px var(--accent-soft);
 			}
 
 			.restart-link svg {
@@ -284,10 +299,20 @@
 				grid-column: 2;
 				grid-row: 1;
 				display: flex;
+				flex-direction: column;
 				align-items: center;
 				justify-content: center;
-				gap: 10px;
+				gap: 6px;
 				padding-bottom: clamp(1rem, 2vw, 1.5rem);
+			}
+
+			.results-section-label {
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				color: var(--accent);
+				margin: 0;
 			}
 
 			.result-title {
@@ -358,6 +383,8 @@
 			.results-toolbar {
 				display: flex;
 				align-items: center;
+				position: relative;
+				z-index: 2;
 			}
 
 			.sort-control {
@@ -387,7 +414,9 @@
 				border: 1px solid var(--line);
 				border-radius: 999px;
 				background: var(--card-bg);
-				color: var(--text-primary);
+				backdrop-filter: none;
+				-webkit-backdrop-filter: none;
+				color: var(--text-secondary);
 				font-size: 13px;
 				font-weight: 500;
 				font-family: "Inter", sans-serif;
@@ -396,14 +425,15 @@
 			}
 
 			.sort-button:hover {
-				border-color: var(--accent);
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
 				color: var(--accent);
 			}
 
 			.sort-button svg {
 				width: 13px;
 				height: 13px;
-				color: var(--accent);
+				color: var(--text-tertiary);
 			}
 
 			.sort-menu {
@@ -463,7 +493,6 @@
 			.filter-card {
 				background: var(--card-bg);
 				border-radius: var(--radius-lg);
-				border: 1px solid var(--line);
 				padding: 14px 16px 16px;
 				display: flex;
 				flex-direction: column;
@@ -472,10 +501,10 @@
 
 			.filter-title {
 				font-size: 10.5px;
-				font-weight: 600;
-				color: var(--text-tertiary);
+				font-weight: 700;
+				color: var(--accent);
 				text-transform: uppercase;
-				letter-spacing: 0.08em;
+				letter-spacing: 0.1em;
 			}
 
 			.filter-options {
@@ -533,6 +562,8 @@
 				display: none;
 				align-items: center;
 				gap: 8px;
+				position: relative;
+				z-index: 2;
 			}
 
 			.icon-button {
@@ -541,6 +572,8 @@
 				border-radius: var(--radius-sm);
 				border: 1px solid var(--line);
 				background: var(--card-bg);
+				backdrop-filter: none;
+				-webkit-backdrop-filter: none;
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;
@@ -550,13 +583,15 @@
 			}
 
 			.icon-button:hover {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
 				color: var(--accent);
-				border-color: var(--accent);
 			}
 
 			.icon-button.is-active {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
 				color: var(--accent);
-				border-color: var(--accent);
 			}
 
 			.icon-button svg {
@@ -660,10 +695,12 @@
 				position: relative;
 				transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition);
 				animation: fadeUp 0.5s ease-out;
+				overflow: hidden;
 			}
 
 			.best-match-card:hover {
-				box-shadow: 0 8px 36px rgba(9, 84, 163, 0.2);
+				box-shadow: var(--shadow-card-hover);
+				transform: translateY(-2px);
 			}
 
 			.best-match-card.inline {
@@ -687,14 +724,15 @@
 				align-items: center;
 				gap: 6px;
 				align-self: flex-start;
-				background: var(--accent);
+				background: var(--accent-green);
 				color: #fff;
 				font-size: 12px;
-				font-weight: 600;
+				font-weight: 700;
 				letter-spacing: 0.04em;
-				padding: 5px 12px;
+				padding: 6px 14px;
 				border-radius: 999px;
 				margin-bottom: 0;
+				box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 			}
 
 			.best-match-card.is-best-match .best-match-label {
@@ -766,10 +804,10 @@
 			}
 
 			.best-match-name {
-				font-size: 20px;
-				font-weight: 700;
+				font-size: 22px;
+				font-weight: 800;
 				color: var(--text-primary);
-				letter-spacing: -0.01em;
+				letter-spacing: -0.02em;
 				margin: 0;
 			}
 
@@ -792,11 +830,11 @@
 			}
 
 			.best-match-check {
-				width: 16px;
-				height: 16px;
-				color: var(--accent);
+				width: 18px;
+				height: 18px;
+				color: var(--accent-green);
 				flex-shrink: 0;
-				margin-top: 2px;
+				margin-top: 1px;
 			}
 
 			.best-match-specs {
@@ -807,11 +845,11 @@
 			}
 
 			.best-match-price {
-				font-size: 22px;
-				font-weight: 700;
-				color: var(--text-primary);
+				font-size: 26px;
+				font-weight: 800;
+				color: var(--accent-dark);
 				margin-top: clamp(0.75rem, 2vw, 1rem);
-				letter-spacing: -0.02em;
+				letter-spacing: -0.03em;
 			}
 
 			.best-match-divider {
@@ -843,7 +881,7 @@
 				width: 100%;
 				background: var(--card-bg);
 				border-radius: var(--radius-lg);
-				border: 2px solid transparent;
+				border: 1px solid var(--line);
 				padding: clamp(1.1rem, 2.5vw, 1.5rem);
 				display: flex;
 				flex-direction: column;
@@ -863,9 +901,9 @@
 			.other-match-card:nth-child(6) { animation-delay: 0.2s; }
 
 			.other-match-card:hover {
-				border-color: var(--line);
-				box-shadow: var(--shadow-card);
-				transform: translateY(-2px);
+				border-color: rgba(9, 84, 163, 0.15);
+				box-shadow: var(--shadow-card-hover);
+				transform: translateY(-4px);
 			}
 
 			.other-match-card {
@@ -874,18 +912,6 @@
 			}
 
 			.other-match-card.is-active {
-				border-color: transparent;
-				box-shadow: var(--shadow-card);
-				transform: translateY(-2px);
-			}
-
-			.other-match-card.is-active::after {
-				content: "";
-				position: absolute;
-				inset: 0;
-				background: rgba(9, 84, 163, 0.06);
-				pointer-events: none;
-				border-radius: inherit;
 			}
 
 			.other-match-selected-label {
@@ -904,6 +930,33 @@
 			}
 
 			.other-match-card.is-active .other-match-selected-label {
+				display: block;
+			}
+
+			.cheapest-label {
+				display: none;
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				background: var(--accent-green);
+				color: #fff;
+				font-size: 11px;
+				font-weight: 600;
+				letter-spacing: 0.03em;
+				padding: 4px 10px;
+				border-radius: 999px;
+				z-index: 1;
+			}
+
+			#otherMatchesGrid.has-non-cheapest-active .other-match-card.is-cheapest .cheapest-label {
+				display: block;
+			}
+
+			#otherMatchesGrid.has-cheapest-active .other-match-card.is-cheapest:not(.is-active) .cheapest-label {
+				display: block;
+			}
+
+			#otherMatchesGrid:not(.has-non-cheapest-active):not(.has-cheapest-active) .other-match-card.is-cheapest .cheapest-label {
 				display: block;
 			}
 
@@ -929,13 +982,18 @@
 				max-width: 100%;
 				object-fit: contain;
 				display: block;
+				transition: transform var(--transition);
+			}
+
+			.other-match-card:hover .other-match-media img {
+				transform: scale(1.05);
 			}
 
 			.other-match-price {
-				font-size: 16px;
+				font-size: 17px;
 				font-weight: 700;
-				color: var(--text-primary);
-				letter-spacing: -0.01em;
+				color: var(--accent-dark);
+				letter-spacing: -0.015em;
 			}
 
 			.other-match-specs {
@@ -966,28 +1024,29 @@
 			}
 
 			.other-match-action {
-				background: transparent;
-				border: 1.5px solid var(--accent);
-				color: var(--accent);
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				padding: 10px 24px;
+				border-radius: var(--radius-md);
+				background: var(--accent);
+				color: #ffffff;
+				border: none;
 				font-family: inherit;
 				font-size: 13px;
 				font-weight: 600;
 				letter-spacing: 0.01em;
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				padding: 8px 24px;
-				border-radius: 999px;
 				cursor: pointer;
 				margin-top: auto;
 				align-self: center;
-				transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+				transition: background var(--transition), transform 0.15s ease, box-shadow var(--transition);
+				box-shadow: 0 4px 14px rgba(9, 84, 163, 0.15);
 			}
 
 			.other-match-action:hover {
-				background: var(--accent);
-				color: #ffffff;
-				box-shadow: 0 4px 14px rgba(9, 84, 163, 0.22);
+				background: var(--accent-dark);
+				transform: translateY(-1px);
+				box-shadow: 0 8px 24px rgba(9, 84, 163, 0.28);
 			}
 
 			.other-match-action svg {
@@ -1007,7 +1066,7 @@
 			   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 			@media (max-width: 1200px) {
 				.title-bar {
-					padding: 14px 24px;
+					padding: 16px 24px;
 				}
 			}
 
@@ -1063,11 +1122,7 @@
 					left: 12px;
 					right: 12px;
 					width: auto;
-					top: 108px;
-				}
-
-				.results-toolbar {
-					margin: 0;
+					top: 120px;
 				}
 
 				.results-section {
@@ -1205,7 +1260,7 @@
 			   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 			@media (max-width: 400px) {
 				.title-bar {
-					padding: 10px 12px 10px;
+					padding: 10px 12px;
 				}
 
 				.best-match-name {
@@ -1273,6 +1328,7 @@
 					</div>
 				</div>
 			</div>
+
 		</div>
 
 		<!-- ── Main Results ── -->
@@ -1298,6 +1354,7 @@
 
 				<!-- Results Heading -->
 				<div class="results-heading">
+					<p class="results-section-label">Jouw resultaten</p>
 					<h1 id="resultTitle" class="result-title">
 						<span id="resultTitleText">De tv die het beste bij je keuzes past!</span><span id="resultMatchCount" class="result-count-badge">0</span>
 					</h1>

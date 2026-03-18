@@ -6,7 +6,7 @@
  <title>TV Keuzehulp – Vind jouw perfecte televisie</title>
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
  <link rel="stylesheet" href="menu.css">
  <link rel="stylesheet" href="footer.css">
  <script src="https://unpkg.com/lucide@latest"></script>
@@ -57,139 +57,174 @@
      -moz-osx-font-smoothing: grayscale;
    }
 
-   /* ====== PAGE WRAPPER ====== */
-   .page-content {
+   /* ════════════════════════════════════════
+      QUIZ PAGE HEADER
+      ════════════════════════════════════════ */
+   .quiz-page-header {
      width: 100%;
+     position: relative;
+     background: var(--c-bg);
+     border-bottom: none;
+     padding: clamp(40px, 6vh, 64px) clamp(16px, 3vw, 32px) clamp(10px, 1.5vh, 16px);
+     overflow: visible;
+   }
+
+   .quiz-header-inner {
+     position: relative;
+     z-index: 2;
+     max-width: calc(var(--base-width) * 1px);
+     margin: 0 auto;
      display: flex;
      flex-direction: column;
      align-items: center;
-     padding: 0 clamp(16px, 3vw, 24px);
-     flex: 1;
-   }
-
-   .landing-footer { width: 100%; }
-   .landing-footer ul { margin: 0; padding: 0; }
-
-   /* ============================
-      INTRO HERO
-      ============================ */
-   .intro-hero {
-     width: 100%;
-     max-width: calc(var(--base-width) * 1px);
+     justify-content: center;
+     gap: 12px;
      text-align: center;
-     padding: clamp(28px, 5vh, 52px) 0 clamp(18px, 3vh, 28px);
-     animation: hero-in .55s ease-out both;
+     animation: headerFadeUp .6s ease-out both;
    }
 
-   @keyframes hero-in {
-     from { opacity: 0; transform: translateY(14px); }
+   /* Title + time badge row */
+   .quiz-title-row {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 12px;
+     flex-wrap: wrap;
+   }
+
+   @keyframes headerFadeUp {
+     from { opacity: 0; transform: translateY(16px); }
      to   { opacity: 1; transform: translateY(0); }
    }
 
    /* Badge */
-   .intro-badge {
+   .quiz-header-badge {
      display: inline-flex;
      align-items: center;
      gap: 6px;
-     background: var(--c-accent-soft);
-     color: var(--c-accent);
-     font-size: 12.5px;
+     background: rgba(255,255,255,.70);
+     backdrop-filter: none;
+     -webkit-backdrop-filter: none;
+     border: 1.5px solid rgba(0,0,0,.10);
+     color: var(--c-text-2);
+     font-size: 12px;
      font-weight: 600;
      padding: 5px 14px;
      border-radius: var(--r-pill);
-     margin-bottom: 14px;
-     letter-spacing: .03em;
-     text-transform: uppercase;
+     letter-spacing: .04em;
+     white-space: nowrap;
+     flex-shrink: 0;
    }
-
-   .intro-badge svg {
-     width: 13px; height: 13px;
-   }
+   .quiz-header-badge svg { width: 13px; height: 13px; }
 
    /* Title */
-   .intro-title {
-     font-size: clamp(26px, 4vw, 46px);
+   .quiz-header-title {
+     font-size: clamp(30px, 4vw, 48px);
      font-weight: 700;
-     line-height: 1.12;
-     letter-spacing: -.025em;
-     margin-bottom: 8px;
+     line-height: 1.1;
+     letter-spacing: -.020em;
      color: var(--c-text);
+     margin: 0;
    }
 
-   /* Subtitle */
-   .intro-subtitle {
-     font-size: clamp(15px, 1.5vw, 19px);
-     font-weight: 400;
-     color: var(--c-text-3);
-     max-width: 480px;
-     margin: 0 auto 18px;
-     line-height: 1.5;
-   }
-
-   /* How-it-works toggle button */
-   .how-toggle {
+   /* Time badge — same style as result-count-badge on resultaat page */
+   .quiz-time-badge {
      display: inline-flex;
      align-items: center;
-     gap: 5px;
-     background: none;
-     border: none;
+     justify-content: center;
+     background: rgba(9, 84, 163, 0.08);
+     color: #0954a3;
+     font-size: 13px;
+     font-weight: 600;
+     padding: 4px 12px;
+     border-radius: 999px;
+     flex-shrink: 0;
+     white-space: nowrap;
+     vertical-align: middle;
+     margin-left: 10px;
+     position: relative;
+     top: -3px;
+   }
+
+   /* Subtitle — hidden in compact mode */
+   .quiz-header-subtitle { display: none; }
+
+   /* Toggle row */
+   .quiz-toggle-row {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 8px;
+     flex-wrap: wrap;
+   }
+
+   .quiz-toggle-btn {
+     display: inline-flex;
+     align-items: center;
+     gap: 6px;
+     background: rgba(255,255,255,.65);
+     backdrop-filter: none;
+     -webkit-backdrop-filter: none;
+     border: 1.5px solid rgba(0,0,0,.09);
+     color: var(--c-text-2);
      font-family: inherit;
-     font-size: 14.5px;
+     font-size: 13px;
      font-weight: 500;
-     color: var(--c-accent);
-     cursor: pointer;
      padding: 7px 16px;
      border-radius: var(--r-pill);
-     transition: background .2s;
+     cursor: pointer;
+     transition: background .2s, border-color .2s, color .2s;
    }
-
-   .how-toggle:hover { background: var(--c-accent-soft); }
-
-   .how-toggle svg {
-     width: 15px; height: 15px;
-     transition: transform .35s cubic-bezier(.4,0,.2,1);
+   .quiz-toggle-btn:hover,
+   .quiz-toggle-btn.is-open {
+     background: rgba(255,255,255,.92);
+     border-color: rgba(9, 84, 163, 0.28);
+     color: var(--c-accent);
    }
+   .quiz-toggle-btn svg {
+     width: 14px; height: 14px;
+     opacity: .6;
+     transition: transform .3s cubic-bezier(.4,0,.2,1);
+   }
+   .quiz-toggle-btn.is-open svg { transform: rotate(180deg); }
 
-   .how-toggle.is-open svg { transform: rotate(180deg); }
-
-   /* Collapsible content */
-   .how-content {
+   /* Collapsible panels */
+   .quiz-panel-content {
      max-height: 0;
      overflow: hidden;
      opacity: 0;
-     transition: max-height .45s cubic-bezier(.4,0,.2,1),
-                 opacity .3s ease;
+     transition: max-height .45s cubic-bezier(.4,0,.2,1), opacity .3s ease;
    }
-
-   .how-content.is-open {
+   .quiz-panel-content.is-open {
      max-height: 700px;
      opacity: 1;
    }
 
-   .how-inner {
-     max-width: 660px;
-     margin: 16px auto 0;
-     padding: 28px 28px 24px;
-     background: var(--c-surface);
+   /* Inner panel card */
+   .quiz-panel-inner {
+     max-width: 680px;
+     margin: 18px auto 0;
+     padding: 26px 28px 24px;
+     background: var(--c-accent-soft);
+     backdrop-filter: none;
+     -webkit-backdrop-filter: none;
+     border: 1px solid rgba(9, 84, 163, 0.12);
      border-radius: var(--r-lg);
-     box-shadow: 0 1px 4px rgba(0,0,0,.04), 0 0 0 1px var(--c-border);
      text-align: left;
    }
-
-   .how-inner > p {
-     font-size: 14.5px;
+   .quiz-panel-inner > p {
+     font-size: 14px;
      color: var(--c-text-2);
-     line-height: 1.6;
-     margin-bottom: 20px;
+     line-height: 1.65;
+     margin-bottom: 22px;
    }
 
    /* 3-step strip */
-   .how-steps {
+   .quiz-how-steps {
      display: flex;
      gap: 16px;
    }
-
-   .how-step {
+   .quiz-how-step {
      flex: 1;
      display: flex;
      flex-direction: column;
@@ -197,66 +232,71 @@
      text-align: center;
      gap: 8px;
    }
-
-   .how-step-num {
-     width: 30px; height: 30px;
-     background: var(--c-accent);
-     color: #fff;
+   .quiz-how-step-num {
+     width: 32px; height: 32px;
+     background: #ffffff;
+     border: 1.5px solid rgba(9, 84, 163, 0.28);
+     color: var(--c-accent);
      border-radius: 50%;
      display: grid;
      place-items: center;
      font-size: 13px;
-     font-weight: 600;
+     font-weight: 700;
      flex-shrink: 0;
    }
-
-   .how-step-label {
+   .quiz-how-step-label {
      font-size: 13px;
-     font-weight: 600;
+     font-weight: 700;
      color: var(--c-text);
      line-height: 1.3;
    }
-
-   .how-step-desc {
-     font-size: 12.5px;
+   .quiz-how-step-desc {
+     font-size: 12px;
      color: var(--c-text-3);
      line-height: 1.4;
    }
 
-   /* ====== TOGGLE ROW ====== */
-   .toggle-row {
-     display: flex;
-     flex-wrap: nowrap;
-     gap: 8px;
-     justify-content: center;
-     margin: 4px auto 0;
-     max-width: 560px;
-   }
-
-   /* Uitleg link button inside the collapsible card */
+   /* Uitleg CTA button */
    .uitleg-link-btn {
      display: inline-flex;
      align-items: center;
      gap: 7px;
-     background: var(--c-accent);
-     color: #fff;
+     background: #fff;
+     color: var(--c-accent);
      border: none;
      font-family: inherit;
-     font-size: 14.5px;
+     font-size: 14px;
      font-weight: 600;
      padding: 10px 24px;
      border-radius: var(--r-pill);
      cursor: pointer;
      text-decoration: none;
-     margin-top: 14px;
-     transition: background .2s, box-shadow .2s, transform .18s;
+     transition: box-shadow .2s, transform .18s;
+     box-shadow: 0 2px 12px rgba(0,0,0,.15);
+     margin-top: 4px;
    }
    .uitleg-link-btn:hover {
-     background: var(--c-accent-hover);
-     box-shadow: 0 4px 14px rgba(9,84,163,.22);
+     box-shadow: 0 6px 22px rgba(0,0,0,.2);
      transform: translateY(-1px);
    }
    .uitleg-link-btn svg { width: 15px; height: 15px; }
+
+
+
+   /* ════════════════════════════════════════
+      PAGE CONTENT WRAPPER
+      ════════════════════════════════════════ */
+   .page-content {
+     width: 100%;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     padding: clamp(12px, 1.8vh, 20px) clamp(16px, 3vw, 24px) 0;
+     flex: 1;
+   }
+
+   .landing-footer { width: 100%; }
+   .landing-footer ul { margin: 0; padding: 0; }
 
    /* ============================
       QUIZ HERO AREA
@@ -314,14 +354,15 @@
 
    .question-container h2 {
      font-family: 'Inter', sans-serif;
-     font-weight: 700;
+     font-weight: 800;
      font-size: calc(30px * var(--scale));
      color: var(--c-text);
      margin: 0;
      line-height: 1.35;
      max-width: calc(456.89px * var(--scale));
      display: block;
-     letter-spacing: -.015em;
+     letter-spacing: -.02em;
+     text-shadow: 0 1px 0 rgba(255,255,255,.7);
    }
 
    /* Desktop hint button — positioned top-right inside the living room image */
@@ -334,35 +375,43 @@
      height: auto;
      display: inline-flex;
      align-items: center;
-     background: rgba(255,255,255,.78);
-     backdrop-filter: blur(10px) saturate(160%);
-     -webkit-backdrop-filter: blur(10px) saturate(160%);
-     border: 1px solid rgba(255,255,255,.55);
+     gap: calc(5px * var(--scale, 1));
+     background: rgba(255,255,255,.84);
+     backdrop-filter: blur(14px) saturate(180%);
+     -webkit-backdrop-filter: blur(14px) saturate(180%);
+     border: 1px solid rgba(255,255,255,.65);
      border-radius: 100px;
      font-family: 'Inter', sans-serif;
      font-size: calc(12.5px * var(--scale, 1));
-     font-weight: 500;
+     font-weight: 600;
      color: var(--c-text-2);
-     padding: calc(6px * var(--scale, 1)) calc(15px * var(--scale, 1));
+     padding: calc(6px * var(--scale, 1)) calc(14px * var(--scale, 1)) calc(6px * var(--scale, 1)) calc(10px * var(--scale, 1));
      cursor: pointer;
      letter-spacing: 0;
      text-align: left;
-     box-shadow: none;
-     transition: background .2s, color .2s, border-color .2s;
+     box-shadow: 0 2px 10px rgba(0,0,0,.10);
+     transition: background .2s, color .2s, border-color .2s, box-shadow .2s;
+   }
+   button.question-hint-btn svg {
+     width: calc(14px * var(--scale, 1));
+     height: calc(14px * var(--scale, 1));
+     flex-shrink: 0;
+     stroke-width: 2;
    }
 
    button.question-hint-btn:hover {
-     background: rgba(255,255,255,.94);
+     background: rgba(255,255,255,.97);
      color: var(--c-accent);
-     border-color: rgba(9,84,163,.25);
-     box-shadow: none;
+     border-color: rgba(9,84,163,.3);
+     box-shadow: 0 4px 16px rgba(9,84,163,.14);
      transform: none;
    }
 
    button.question-hint-btn.hint-btn-active {
-     background: rgba(255,255,255,.94);
+     background: rgba(235,244,255,.97);
      color: var(--c-accent);
-     border-color: rgba(9,84,163,.25);
+     border-color: rgba(9,84,163,.3);
+     box-shadow: 0 4px 16px rgba(9,84,163,.14);
    }
 
    /* Mobile hint button — small ? circle inside the image */
@@ -396,9 +445,10 @@
 
    button.question-hint-btn-mobile:hover,
    button.question-hint-btn-mobile.hint-btn-active {
-     background: rgba(255,255,255,.96);
+     background: rgba(235,244,255,.97);
      color: var(--c-accent);
-     box-shadow: none;
+     border-color: rgba(9,84,163,.3);
+     box-shadow: 0 2px 10px rgba(9,84,163,.14);
      transform: none;
    }
 
@@ -464,10 +514,10 @@
    .answer-option {
      width: calc(366.968px * var(--scale));
      height: calc(58.3935px * var(--scale));
-     background: rgba(255,255,255,.88);
-     backdrop-filter: blur(16px) saturate(180%);
-     -webkit-backdrop-filter: blur(16px) saturate(180%);
-     border: 1.5px solid rgba(255,255,255,.45);
+     background: rgba(255,255,255,.92);
+     backdrop-filter: blur(20px) saturate(200%);
+     -webkit-backdrop-filter: blur(20px) saturate(200%);
+     border: 1.5px solid rgba(255,255,255,.68);
      border-radius: calc(var(--r-sm) * var(--scale));
      display: flex;
      align-items: center;
@@ -479,32 +529,36 @@
                  box-shadow .22s ease,
                  transform .18s ease,
                  background .22s ease;
-     box-shadow: 0 1px 3px rgba(0,0,0,.05);
+     box-shadow: 0 2px 10px rgba(0,0,0,.09),
+                 inset 0 1px 0 rgba(255,255,255,.85);
    }
 
    .answer-option:has(input:checked) {
-     border-color: var(--c-accent);
-     background: rgba(255,255,255,.96);
-     box-shadow: 0 0 0 3px var(--c-accent-glow),
-                 0 2px 10px rgba(0,0,0,.05);
+     border-color: rgba(9,84,163,.55);
+     background: rgba(232,242,255,.97);
+     box-shadow: 0 0 0 2.5px rgba(9,84,163,.18),
+                 0 2px 12px rgba(9,84,163,.12);
    }
 
    .answer-option:hover {
-     border-color: var(--c-border-hover);
-     box-shadow: 0 4px 14px rgba(0,0,0,.08);
+     border-color: rgba(9,84,163,.30);
+     background: rgba(255,255,255,.97);
+     box-shadow: 0 6px 18px rgba(0,0,0,.11),
+                 inset 0 1px 0 rgba(255,255,255,.9);
      transform: translateY(-1px);
    }
 
    .answer-option:has(input:checked):hover {
-     box-shadow: 0 0 0 3px var(--c-accent-glow),
-                 0 6px 18px rgba(0,0,0,.07);
+     border-color: rgba(9,84,163,.65);
+     box-shadow: 0 0 0 2.5px rgba(9,84,163,.22),
+                 0 6px 18px rgba(9,84,163,.14);
    }
 
    .answer-option:active { transform: translateY(0); }
 
    .answer-option:focus-within {
-     border-color: var(--c-accent);
-     box-shadow: 0 0 0 3px var(--c-accent-glow);
+     border-color: rgba(9,84,163,.55);
+     box-shadow: 0 0 0 2.5px rgba(9,84,163,.18);
    }
 
    /* Radio / Checkbox */
@@ -527,16 +581,21 @@
    .answer-option input[type="checkbox"]:checked {
      background: var(--c-accent);
      border-color: var(--c-accent);
-     box-shadow: inset 0 0 0 2.5px #fff;
+     box-shadow: inset 0 0 0 2.5px #fff,
+                 0 2px 6px rgba(9,84,163,.30);
    }
 
    /* Answer text */
    .answer-option span {
      font-family: 'Inter', sans-serif;
      font-weight: 500;
-     font-size: calc(16px * var(--scale));
+     font-size: calc(15.5px * var(--scale));
      color: var(--c-text);
      line-height: 1.4;
+   }
+   .answer-option:has(input:checked) span {
+     color: var(--c-accent);
+     font-weight: 600;
    }
 
    /* Mobile accordion toggle */
@@ -589,11 +648,11 @@
    .button-container button {
      flex: 1;
      height: calc(42px * var(--scale));
-     background: var(--c-accent);
+     background: #0954A3;
      border: none;
      border-radius: var(--r-pill);
      font-family: 'Inter', sans-serif;
-     font-weight: 600;
+     font-weight: 700;
      font-size: calc(15px * var(--scale));
      color: #fff;
      cursor: pointer;
@@ -601,35 +660,40 @@
      align-items: center;
      justify-content: center;
      padding: 0 calc(20px * var(--scale));
-     transition: background .2s, box-shadow .2s, transform .18s;
+     transition: filter .2s, box-shadow .2s, transform .18s;
      letter-spacing: .01em;
+     box-shadow: 0 4px 14px rgba(9,84,163,.32);
    }
 
    .button-container button:hover {
-     background: var(--c-accent-hover);
-     box-shadow: 0 4px 14px rgba(0,113,227,.22);
-     transform: translateY(-1px);
+     filter: brightness(1.08);
+     box-shadow: 0 6px 20px rgba(9,84,163,.40);
+     transform: translateY(-1.5px);
    }
-   .button-container button:active { transform: translateY(0); box-shadow: none; }
+   .button-container button:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(9,84,163,.22); filter: brightness(1); }
 
    /* Back buttons — ghost style */
    #restart-q1,
    #back-to-question-1, #back-to-question-2, #back-to-question-3,
    #back-to-question-4, #back-to-question-5, #back-to-question-6,
    #back-to-question-7 {
-     background: rgba(255,255,255,.85);
-     backdrop-filter: blur(8px);
-     -webkit-backdrop-filter: blur(8px);
-     border: 1.5px solid var(--c-accent);
+     background: rgba(255,255,255,.90);
+     backdrop-filter: blur(12px) saturate(180%);
+     -webkit-backdrop-filter: blur(12px) saturate(180%);
+     border: 1.5px solid rgba(9,84,163,.30);
      color: var(--c-accent);
+     box-shadow: 0 2px 8px rgba(0,0,0,.08);
+     filter: none;
    }
    #restart-q1:hover,
    #back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover,
    #back-to-question-4:hover, #back-to-question-5:hover, #back-to-question-6:hover,
    #back-to-question-7:hover {
-     background: var(--c-accent-soft);
-     box-shadow: none;
-     transform: translateY(-1px);
+     background: rgba(232,242,255,.97);
+     border-color: rgba(9,84,163,.50);
+     box-shadow: 0 4px 14px rgba(9,84,163,.14);
+     filter: none;
+     transform: translateY(-1.5px);
    }
 
    /* Button position per question */
@@ -701,8 +765,12 @@
      width: calc(20px * var(--scale));
      height: calc(20px * var(--scale));
      flex-shrink: 0;
-     color: var(--c-text-2);
-     stroke-width: 1.5;
+     color: var(--c-text-3);
+     stroke-width: 1.75;
+     transition: color .2s;
+   }
+   .answer-option:has(input:checked) .answer-info-icon {
+     color: var(--c-accent);
    }
 
    /* ====== POPOVERS — hidden data containers only ====== */
@@ -728,7 +796,15 @@
      display: flex;
      flex-direction: column;
      overflow: hidden;
-     box-shadow: -4px 0 24px rgba(0,0,0,.07);
+     box-shadow: -8px 0 32px rgba(0,0,0,.11);
+   }
+   /* Blue top accent stripe */
+   .info-panel::before {
+     content: '';
+     display: block;
+     height: 3px;
+     background: linear-gradient(90deg, #0b6fd4, #0954a3);
+     flex-shrink: 0;
    }
 
    .info-panel.is-open {
@@ -810,7 +886,7 @@
    .info-panel-title {
      font-size: 15px;
      font-weight: 700;
-     color: var(--c-text);
+     color: var(--c-accent);
      line-height: 1.35;
      letter-spacing: -.012em;
      margin: 0;
@@ -900,8 +976,8 @@
      bottom: 0;
      left: 0; right: 0;
      width: 100%;
-     height: calc(4px * var(--scale));
-     background: rgba(255,255,255,.25);
+     height: calc(5px * var(--scale));
+     background: rgba(255,255,255,.18);
      border-radius: 0 0 var(--r-lg) var(--r-lg);
      z-index: 3;
      overflow: hidden;
@@ -911,9 +987,10 @@
      top: 0; left: 0;
      height: 100%;
      width: 0;
-     background: linear-gradient(90deg, var(--c-accent), #0954A3);
+     background: #0954A3;
      border-radius: inherit;
      transition: width .6s cubic-bezier(.4,0,.2,1);
+     box-shadow: 0 0 8px rgba(9,84,163,.5);
    }
 
    /* ============================================================
@@ -949,10 +1026,15 @@
      }
 
      #question-2 .answer-option:has(input:checked) {
-       border-color: var(--c-accent);
-       background: rgba(255,255,255,.96);
-       box-shadow: 0 0 0 3px var(--c-accent-glow),
-                   0 2px 10px rgba(0,0,0,.05);
+       border-color: rgba(9,84,163,.55);
+       background: rgba(232,242,255,.97);
+       box-shadow: 0 0 0 2.5px rgba(9,84,163,.18),
+                   0 2px 12px rgba(9,84,163,.12);
+     }
+
+     #question-2 .answer-option:has(input:checked) span {
+       color: var(--c-accent);
+       font-weight: 700;
      }
    }
 
@@ -960,20 +1042,17 @@
       RESPONSIVE — MOBILE  (≤ 900px)
       ============================================================ */
    @media (max-width: 900px) {
-     .intro-hero {
-       padding: clamp(18px, 4vh, 32px) 0 clamp(10px, 2vh, 18px);
-     }
-
-     .intro-badge { font-size: 11px; padding: 4px 12px; }
-
-     .how-steps {
+     .quiz-how-steps {
        flex-direction: column;
        gap: 12px;
      }
-     .how-step {
+     .quiz-how-step {
        flex-direction: row;
        text-align: left;
        gap: 12px;
+     }
+     .quiz-panel-inner {
+       padding: 20px 18px;
      }
 
      .quiz-hero { max-width: none; }
@@ -1059,14 +1138,16 @@
        border-radius: var(--r-sm);
        gap: 10px;
        background: #ffffff;
-       border-color: var(--c-border);
+       border-color: #e2e8f0;
+       box-shadow: 0 1px 4px rgba(0,0,0,.06);
        backdrop-filter: none;
        -webkit-backdrop-filter: none;
      }
 
      .answer-option:has(input:checked) {
-       background: #fff;
-       border-color: var(--c-accent);
+       background: rgba(232,242,255,.80);
+       border-color: rgba(9,84,163,.45);
+       box-shadow: 0 0 0 2px rgba(9,84,163,.15);
      }
 
      #question-2 .answer-option {
@@ -1129,7 +1210,9 @@
      #back-to-question-4, #back-to-question-5, #back-to-question-6,
      #back-to-question-7 {
        border-width: 1.5px;
-       background: var(--c-surface);
+       background: #fff;
+       box-shadow: 0 1px 4px rgba(0,0,0,.06);
+       filter: none;
      }
 
      #question-1 .button-container,
@@ -1201,66 +1284,79 @@
 </head>
 <body>
 
- <main class="page-content">
+ <!-- ══════════════════════════════════════════
+      QUIZ PAGE HEADER
+      ══════════════════════════════════════════ -->
+ <header class="quiz-page-header">
+   <div class="quiz-header-inner">
 
-   <!-- ============ INTRO HERO ============ -->
-   <section class="intro-hero">
-     <div class="intro-badge">
-       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
-       TV Keuzehulp&ensp;·&ensp;± 2 minuten
-     </div>
-     <h1 class="intro-title">Vind jouw perfecte televisie</h1>
+     <!-- Title + time badge -->
+     <h1 class="quiz-header-title">Televisie Keuzehulp<span class="quiz-time-badge">± 2 min</span></h1>
 
-     <div class="toggle-row">
-       <button class="how-toggle" id="how-toggle" type="button">
+     <!-- Toggle buttons centered below title -->
+     <div class="quiz-toggle-row">
+       <button class="quiz-toggle-btn" id="how-toggle" type="button">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/></svg>
          Hoe werkt het?
          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
        </button>
-       <button class="how-toggle" id="uitleg-toggle" type="button">
+       <button class="quiz-toggle-btn" id="uitleg-toggle" type="button">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
          Keuzehulp uitleg
          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
        </button>
      </div>
 
-     <div class="how-content" id="how-content">
-       <div class="how-inner">
-         <p>We stellen acht korte vragen over je kijkafstand, budget, gebruik en voorkeuren. Op basis van je antwoorden berekenen we welk type televisie het beste bij je past en laten we je de beste opties zien. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
-         <div class="how-steps">
-           <div class="how-step">
-             <span class="how-step-num">1</span>
-             <div>
-               <div class="how-step-label">Beantwoord vragen</div>
-               <div class="how-step-desc">Vertel ons over je wensen en voorkeuren</div>
-             </div>
+   </div>
+
+   <!-- Collapsible panels — outside flex row so they take full width -->
+   <!-- How it works panel -->
+   <div class="quiz-panel-content" id="how-content">
+     <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
+       <p>We stellen acht korte vragen over je kijkafstand, budget, gebruik en voorkeuren. Op basis van je antwoorden berekenen we welk type televisie het beste bij je past en laten we je de beste opties zien. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+       <div class="quiz-how-steps">
+         <div class="quiz-how-step">
+           <span class="quiz-how-step-num">1</span>
+           <div>
+             <div class="quiz-how-step-label">Beantwoord vragen</div>
+             <div class="quiz-how-step-desc">Vertel ons over je wensen en voorkeuren</div>
            </div>
-           <div class="how-step">
-             <span class="how-step-num">2</span>
-             <div>
-               <div class="how-step-label">Wij analyseren</div>
-               <div class="how-step-desc">We matchen je antwoorden met alle tv's</div>
-             </div>
+         </div>
+         <div class="quiz-how-step">
+           <span class="quiz-how-step-num">2</span>
+           <div>
+             <div class="quiz-how-step-label">Wij analyseren</div>
+             <div class="quiz-how-step-desc">We matchen je antwoorden met alle tv's</div>
            </div>
-           <div class="how-step">
-             <span class="how-step-num">3</span>
-             <div>
-               <div class="how-step-label">Ontvang advies</div>
-               <div class="how-step-desc">Bekijk welke tv's het beste bij je passen</div>
-             </div>
+         </div>
+         <div class="quiz-how-step">
+           <span class="quiz-how-step-num">3</span>
+           <div>
+             <div class="quiz-how-step-label">Ontvang advies</div>
+             <div class="quiz-how-step-desc">Bekijk welke tv's het beste bij je passen</div>
            </div>
          </div>
        </div>
      </div>
+   </div>
 
-     <div class="how-content" id="uitleg-content">
-       <div class="how-inner">
-         <p>Voor een volledige uitleg over deze keuzehulp, hoe die is opgebouwd en welke tv's worden meegenomen, lees de volledige keuzehulp uitleg.</p>
-         <a href="tvkeuzehulpuitleg.html" class="uitleg-link-btn">
-           Lees de volledige uitleg
-           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-         </a>
-       </div>
+   <!-- Uitleg panel -->
+   <div class="quiz-panel-content" id="uitleg-content">
+     <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
+       <p>Voor een volledige uitleg over deze keuzehulp, hoe die is opgebouwd en welke tv's worden meegenomen, lees de volledige keuzehulp uitleg.</p>
+       <a href="tvkeuzehulpuitleg.html" class="uitleg-link-btn">
+         Lees de volledige uitleg
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+       </a>
      </div>
-   </section>
+   </div>
+
+ </header>
+
+ <!-- ══════════════════════════════════════════
+      MAIN CONTENT
+      ══════════════════════════════════════════ -->
+ <main class="page-content">
 
    <!-- ============ QUIZ ============ -->
    <div class="container-wrapper">
@@ -1313,7 +1409,10 @@
          </div>
 
          <!-- Desktop hint button: frosted pill at bottom-right of the image -->
-         <button id="question-hint-btn" class="question-hint-btn" type="button">Waarom deze vraag?</button>
+         <button id="question-hint-btn" class="question-hint-btn" type="button">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+           Waarom deze vraag?
+         </button>
 
        <!-- VRAAG 1 -->
        <div id="question-1" class="question-block">
@@ -1597,10 +1696,10 @@
       var open = content.classList.toggle('is-open');
       btn.classList.toggle('is-open', open);
       /* Close the sibling panel */
-      document.querySelectorAll('.how-content').forEach(function (c) {
+      document.querySelectorAll('.quiz-panel-content').forEach(function (c) {
         if (c !== content) c.classList.remove('is-open');
       });
-      document.querySelectorAll('.how-toggle').forEach(function (b) {
+      document.querySelectorAll('.quiz-toggle-btn').forEach(function (b) {
         if (b !== btn) b.classList.remove('is-open');
       });
     });

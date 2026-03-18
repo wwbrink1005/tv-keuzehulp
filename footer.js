@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <!-- Brand column -->
         <div class="footer-brand-col">
           <a class="footer-logo" href="index.html">
-            <img src="file.svg" alt="producthulp.nl" class="footer-logo-img" />
+            <img src="logo.svg" alt="producthulp.nl" class="footer-logo-img" />
           </a>
           <p class="footer-tagline">Onafhankelijk productadvies — altijd gratis, altijd eerlijk.</p>
           <span class="footer-badge">

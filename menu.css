@@ -4,16 +4,30 @@
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 :root {
   --menu-height: 64px;
-  --menu-bg: #ffffff;
-  --menu-text: #1d1d1f;
-  --menu-accent: #0954a3;
-  --menu-accent-soft: rgba(9, 84, 163, 0.08);
-  --menu-muted: #6b7280;
-  --menu-border: #e8eaed;
-  --menu-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  --menu-bg: #0954a3;
+  --menu-text: rgba(255, 255, 255, 0.92);
+  --menu-accent: #ffffff;
+  --menu-accent-soft: rgba(255, 255, 255, 0.12);
+  --menu-muted: rgba(255, 255, 255, 0.55);
+  --menu-border: rgba(255, 255, 255, 0.2);
+  --menu-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
   --menu-radius: 12px;
   --menu-transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   --menu-font: "Inter", sans-serif;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   WHITE POPUP CONTEXT — reset vars to dark
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.menu-dropdown,
+.landing-search-dropdown,
+.mobile-nav {
+  --menu-bg: #ffffff;
+  --menu-text: #1d1d1f;
+  --menu-muted: #6b7280;
+  --menu-border: #e8eaed;
+  --menu-accent-soft: rgba(9, 84, 163, 0.08);
+  --menu-accent: #0954a3;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -120,13 +134,13 @@ body.has-menu {
 
 .menu-link:hover,
 .menu-link:focus-visible {
-  background: #f5f5f7;
-  color: var(--menu-text);
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
 }
 
 .menu-link.is-active {
-  background: var(--menu-accent-soft);
-  color: var(--menu-accent);
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
 }
 
 .menu-chevron {
@@ -275,24 +289,24 @@ body.has-menu {
   height: 36px;
   padding: 0 12px 0 36px;
   border-radius: 999px;
-  border: 1.5px solid var(--menu-border);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
   font-size: 13.5px;
   font-family: var(--menu-font);
   outline: none;
-  background: #f8f9fc;
+  background: rgba(255, 255, 255, 0.12);
   color: var(--menu-text);
   transition: all var(--menu-transition);
 }
 
 .landing-search input:focus {
-  border-color: var(--menu-accent);
-  background: #ffffff;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.18);
   width: 240px;
-  box-shadow: 0 0 0 3px rgba(9, 84, 163, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 .landing-search input::placeholder {
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .landing-search input.has-results {
@@ -411,20 +425,21 @@ body.has-menu {
   height: 36px;
   padding: 0 16px;
   border-radius: 999px;
-  background: var(--menu-accent);
-  color: #ffffff;
+  background: #ffffff;
+  color: #0954a3;
   font-size: 13.5px;
   font-weight: 600;
   font-family: var(--menu-font);
   text-decoration: none;
   white-space: nowrap;
   transition: all var(--menu-transition);
-  box-shadow: 0 2px 8px rgba(9, 84, 163, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .menu-contact-btn:hover {
-  background: #073d7a;
-  box-shadow: 0 4px 16px rgba(9, 84, 163, 0.3);
+  background: #f0f5ff;
+  color: #073d7a;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
   transform: translateY(-1px);
 }
 
@@ -448,7 +463,8 @@ body.has-menu {
 }
 
 .menu-hamburger:hover {
-  background: #f5f5f7;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .menu-hamburger svg {
@@ -552,14 +568,20 @@ body.has-menu {
   border-radius: 999px;
   border: 1.5px solid var(--menu-border);
   background: #f8f9fc;
+  color: #1d1d1f;
   font-size: 14px;
   transition: all var(--menu-transition);
+}
+
+.mobile-nav-search .landing-search input::placeholder {
+  color: #9ca3af;
 }
 
 .mobile-nav-search .landing-search input:focus {
   width: 100%;
   border-color: var(--menu-accent);
   background: white;
+  box-shadow: 0 0 0 3px rgba(9, 84, 163, 0.1);
 }
 
 .mobile-nav-search .landing-search .search-icon {

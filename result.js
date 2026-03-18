@@ -171,15 +171,20 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
     return;
   }
 
+  const prices = filteredMatchedTVs.map(tv => parsePrice(tv.prijs));
+  const minPrice = Math.min(...prices);
+
   container.innerHTML = filteredMatchedTVs
     .map((tv, index) => {
       const price = parsePrice(tv.prijs);
+      const isCheapest = price === minPrice;
       const specs = buildSpecList(tv);
       const specsHtml = specs.map(spec => `<li>${spec}</li>`).join("");
 
       return `
-        <article class="other-match-card" data-match-index="${index}">
+        <article class="other-match-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
           <span class="other-match-selected-label" aria-hidden="true">Geselecteerd</span>
+          <span class="cheapest-label" aria-hidden="true">Goedkoopste keuze</span>
           <div class="other-match-media" aria-hidden="true">
             <img src="tv.png" alt="" role="presentation">
           </div>
@@ -453,12 +458,22 @@ function clearActiveMatchCards() {
   container.querySelectorAll(".other-match-card.is-active").forEach(card => {
     card.classList.remove("is-active");
   });
+  container.classList.remove("has-non-cheapest-active");
+  container.classList.remove("has-cheapest-active");
 }
 
 function setActiveMatchCard(card) {
   if (!card) return;
   clearActiveMatchCards();
   card.classList.add("is-active");
+  const container = qs("#otherMatchesGrid");
+  if (container) {
+    if (!card.classList.contains("is-cheapest")) {
+      container.classList.add("has-non-cheapest-active");
+    } else {
+      container.classList.add("has-cheapest-active");
+    }
+  }
 }
 
 export function initResultPage() {
