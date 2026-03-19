@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <!-- Brand -->
       <div class="menu-brand">
-        <a href="index.html" aria-label="producthulp.nl — home">
+        <a href="./" aria-label="producthulp.nl — home">
           <img
             src="logo_wit.svg"
             alt="producthulp.nl"
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <!-- Center nav (desktop) -->
       <nav class="menu-nav" aria-label="Hoofdmenu">
-        <a class="menu-link" href="index.html">Home</a>
+        <a class="menu-link" href="./">Home</a>
 
         <!-- Categorieën dropdown -->
         <div class="menu-dropdown-trigger" id="categoriesDropdownTrigger">
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h4>Beeld, Geluid &amp; Foto</h4>
                 <ul>
                   <li>
-                    <a href="vragen.html">
+                    <a href="vragen">
                       Televisies
                       <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
                     </a>
@@ -93,8 +93,8 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
 
-        <a class="menu-link" href="hoe-werkt-het.html">Hoe werkt het?</a>
-        <a class="menu-link" href="over-ons.html">Over ons</a>
+        <a class="menu-link" href="hoe-werkt-het">Hoe werkt het?</a>
+        <a class="menu-link" href="over-ons">Over ons</a>
       </nav>
 
       <!-- Right side (desktop) -->
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
         </div>
-        <a class="menu-contact-btn" href="contact.html">Contact</a>
+        <a class="menu-contact-btn" href="contact">Contact</a>
       </div>
 
       <!-- Hamburger (mobile) -->
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
       aria-hidden="true"
     >
       <div class="mobile-nav-header">
-        <a class="mobile-brand" href="index.html">
+        <a class="mobile-brand" href="./">
           <img src="logo.svg" alt="producthulp.nl" class="menu-logo" />
         </a>
         <button
@@ -172,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
 
       <div class="mobile-nav-links">
-        <a class="mobile-nav-link" href="index.html">Home</a>
+        <a class="mobile-nav-link" href="./">Home</a>
 
         <!-- Mobile categories accordion -->
         <button
@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="mobile-cat-group">
             <h4>Beeld, Geluid &amp; Foto</h4>
             <ul>
-              <li><a href="vragen.html">Televisies <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="vragen">Televisies <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><span>Soundbars</span></li>
               <li><span>Fototoestellen</span></li>
             </ul>
@@ -220,14 +220,14 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
 
-        <a class="mobile-nav-link" href="hoe-werkt-het.html">Hoe werkt het?</a>
-        <a class="mobile-nav-link" href="over-ons.html">Over ons</a>
+        <a class="mobile-nav-link" href="hoe-werkt-het">Hoe werkt het?</a>
+        <a class="mobile-nav-link" href="over-ons">Over ons</a>
       </div>
 
       <div class="mobile-nav-footer">
-        <a href="contact.html">Contact</a>
-        <a href="disclaimer.html">Disclaimer</a>
-        <a href="privacy.html">Privacybeleid</a>
+        <a href="contact">Contact</a>
+        <a href="disclaimer">Disclaimer</a>
+        <a href="privacy">Privacybeleid</a>
       </div>
     </nav>
   `;

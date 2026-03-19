@@ -41,7 +41,7 @@ function initResultMobileUI() {
 
   if (restartConfirm) {
     restartConfirm.addEventListener("click", () => {
-      window.location.href = "vragen.html";
+      window.location.href = "vragen";
     });
   }
 
