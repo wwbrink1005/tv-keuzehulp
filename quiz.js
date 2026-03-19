@@ -364,7 +364,7 @@ function handleStartMatching() {
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
       setTimeout(() => {
-        window.location.href = "resultaat2.html";
+        window.location.href = "resultaat.html";
       }, 180);
     });
 }

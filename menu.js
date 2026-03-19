@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <a class="menu-link" href="hoe-werkt-het.html">Hoe werkt het?</a>
-        <a class="menu-link" href="over-producthulp.html">Over ons</a>
+        <a class="menu-link" href="over-ons.html">Over ons</a>
       </nav>
 
       <!-- Right side (desktop) -->
@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <a class="mobile-nav-link" href="hoe-werkt-het.html">Hoe werkt het?</a>
-        <a class="mobile-nav-link" href="over-producthulp.html">Over ons</a>
+        <a class="mobile-nav-link" href="over-ons.html">Over ons</a>
       </div>
 
       <div class="mobile-nav-footer">

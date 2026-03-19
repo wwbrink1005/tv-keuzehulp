@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="footer-col">
           <h3 class="footer-col-title">Informatie</h3>
           <ul>
-            <li><a href="over-producthulp.html">Over ons</a></li>
+            <li><a href="over-ons.html">Over ons</a></li>
             <li><a href="hoe-werkt-het.html">Hoe werkt het?</a></li>
             <li><a href="contact.html">Contact</a></li>
           </ul>

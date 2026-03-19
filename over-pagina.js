@@ -1,8 +1,8 @@
 const infoPages = [
   {
-    id: "over-producthulp",
+    id: "over-ons",
     title: "Over producthulp.nl",
-    file: "over-producthulp.html",
+    file: "over-ons.html",
     html: `
       <p class="info-lead">
         producthulp.nl helpt consumenten het juiste product te vinden — zonder reclame, zonder verborgen agenda. Wij zijn een onafhankelijk platform dat eerlijk en gratis advies biedt via slimme keuzehulpen.
