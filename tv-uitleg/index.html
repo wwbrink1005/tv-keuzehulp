@@ -412,7 +412,7 @@
 
     <!-- Back link -->
     <nav class="uitleg-back">
-      <a href="vragen" class="back-link" id="backLink">
+      <a href="tv-vragen" class="back-link" id="backLink">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
         <span id="backLinkText">Terug naar de keuzehulp</span>
       </a>
@@ -719,7 +719,7 @@
       <div class="cta-card">
         <h2>Klaar om te beginnen?</h2>
         <p>Beantwoord acht korte vragen en ontdek in twee minuten welke televisie het beste bij jouw situatie past.</p>
-        <a href="vragen">
+        <a href="tv-vragen">
           Start de TV Keuzehulp
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
         </a>
@@ -734,8 +734,8 @@
       var text = document.getElementById('backLinkText');
       if (!link) return;
       var ref = document.referrer;
-      if (ref && ref.includes('resultaat')) {
-        link.href = 'resultaat';
+      if (ref && ref.includes('tv-resultaat')) {
+        link.href = 'tv-resultaat';
         if (text) text.textContent = 'Terug naar de resultaten';
       }
     })();
