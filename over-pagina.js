@@ -1,8 +1,8 @@
 const infoPages = [
   {
-    id: "over-producthulp",
+    id: "over-ons",
     title: "Over producthulp.nl",
-    file: "over-producthulp.html",
+    file: "over-ons",
     html: `
       <p class="info-lead">
         producthulp.nl helpt consumenten het juiste product te vinden — zonder reclame, zonder verborgen agenda. Wij zijn een onafhankelijk platform dat eerlijk en gratis advies biedt via slimme keuzehulpen.
@@ -35,7 +35,7 @@ const infoPages = [
   {
     id: "hoe-werkt-het",
     title: "Hoe werkt het?",
-    file: "hoe-werkt-het.html",
+    file: "hoe-werkt-het",
     html: `
       <p class="info-lead">
         In een paar minuten weet jij welke televisie het beste bij jou past. Hier leggen we stap voor stap uit hoe onze keuzehulp werkt.
@@ -80,7 +80,7 @@ const infoPages = [
   {
     id: "contact",
     title: "Contact",
-    file: "contact.html",
+    file: "contact",
     html: `
       <p class="info-lead">
         Heb je een vraag, opmerking of wil je een fout melden? We horen graag van je.
@@ -110,7 +110,7 @@ const infoPages = [
   {
     id: "disclaimer",
     title: "Disclaimer",
-    file: "disclaimer.html",
+    file: "disclaimer",
     html: `
       <p class="info-lead">
         Lees deze disclaimer zorgvuldig door voordat je gebruik maakt van producthulp.nl.
@@ -149,7 +149,7 @@ const infoPages = [
   {
     id: "privacy",
     title: "Privacybeleid",
-    file: "privacy.html",
+    file: "privacy",
     html: `
       <p class="info-lead">
         producthulp.nl respecteert jouw privacy. Op deze pagina leggen we uit welke gegevens we verzamelen, waarom, en hoe we daarmee omgaan.
