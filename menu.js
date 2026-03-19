@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h4>Beeld, Geluid &amp; Foto</h4>
                 <ul>
                   <li>
-                    <a href="vragen">
+                    <a href="tv-vragen">
                       Televisies
                       <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
                     </a>
@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="mobile-cat-group">
             <h4>Beeld, Geluid &amp; Foto</h4>
             <ul>
-              <li><a href="vragen">Televisies <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="tv-vragen">Televisies <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><span>Soundbars</span></li>
               <li><span>Fototoestellen</span></li>
             </ul>
