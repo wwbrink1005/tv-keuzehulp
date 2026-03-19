@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <!-- Brand column -->
         <div class="footer-brand-col">
-          <a class="footer-logo" href="index.html">
+          <a class="footer-logo" href="./">
             <img src="logo.svg" alt="producthulp.nl" class="footer-logo-img" />
           </a>
           <p class="footer-tagline">Onafhankelijk productadvies — altijd gratis, altijd eerlijk.</p>
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3 class="footer-col-title">Keuzehulpen</h3>
           <ul>
             <li>
-              <a href="vragen.html" class="footer-link-active">Televisies</a>
+              <a href="vragen" class="footer-link-active">Televisies</a>
             </li>
             <li><span class="footer-soon">Soundbars <span class="footer-soon-tag">binnenkort</span></span></li>
             <li><span class="footer-soon">Laptops <span class="footer-soon-tag">binnenkort</span></span></li>
@@ -41,9 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="footer-col">
           <h3 class="footer-col-title">Informatie</h3>
           <ul>
-            <li><a href="over-producthulp.html">Over ons</a></li>
-            <li><a href="hoe-werkt-het.html">Hoe werkt het?</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="over-ons">Over ons</a></li>
+            <li><a href="hoe-werkt-het">Hoe werkt het?</a></li>
+            <li><a href="contact">Contact</a></li>
           </ul>
         </div>
 
@@ -51,8 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="footer-col">
           <h3 class="footer-col-title">Juridisch</h3>
           <ul>
-            <li><a href="disclaimer.html">Disclaimer</a></li>
-            <li><a href="privacy.html">Privacybeleid</a></li>
+            <li><a href="disclaimer">Disclaimer</a></li>
+            <li><a href="privacy">Privacybeleid</a></li>
           </ul>
         </div>
 
@@ -62,9 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="footer-bottom">
         <p class="footer-bottom-left">&copy; ${year} producthulp.nl &mdash; Alle rechten voorbehouden</p>
         <div class="footer-bottom-right">
-          <a href="disclaimer.html">Disclaimer</a>
-          <a href="privacy.html">Privacy</a>
-          <a href="contact.html">Contact</a>
+          <a href="disclaimer">Disclaimer</a>
+          <a href="privacy">Privacy</a>
+          <a href="contact">Contact</a>
         </div>
       </div>
 
