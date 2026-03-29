@@ -1281,6 +1281,14 @@
 					border-radius: var(--radius-lg);
 				}
 			}
+
+			/* ── Menu: scroll met pagina mee (niet sticky) ── */
+			.menu-bar {
+				position: static;
+			}
+			body.has-menu {
+				padding-top: 0;
+			}
 		</style>
 	</head>
 	<body>
@@ -1488,6 +1496,45 @@
 					if (activeTrigger) positionCard(activeTrigger);
 				});
 			})();
+		</script>
+
+		<!-- Scroll-to-top button -->
+		<button id="scroll-top-btn" aria-label="Terug naar boven" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="
+		  position: fixed;
+		  bottom: 28px;
+		  right: 28px;
+		  z-index: 9999;
+		  width: 44px;
+		  height: 44px;
+		  border-radius: 12px;
+		  background: #0954a3;
+		  border: none;
+		  cursor: pointer;
+		  display: grid;
+		  place-items: center;
+		  box-shadow: 0 4px 16px rgba(9,84,163,.35);
+		  opacity: 0;
+		  transform: translateY(10px);
+		  transition: opacity .25s ease, transform .25s ease;
+		  pointer-events: none;
+		">
+		  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+		</button>
+		<script>
+		(function(){
+		  var btn = document.getElementById('scroll-top-btn');
+		  window.addEventListener('scroll', function(){
+		    if (window.scrollY > 300) {
+		      btn.style.opacity = '1';
+		      btn.style.transform = 'translateY(0)';
+		      btn.style.pointerEvents = 'auto';
+		    } else {
+		      btn.style.opacity = '0';
+		      btn.style.transform = 'translateY(10px)';
+		      btn.style.pointerEvents = 'none';
+		    }
+		  }, {passive: true});
+		})();
 		</script>
 	</body>
 </html>
