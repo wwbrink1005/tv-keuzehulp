@@ -9,8 +9,7 @@ import {
 
 export function calculateScores(answers) {
   const scores = {
-    "LED (edge)": 0,
-    "LED (direct)": 0,
+    "LED": 0,
     "Mini LED": 0,
     "QLED": 0,
     "OLED": 0
@@ -164,9 +163,11 @@ export function matchTVs(tvs, sizeGroup, priceGroup, answers, scores) {
       .filter(([, s]) => Number(s) === Number(score))
       .map(([t]) => t);
 
-    let tvsOfTheseTypes = filteredTVs.filter(tv =>
-      typesWithSameScore.includes(tv.type)
-    );
+    let tvsOfTheseTypes = filteredTVs.filter(tv => {
+      if (typesWithSameScore.includes(tv.type)) return true;
+      if (tv.type === "Neo QLED" && (typesWithSameScore.includes("QLED") || typesWithSameScore.includes("Mini LED"))) return true;
+      return false;
+    });
 
     if (tvsOfTheseTypes.length === 0) continue;
 
@@ -250,7 +251,8 @@ export function isPerfectMatch(tv, scores, answers) {
 
   const idealTypes = getIdealTypeSet(scores);
   const tvType = normalizeTypeLabel(tv.type);
-  const typeMatch = idealTypes.size === 0 ? true : idealTypes.has(tvType);
+  const isNeoQledMatch = tv.type === "Neo QLED" && (idealTypes.has("QLED") || idealTypes.has("Mini LED"));
+  const typeMatch = idealTypes.size === 0 ? true : (idealTypes.has(tvType) || isNeoQledMatch);
 
   const quality = answers.quality ?? "";
   let resolutionMatch = true;

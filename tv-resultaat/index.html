@@ -782,27 +782,36 @@
 			}
 
 			.best-match-media {
-				width: 100%;
-				max-width: clamp(14rem, 50vw, 24rem);
+				width: clamp(14rem, 50vw, 20rem);
+				aspect-ratio: 4 / 3;
+				flex-shrink: 0;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				margin-top: clamp(0.5rem, 2vw, 1rem);
+				overflow: hidden;
+				background: #fff;
+				border-radius: var(--radius-md);
 			}
 
 			.best-match-media img {
 				width: 100%;
-				height: auto;
+				height: 100%;
 				max-width: 100%;
 				object-fit: contain;
 				display: block;
+				padding: 10px;
+				transition: transform var(--transition);
+			}
+
+			.best-match-media img[data-provider="coolblue"] {
+				transform: scale(0.82);
 			}
 
 			.best-match-body {
 				flex: 1;
 				display: flex;
 				flex-direction: column;
-				gap: 0;
+				gap: 0.6rem;
 			}
 
 			.best-match-name {
@@ -817,10 +826,9 @@
 				list-style: none;
 				display: flex;
 				flex-direction: column;
-				gap: 10px;
+				gap: 8px;
 				font-size: 14px;
 				color: var(--text-secondary);
-				margin-top: 16px;
 				max-width: 26rem;
 			}
 
@@ -842,7 +850,6 @@
 			.best-match-specs {
 				font-size: 13px;
 				color: var(--text-tertiary);
-				margin-top: clamp(0.75rem, 2vw, 1rem);
 				letter-spacing: 0.01em;
 			}
 
@@ -850,8 +857,8 @@
 				font-size: 26px;
 				font-weight: 800;
 				color: var(--accent-dark);
-				margin-top: clamp(0.75rem, 2vw, 1rem);
 				letter-spacing: -0.03em;
+				margin-top: 0.15rem;
 			}
 
 			.best-match-divider {
@@ -973,22 +980,34 @@
 
 			.other-match-media {
 				width: 100%;
+				height: clamp(9rem, 48vw, 11rem);
 				display: flex;
 				justify-content: center;
-				padding: 8px 0;
+				align-items: center;
+				overflow: hidden;
+				padding: 4px 8px;
+				box-sizing: border-box;
 			}
 
 			.other-match-media img {
-				width: clamp(9rem, 48vw, 11rem);
-				height: auto;
+				width: 100%;
+				height: 100%;
 				max-width: 100%;
 				object-fit: contain;
 				display: block;
 				transition: transform var(--transition);
 			}
 
+			.other-match-media img[data-provider="coolblue"] {
+				transform: scale(0.82);
+			}
+
 			.other-match-card:hover .other-match-media img {
 				transform: scale(1.05);
+			}
+
+			.other-match-card:hover .other-match-media img[data-provider="coolblue"] {
+				transform: scale(0.861);
 			}
 
 			.other-match-price {
@@ -1078,11 +1097,19 @@
 			@media (min-width: 900px) {
 				.best-match-row {
 					flex-direction: row-reverse;
-					align-items: flex-start;
+					align-items: center;
 				}
 
-				.other-match-media img {
-					width: clamp(9.5rem, 16vw, 11rem);
+				.best-match-media {
+					width: clamp(18rem, 44%, 28rem);
+				}
+
+				.best-match-body {
+					justify-content: center;
+				}
+
+				.other-match-media {
+					height: clamp(9.5rem, 16vw, 11rem);
 				}
 			}
 
@@ -1192,7 +1219,8 @@
 				}
 
 				.best-match-media {
-					max-width: clamp(11rem, 55vw, 15rem);
+					width: clamp(11rem, 60vw, 16rem);
+					max-width: none;
 					margin-left: auto;
 					margin-right: auto;
 				}
@@ -1226,8 +1254,8 @@
 					gap: 0.45rem;
 				}
 
-				.other-match-media img {
-					width: clamp(8.5rem, 50vw, 10.5rem);
+				.other-match-media {
+					height: clamp(8.5rem, 50vw, 10.5rem);
 				}
 
 				.other-match-action {
@@ -1252,8 +1280,8 @@
 					display: none;
 				}
 
-				.other-match-media img {
-					width: clamp(8rem, 60vw, 9.5rem);
+				.other-match-media {
+					height: clamp(8rem, 60vw, 9.5rem);
 				}
 			}
 
@@ -1383,7 +1411,7 @@
 						</button>
 						<div class="best-match-row">
 							<div class="best-match-media" aria-hidden="true">
-								<img src="tv.png" alt="" role="presentation" />
+								<img id="bestMatchImage" src="tv.png" alt="" role="presentation" />
 							</div>
 							<div class="best-match-body">
 								<h2 id="bestMatchName" class="best-match-name"></h2>

@@ -137,7 +137,7 @@
         position: relative;
         width: 100%;
         background: linear-gradient(135deg, #0b5fba 0%, #0954a3 40%, #073d7a 100%);
-        padding: 164px 24px 120px;
+        padding: 100px 24px 120px;
         overflow: hidden;
       }
 
@@ -1118,7 +1118,7 @@
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
       @media (max-width: 1024px) {
         .hero {
-          padding: 164px 24px 64px;
+          padding: 100px 24px 64px;
         }
 
         .hero-inner {
@@ -1134,7 +1134,7 @@
       /* ── Tablet: single-column hero from 880 px down ── */
       @media (max-width: 880px) {
         .hero {
-          padding: 140px 20px 80px;
+          padding: 76px 20px 80px;
         }
 
         .hero-inner {
@@ -1166,7 +1166,7 @@
 
       @media (max-width: 768px) {
         .hero {
-          padding: 140px 20px 175px;
+          padding: 76px 20px 175px;
         }
 
         .hero-inner {
@@ -1466,23 +1466,7 @@
         }
       }
 
-      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-         HOMEPAGE: nav merges seamlessly with hero
-         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-      body.has-menu {
-        padding-top: 0;
-      }
-      /* At top of page: fully transparent — hero gradient shows through */
-      .menu-bar {
-        background: transparent;
-        box-shadow: none;
-        transition: background 0.4s ease, box-shadow 0.4s ease;
-      }
-      /* Once scrolled past hero: restore normal solid bar */
-      .menu-bar.is-scrolled {
-        background: #0954a3;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-      }
+
     </style>
   </head>
 
@@ -2026,27 +2010,7 @@
         });
       })();
     </script>
-    <script>
-      /* Homepage: transparent only at the very top, solid blue as soon as you scroll */
-      (function () {
-        function initScrollNav() {
-          const bar = document.querySelector('.menu-bar');
-          if (!bar) return;
-          function update() {
-            bar.classList.toggle('is-scrolled', window.scrollY > 0);
-          }
-          window.addEventListener('scroll', update, { passive: true });
-          update();
-        }
-        /* Always defer by one tick so menu.js's DOMContentLoaded handler
-           (which injects .menu-bar) has already run before we query for it */
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', () => setTimeout(initScrollNav, 0));
-        } else {
-          setTimeout(initScrollNav, 0);
-        }
-      })();
-    </script>
+
 <!-- Begin TradeTracker SuperTag Code -->
 <script type="text/javascript">
 var _TradeTrackerTagOptions = {

@@ -1,0 +1,11 @@
+{
+  "name": "tv-keuzehulp-sync",
+  "version": "1.0.0",
+  "description": "Sync TV data from Google Sheets to data/products.json",
+  "scripts": {
+    "sync": "node script.js"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0"
+  }
+}

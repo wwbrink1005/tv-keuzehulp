@@ -132,6 +132,12 @@ function updateBestMatchCard(tv, type, answers) {
     nameEl.textContent = tv.naam;
   }
 
+  const imageEl = qs("#bestMatchImage");
+  if (imageEl) {
+    imageEl.src = tv.afbeelding || "tv.png";
+    imageEl.dataset.provider = (tv.afbeelding && tv.afbeelding.includes("expert.nl")) ? "expert" : "coolblue";
+  }
+
   if (specsEl) {
     const specs = buildSpecList(tv);
     specsEl.textContent = specs.join(" \u2022 ");
@@ -186,7 +192,7 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
           <span class="other-match-selected-label" aria-hidden="true">Geselecteerd</span>
           <span class="cheapest-label" aria-hidden="true">Goedkoopste keuze</span>
           <div class="other-match-media" aria-hidden="true">
-            <img src="tv.png" alt="" role="presentation">
+            <img src="${tv.afbeelding || 'tv.png'}" alt="" role="presentation" data-provider="${tv.afbeelding && tv.afbeelding.includes('expert.nl') ? 'expert' : 'coolblue'}">
           </div>
           <h3 class="other-match-title">${tv.naam}</h3>
           <ul class="other-match-specs">${specsHtml}</ul>

@@ -1,6 +1,6 @@
 import { priceGroupsBySize } from "./data.js";
 import { computeMatchForPriceGroup, getIdealTypeSet } from "./matching.js";
-import { getStoredSelection, normalizeTypeLabel, qs } from "./utils.js";
+import { getStoredSelection, normalizeProducts, normalizeTypeLabel, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 
 const filterState = {
@@ -208,9 +208,10 @@ function initResultFilters() {
 
   const selectedPriceLabel = stored.priceLabel || "";
 
-  fetch("tvs.json")
+  fetch("data/products.json")
     .then(response => response.json())
-    .then(tvs => {
+    .then(rawProducts => {
+      const tvs = normalizeProducts(rawProducts);
       filterState.priceMatches = buildPriceMatches(tvs, stored.sizeGroup, selectedPriceLabel);
 
       const availableLabels = Array.from(filterState.priceMatches.keys());

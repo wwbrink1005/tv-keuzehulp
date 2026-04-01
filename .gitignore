@@ -1,0 +1,10 @@
+# Google service account credentials - NOOIT PUSHEN
+credentials.json
+google-service-account.json
+*.key.json
+
+# Node.js
+node_modules/
+
+# Output data (optioneel - verwijder deze regel als je products.json wél wilt committen)
+# data/products.json

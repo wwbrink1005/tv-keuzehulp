@@ -30,9 +30,6 @@ export function formatPriceLabel(priceValue) {
 
 export function normalizeTypeLabel(typeValue) {
   const raw = String(typeValue ?? "").trim();
-  if (raw === "LED (edge)" || raw === "LED (direct)") {
-    return "LED";
-  }
   return raw;
 }
 
@@ -78,4 +75,58 @@ export function getStoredSelection() {
     sizeGroup: localStorage.getItem("selectedSizeGroup") || "",
     priceLabel: localStorage.getItem("selectedPriceGroupLabel") || ""
   };
+}
+
+const PRODUCT_TYPE_MAP = {
+  "LED": "LED",
+  "OLED": "OLED",
+  "QLED": "QLED",
+  "Mini LED": "Mini LED",
+  "Neo QLED": "Neo QLED"
+};
+
+export function normalizeProducts(rawProducts) {
+  if (!Array.isArray(rawProducts)) return [];
+
+  return rawProducts.flatMap(product => {
+    if (!product.type || !product.grootte || !product.merk || !product.scherpte || !product.hz || product.ambilight === undefined || product.ambilight === "") {
+      return [];
+    }
+
+    const normalizedType = PRODUCT_TYPE_MAP[product.type];
+    if (!normalizedType) return [];
+
+    const aanbieders = Array.isArray(product.aanbieders) ? product.aanbieders : [];
+    const aanbieder = aanbieders[0];
+    if (!aanbieder) return [];
+
+    const naam = String(aanbieder.productnaam_cb || "").trim() || String(aanbieder.productnaam_expert || "").trim();
+    if (!naam) return [];
+
+    const prijsCb = parseFloat(String(aanbieder.prijs_cb || "").replace(",", "."));
+    const prijsExpert = parseFloat(String(aanbieder.prijs_expert || "").replace(",", "."));
+    const validPrices = [prijsCb, prijsExpert].filter(p => Number.isFinite(p) && p > 0);
+    if (validPrices.length === 0) return [];
+    const prijs = Math.min(...validPrices);
+
+    const afbeelding = String(aanbieder.afbeelding_cb || "").trim() || String(aanbieder.afbeelding_expert || "").trim();
+
+    const hzNum = parseInt(String(product.hz).replace(/[^0-9]/g, ""), 10);
+    if (Number.isNaN(hzNum)) return [];
+
+    const grootteNum = parseInt(product.grootte, 10);
+    if (Number.isNaN(grootteNum)) return [];
+
+    return [{
+      type: normalizedType,
+      naam,
+      prijs,
+      grootte: grootteNum,
+      merk: product.merk,
+      scherpte: product.scherpte,
+      Hz: hzNum,
+      Ambilight: product.ambilight,
+      afbeelding
+    }];
+  });
 }

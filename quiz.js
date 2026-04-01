@@ -1,6 +1,6 @@
 import { distanceToSizeGroup, priceGroupsBySize, tvDimensions } from "./data.js";
 import { calculateScores, matchTVs } from "./matching.js";
-import { getContainerScale, qs, qsa } from "./utils.js";
+import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 
 const quizState = {
   selectedDistance: null,
@@ -348,9 +348,10 @@ function handleStartMatching() {
   const answers = buildAnswers();
   const scores = calculateScores(answers);
 
-  fetch("tvs.json")
+  fetch("data/products.json")
     .then(res => res.json())
-    .then(tvs => {
+    .then(rawProducts => {
+      const tvs = normalizeProducts(rawProducts);
       const result = matchTVs(tvs, quizState.selectedSizeGroup, quizState.selectedPriceGroup, answers, scores);
 
       localStorage.setItem("bestMatch", JSON.stringify(result.bestMatch));

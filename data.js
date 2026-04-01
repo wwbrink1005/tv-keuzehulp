@@ -81,32 +81,32 @@ export const priceGroupsBySize = {
 
 export const scoringSystem = {
   usage: {
-    films: { "LED (edge)": 4, "LED (direct)": 5, "Mini LED": 8, "QLED": 7, "OLED": 10 },
-    sport: { "LED (edge)": 6, "LED (direct)": 7, "Mini LED": 9, "QLED": 9, "OLED": 7 },
-    gamen: { "LED (edge)": 5, "LED (direct)": 6, "Mini LED": 9, "QLED": 8, "OLED": 9 },
-    normaal: { "LED (edge)": 9, "LED (direct)": 8, "Mini LED": 5, "QLED": 7, "OLED": 5 }
+    films: { "LED": 5, "Mini LED": 8, "QLED": 7, "OLED": 10 },
+    sport: { "LED": 7, "Mini LED": 9, "QLED": 9, "OLED": 7 },
+    gamen: { "LED": 6, "Mini LED": 9, "QLED": 8, "OLED": 9 },
+    normaal: { "LED": 8, "Mini LED": 5, "QLED": 7, "OLED": 5 }
   },
   quality: {
-    best: { "LED (edge)": 1, "LED (direct)": 4, "Mini LED": 8, "QLED": 7, "OLED": 10 },
-    belangrijk: { "LED (edge)": 5, "LED (direct)": 6, "Mini LED": 9, "QLED": 8, "OLED": 7 },
-    prima: { "LED (edge)": 10, "LED (direct)": 9, "Mini LED": 4, "QLED": 5, "OLED": 2 }
+    best: { "LED": 4, "Mini LED": 8, "QLED": 7, "OLED": 10 },
+    belangrijk: { "LED": 6, "Mini LED": 9, "QLED": 8, "OLED": 7 },
+    prima: { "LED": 9, "Mini LED": 4, "QLED": 5, "OLED": 2 }
   },
   timing: {
-    avonds: { "LED (edge)": 6, "LED (direct)": 7, "Mini LED": 8, "QLED": 6, "OLED": 10 },
-    overdag: { "LED (edge)": 7, "LED (direct)": 8, "Mini LED": 9, "QLED": 10, "OLED": 5 },
-    beide: { "LED (edge)": 7, "LED (direct)": 8, "Mini LED": 9, "QLED": 9, "OLED": 8 },
-    nvt: { "LED (edge)": 10, "LED (direct)": 9, "Mini LED": 5, "QLED": 5, "OLED": 5 }
+    avonds: { "LED": 7, "Mini LED": 8, "QLED": 6, "OLED": 10 },
+    overdag: { "LED": 8, "Mini LED": 9, "QLED": 10, "OLED": 5 },
+    beide: { "LED": 8, "Mini LED": 9, "QLED": 9, "OLED": 8 },
+    nvt: { "LED": 9, "Mini LED": 5, "QLED": 5, "OLED": 5 }
   },
   viewing: {
-    recht: { "LED (edge)": 8, "LED (direct)": 8, "Mini LED": 8, "QLED": 8, "OLED": 9 },
-    meerdere: { "LED (edge)": 5, "LED (direct)": 6, "Mini LED": 8, "QLED": 7, "OLED": 10 },
-    nvt: { "LED (edge)": 0, "LED (direct)": 0, "Mini LED": 0, "QLED": 0, "OLED": 0 }
+    recht: { "LED": 8, "Mini LED": 8, "QLED": 8, "OLED": 9 },
+    meerdere: { "LED": 6, "Mini LED": 8, "QLED": 7, "OLED": 10 },
+    nvt: { "LED": 0, "Mini LED": 0, "QLED": 0, "OLED": 0 }
   },
   extra: {
-    zwart: { "LED (edge)": 3, "LED (direct)": 5, "Mini LED": 7, "QLED": 6, "OLED": 10 },
-    helderheid: { "LED (edge)": 6, "LED (direct)": 7, "Mini LED": 9, "QLED": 10, "OLED": 6 },
-    kleur: { "LED (edge)": 5, "LED (direct)": 6, "Mini LED": 8, "QLED": 10, "OLED": 9 },
-    ambilight: { "LED (edge)": 0, "LED (direct)": 0, "Mini LED": 0, "QLED": 0, "OLED": 0 },
-    niks: { "LED (edge)": 7, "LED (direct)": 6, "Mini LED": 5, "QLED": 5, "OLED": 5 }
+    zwart: { "LED": 5, "Mini LED": 7, "QLED": 6, "OLED": 10 },
+    helderheid: { "LED": 7, "Mini LED": 9, "QLED": 10, "OLED": 6 },
+    kleur: { "LED": 6, "Mini LED": 8, "QLED": 10, "OLED": 9 },
+    ambilight: { "LED": 0, "Mini LED": 0, "QLED": 0, "OLED": 0 },
+    niks: { "LED": 6, "Mini LED": 5, "QLED": 5, "OLED": 5 }
   }
 };
