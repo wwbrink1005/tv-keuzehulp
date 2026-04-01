@@ -1,6 +1,88 @@
 import { buildResultPoints, isPerfectMatch } from "./matching.js";
 import { formatPriceLabel, formatScherpte, parsePrice, qs } from "./utils.js";
 
+function formatShipping(verzendkosten) {
+  const val = parseFloat(String(verzendkosten ?? "").replace(",", "."));
+  if (!Number.isFinite(val) || val <= 0) return "Gratis bezorgd";
+  return `+ \u20ac${val.toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} verzending`;
+}
+
+function renderBestMatchProviders(tv) {
+  const container = qs("#bestMatchProviders");
+  const cardEl = qs("#bestMatchCard");
+  if (!container) return;
+
+  const aanbieder = tv?.aanbieder;
+
+  if (!aanbieder) {
+    container.innerHTML = "";
+    if (cardEl) cardEl.classList.remove("has-providers");
+    return;
+  }
+
+  const providers = [];
+
+  const priceCb = parseFloat(String(aanbieder.prijs_cb ?? "").replace(",", "."));
+  if (aanbieder.url_cb && Number.isFinite(priceCb) && priceCb > 0) {
+    providers.push({
+      naam: "Coolblue",
+      price: priceCb,
+      url: aanbieder.url_cb,
+      levertijd: String(aanbieder.levertijd_cb ?? "").trim(),
+      verzendkosten: String(aanbieder.verzendkosten_cb ?? "").trim()
+    });
+  }
+
+  const priceExpert = parseFloat(String(aanbieder.prijs_expert ?? "").replace(",", "."));
+  if (aanbieder.url_expert && Number.isFinite(priceExpert) && priceExpert > 0) {
+    providers.push({
+      naam: "Expert",
+      price: priceExpert,
+      url: aanbieder.url_expert,
+      levertijd: String(aanbieder.levertijd_expert ?? "").trim(),
+      verzendkosten: String(aanbieder.verzendkosten_expert ?? "").trim()
+    });
+  }
+
+  if (providers.length === 0) {
+    container.innerHTML = "";
+    if (cardEl) cardEl.classList.remove("has-providers");
+    return;
+  }
+
+  if (cardEl) cardEl.classList.add("has-providers");
+
+  container.innerHTML = `
+    <p class="providers-header">Beschikbaar bij</p>
+    <div class="providers-list">
+      ${providers.map(p => {
+        const priceLabel = formatPriceLabel(p.price);
+        const shippingLabel = formatShipping(p.verzendkosten);
+        return `
+          <a href="${p.url}" class="provider-btn" target="_blank" rel="noopener noreferrer" aria-label="${p.naam}: \u20ac${priceLabel}, ${p.levertijd}">
+            <span class="provider-name">${p.naam}</span>
+            <span class="provider-price">\u20ac\u00a0${priceLabel}</span>
+            <span class="provider-meta">
+              <span class="provider-delivery">
+                <i data-lucide="truck" aria-hidden="true"></i>
+                <span class="provider-delivery-text">${p.levertijd}</span>
+              </span>
+              <span class="provider-shipping">${shippingLabel}</span>
+            </span>
+            <span class="provider-chevron" aria-hidden="true">
+              <i data-lucide="chevron-right"></i>
+            </span>
+          </a>
+        `;
+      }).join("")}
+    </div>
+  `;
+
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    window.lucide.createIcons();
+  }
+}
+
 function renderBestMatchPoints(points) {
   const listEl = qs("#bestMatchPoints");
   if (!listEl) return;
@@ -125,6 +207,7 @@ function updateBestMatchCard(tv, type, answers) {
       priceEl.textContent = "";
     }
     renderBestMatchPoints([]);
+    renderBestMatchProviders(null);
     return;
   }
 
@@ -149,6 +232,7 @@ function updateBestMatchCard(tv, type, answers) {
   }
 
   renderBestMatchPoints(buildResultPoints(tv, answers));
+  renderBestMatchProviders(tv);
 
   const bestMatchCard = qs("#bestMatchCard");
   if (bestMatchCard) {

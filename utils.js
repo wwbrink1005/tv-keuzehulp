@@ -126,7 +126,8 @@ export function normalizeProducts(rawProducts) {
       scherpte: product.scherpte,
       Hz: hzNum,
       Ambilight: product.ambilight,
-      afbeelding
+      afbeelding,
+      aanbieder
     }];
   });
 }
