@@ -1,6 +1,7 @@
 import { distanceToSizeGroup, priceGroupsBySize, tvDimensions } from "./data.js";
 import { calculateScores, matchTVs } from "./matching.js";
 import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
+import { fetchProducts } from "./supabase.js";
 
 const quizState = {
   selectedDistance: null,
@@ -348,8 +349,7 @@ function handleStartMatching() {
   const answers = buildAnswers();
   const scores = calculateScores(answers);
 
-  fetch("data/products.json")
-    .then(res => res.json())
+  fetchProducts()
     .then(rawProducts => {
       const tvs = normalizeProducts(rawProducts);
       const result = matchTVs(tvs, quizState.selectedSizeGroup, quizState.selectedPriceGroup, answers, scores);
