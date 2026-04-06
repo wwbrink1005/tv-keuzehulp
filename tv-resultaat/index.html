@@ -488,8 +488,6 @@
 				display: flex;
 				flex-direction: column;
 				gap: 14px;
-				position: sticky;
-				top: calc(var(--menu-height, 64px) + 16px);
 			}
 
 			.filter-card {
@@ -681,6 +679,29 @@
 				height: 16px;
 			}
 
+			.clear-filters-btn {
+				display: inline-flex;
+				align-items: center;
+				height: 26px;
+				padding: 0 11px;
+				border: 1.5px solid rgba(9, 84, 163, 0.28);
+				border-radius: 999px;
+				background: var(--accent-soft);
+				color: var(--accent);
+				font-size: 12px;
+				font-weight: 600;
+				font-family: inherit;
+				cursor: pointer;
+				transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+				white-space: nowrap;
+			}
+
+			.clear-filters-btn:hover {
+				background: var(--accent);
+				border-color: var(--accent);
+				color: #fff;
+			}
+
 			/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 			   BEST MATCH CARD
 			   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -791,6 +812,7 @@
 				overflow: hidden;
 				background: #fff;
 				border-radius: var(--radius-md);
+				position: relative;
 			}
 
 			.best-match-media img {
@@ -1092,6 +1114,7 @@
 				flex-shrink: 0;
 				border-radius: var(--radius-sm);
 				background: #ffffff;
+				position: relative;
 			}
 
 			.tv-card-image img {
@@ -1112,6 +1135,142 @@
 
 			.tv-card:hover .tv-card-image img[data-provider="coolblue"] {
 				transform: scale(0.872);
+			}
+
+			/* ── Preview (eye) button ── */
+			.tv-preview-btn {
+				position: absolute;
+				bottom: 7px;
+				right: 7px;
+				width: 28px;
+				height: 28px;
+				border-radius: 50%;
+				border: 1px solid rgba(0, 0, 0, 0.1);
+				background: rgba(255, 255, 255, 0.92);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				color: var(--text-secondary);
+				opacity: 0;
+				transition: opacity 0.2s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+				z-index: 1;
+				padding: 0;
+				font-family: inherit;
+				backdrop-filter: blur(4px);
+				-webkit-backdrop-filter: blur(4px);
+			}
+
+			.tv-preview-btn svg {
+				width: 13px;
+				height: 13px;
+				pointer-events: none;
+			}
+
+			.tv-card:hover .tv-preview-btn,
+			.best-match-media:hover .tv-preview-btn {
+				opacity: 1;
+			}
+
+			@media (hover: none), (max-width: 700px) {
+				.tv-preview-btn {
+					opacity: 1;
+				}
+			}
+
+			.tv-preview-btn:hover {
+				background: var(--accent);
+				color: #fff;
+				border-color: transparent;
+				transform: scale(1.1);
+			}
+
+			/* ── Image lightbox overlay ── */
+			#imagePreviewOverlay {
+				position: fixed;
+				inset: 0;
+				z-index: 10000;
+				background: rgba(0, 0, 0, 0.72);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.25s ease;
+				backdrop-filter: blur(6px);
+				-webkit-backdrop-filter: blur(6px);
+			}
+
+			#imagePreviewOverlay.is-open {
+				opacity: 1;
+				pointer-events: auto;
+			}
+
+			.image-preview-dialog {
+				position: relative;
+				background: #fff;
+				border-radius: var(--radius-xl);
+				padding: 28px 28px 22px;
+				max-width: min(580px, calc(100vw - 40px));
+				max-height: calc(100dvh - 60px);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 14px;
+				box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+				transform: scale(0.93) translateY(8px);
+				transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+
+			#imagePreviewOverlay.is-open .image-preview-dialog {
+				transform: scale(1) translateY(0);
+			}
+
+			.image-preview-img {
+				max-width: 100%;
+				max-height: calc(100dvh - 180px);
+				object-fit: contain;
+				display: block;
+				border-radius: var(--radius-sm);
+			}
+
+			.image-preview-name {
+				font-size: 13.5px;
+				font-weight: 600;
+				color: var(--text-secondary);
+				text-align: center;
+				margin: 0;
+			}
+
+			.image-preview-close {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				width: 30px;
+				height: 30px;
+				border-radius: 50%;
+				border: none;
+				background: rgba(0, 0, 0, 0.07);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				color: var(--text-secondary);
+				transition: background 0.18s, color 0.18s;
+				padding: 0;
+				font-family: inherit;
+			}
+
+			.image-preview-close:hover {
+				background: rgba(0, 0, 0, 0.14);
+				color: var(--text-primary);
+			}
+
+			.image-preview-close svg {
+				width: 14px;
+				height: 14px;
+				stroke-width: 2.5;
+				pointer-events: none;
 			}
 
 				/* ── Body ── */
@@ -1653,6 +1812,7 @@
 				<aside id="filtersPanel" class="filters-panel" aria-label="Filters">
 					<div class="filters-panel-header">
 						<span class="filters-panel-label">Filters</span>
+						<button id="clearFiltersBtn" class="clear-filters-btn" type="button" hidden>Wis filters</button>
 						<button class="filter-drawer-close" type="button" aria-label="Sluit filters">
 							<i data-lucide="chevron-left"></i>
 						</button>
@@ -1664,6 +1824,22 @@
 					<div class="filter-card" data-filter="brand">
 						<h3 class="filter-title">Merk</h3>
 						<div id="brandFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="type">
+						<h3 class="filter-title">Paneel type</h3>
+						<div id="typeFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="resolution">
+						<h3 class="filter-title">Resolutie</h3>
+						<div id="resolutionFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="hz">
+						<h3 class="filter-title">Verversingssnelheid</h3>
+						<div id="hzFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="aanbieder">
+						<h3 class="filter-title">Winkel</h3>
+						<div id="aanbiederFilterOptions" class="filter-options"></div>
 					</div>
 				</aside>
 
@@ -1689,6 +1865,9 @@
 						<div class="best-match-row">
 							<div class="best-match-media" aria-hidden="true">
 								<img id="bestMatchImage" src="tv.png" alt="" role="presentation" />
+								<button class="tv-preview-btn" id="bestMatchPreviewBtn" type="button" aria-label="Afbeelding vergroten" data-preview-src="tv.png" data-preview-name="">
+									<i data-lucide="eye"></i>
+								</button>
 							</div>
 							<div class="best-match-body">
 								<h2 id="bestMatchName" class="best-match-name"></h2>
@@ -1801,6 +1980,67 @@
 					if (activeTrigger) positionCard(activeTrigger);
 				});
 			})();
+		</script>
+
+		<!-- ── Image Preview Overlay (lightbox) ── -->
+		<div id="imagePreviewOverlay" role="dialog" aria-modal="true" aria-label="TV afbeelding vergroten" aria-hidden="true">
+			<div class="image-preview-dialog">
+				<button class="image-preview-close" id="imagePreviewClose" type="button" aria-label="Sluit afbeelding">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+				<img class="image-preview-img" id="imagePreviewImg" src="" alt="">
+				<p class="image-preview-name" id="imagePreviewName"></p>
+			</div>
+		</div>
+
+		<script>
+		(function () {
+			var overlay    = document.getElementById('imagePreviewOverlay');
+			var closeBtn   = document.getElementById('imagePreviewClose');
+			var previewImg = document.getElementById('imagePreviewImg');
+			var previewName = document.getElementById('imagePreviewName');
+
+			if (!overlay) return;
+
+			function openPreview(src, name) {
+				previewImg.src = src;
+				previewImg.alt = name || '';
+				previewName.textContent = name || '';
+				overlay.classList.add('is-open');
+				overlay.setAttribute('aria-hidden', 'false');
+				document.body.style.overflow = 'hidden';
+			}
+
+			function closePreview() {
+				overlay.classList.remove('is-open');
+				overlay.setAttribute('aria-hidden', 'true');
+				document.body.style.overflow = '';
+				setTimeout(function () { previewImg.src = ''; previewImg.alt = ''; }, 280);
+			}
+
+			// Expose so result.js (module) can call it
+			window.openTvImagePreview = openPreview;
+
+			if (closeBtn) closeBtn.addEventListener('click', closePreview);
+
+			overlay.addEventListener('click', function (e) {
+				if (e.target === overlay) closePreview();
+			});
+
+			document.addEventListener('keydown', function (e) {
+				if (e.key === 'Escape' && overlay.classList.contains('is-open')) closePreview();
+			});
+
+			// Event delegation for all .tv-preview-btn buttons (works with dynamically rendered cards)
+			document.addEventListener('click', function (e) {
+				var btn = e.target.closest('.tv-preview-btn');
+				if (!btn) return;
+				e.stopPropagation();
+				var src  = btn.dataset.previewSrc  || '';
+				var name = btn.dataset.previewName || '';
+				if (src) openPreview(src, name);
+			});
+		})();
 		</script>
 
 		<!-- Scroll-to-top button -->

@@ -1,12 +1,16 @@
 import { priceGroupsBySize } from "./data.js";
 import { computeMatchForPriceGroup, getIdealTypeSet } from "./matching.js";
-import { getStoredSelection, normalizeProducts, normalizeTypeLabel, qs } from "./utils.js";
+import { getResolutionTier, getStoredSelection, normalizeProducts, normalizeTypeLabel, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 
 const filterState = {
   priceLabel: "",
   brands: new Set(),
+  types: new Set(),
+  resolutions: new Set(),
+  hzOptions: new Set(),
+  aanbieder: new Set(),
   priceMatches: new Map(),
   answers: null,
   scores: null,
@@ -40,6 +44,42 @@ function collectBrandOptions(matches) {
     if (label) brandSet.add(label);
   });
   return Array.from(brandSet).sort((a, b) => a.localeCompare(b, "nl"));
+}
+
+function collectTypeOptions(matches) {
+  const set = new Set();
+  matches.forEach(tv => { if (tv.type) set.add(tv.type); });
+  const order = ["LED", "Mini LED", "QLED", "Neo QLED", "OLED"];
+  return order.filter(t => set.has(t));
+}
+
+function collectResolutionOptions(matches) {
+  const set = new Set();
+  matches.forEach(tv => {
+    const tier = getResolutionTier(tv);
+    if (tier) set.add(tier);
+  });
+  const order = ["HD Ready", "Full HD", "4K", "8K"];
+  return order.filter(r => set.has(r));
+}
+
+function collectHzOptions(matches) {
+  const set = new Set();
+  matches.forEach(tv => { if (tv.Hz) set.add(tv.Hz); });
+  return Array.from(set).sort((a, b) => a - b);
+}
+
+function collectAanbiederOptions(matches) {
+  const set = new Set();
+  matches.forEach(tv => {
+    const a = tv.aanbieder;
+    if (!a) return;
+    const pCb = parseFloat(String(a.prijs_cb ?? "").replace(",", "."));
+    if (a.url_cb && Number.isFinite(pCb) && pCb > 0) set.add("Coolblue");
+    const pEx = parseFloat(String(a.prijs_expert ?? "").replace(",", "."));
+    if (a.url_expert && Number.isFinite(pEx) && pEx > 0) set.add("Expert");
+  });
+  return Array.from(set).sort();
 }
 
 function buildPriceMatches(tvs, sizeGroup, selectedPriceLabel) {
@@ -145,30 +185,211 @@ function renderBrandOptions(container, brandCard, matches) {
   });
 }
 
+function renderTypeOptions(container, typeCard, matches) {
+  container.innerHTML = "";
+  const types = collectTypeOptions(matches);
+  if (types.length === 0) { typeCard.hidden = true; return; }
+  typeCard.hidden = false;
+
+  const isAllSelected = filterState.types.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = "typeFilter";
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle types";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
+
+  types.forEach(type => {
+    const label = document.createElement("label");
+    label.className = "filter-option";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = "typeFilter";
+    input.value = type;
+    input.checked = filterState.types.has(type);
+    const text = document.createElement("span");
+    text.textContent = type;
+    label.append(input, text);
+    container.appendChild(label);
+  });
+}
+
+function renderResolutionOptions(container, resolutionCard, matches) {
+  container.innerHTML = "";
+  const resolutions = collectResolutionOptions(matches);
+  if (resolutions.length === 0) { resolutionCard.hidden = true; return; }
+  resolutionCard.hidden = false;
+
+  const isAllSelected = filterState.resolutions.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = "resolutionFilter";
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
+
+  resolutions.forEach(res => {
+    const label = document.createElement("label");
+    label.className = "filter-option";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = "resolutionFilter";
+    input.value = res;
+    input.checked = filterState.resolutions.has(res);
+    const text = document.createElement("span");
+    text.textContent = res;
+    label.append(input, text);
+    container.appendChild(label);
+  });
+}
+
+function renderHzOptions(container, hzCard, matches) {
+  container.innerHTML = "";
+  const hzValues = collectHzOptions(matches);
+  if (hzValues.length === 0) { hzCard.hidden = true; return; }
+  hzCard.hidden = false;
+
+  const isAllSelected = filterState.hzOptions.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = "hzFilter";
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
+
+  hzValues.forEach(hz => {
+    const label = document.createElement("label");
+    label.className = "filter-option";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = "hzFilter";
+    input.value = hz;
+    input.checked = filterState.hzOptions.has(hz);
+    const text = document.createElement("span");
+    text.textContent = `${hz} Hz`;
+    label.append(input, text);
+    container.appendChild(label);
+  });
+}
+
+function renderAanbiederOptions(container, aanbiederCard, matches) {
+  container.innerHTML = "";
+  const aanbieders = collectAanbiederOptions(matches);
+  if (aanbieders.length === 0) { aanbiederCard.hidden = true; return; }
+  aanbiederCard.hidden = false;
+
+  const isAllSelected = filterState.aanbieder.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = "aanbiederFilter";
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
+
+  aanbieders.forEach(a => {
+    const label = document.createElement("label");
+    label.className = "filter-option";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = "aanbiederFilter";
+    input.value = a;
+    input.checked = filterState.aanbieder.has(a);
+    const text = document.createElement("span");
+    text.textContent = a;
+    label.append(input, text);
+    container.appendChild(label);
+  });
+}
+
+function updateClearFiltersBtn() {
+  const btn = qs("#clearFiltersBtn");
+  if (!btn) return;
+  const hasActive = filterState.brands.size > 0 || filterState.types.size > 0 ||
+    filterState.resolutions.size > 0 || filterState.hzOptions.size > 0 || filterState.aanbieder.size > 0;
+  btn.hidden = !hasActive;
+}
+
 function getActivePriceMatches() {
   return filterState.priceMatches.get(filterState.priceLabel) || [];
 }
 
 function applyFilters() {
-  const priceMatches = getActivePriceMatches();
-  let filtered = priceMatches;
+  let filtered = getActivePriceMatches();
 
   if (filterState.brands.size > 0) {
-    filtered = priceMatches.filter(tv => filterState.brands.has(formatBrandLabel(tv.merk)));
+    filtered = filtered.filter(tv => filterState.brands.has(formatBrandLabel(tv.merk)));
+  }
+  if (filterState.types.size > 0) {
+    filtered = filtered.filter(tv => filterState.types.has(tv.type));
+  }
+  if (filterState.resolutions.size > 0) {
+    filtered = filtered.filter(tv => filterState.resolutions.has(getResolutionTier(tv)));
+  }
+  if (filterState.hzOptions.size > 0) {
+    filtered = filtered.filter(tv => filterState.hzOptions.has(tv.Hz));
+  }
+  if (filterState.aanbieder.size > 0) {
+    filtered = filtered.filter(tv => {
+      const a = tv.aanbieder;
+      if (!a) return false;
+      if (filterState.aanbieder.has("Coolblue")) {
+        const p = parseFloat(String(a.prijs_cb ?? "").replace(",", "."));
+        if (a.url_cb && Number.isFinite(p) && p > 0) return true;
+      }
+      if (filterState.aanbieder.has("Expert")) {
+        const p = parseFloat(String(a.prijs_expert ?? "").replace(",", "."));
+        if (a.url_expert && Number.isFinite(p) && p > 0) return true;
+      }
+      return false;
+    });
   }
 
+  updateClearFiltersBtn();
   updateResultMatches(filtered, filterState.answers, filterState.bestType, filterState.scores);
 }
 
-function initFilterEvents(priceContainer, brandContainer) {
+function initFilterEvents(priceContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, aanbiederContainer) {
+  function renderAllSecondary() {
+    const matches = getActivePriceMatches();
+    renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), matches);
+    renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), matches);
+    renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), matches);
+    renderHzOptions(hzContainer, qs(".filter-card[data-filter='hz']"), matches);
+    renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), matches);
+  }
+
   priceContainer.addEventListener("change", event => {
     const input = event.target.closest("input[type=radio]");
     if (!input) return;
 
     filterState.priceLabel = input.value;
     filterState.brands.clear();
+    filterState.types.clear();
+    filterState.resolutions.clear();
+    filterState.hzOptions.clear();
+    filterState.aanbieder.clear();
 
-    renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), getActivePriceMatches());
+    renderAllSecondary();
     applyFilters();
   });
 
@@ -189,7 +410,6 @@ function initFilterEvents(priceContainer, brandContainer) {
       } else {
         filterState.brands.delete(input.value);
       }
-
       if (filterState.brands.size === 0) {
         renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), getActivePriceMatches());
       } else {
@@ -197,18 +417,149 @@ function initFilterEvents(priceContainer, brandContainer) {
         if (allInput) allInput.checked = false;
       }
     }
-
     applyFilters();
   });
+
+  typeContainer.addEventListener("change", event => {
+    const input = event.target.closest("input[type=checkbox]");
+    if (!input) return;
+
+    if (input.value === "all") {
+      if (input.checked) {
+        filterState.types.clear();
+        renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), getActivePriceMatches());
+      } else if (filterState.types.size === 0) {
+        input.checked = true;
+      }
+    } else {
+      if (input.checked) {
+        filterState.types.add(input.value);
+      } else {
+        filterState.types.delete(input.value);
+      }
+      if (filterState.types.size === 0) {
+        renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), getActivePriceMatches());
+      } else {
+        const allInput = typeContainer.querySelector('input[value="all"]');
+        if (allInput) allInput.checked = false;
+      }
+    }
+    applyFilters();
+  });
+
+  resolutionContainer.addEventListener("change", event => {
+    const input = event.target.closest("input[type=checkbox]");
+    if (!input) return;
+
+    if (input.value === "all") {
+      if (input.checked) {
+        filterState.resolutions.clear();
+        renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), getActivePriceMatches());
+      } else if (filterState.resolutions.size === 0) {
+        input.checked = true;
+      }
+    } else {
+      if (input.checked) {
+        filterState.resolutions.add(input.value);
+      } else {
+        filterState.resolutions.delete(input.value);
+      }
+      if (filterState.resolutions.size === 0) {
+        renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), getActivePriceMatches());
+      } else {
+        const allInput = resolutionContainer.querySelector('input[value="all"]');
+        if (allInput) allInput.checked = false;
+      }
+    }
+    applyFilters();
+  });
+
+  hzContainer.addEventListener("change", event => {
+    const input = event.target.closest("input[type=checkbox]");
+    if (!input) return;
+
+    if (input.value === "all") {
+      if (input.checked) {
+        filterState.hzOptions.clear();
+        renderHzOptions(hzContainer, qs(".filter-card[data-filter='hz']"), getActivePriceMatches());
+      } else if (filterState.hzOptions.size === 0) {
+        input.checked = true;
+      }
+    } else {
+      const hz = parseInt(input.value, 10);
+      if (input.checked) {
+        filterState.hzOptions.add(hz);
+      } else {
+        filterState.hzOptions.delete(hz);
+      }
+      if (filterState.hzOptions.size === 0) {
+        renderHzOptions(hzContainer, qs(".filter-card[data-filter='hz']"), getActivePriceMatches());
+      } else {
+        const allInput = hzContainer.querySelector('input[value="all"]');
+        if (allInput) allInput.checked = false;
+      }
+    }
+    applyFilters();
+  });
+
+  aanbiederContainer.addEventListener("change", event => {
+    const input = event.target.closest("input[type=checkbox]");
+    if (!input) return;
+
+    if (input.value === "all") {
+      if (input.checked) {
+        filterState.aanbieder.clear();
+        renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), getActivePriceMatches());
+      } else if (filterState.aanbieder.size === 0) {
+        input.checked = true;
+      }
+    } else {
+      if (input.checked) {
+        filterState.aanbieder.add(input.value);
+      } else {
+        filterState.aanbieder.delete(input.value);
+      }
+      if (filterState.aanbieder.size === 0) {
+        renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), getActivePriceMatches());
+      } else {
+        const allInput = aanbiederContainer.querySelector('input[value="all"]');
+        if (allInput) allInput.checked = false;
+      }
+    }
+    applyFilters();
+  });
+
+  const clearBtn = qs("#clearFiltersBtn");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      filterState.brands.clear();
+      filterState.types.clear();
+      filterState.resolutions.clear();
+      filterState.hzOptions.clear();
+      filterState.aanbieder.clear();
+      renderAllSecondary();
+      applyFilters();
+    });
+  }
 }
 
 function initResultFilters() {
   const priceContainer = qs("#priceFilterOptions");
   const brandContainer = qs("#brandFilterOptions");
+  const typeContainer = qs("#typeFilterOptions");
+  const resolutionContainer = qs("#resolutionFilterOptions");
+  const hzContainer = qs("#hzFilterOptions");
+  const aanbiederContainer = qs("#aanbiederFilterOptions");
+
   const priceCard = qs(".filter-card[data-filter='price']");
   const brandCard = qs(".filter-card[data-filter='brand']");
+  const typeCard = qs(".filter-card[data-filter='type']");
+  const resolutionCard = qs(".filter-card[data-filter='resolution']");
+  const hzCard = qs(".filter-card[data-filter='hz']");
+  const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
-  if (!priceContainer || !brandContainer || !priceCard || !brandCard) return;
+  if (!priceContainer || !brandContainer || !typeContainer || !resolutionContainer || !hzContainer || !aanbiederContainer) return;
+  if (!priceCard || !brandCard || !typeCard || !resolutionCard || !hzCard || !aanbiederCard) return;
 
   const stored = getStoredSelection();
   const answersData = localStorage.getItem("answers");
@@ -234,14 +585,18 @@ function initResultFilters() {
         ? selectedPriceLabel
         : availableLabels[0];
 
+      const matches = getActivePriceMatches();
       renderPriceOptions(priceContainer, priceCard, stored.sizeGroup);
-      renderBrandOptions(brandContainer, brandCard, getActivePriceMatches());
-      initFilterEvents(priceContainer, brandContainer);
+      renderBrandOptions(brandContainer, brandCard, matches);
+      renderTypeOptions(typeContainer, typeCard, matches);
+      renderResolutionOptions(resolutionContainer, resolutionCard, matches);
+      renderHzOptions(hzContainer, hzCard, matches);
+      renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
+      initFilterEvents(priceContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, aanbiederContainer);
       applyFilters();
     })
     .catch(() => {
-      priceCard.hidden = true;
-      brandCard.hidden = true;
+      [priceCard, brandCard, typeCard, resolutionCard, hzCard, aanbiederCard].forEach(card => { card.hidden = true; });
     });
 }
 

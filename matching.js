@@ -313,73 +313,94 @@ export function buildResultPoints(tv, answers) {
   };
 
   if (type === "OLED") {
-    if (hasUsage("films")) addPoint("Perfect voor films en series kijken");
+    if (hasUsage("films")) addPoint("Uitstekend voor films en series");
 
-    if (hasUsage("gamen") && hzValue >= 100) addPoint("Perfect voor gamen");
+    if (hasUsage("gamen") && hzValue >= 100) addPoint("Uitstekend voor gamen");
     if (hasUsage("gamen") && hzValue < 100) addPoint("Goed voor gamen");
 
-    if (timing === "avonds") addPoint("Beeld is extra mooi in het donker");
+    if (timing === "avonds") addPoint("Prachtig beeld 's avonds in het donker");
+    if (timing === "overdag") addPoint("Genoeg helderheid voor overdag");
+    if (timing === "beide") addPoint("Goed beeld overdag en 's avonds");
 
     if (viewing === "meerdere") {
-      addPoint("Vanuit alle kijkhoeken zeer goede beeldkwaliteit");
+      addPoint("Scherp beeld vanuit elke hoek");
     }
 
     if (hasExtra("kleur") && hasExtra("zwart")) {
-      addPoint("Zwarte beelden en kleuren zijn extra mooi");
+      addPoint("Diepe zwarttinten en levendige kleuren");
     } else {
-      if (hasExtra("zwart")) addPoint("Zwarttinten zijn extra mooi");
-      if (hasExtra("kleur")) addPoint("Heel goed in kleuren weergeven");
+      if (hasExtra("zwart")) addPoint("Ongeevenaarde diepe zwarttinten");
+      if (hasExtra("kleur")) addPoint("Levendige en nauwkeurige kleuren");
     }
   } else if (type === "QLED") {
-    if (hasUsage("films")) addPoint("Prima voor films en series");
+    if (hasUsage("films")) addPoint("Goed voor films en series");
 
-    if (hasUsage("sport") && hzValue >= 100) addPoint("Zeer geschikt voor sport");
-    if (hasUsage("sport") && hzValue < 100) addPoint("Geschikt voor sport");
+    if (hasUsage("sport") && hzValue >= 100) addPoint("Uitstekend voor sport kijken");
+    if (hasUsage("sport") && hzValue < 100) addPoint("Goed voor sport kijken");
 
-    if (hasUsage("gamen") && hzValue >= 100) addPoint("Prima voor het gamen");
-    if (hasUsage("gamen") && hzValue < 100) addPoint("Niet ideaal voor het gamen");
+    if (hasUsage("gamen") && hzValue >= 100) addPoint("Goed voor gamen");
+    if (hasUsage("gamen") && hzValue < 100) addPoint("Minder geschikt voor serieus gamen");
 
-    if (timing === "overdag") addPoint("Overdag heel goed beeld");
-    if (timing === "beide") {
-      addPoint("Zowel als het licht is en als het donker is heel goed beeld");
-    }
+    if (timing === "overdag") addPoint("Uitstekend beeld bij daglicht");
+    if (timing === "beide") addPoint("Goed beeld overdag en 's avonds");
+    if (timing === "avonds") addPoint("Prima beeld ook 's avonds");
 
     if (hasExtra("kleur") && hasExtra("helderheid")) {
-      addPoint("Prachtige kleuren en heel helder beeld");
+      addPoint("Prachtige kleuren en een helder beeld");
     } else {
-      if (hasExtra("helderheid")) addPoint("Heel helder beeld");
-      if (hasExtra("kleur")) addPoint("Prachtige kleuren");
+      if (hasExtra("helderheid")) addPoint("Opvallend helder beeld");
+      if (hasExtra("kleur")) addPoint("Levendige, rijke kleuren");
     }
+  } else if (type === "Neo QLED") {
+    if (hasUsage("films")) addPoint("Uitstekend voor films en series");
+
+    if (hasUsage("sport") && hzValue >= 100) addPoint("Uitstekend voor sport kijken");
+    if (hasUsage("sport") && hzValue < 100) addPoint("Goed voor sport kijken");
+
+    if (hasUsage("gamen") && hzValue >= 120) addPoint("Uitstekend voor gamen");
+    if (hasUsage("gamen") && hzValue < 120) addPoint("Goed voor gamen");
+
+    if (timing === "overdag") addPoint("Uitstekend beeld bij daglicht");
+    if (timing === "beide") addPoint("Goed beeld overdag en 's avonds");
+    if (timing === "avonds") addPoint("Diepe zwarttinten ook 's avonds");
+
+    if (hasExtra("kleur") && hasExtra("helderheid")) {
+      addPoint("Prachtige kleuren en een helder beeld");
+    } else {
+      if (hasExtra("helderheid")) addPoint("Opvallend helder beeld");
+      if (hasExtra("kleur")) addPoint("Levendige, rijke kleuren");
+    }
+    if (hasExtra("zwart")) addPoint("Diepe zwarttinten dankzij Mini LED");
   } else if (type === "Mini LED") {
-    if (hasUsage("films")) addPoint("Zeer geschikt voor films en series");
+    if (hasUsage("films")) addPoint("Uitstekend voor films en series");
 
-    if (hasUsage("sport") && hzValue >= 100) addPoint("Heel erg geschikt voor sport");
-    if (hasUsage("sport") && hzValue < 100) addPoint("Geschikt voor sport");
+    if (hasUsage("sport") && hzValue >= 100) addPoint("Uitstekend voor sport kijken");
+    if (hasUsage("sport") && hzValue < 100) addPoint("Goed voor sport kijken");
 
-    if (hasUsage("gamen") && hzValue >= 120) addPoint("Perfect voor gamen");
-    if (hasUsage("gamen") && hzValue < 120) addPoint("Prima voor gamen");
+    if (hasUsage("gamen") && hzValue >= 120) addPoint("Uitstekend voor gamen");
+    if (hasUsage("gamen") && hzValue < 120) addPoint("Goed voor gamen");
 
-    addPoint("Zowel als het licht is en als het donker is heel goed beeld");
+    addPoint("Goed beeld overdag en 's avonds");
 
     if (hasExtra("helderheid") && hasExtra("kleur")) {
-      addPoint("Helder beeld en mooie kleuren");
+      addPoint("Helder beeld met mooie kleuren");
     } else {
-      if (hasExtra("helderheid")) addPoint("Helder beeld");
-      if (hasExtra("kleur")) addPoint("Mooie kleuren");
+      if (hasExtra("helderheid")) addPoint("Opvallend helder beeld");
+      if (hasExtra("kleur")) addPoint("Levendige kleuren");
     }
   } else if (type === "LED") {
-    if (hasUsage("films")) addPoint("Niet heel erg geschikt voor films en series");
-    if (hasUsage("sport")) addPoint("Niet heel erg geschikt voor sport");
-    if (hasUsage("gamen")) addPoint("Niet heel erg geschikt voor gamen");
-    if (hasUsage("normaal")) addPoint("Zeer geschikt voor normale tv programma’s");
+    if (hasUsage("films")) addPoint("Minder geschikt voor films en series");
+    if (hasUsage("sport")) addPoint("Minder geschikt voor sport kijken");
+    if (hasUsage("gamen")) addPoint("Minder geschikt voor gamen");
+    if (hasUsage("normaal")) addPoint("Prima voor dagelijks tv kijken");
 
-    addPoint("Zowel als het licht is en als het donker is gewoon prima beeld");
+    addPoint("Gewoon prima beeld, overdag en 's avonds");
 
     if (viewing === "recht") {
-      addPoint("Prima voor als je altijd recht voor de tv zit");
+      addPoint("Prima als je altijd recht voor de tv zit");
     }
     if (viewing === "meerdere") {
-      addPoint("Beeldkwaliteit vermindert zodra je niet recht voor de tv zit");
+      addPoint("Beeld wordt minder vanuit een schuine hoek");
     }
   }
 

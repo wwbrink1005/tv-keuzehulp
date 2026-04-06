@@ -282,6 +282,12 @@ function updateBestMatchCard(tv, type, answers) {
     imageEl.dataset.provider = (tv.afbeelding && tv.afbeelding.includes("expert.nl")) ? "expert" : "coolblue";
   }
 
+  const previewBtn = qs("#bestMatchPreviewBtn");
+  if (previewBtn) {
+    previewBtn.dataset.previewSrc = tv.afbeelding || "tv.png";
+    previewBtn.dataset.previewName = tv.naam || "";
+  }
+
   if (specsEl) {
     const specs = buildSpecList(tv);
     specsEl.textContent = specs.join(" \u2022 ");
@@ -337,6 +343,9 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
         <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
           <div class="tv-card-image" aria-hidden="true">
             <img src="${tv.afbeelding || 'tv.png'}" alt="" role="presentation" data-provider="${tv.afbeelding && tv.afbeelding.includes('expert.nl') ? 'expert' : 'coolblue'}">
+            <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${tv.afbeelding || 'tv.png'}" data-preview-name="${tv.naam}">
+              <i data-lucide="eye"></i>
+            </button>
           </div>
           <div class="tv-card-body">
             ${isCheapest ? '<span class="tv-card-cheapest-badge">Goedkoopste keuze</span>' : ''}
