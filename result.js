@@ -7,6 +7,67 @@ function formatShipping(verzendkosten) {
   return `+ \u20ac${val.toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} verzending`;
 }
 
+function buildProvidersHtml(tv) {
+  const aanbieder = tv?.aanbieder;
+  if (!aanbieder) return "";
+
+  const providers = [];
+
+  const priceCb = parseFloat(String(aanbieder.prijs_cb ?? "").replace(",", "."));
+  if (aanbieder.url_cb && Number.isFinite(priceCb) && priceCb > 0) {
+    providers.push({
+      naam: "Coolblue",
+      price: priceCb,
+      url: aanbieder.url_cb,
+      levertijd: String(aanbieder.levertijd_cb ?? "").trim(),
+      verzendkosten: String(aanbieder.verzendkosten_cb ?? "").trim()
+    });
+  }
+
+  const priceExpert = parseFloat(String(aanbieder.prijs_expert ?? "").replace(",", "."));
+  if (aanbieder.url_expert && Number.isFinite(priceExpert) && priceExpert > 0) {
+    providers.push({
+      naam: "Expert",
+      price: priceExpert,
+      url: aanbieder.url_expert,
+      levertijd: String(aanbieder.levertijd_expert ?? "").trim(),
+      verzendkosten: String(aanbieder.verzendkosten_expert ?? "").trim()
+    });
+  }
+
+  if (providers.length === 0) return "";
+
+  return `
+    <div class="tv-card-providers">
+      <p class="tv-providers-header">Beschikbaar bij</p>
+      <div class="tv-providers-list">
+        ${providers.map(p => {
+          const priceLabel = formatPriceLabel(p.price);
+          const shippingLabel = formatShipping(p.verzendkosten);
+          const subParts = [];
+          if (p.levertijd) subParts.push(p.levertijd);
+          subParts.push(shippingLabel);
+          const subText = subParts.join(" \u00b7 ");
+          return `
+            <a href="${p.url}" class="tv-provider-row" target="_blank" rel="noopener noreferrer" aria-label="${p.naam}: \u20ac${priceLabel}">
+              <div class="tv-provider-left">
+                <span class="tv-provider-name">${p.naam}</span>
+                ${subText ? `<span class="tv-provider-sub">${subText}</span>` : ""}
+              </div>
+              <div class="tv-provider-right">
+                <span class="tv-provider-price">\u20ac\u00a0${priceLabel}</span>
+                <span class="tv-provider-arrow" aria-hidden="true">
+                  <i data-lucide="chevron-right"></i>
+                </span>
+              </div>
+            </a>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderBestMatchProviders(tv) {
   const container = qs("#bestMatchProviders");
   const cardEl = qs("#bestMatchCard");
@@ -249,13 +310,6 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
   const container = qs("#otherMatchesGrid");
   if (!container) return;
 
-  const bestMatchCard = qs("#bestMatchCard");
-  if (bestMatchCard && container.contains(bestMatchCard)) {
-    // Keep the best match card in the DOM before wiping the grid.
-    container.parentElement.insertBefore(bestMatchCard, container);
-    bestMatchCard.classList.remove("inline");
-  }
-
   if (filteredMatchedTVs.length === 0) {
     container.innerHTML = "<p class=\"no-matches\">Geen passende TV's gevonden.</p>";
     return;
@@ -269,19 +323,29 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
       const price = parsePrice(tv.prijs);
       const isCheapest = price === minPrice;
       const specs = buildSpecList(tv);
-      const specsHtml = specs.map(spec => `<li>${spec}</li>`).join("");
+      const specsText = specs.join(" \u2022 ");
+      const points = buildResultPoints(tv, currentAnswers);
+      const pointsHtml = points.map(point => `
+        <li>
+          <i data-lucide="check" class="tv-card-check" aria-hidden="true"></i>
+          <span>${point}</span>
+        </li>
+      `).join("");
+      const providersHtml = buildProvidersHtml(tv);
 
       return `
-        <article class="other-match-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
-          <span class="other-match-selected-label" aria-hidden="true">Geselecteerd</span>
-          <span class="cheapest-label" aria-hidden="true">Goedkoopste keuze</span>
-          <div class="other-match-media" aria-hidden="true">
+        <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
+          <div class="tv-card-image" aria-hidden="true">
             <img src="${tv.afbeelding || 'tv.png'}" alt="" role="presentation" data-provider="${tv.afbeelding && tv.afbeelding.includes('expert.nl') ? 'expert' : 'coolblue'}">
           </div>
-          <h3 class="other-match-title">${tv.naam}</h3>
-          <ul class="other-match-specs">${specsHtml}</ul>
-          <div class="other-match-price">Vanaf \u20ac${formatPriceLabel(price)}</div>
-          <button class="other-match-action" type="button">Bekijk</button>
+          <div class="tv-card-body">
+            ${isCheapest ? '<span class="tv-card-cheapest-badge">Goedkoopste keuze</span>' : ''}
+            <h3 class="tv-card-name">${tv.naam}</h3>
+            ${points.length > 0 ? `<ul class="tv-card-points">${pointsHtml}</ul>` : ""}
+            <div class="tv-card-specs">${specsText}</div>
+            <div class="tv-card-price">Vanaf \u20ac${formatPriceLabel(price)}</div>
+          </div>
+          ${providersHtml}
         </article>
       `;
     })
@@ -309,33 +373,12 @@ function initRedesignInteractions(matchedTVs, answers) {
   currentMatches = Array.isArray(matchedTVs) ? matchedTVs : [];
   if (redesignHandlersBound) return;
 
-  const container = qs("#otherMatchesGrid");
-  const bestMatchCard = qs("#bestMatchCard");
   const closeButton = qs(".best-match-close");
+  const bestMatchCard = qs("#bestMatchCard");
 
-  if (!container || !bestMatchCard) return;
-
-  container.addEventListener("click", event => {
-    const actionButton = event.target.closest(".other-match-action");
-    if (!actionButton) return;
-
-    const card = actionButton.closest(".other-match-card");
-    if (!card) return;
-
-    const indexValue = Number(card.dataset.matchIndex);
-    const targetMatch = currentMatches[indexValue];
-    if (!targetMatch) return;
-
-    updateBestMatchCard(targetMatch, "", answers);
-    placeBestMatchCardAtIndex(indexValue);
-    setActiveMatchCard(card);
-    scrollBestMatchCardIntoView();
-  });
-
-  if (closeButton) {
+  if (closeButton && bestMatchCard) {
     closeButton.addEventListener("click", () => {
       bestMatchCard.classList.add("is-hidden");
-      clearActiveMatchCards();
     });
   }
 
@@ -393,22 +436,10 @@ function applySortAndRender(sortValue) {
   displayOtherMatchesRedesign(sortedMatches);
   initRedesignInteractions(sortedMatches, currentAnswers);
 
-  const topMatch = sortedMatches[0] || null;
-  updateBestMatchCard(topMatch, currentType, currentAnswers);
-
+  // Keep bestMatchCard hidden — all info is shown inline in tv-cards
   const bestMatchCard = qs("#bestMatchCard");
-  const gridSection = qs(".other-matches");
   if (bestMatchCard) {
-    bestMatchCard.classList.remove("is-hidden");
-  }
-
-  if (topMatch) {
-    placeBestMatchCardAtIndex(0);
-    if (bestMatchCard && gridSection && bestMatchCard.parentElement !== qs("#otherMatchesGrid")) {
-      bestMatchCard.classList.remove("inline");
-      gridSection.parentElement.insertBefore(bestMatchCard, gridSection);
-    }
-    setActiveMatchCard(getMatchCardByIndex(0));
+    bestMatchCard.classList.add("is-hidden");
   }
 
   if (window.lucide && typeof window.lucide.createIcons === "function") {

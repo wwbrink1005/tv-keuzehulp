@@ -82,16 +82,6 @@
       /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
          ANIMATIONS
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-      @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(24px); }
-        to   { opacity: 1; transform: translateY(0); }
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to   { opacity: 1; }
-      }
-
       @keyframes float-a {
         0%, 100% { transform: translateY(0px); }
         50%      { transform: translateY(-12px); }
@@ -112,23 +102,6 @@
         0%, 100% { opacity: 1; }
         50%      { opacity: 0.6; }
       }
-
-      .reveal {
-        opacity: 0;
-        transform: translateY(28px);
-        transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-                    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      .reveal.is-visible {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      .reveal-delay-1 { transition-delay: 0.08s; }
-      .reveal-delay-2 { transition-delay: 0.16s; }
-      .reveal-delay-3 { transition-delay: 0.24s; }
-      .reveal-delay-4 { transition-delay: 0.32s; }
 
       /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
          HERO SECTION — centered, category cards
@@ -179,7 +152,6 @@
 
       /* ── Hero text block ── */
       .hero-text {
-        animation: fadeUp 0.65s ease-out;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -239,7 +211,6 @@
         margin-top: 64px;
         display: flex;
         align-items: center;
-        animation: fadeUp 0.7s ease-out 0.18s both;
       }
 
       .hero-cats-track {
@@ -905,6 +876,14 @@
           padding: 72px 16px 140px;
         }
 
+        .hero-wave {
+          height: 44px;
+        }
+
+        .hero-wave .wave-back {
+          opacity: 0.4;
+        }
+
         .hero-cats-arrow {
           display: none;
         }
@@ -1211,25 +1190,25 @@
            ════════════════════════════════════════════ -->
       <section class="how-section" aria-label="Hoe het werkt">
         <div class="how-inner">
-          <span class="section-label reveal">Hoe het werkt</span>
-          <h2 class="section-title reveal">In vier stappen naar jouw ideale product</h2>
+          <span class="section-label">Hoe het werkt</span>
+          <h2 class="section-title">In vier stappen naar jouw ideale product</h2>
           <div class="how-grid" id="howGrid">
-            <div class="how-card reveal reveal-delay-1">
+            <div class="how-card reveal-delay-1">
               <div class="how-step-number">1</div>
               <h3>Kies een keuzehulp</h3>
               <p>Selecteer de productcategorie waarvoor je advies wilt — van televisies tot wasmachines.</p>
             </div>
-            <div class="how-card reveal reveal-delay-2">
+            <div class="how-card reveal-delay-2">
               <div class="how-step-number">2</div>
               <h3>Beantwoord vragen</h3>
               <p>Een paar eenvoudige vragen over jouw wensen en situatie. Duurt maximaal 2 minuten.</p>
             </div>
-            <div class="how-card reveal reveal-delay-3">
+            <div class="how-card reveal-delay-3">
               <div class="how-step-number">3</div>
               <h3>Ontvang jouw advies</h3>
               <p>Krijg direct een persoonlijk advies met de producten die het beste bij jou passen.</p>
             </div>
-            <div class="how-card reveal reveal-delay-4">
+            <div class="how-card reveal-delay-4">
               <div class="how-step-number">4</div>
               <h3>Kies en koop waar jij wilt</h3>
               <p>Wij sturen je door naar bekende webshops. Jij bepaalt zelf waar je koopt.</p>
@@ -1252,11 +1231,11 @@
            ════════════════════════════════════════════ -->
       <section class="popular-section" aria-label="Populaire keuzehulpen">
         <div class="popular-inner">
-          <span class="section-label reveal">Populair</span>
-          <h2 class="section-title reveal">Populaire keuzehulpen</h2>
+          <span class="section-label">Populair</span>
+          <h2 class="section-title">Populaire keuzehulpen</h2>
           <div class="popular-grid">
 
-            <article class="popular-card reveal reveal-delay-1">
+            <article class="popular-card reveal-delay-1">
               <img
                 class="popular-card-image"
                 src="tv.png"
@@ -1294,11 +1273,11 @@
            ════════════════════════════════════════════ -->
       <section class="categories-section" aria-label="Alle categorieën">
         <div class="categories-inner">
-          <span class="section-label reveal">Keuzehulpen</span>
-          <h2 class="section-title reveal">Alle categorieën</h2>
+          <span class="section-label">Keuzehulpen</span>
+          <h2 class="section-title">Alle categorieën</h2>
           <div class="categories-grid">
 
-            <div class="category-col reveal reveal-delay-1">
+            <div class="category-col reveal-delay-1">
               <button class="category-header" aria-expanded="false">
                 <span class="cat-header-inner">
                   <span class="cat-icon"><i data-lucide="monitor" aria-hidden="true"></i></span>
@@ -1328,7 +1307,7 @@
               </ul>
             </div>
 
-            <div class="category-col reveal reveal-delay-2">
+            <div class="category-col reveal-delay-2">
               <button class="category-header" aria-expanded="false">
                 <span class="cat-header-inner">
                   <span class="cat-icon"><i data-lucide="washing-machine" aria-hidden="true"></i></span>
@@ -1347,7 +1326,7 @@
               </ul>
             </div>
 
-            <div class="category-col reveal reveal-delay-3">
+            <div class="category-col reveal-delay-3">
               <button class="category-header" aria-expanded="false">
                 <span class="cat-header-inner">
                   <span class="cat-icon"><i data-lucide="thermometer" aria-hidden="true"></i></span>
@@ -1360,7 +1339,7 @@
               </ul>
             </div>
 
-            <div class="category-col reveal reveal-delay-1">
+            <div class="category-col reveal-delay-1">
               <button class="category-header" aria-expanded="false">
                 <span class="cat-header-inner">
                   <span class="cat-icon"><i data-lucide="laptop" aria-hidden="true"></i></span>
@@ -1377,7 +1356,7 @@
               </ul>
             </div>
 
-            <div class="category-col reveal reveal-delay-2">
+            <div class="category-col reveal-delay-2">
               <button class="category-header" aria-expanded="false">
                 <span class="cat-header-inner">
                   <span class="cat-icon"><i data-lucide="leaf" aria-hidden="true"></i></span>
@@ -1391,7 +1370,7 @@
               </ul>
             </div>
 
-            <div class="category-col reveal reveal-delay-3">
+            <div class="category-col reveal-delay-3">
               <button class="category-header" aria-expanded="false">
                 <span class="cat-header-inner">
                   <span class="cat-icon"><i data-lucide="bike" aria-hidden="true"></i></span>
@@ -1415,47 +1394,6 @@
     <script src="zoekbalk.js" defer></script>
     <script>
       lucide.createIcons();
-
-      /* ── Scroll-reveal observer ── */
-      (() => {
-        const heroSection = document.querySelector('.hero');
-        const trustBar = document.querySelector('.trust-bar');
-        const popularSection = document.querySelector('.popular-section');
-        const allReveal = document.querySelectorAll('.reveal');
-
-        allReveal.forEach(el => {
-          if ((heroSection && heroSection.contains(el)) ||
-              (trustBar && trustBar.contains(el)) ||
-              (popularSection && popularSection.contains(el))) {
-            el.classList.add('is-visible');
-          }
-        });
-
-        const revealElements = Array.from(allReveal).filter(el =>
-          !((heroSection && heroSection.contains(el)) ||
-            (trustBar && trustBar.contains(el)) ||
-            (popularSection && popularSection.contains(el)))
-        );
-
-        if (!('IntersectionObserver' in window)) {
-          revealElements.forEach(el => el.classList.add('is-visible'));
-          return;
-        }
-
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
-              }
-            });
-          },
-          { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-        );
-
-        revealElements.forEach(el => observer.observe(el));
-      })();
 
       /* ── How-it-works arrow navigation (mobile only) ── */
       (() => {

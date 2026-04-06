@@ -131,3 +131,91 @@ export function normalizeProducts(rawProducts) {
     }];
   });
 }
+
+function roundNice(value) {
+  let step;
+  if (value <= 100) step = 10;
+  else if (value <= 500) step = 50;
+  else if (value <= 2000) step = 100;
+  else if (value <= 5000) step = 500;
+  else step = 1000;
+  return Math.round(value / step) * step;
+}
+
+function floorNice(value) {
+  let step;
+  if (value <= 100) step = 10;
+  else if (value <= 500) step = 50;
+  else if (value <= 2000) step = 100;
+  else if (value <= 5000) step = 500;
+  else step = 1000;
+  return Math.floor(value / step) * step;
+}
+
+/**
+ * Computes 2-3 price buckets dynamically based on actual TV prices in the
+ * database for the given size group. The first bucket always starts at 0
+ * and the last always ends at Infinity, so no TV is ever excluded.
+ *
+ * @param {object[]} tvs - normalised TV list
+ * @param {string} sizeGroup - e.g. "55"
+ * @param {object} allowedSizes - e.g. sizeGroupToAllowedSizes from data.js
+ * @returns {{ label: string, min: number, max: number }[]}
+ */
+export function computeDynamicPriceGroups(tvs, sizeGroup, allowedSizes) {
+  const sizes = allowedSizes[sizeGroup] || [];
+  const prices = tvs
+    .filter(tv => sizes.includes(tv.grootte))
+    .map(tv => parsePrice(tv.prijs))
+    .filter(p => Number.isFinite(p) && p > 0)
+    .sort((a, b) => a - b);
+
+  if (prices.length === 0) return [];
+
+  const n = prices.length;
+
+  if (n <= 2) {
+    const displayMin = floorNice(prices[0]);
+    return [{ label: `${displayMin}+`, min: 0, max: Number.POSITIVE_INFINITY }];
+  }
+
+  const numBuckets = n < 6 ? 2 : 3;
+
+  // Find split points at equal-count percentiles
+  const rawSplits = [];
+  for (let i = 1; i < numBuckets; i++) {
+    const idx = Math.floor(n * i / numBuckets);
+    rawSplits.push(roundNice((prices[idx - 1] + prices[idx]) / 2));
+  }
+
+  // Deduplicate: keep only strictly increasing splits
+  const splits = [];
+  for (const s of rawSplits) {
+    if (splits.length === 0 || s > splits[splits.length - 1]) {
+      splits.push(s);
+    }
+  }
+
+  if (splits.length === 0) {
+    const displayMin = floorNice(prices[0]);
+    return [{ label: `${displayMin}+`, min: 0, max: Number.POSITIVE_INFINITY }];
+  }
+
+  const groups = [];
+  for (let i = 0; i <= splits.length; i++) {
+    const min = i === 0 ? 0 : splits[i - 1];
+    const max = i === splits.length ? Number.POSITIVE_INFINITY : splits[i];
+
+    let label;
+    if (i === splits.length) {
+      label = `${min}+`;
+    } else {
+      const displayMin = i === 0 ? floorNice(prices[0]) : min;
+      label = `${displayMin}-${max}`;
+    }
+
+    groups.push({ label, min, max });
+  }
+
+  return groups;
+}

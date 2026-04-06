@@ -1,13 +1,23 @@
-import { distanceToSizeGroup, priceGroupsBySize, tvDimensions } from "./data.js";
+import { distanceToSizeGroup, priceGroupsBySize, sizeGroupToAllowedSizes, tvDimensions } from "./data.js";
 import { calculateScores, matchTVs } from "./matching.js";
-import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
+import { computeDynamicPriceGroups, getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 
 const quizState = {
   selectedDistance: null,
   selectedSizeGroup: null,
-  selectedPriceGroup: null
+  selectedPriceGroup: null,
+  priceGroups: []
 };
+
+let productsFetchPromise = null;
+
+function prefetchProducts() {
+  if (!productsFetchPromise) {
+    productsFetchPromise = fetchProducts().catch(() => null);
+  }
+  return productsFetchPromise;
+}
 
 const sizeGroups = ["24", "27-32", "40-43", "48-50", "55", "58-65", "70-77", "83-86", "97-115"];
 
@@ -272,14 +282,12 @@ function renderSizeOptions(advisedSize) {
   ensureMobileToggle(qs("#question-2"));
 }
 
-function renderPriceOptions() {
+function renderPriceOptions(groups) {
   const container = qs("#price-options");
   if (!container) return;
   container.innerHTML = "";
 
-  const priceGroups = priceGroupsBySize[quizState.selectedSizeGroup];
-
-  priceGroups.forEach(group => {
+  groups.forEach(group => {
     const label = document.createElement("label");
     label.className = "answer-option";
     label.innerHTML = `
@@ -349,9 +357,9 @@ function handleStartMatching() {
   const answers = buildAnswers();
   const scores = calculateScores(answers);
 
-  fetchProducts()
+  prefetchProducts()
     .then(rawProducts => {
-      const tvs = normalizeProducts(rawProducts);
+      const tvs = normalizeProducts(rawProducts ?? []);
       const result = matchTVs(tvs, quizState.selectedSizeGroup, quizState.selectedPriceGroup, answers, scores);
 
       localStorage.setItem("bestMatch", JSON.stringify(result.bestMatch));
@@ -361,6 +369,7 @@ function handleStartMatching() {
       localStorage.setItem("answers", JSON.stringify(answers));
       localStorage.setItem("selectedSizeGroup", quizState.selectedSizeGroup ?? "");
       localStorage.setItem("selectedPriceGroupLabel", quizState.selectedPriceGroup?.label ?? "");
+      localStorage.setItem("dynamicPriceGroups", JSON.stringify(quizState.priceGroups));
 
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
@@ -372,6 +381,10 @@ function handleStartMatching() {
 
 export function initQuizPage() {
   if (!qs("#question-1")) return;
+
+  // Pre-fetch products in the background so data is ready by the time
+  // the user reaches the price question (question 3).
+  prefetchProducts();
 
   qs("#to-question-2")?.addEventListener("click", () => {
     const checked = qs('input[name="distance"]:checked');
@@ -414,12 +427,26 @@ export function initQuizPage() {
     showQuestion(1);
   });
 
-  qs("#to-question-3")?.addEventListener("click", () => {
+  qs("#to-question-3")?.addEventListener("click", async () => {
     const checked = qs('input[name="sizeGroup"]:checked');
     if (!checked) return alert("Kies een grootte");
 
     quizState.selectedSizeGroup = checked.value;
-    renderPriceOptions();
+
+    const btn = qs("#to-question-3");
+    if (btn) btn.disabled = true;
+    try {
+      const rawProducts = await prefetchProducts();
+      const tvs = normalizeProducts(rawProducts ?? []);
+      const dynamic = computeDynamicPriceGroups(tvs, quizState.selectedSizeGroup, sizeGroupToAllowedSizes);
+      quizState.priceGroups = dynamic.length > 0 ? dynamic : (priceGroupsBySize[quizState.selectedSizeGroup] ?? []);
+    } catch {
+      quizState.priceGroups = priceGroupsBySize[quizState.selectedSizeGroup] ?? [];
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+
+    renderPriceOptions(quizState.priceGroups);
     showQuestion(3);
   });
 
@@ -431,8 +458,7 @@ export function initQuizPage() {
     const checked = qs('input[name="priceGroup"]:checked');
     if (!checked) return alert("Kies een budget");
 
-    quizState.selectedPriceGroup = priceGroupsBySize[quizState.selectedSizeGroup]
-      .find(p => p.label === checked.value);
+    quizState.selectedPriceGroup = quizState.priceGroups.find(p => p.label === checked.value);
 
     showQuestion(4);
   });

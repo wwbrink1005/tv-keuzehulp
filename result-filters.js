@@ -13,6 +13,19 @@ const filterState = {
   bestType: ""
 };
 
+function getDynamicPriceGroups(sizeGroup) {
+  const stored = localStorage.getItem("dynamicPriceGroups");
+  if (stored) {
+    try {
+      const groups = JSON.parse(stored);
+      if (Array.isArray(groups) && groups.length > 0) return groups;
+    } catch {
+      // fall through to static fallback
+    }
+  }
+  return priceGroupsBySize[sizeGroup] || [];
+}
+
 function formatBrandLabel(brand) {
   const raw = String(brand ?? "").trim();
   if (!raw) return "";
@@ -30,7 +43,7 @@ function collectBrandOptions(matches) {
 }
 
 function buildPriceMatches(tvs, sizeGroup, selectedPriceLabel) {
-  const groups = priceGroupsBySize[sizeGroup] || [];
+  const groups = getDynamicPriceGroups(sizeGroup);
   const idealTypes = getIdealTypeSet(filterState.scores);
   const map = new Map();
 
@@ -57,7 +70,7 @@ function buildPriceMatches(tvs, sizeGroup, selectedPriceLabel) {
 }
 
 function renderPriceOptions(container, priceCard, sizeGroup) {
-  const groups = priceGroupsBySize[sizeGroup] || [];
+  const groups = getDynamicPriceGroups(sizeGroup);
   container.innerHTML = "";
 
   const labels = groups.filter(group => filterState.priceMatches.has(group.label));

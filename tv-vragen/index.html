@@ -377,22 +377,22 @@
      height: auto;
      display: inline-flex;
      align-items: center;
-     gap: calc(5px * var(--scale, 1));
-     background: rgba(255,255,255,.84);
-     backdrop-filter: blur(14px) saturate(180%);
-     -webkit-backdrop-filter: blur(14px) saturate(180%);
-     border: 1px solid rgba(255,255,255,.65);
+     gap: calc(6px * var(--scale, 1));
+     background: rgba(255,255,255,.92);
+     backdrop-filter: blur(16px) saturate(200%);
+     -webkit-backdrop-filter: blur(16px) saturate(200%);
+     border: 1px solid rgba(9,84,163,.18);
      border-radius: 100px;
      font-family: 'Inter', sans-serif;
      font-size: calc(12.5px * var(--scale, 1));
      font-weight: 600;
-     color: var(--c-text-2);
-     padding: calc(6px * var(--scale, 1)) calc(14px * var(--scale, 1)) calc(6px * var(--scale, 1)) calc(10px * var(--scale, 1));
+     color: #0954a3;
+     padding: calc(7px * var(--scale, 1)) calc(15px * var(--scale, 1)) calc(7px * var(--scale, 1)) calc(11px * var(--scale, 1));
      cursor: pointer;
-     letter-spacing: 0;
+     letter-spacing: 0.01em;
      text-align: left;
-     box-shadow: 0 2px 10px rgba(0,0,0,.10);
-     transition: background .2s, color .2s, border-color .2s, box-shadow .2s;
+     box-shadow: 0 2px 12px rgba(9,84,163,.13), 0 1px 3px rgba(0,0,0,.07);
+     transition: background .2s, color .2s, border-color .2s, box-shadow .2s, transform .15s;
    }
    button.question-hint-btn svg {
      width: calc(14px * var(--scale, 1));
@@ -402,18 +402,18 @@
    }
 
    button.question-hint-btn:hover {
-     background: rgba(255,255,255,.97);
-     color: var(--c-accent);
-     border-color: rgba(9,84,163,.3);
-     box-shadow: 0 4px 16px rgba(9,84,163,.14);
-     transform: none;
+     background: rgba(232,240,254,.98);
+     color: #073d7a;
+     border-color: rgba(9,84,163,.35);
+     box-shadow: 0 6px 20px rgba(9,84,163,.18), 0 1px 4px rgba(0,0,0,.08);
+     transform: translateY(-1px);
    }
 
    button.question-hint-btn.hint-btn-active {
-     background: rgba(235,244,255,.97);
-     color: var(--c-accent);
-     border-color: rgba(9,84,163,.3);
-     box-shadow: 0 4px 16px rgba(9,84,163,.14);
+     background: rgba(232,240,254,.98);
+     color: #073d7a;
+     border-color: rgba(9,84,163,.35);
+     box-shadow: 0 4px 16px rgba(9,84,163,.16);
    }
 
    /* Mobile hint button — small ? circle inside the image */
@@ -800,15 +800,6 @@
      overflow: hidden;
      box-shadow: -8px 0 32px rgba(0,0,0,.11);
    }
-   /* Blue top accent stripe */
-   .info-panel::before {
-     content: '';
-     display: block;
-     height: 3px;
-     background: linear-gradient(90deg, #0b6fd4, #0954a3);
-     flex-shrink: 0;
-   }
-
    .info-panel.is-open {
      transform: translateX(0);
      opacity: 1;
