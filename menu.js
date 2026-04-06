@@ -18,106 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
       </div>
 
-      <!-- Center nav (desktop) -->
-      <nav class="menu-nav" aria-label="Hoofdmenu">
-        <a class="menu-link" href="./">Home</a>
-
-        <!-- Categorieën dropdown -->
-        <div class="menu-dropdown-trigger" id="categoriesDropdownTrigger">
-          <button
-            class="menu-link menu-link--dropdown"
-            type="button"
-            aria-haspopup="true"
-            aria-expanded="false"
-            aria-controls="categoriesDropdown"
-            id="categoriesBtn"
-          >
-            Categorieën
-            <i data-lucide="chevron-down" class="menu-chevron" aria-hidden="true"></i>
-          </button>
-
-          <div
-            id="categoriesDropdown"
-            class="menu-dropdown"
-            role="dialog"
-            aria-hidden="true"
-          >
-            <div class="menu-dropdown-grid">
-              <div class="menu-dropdown-col">
-                <h4>Beeld, Geluid &amp; Foto</h4>
-                <ul>
-                  <li>
-                    <a href="tv-vragen">
-                      Televisies
-                      <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <span>
-                      Soundbars
-                      <span class="menu-dropdown-badge">binnenkort</span>
-                    </span>
-                  </li>
-                  <li>
-                    <span>
-                      Fototoestellen
-                      <span class="menu-dropdown-badge">binnenkort</span>
-                    </span>
-                  </li>
-                </ul>
-              </div>
-              <div class="menu-dropdown-col">
-                <h4>Huishoudelijke Apparaten</h4>
-                <ul>
-                  <li><span>Koelkasten <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                  <li><span>Wasmachines <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                  <li><span>Koffiemachines <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                  <li><span>Vaatwassers <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                  <li><span>Stofzuigers <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                </ul>
-              </div>
-              <div class="menu-dropdown-col">
-                <h4>Computer &amp; Telefonie</h4>
-                <ul>
-                  <li><span>Laptop <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                  <li><span>Smartphone <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                  <li><span>Tablets <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                </ul>
-                <h4 style="margin-top:16px;">Buiten &amp; Tuin</h4>
-                <ul>
-                  <li><span>Barbecues <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                  <li><span>Grasmaaiers <span class="menu-dropdown-badge">binnenkort</span></span></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <a class="menu-link" href="hoe-werkt-het">Hoe werkt het?</a>
-        <a class="menu-link" href="over-ons">Over ons</a>
-      </nav>
-
-      <!-- Right side (desktop) -->
-      <div class="menu-right">
-        <div class="menu-search" id="menuSearch" role="search">
-          <div class="landing-search" id="desktopLandingSearch">
-            <i data-lucide="search" class="search-icon" aria-hidden="true"></i>
-            <input
-              type="text"
-              placeholder="Zoek een keuzehulp…"
-              aria-label="Zoek naar een keuzehulp"
-            />
-            <div class="landing-search-dropdown" aria-hidden="true">
-              <div class="landing-search-dropdown-header">keuzehulpen</div>
-              <ul class="landing-search-results" role="listbox"></ul>
-              <div class="landing-search-dropdown-footer"></div>
-            </div>
-          </div>
-        </div>
-        <a class="menu-contact-btn" href="contact">Contact</a>
-      </div>
-
-      <!-- Hamburger (mobile) -->
+      <!-- Hamburger (always visible) -->
       <button
         class="menu-hamburger"
         type="button"
@@ -251,35 +152,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(script);
   }
 
-  /* ── Categories dropdown (desktop) ── */
-  const categoriesTrigger = document.getElementById("categoriesDropdownTrigger");
-  const categoriesBtn = document.getElementById("categoriesBtn");
-  const categoriesDropdown = document.getElementById("categoriesDropdown");
-
-  const openCategories = () => {
-    if (!categoriesTrigger || !categoriesDropdown || !categoriesBtn) return;
-    categoriesTrigger.classList.add("is-open");
-    categoriesBtn.setAttribute("aria-expanded", "true");
-    categoriesDropdown.setAttribute("aria-hidden", "false");
-  };
-
-  const closeCategories = () => {
-    if (!categoriesTrigger || !categoriesDropdown || !categoriesBtn) return;
-    categoriesTrigger.classList.remove("is-open");
-    categoriesBtn.setAttribute("aria-expanded", "false");
-    categoriesDropdown.setAttribute("aria-hidden", "true");
-  };
-
-  categoriesBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isOpen = categoriesTrigger?.classList.contains("is-open");
-    if (isOpen) {
-      closeCategories();
-    } else {
-      openCategories();
-    }
-  });
-
   /* ── Mobile menu ── */
   const hamburger = document.getElementById("menuHamburger");
   const mobileNav = document.getElementById("mobileNav");
@@ -331,18 +203,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ── Close on outside click / Escape ── */
   document.addEventListener("click", (e) => {
-    if (
-      categoriesTrigger &&
-      !categoriesTrigger.contains(e.target) &&
-      categoriesTrigger.classList.contains("is-open")
-    ) {
-      closeCategories();
-    }
+    // no desktop dropdown to close
   });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      closeCategories();
       closeMobileMenu();
     }
   });
