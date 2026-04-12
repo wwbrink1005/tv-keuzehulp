@@ -90,18 +90,18 @@ const updateResults = (elements) => {
 document.addEventListener("input", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
-  if (!target.matches(".landing-search input")) return;
+  if (!target.matches(".landing-search input, .hero-search input")) return;
 
-  const searchWrapper = target.closest(".landing-search");
+  const searchWrapper = target.closest(".landing-search, .hero-search");
   updateResults(getElements(searchWrapper));
 });
 
 document.addEventListener("focusin", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
-  if (!target.matches(".landing-search input")) return;
+  if (!target.matches(".landing-search input, .hero-search input")) return;
 
-  const searchWrapper = target.closest(".landing-search");
+  const searchWrapper = target.closest(".landing-search, .hero-search");
   updateResults(getElements(searchWrapper));
 });
 
@@ -109,9 +109,9 @@ document.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
 
-  const searchWrapper = target.closest(".landing-search");
+  const searchWrapper = target.closest(".landing-search, .hero-search");
   if (!searchWrapper) {
-    document.querySelectorAll(".landing-search").forEach((wrapper) => {
+    document.querySelectorAll(".landing-search, .hero-search").forEach((wrapper) => {
       hideDropdown(getElements(wrapper));
     });
   }

@@ -18,6 +18,56 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
       </div>
 
+      <!-- Desktop nav links -->
+      <div class="menu-desktop-links" id="menuDesktopLinks">
+        <div class="menu-dropdown-trigger" id="desktopCatTrigger">
+          <button class="menu-link menu-cat-btn" type="button" aria-expanded="false" id="desktopCatBtn">
+            Categorieën
+            <svg class="menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="menu-dropdown" id="desktopCatDropdown" role="dialog" aria-label="Alle categorieën">
+            <div class="menu-dropdown-grid">
+              <div class="menu-dropdown-col">
+                <h4>Beeld, Geluid &amp; Foto</h4>
+                <ul>
+                  <li><a href="tv-vragen">Televisies <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  <li><span>Soundbars <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Camera's <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Fototoestellen <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                </ul>
+              </div>
+              <div class="menu-dropdown-col">
+                <h4>Huishoudelijke Apparaten</h4>
+                <ul>
+                  <li><span>Koelkasten <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Wasmachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Koffiemachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Vaatwassers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Stofzuigers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                </ul>
+              </div>
+              <div class="menu-dropdown-col">
+                <h4>Computer &amp; Telefonie</h4>
+                <ul>
+                  <li><span>Laptops <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Smartphones <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Tablets <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                </ul>
+              </div>
+              <div class="menu-dropdown-col">
+                <h4>Buiten &amp; Tuin</h4>
+                <ul>
+                  <li><span>E-bikes <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Barbecues <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><span>Grasmaaiers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a class="menu-link" href="over-ons">Over ons</a>
+      </div>
+
       <!-- Hamburger (always visible) -->
       <button
         class="menu-hamburger"
@@ -201,9 +251,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  /* ── Desktop categories dropdown ── */
+  const desktopCatBtn = document.getElementById("desktopCatBtn");
+  const desktopCatTrigger = document.getElementById("desktopCatTrigger");
+  const desktopCatDropdown = document.getElementById("desktopCatDropdown");
+
+  desktopCatBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = desktopCatTrigger?.classList.contains("is-open");
+    if (isOpen) {
+      desktopCatTrigger?.classList.remove("is-open");
+      desktopCatBtn.setAttribute("aria-expanded", "false");
+    } else {
+      desktopCatTrigger?.classList.add("is-open");
+      desktopCatBtn.setAttribute("aria-expanded", "true");
+    }
+  });
+
   /* ── Close on outside click / Escape ── */
   document.addEventListener("click", (e) => {
-    // no desktop dropdown to close
+    if (!desktopCatTrigger?.contains(e.target)) {
+      desktopCatTrigger?.classList.remove("is-open");
+      desktopCatBtn?.setAttribute("aria-expanded", "false");
+    }
   });
 
   document.addEventListener("keydown", (e) => {

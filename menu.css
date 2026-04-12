@@ -10,7 +10,7 @@
   --menu-accent-soft: rgba(9, 84, 163, 0.07);
   --menu-muted: #6b7280;
   --menu-border: #e8eaed;
-  --menu-shadow: 0 1px 0 #e8eaed, 0 8px 24px rgba(0, 0, 0, 0.05);
+  --menu-shadow: none;
   --menu-radius: 12px;
   --menu-transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   --menu-font: "Inter", sans-serif;
@@ -32,7 +32,7 @@
 }
 
 body.has-menu {
-  padding-top: var(--menu-height);
+  /* no top padding — menu scrolls with page */
 }
 
 .menu-bar,
@@ -44,22 +44,18 @@ body.has-menu {
    MENU BAR — LAYOUT
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .menu-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: relative;
   height: var(--menu-height);
   background: var(--menu-bg);
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto;
   align-items: center;
   padding: 0 clamp(20px, 4vw, 52px);
   gap: 0 20px;
-  z-index: 1000;
+  z-index: 100;
   box-shadow: var(--menu-shadow);
   font-family: var(--menu-font);
 }
-
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    BRAND / LOGO
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -95,6 +91,15 @@ body.has-menu {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .menu-nav {
   display: none;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DESKTOP NAV LINKS (next to logo)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.menu-desktop-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -198,9 +203,9 @@ body.has-menu {
 .menu-dropdown {
   position: absolute;
   top: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%) translateY(-6px);
-  width: min(720px, 90vw);
+  left: 0;
+  transform: translateY(-6px);
+  width: min(900px, 90vw);
   background: var(--menu-bg);
   border: 1px solid var(--menu-border);
   border-radius: 18px;
@@ -217,13 +222,13 @@ body.has-menu {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .menu-dropdown-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px 32px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px 24px;
 }
 
 .menu-dropdown-col h4 {
@@ -755,12 +760,16 @@ body.has-menu {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 @media (max-width: 768px) {
   .menu-bar {
-    grid-template-columns: auto auto;
+    grid-template-columns: auto 1fr auto;
     gap: 0;
     padding: 0 20px;
   }
 
   .menu-search-center {
+    display: none;
+  }
+
+  .menu-desktop-links {
     display: none;
   }
 }
@@ -771,10 +780,6 @@ body.has-menu {
 @media (max-width: 1100px) and (min-width: 769px) {
   .menu-bar {
     padding: 0 24px;
-  }
-
-  .menu-search-center .landing-search {
-    width: clamp(200px, 24vw, 360px);
   }
 }
 
