@@ -6,6 +6,7 @@ import { fetchProducts } from "./supabase.js";
 
 const filterState = {
   priceLabel: "",
+  sizes: new Set(),
   brands: new Set(),
   types: new Set(),
   resolutions: new Set(),
@@ -14,7 +15,8 @@ const filterState = {
   priceMatches: new Map(),
   answers: null,
   scores: null,
-  bestType: ""
+  bestType: "",
+  sizeGroup: ""
 };
 
 function getDynamicPriceGroups(sizeGroup) {
@@ -35,6 +37,46 @@ function formatBrandLabel(brand) {
   if (!raw) return "";
   if (raw === raw.toUpperCase()) return raw;
   return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+}
+
+function collectSizeOptions(matches) {
+  const set = new Set();
+  matches.forEach(tv => { if (tv.grootte) set.add(tv.grootte); });
+  return Array.from(set).sort((a, b) => a - b);
+}
+
+function renderSizeOptions(container, sizeCard, matches) {
+  container.innerHTML = "";
+  const sizes = collectSizeOptions(matches);
+  if (sizes.length <= 1) { sizeCard.hidden = true; return; }
+  sizeCard.hidden = false;
+
+  const isAllSelected = filterState.sizes.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = "sizeFilter";
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle maten";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
+
+  sizes.forEach(size => {
+    const label = document.createElement("label");
+    label.className = "filter-option";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = "sizeFilter";
+    input.value = size;
+    input.checked = filterState.sizes.has(size);
+    const text = document.createElement("span");
+    text.textContent = `${size}"`;
+    label.append(input, text);
+    container.appendChild(label);
+  });
 }
 
 function collectBrandOptions(matches) {
@@ -324,7 +366,7 @@ function renderAanbiederOptions(container, aanbiederCard, matches) {
 function updateClearFiltersBtn() {
   const btn = qs("#clearFiltersBtn");
   if (!btn) return;
-  const hasActive = filterState.brands.size > 0 || filterState.types.size > 0 ||
+  const hasActive = filterState.sizes.size > 0 || filterState.brands.size > 0 || filterState.types.size > 0 ||
     filterState.resolutions.size > 0 || filterState.hzOptions.size > 0 || filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
@@ -335,6 +377,10 @@ function getActivePriceMatches() {
 
 function applyFilters() {
   let filtered = getActivePriceMatches();
+
+  if (filterState.sizes.size > 0) {
+    filtered = filtered.filter(tv => filterState.sizes.has(tv.grootte));
+  }
 
   if (filterState.brands.size > 0) {
     filtered = filtered.filter(tv => filterState.brands.has(formatBrandLabel(tv.merk)));
@@ -365,12 +411,13 @@ function applyFilters() {
   }
 
   updateClearFiltersBtn();
-  updateResultMatches(filtered, filterState.answers, filterState.bestType, filterState.scores);
+  updateResultMatches(filtered, filterState.answers, filterState.bestType, filterState.scores, filterState.sizeGroup);
 }
 
-function initFilterEvents(priceContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, aanbiederContainer) {
+function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, aanbiederContainer) {
   function renderAllSecondary() {
     const matches = getActivePriceMatches();
+    renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), matches);
     renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), matches);
     renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), matches);
     renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), matches);
@@ -383,6 +430,7 @@ function initFilterEvents(priceContainer, brandContainer, typeContainer, resolut
     if (!input) return;
 
     filterState.priceLabel = input.value;
+    filterState.sizes.clear();
     filterState.brands.clear();
     filterState.types.clear();
     filterState.resolutions.clear();
@@ -390,6 +438,34 @@ function initFilterEvents(priceContainer, brandContainer, typeContainer, resolut
     filterState.aanbieder.clear();
 
     renderAllSecondary();
+    applyFilters();
+  });
+
+  sizeContainer.addEventListener("change", event => {
+    const input = event.target.closest("input[type=checkbox]");
+    if (!input) return;
+
+    if (input.value === "all") {
+      if (input.checked) {
+        filterState.sizes.clear();
+        renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), getActivePriceMatches());
+      } else if (filterState.sizes.size === 0) {
+        input.checked = true;
+      }
+    } else {
+      const sz = parseInt(input.value, 10);
+      if (input.checked) {
+        filterState.sizes.add(sz);
+      } else {
+        filterState.sizes.delete(sz);
+      }
+      if (filterState.sizes.size === 0) {
+        renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), getActivePriceMatches());
+      } else {
+        const allInput = sizeContainer.querySelector('input[value="all"]');
+        if (allInput) allInput.checked = false;
+      }
+    }
     applyFilters();
   });
 
@@ -532,6 +608,7 @@ function initFilterEvents(priceContainer, brandContainer, typeContainer, resolut
   const clearBtn = qs("#clearFiltersBtn");
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
+      filterState.sizes.clear();
       filterState.brands.clear();
       filterState.types.clear();
       filterState.resolutions.clear();
@@ -545,6 +622,7 @@ function initFilterEvents(priceContainer, brandContainer, typeContainer, resolut
 
 function initResultFilters() {
   const priceContainer = qs("#priceFilterOptions");
+  const sizeContainer = qs("#sizeFilterOptions");
   const brandContainer = qs("#brandFilterOptions");
   const typeContainer = qs("#typeFilterOptions");
   const resolutionContainer = qs("#resolutionFilterOptions");
@@ -552,14 +630,15 @@ function initResultFilters() {
   const aanbiederContainer = qs("#aanbiederFilterOptions");
 
   const priceCard = qs(".filter-card[data-filter='price']");
+  const sizeCard = qs(".filter-card[data-filter='size']");
   const brandCard = qs(".filter-card[data-filter='brand']");
   const typeCard = qs(".filter-card[data-filter='type']");
   const resolutionCard = qs(".filter-card[data-filter='resolution']");
   const hzCard = qs(".filter-card[data-filter='hz']");
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
-  if (!priceContainer || !brandContainer || !typeContainer || !resolutionContainer || !hzContainer || !aanbiederContainer) return;
-  if (!priceCard || !brandCard || !typeCard || !resolutionCard || !hzCard || !aanbiederCard) return;
+  if (!priceContainer || !sizeContainer || !brandContainer || !typeContainer || !resolutionContainer || !hzContainer || !aanbiederContainer) return;
+  if (!priceCard || !sizeCard || !brandCard || !typeCard || !resolutionCard || !hzCard || !aanbiederCard) return;
 
   const stored = getStoredSelection();
   const answersData = localStorage.getItem("answers");
@@ -570,6 +649,7 @@ function initResultFilters() {
   filterState.answers = JSON.parse(answersData);
   filterState.scores = JSON.parse(scoresData);
   filterState.bestType = localStorage.getItem("bestType") || "";
+  filterState.sizeGroup = stored.sizeGroup || "";
 
   const selectedPriceLabel = stored.priceLabel || "";
 
@@ -587,16 +667,17 @@ function initResultFilters() {
 
       const matches = getActivePriceMatches();
       renderPriceOptions(priceContainer, priceCard, stored.sizeGroup);
+      renderSizeOptions(sizeContainer, sizeCard, matches);
       renderBrandOptions(brandContainer, brandCard, matches);
       renderTypeOptions(typeContainer, typeCard, matches);
       renderResolutionOptions(resolutionContainer, resolutionCard, matches);
       renderHzOptions(hzContainer, hzCard, matches);
       renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
-      initFilterEvents(priceContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, aanbiederContainer);
+      initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, aanbiederContainer);
       applyFilters();
     })
     .catch(() => {
-      [priceCard, brandCard, typeCard, resolutionCard, hzCard, aanbiederCard].forEach(card => { card.hidden = true; });
+      [priceCard, sizeCard, brandCard, typeCard, resolutionCard, hzCard, aanbiederCard].forEach(card => { card.hidden = true; });
     });
 }
 

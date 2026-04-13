@@ -222,7 +222,7 @@ function updateResultMatchUI(tv, scores, answers) {
   const newTitleEl = qs("#resultTitle");
   const titleEl = newTitleTextEl || newTitleEl;
 
-  const perfectMatch = isPerfectMatch(tv, scores, answers);
+  const perfectMatch = isPerfectMatch(tv, scores, answers, currentSizeGroup);
   const titleText = perfectMatch
     ? "De tv's die perfect bij je keuzes passen"
     : "De tv's die het beste bij je keuzes passen";
@@ -298,7 +298,7 @@ function updateBestMatchCard(tv, type, answers) {
     priceEl.textContent = `Vanaf \u20ac${formatPriceLabel(price)}`;
   }
 
-  renderBestMatchPoints(buildResultPoints(tv, answers));
+  renderBestMatchPoints(buildResultPoints(tv, answers, currentSizeGroup));
   renderBestMatchProviders(tv);
 
   const bestMatchCard = qs("#bestMatchCard");
@@ -330,7 +330,7 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
       const isCheapest = price === minPrice;
       const specs = buildSpecList(tv);
       const specsText = specs.join(" \u2022 ");
-      const points = buildResultPoints(tv, currentAnswers);
+      const points = buildResultPoints(tv, currentAnswers, currentSizeGroup);
       const pointsHtml = points.map(point => `
         <li>
           <i data-lucide="check" class="tv-card-check" aria-hidden="true"></i>
@@ -370,6 +370,7 @@ let currentMatches = [];
 let baseMatches = [];
 let currentAnswers = null;
 let currentType = "";
+let currentSizeGroup = "";
 let currentSort = "price-asc";
 let originalBestMatchNaam = null;
 
@@ -394,10 +395,11 @@ function initRedesignInteractions(matchedTVs, answers) {
   redesignHandlersBound = true;
 }
 
-function setResultState(matches, answers, type) {
+function setResultState(matches, answers, type, sizeGroup) {
   baseMatches = Array.isArray(matches) ? matches : [];
   currentAnswers = answers;
   currentType = type || "";
+  currentSizeGroup = sizeGroup || "";
 }
 
 function sortMatchesByPrice(matches, sortValue) {
@@ -458,8 +460,8 @@ function applySortAndRender(sortValue) {
   return sortedMatches;
 }
 
-export function updateResultMatches(matches, answers, type, scores) {
-  setResultState(matches, answers, type);
+export function updateResultMatches(matches, answers, type, scores, sizeGroup) {
+  setResultState(matches, answers, type, sizeGroup);
   const sortedMatches = applySortAndRender(currentSort);
   updateMatchCount(sortedMatches.length);
   updateResultMatchUI(sortedMatches[0] || null, scores, answers);
@@ -623,9 +625,12 @@ export function initResultPage() {
   const answers = answersData ? JSON.parse(answersData) : null;
   const filteredMatchedTVs = filteredTVsData ? JSON.parse(filteredTVsData) : [];
 
+  const sizeGroup = localStorage.getItem("selectedSizeGroup") || "";
+
   originalBestMatchNaam = bestMatch?.naam ?? null;
 
   showResultRedesign(bestMatch, bestType, answers, filteredMatchedTVs, bestMatch);
+  setResultState(filteredMatchedTVs, answers, bestType, sizeGroup);
   updateMatchCount(filteredMatchedTVs.length);
   updateResultMatchUI(bestMatch, scores, answers);
 }

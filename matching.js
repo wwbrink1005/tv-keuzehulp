@@ -1,4 +1,4 @@
-import { priceGroupsBySize, scoringSystem, sizeGroupToAllowedSizes } from "./data.js";
+import { availableTypesBySize, ledSizeBonuses, priceGroupsBySize, scoringSystem, sizeGroupToAllowedSizes } from "./data.js";
 import {
   getResolutionCategory,
   getResolutionTier,
@@ -152,7 +152,18 @@ export function matchTVs(tvs, sizeGroup, priceGroup, answers, scores) {
     }
   }
 
-  const sortedTypes = Object.entries(scores).sort((a, b) => Number(b[1]) - Number(a[1]));
+  // Apply LED size bonus: at small screen sizes the perceptual difference between
+  // LED and premium types is minimal, so we boost LED's effective score.
+  const sizeBonus = ledSizeBonuses[sizeGroup] ?? 0;
+  const availableTypes = availableTypesBySize[sizeGroup] ?? Object.keys(scores);
+  const adjustedScores = { ...scores };
+  if (sizeBonus > 0) {
+    adjustedScores["LED"] = (Number(adjustedScores["LED"]) || 0) + sizeBonus;
+  }
+
+  const sortedTypes = Object.entries(adjustedScores)
+    .filter(([type]) => availableTypes.includes(type))
+    .sort((a, b) => Number(b[1]) - Number(a[1]));
   let localBestMatch = null;
   let bestType = null;
   let matchedTVs = [];
@@ -246,13 +257,32 @@ export function getHzPreferences(usageAnswers = [], quality = "") {
   return null;
 }
 
-export function isPerfectMatch(tv, scores, answers) {
+export function isPerfectMatch(tv, scores, answers, sizeGroup = "") {
   if (!tv || !scores || !answers) return false;
 
-  const idealTypes = getIdealTypeSet(scores);
-  const tvType = normalizeTypeLabel(tv.type);
-  const isNeoQledMatch = tv.type === "Neo QLED" && (idealTypes.has("QLED") || idealTypes.has("Mini LED"));
-  const typeMatch = idealTypes.size === 0 ? true : (idealTypes.has(tvType) || isNeoQledMatch);
+  // For size groups where LED is the only practical type, LED is always a type match.
+  const available = availableTypesBySize[sizeGroup] ?? null;
+  const isLedOnlySize = available !== null && available.every(t => t === "LED");
+
+  let typeMatch;
+  if (isLedOnlySize) {
+    typeMatch = normalizeTypeLabel(tv.type) === "LED";
+  } else {
+    // Apply the same size bonus before computing ideal types so the result is consistent
+    // with what matchTVs chose.
+    const sizeBonus = ledSizeBonuses[sizeGroup] ?? 0;
+    const adjustedScores = { ...scores };
+    if (sizeBonus > 0) {
+      adjustedScores["LED"] = (Number(adjustedScores["LED"]) || 0) + sizeBonus;
+    }
+    const filteredScores = available
+      ? Object.fromEntries(Object.entries(adjustedScores).filter(([t]) => available.includes(t)))
+      : adjustedScores;
+    const idealTypes = getIdealTypeSet(filteredScores);
+    const tvType = normalizeTypeLabel(tv.type);
+    const isNeoQledMatch = tv.type === "Neo QLED" && (idealTypes.has("QLED") || idealTypes.has("Mini LED"));
+    typeMatch = idealTypes.size === 0 ? true : (idealTypes.has(tvType) || isNeoQledMatch);
+  }
 
   const quality = answers.quality ?? "";
   let resolutionMatch = true;
@@ -284,7 +314,7 @@ export function findBetterPerfectMatchContext(tvs, selection, answers, scores) {
   for (let i = currentIndex + 1; i < priceGroups.length; i++) {
     const priceGroup = priceGroups[i];
     const matchResult = computeMatchForPriceGroup(tvs, selection.sizeGroup, priceGroup, answers, scores);
-    if (matchResult.bestMatch && isPerfectMatch(matchResult.bestMatch, scores, answers)) {
+    if (matchResult.bestMatch && isPerfectMatch(matchResult.bestMatch, scores, answers, selection.sizeGroup)) {
       return { priceGroup, matchResult };
     }
   }
@@ -292,8 +322,12 @@ export function findBetterPerfectMatchContext(tvs, selection, answers, scores) {
   return null;
 }
 
-export function buildResultPoints(tv, answers) {
+export function buildResultPoints(tv, answers, sizeGroup = "") {
   if (!tv || !answers) return [];
+
+  // For size groups where LED is the only practical type, use positive framing.
+  const available = availableTypesBySize[sizeGroup] ?? null;
+  const isLedOnlySize = available !== null && available.every(t => t === "LED");
 
   const points = [];
   const usage = answers.usageAnswers ?? [];
@@ -389,18 +423,27 @@ export function buildResultPoints(tv, answers) {
       if (hasExtra("kleur")) addPoint("Levendige kleuren");
     }
   } else if (type === "LED") {
-    if (hasUsage("films")) addPoint("Minder geschikt voor films en series");
-    if (hasUsage("sport")) addPoint("Minder geschikt voor sport kijken");
-    if (hasUsage("gamen")) addPoint("Minder geschikt voor gamen");
-    if (hasUsage("normaal")) addPoint("Prima voor dagelijks tv kijken");
+    if (isLedOnlySize) {
+      // At small sizes, LED is the natural and appropriate choice — no negative framing.
+      if (hasUsage("films") || hasUsage("normaal")) addPoint("Prima voor dagelijks tv kijken");
+      if (hasUsage("gamen")) addPoint("Geschikt voor casual gamen");
+      if (hasUsage("sport")) addPoint("Goed voor sport kijken");
+      addPoint("Gewoon prima beeld, overdag en 's avonds");
+      if (viewing === "recht") addPoint("Prima als je altijd recht voor de tv zit");
+    } else {
+      if (hasUsage("films")) addPoint("Minder geschikt voor films en series");
+      if (hasUsage("sport")) addPoint("Minder geschikt voor sport kijken");
+      if (hasUsage("gamen")) addPoint("Minder geschikt voor serieus gamen");
+      if (hasUsage("normaal")) addPoint("Prima voor dagelijks tv kijken");
 
-    addPoint("Gewoon prima beeld, overdag en 's avonds");
+      addPoint("Gewoon prima beeld, overdag en 's avonds");
 
-    if (viewing === "recht") {
-      addPoint("Prima als je altijd recht voor de tv zit");
-    }
-    if (viewing === "meerdere") {
-      addPoint("Beeld wordt minder vanuit een schuine hoek");
+      if (viewing === "recht") {
+        addPoint("Prima als je altijd recht voor de tv zit");
+      }
+      if (viewing === "meerdere") {
+        addPoint("Beeld wordt minder vanuit een schuine hoek");
+      }
     }
   }
 

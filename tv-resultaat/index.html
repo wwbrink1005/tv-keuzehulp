@@ -499,6 +499,10 @@
 				gap: 10px;
 			}
 
+			.filter-card[hidden] {
+				display: none;
+			}
+
 			.filter-title {
 				font-size: 10.5px;
 				font-weight: 700;
@@ -1816,6 +1820,10 @@
 						<button class="filter-drawer-close" type="button" aria-label="Sluit filters">
 							<i data-lucide="chevron-left"></i>
 						</button>
+					</div>
+					<div class="filter-card" data-filter="size" hidden>
+						<h3 class="filter-title">TV Grootte</h3>
+						<div id="sizeFilterOptions" class="filter-options"></div>
 					</div>
 					<div class="filter-card" data-filter="price">
 						<h3 class="filter-title">Prijscategorie</h3>

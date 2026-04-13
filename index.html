@@ -1541,9 +1541,8 @@
          ABOUT / WHY SECTION
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
       .about-section {
-        padding: 80px clamp(24px, 5vw, 80px) 88px;
-        background: #ffffff;
-        border-top: 1px solid var(--color-border);
+        padding: 72px clamp(24px, 5vw, 80px) 80px;
+        background: var(--color-bg);
       }
 
       .about-inner {
@@ -1552,44 +1551,65 @@
       }
 
       .about-header {
-        margin-bottom: 56px;
+        text-align: center;
+        margin-bottom: 48px;
       }
 
       .about-label {
         display: block;
-        font-size: 11.5px;
+        font-size: 12px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--color-text-secondary);
-        margin-bottom: 14px;
+        letter-spacing: 0.1em;
+        color: var(--color-primary);
+        margin-bottom: 10px;
       }
 
       .about-title {
-        font-size: clamp(22px, 3vw, 36px);
-        font-weight: 800;
+        font-size: clamp(22px, 3vw, 34px);
+        font-weight: 700;
         line-height: 1.2;
-        letter-spacing: -0.03em;
+        letter-spacing: -0.02em;
         color: var(--color-text);
-        max-width: 680px;
       }
 
       .about-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 48px 56px;
+        gap: 24px;
       }
 
       .about-item {
         display: flex;
         flex-direction: column;
         gap: 14px;
+        background: var(--color-white);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: 32px 28px;
+        transition: box-shadow var(--transition), transform var(--transition);
+      }
+
+      .about-item:hover {
+        box-shadow: var(--color-card-shadow-hover);
+        transform: translateY(-4px);
+      }
+
+      .about-icon-wrap {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-sm);
+        background: var(--color-primary-light);
+        flex-shrink: 0;
       }
 
       .about-icon {
-        width: 44px;
-        height: 44px;
-        color: var(--color-text);
+        width: 24px;
+        height: 24px;
+        color: var(--color-primary);
         flex-shrink: 0;
       }
 
@@ -1602,7 +1622,7 @@
       }
 
       .about-item-text {
-        font-size: 14.5px;
+        font-size: 14px;
         line-height: 1.7;
         color: var(--color-text-secondary);
       }
@@ -1620,7 +1640,7 @@
       @media (max-width: 880px) {
         .about-grid {
           grid-template-columns: 1fr;
-          gap: 40px;
+          gap: 16px;
         }
         .about-section {
           padding: 56px 24px 64px;
@@ -1632,7 +1652,10 @@
           padding: 40px 16px 48px;
         }
         .about-header {
-          margin-bottom: 36px;
+          margin-bottom: 32px;
+        }
+        .about-item {
+          padding: 24px 20px;
         }
       }
 
@@ -1957,29 +1980,32 @@
           <div class="about-grid">
 
             <div class="about-item">
-              <!-- Chat / questions icon -->
-              <svg class="about-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
+              <div class="about-icon-wrap" aria-hidden="true">
+                <svg class="about-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
               <p class="about-item-title">Persoonlijk advies op maat</p>
               <p class="about-item-text">Via een korte vragenlijst brengen we jouw wensen, gebruik en budget in kaart. Op basis van jouw antwoorden berekent ons systeem welke producten het beste bij jou passen — geen generieke toplijst, maar een advies dat echt voor jou gemaakt is.</p>
             </div>
 
             <div class="about-item">
-              <!-- Shield checkmark icon -->
-              <svg class="about-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                <polyline points="9 12 11 14 15 10"/>
-              </svg>
+              <div class="about-icon-wrap" aria-hidden="true">
+                <svg class="about-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              </div>
               <p class="about-item-title">Onafhankelijk en zonder verborgen agenda</p>
               <p class="about-item-text">producthulp.nl is volledig onafhankelijk. Geen enkele fabrikant of winkel kan onze aanbevelingen beïnvloeden. Ons advies is altijd gebaseerd op jouw antwoorden — niet op wie het meest betaalt. Jouw belang staat altijd voorop.</p>
             </div>
 
             <div class="about-item">
-              <!-- Star / free icon -->
-              <svg class="about-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
+              <div class="about-icon-wrap" aria-hidden="true">
+                <svg class="about-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
               <p class="about-item-title">Gratis en anoniem</p>
               <p class="about-item-text">Onze keuzehulpen zijn volledig gratis te gebruiken. Je hebt geen account nodig en we slaan geen persoonlijke gegevens op. Gewoon eerlijk advies, zonder abonnement en zonder gedoe.</p>
             </div>

@@ -79,6 +79,28 @@ export const priceGroupsBySize = {
   ]
 };
 
+// Types that realistically exist per size group.
+// Only these types are considered during matching for each size group.
+export const availableTypesBySize = {
+  "24":    ["LED"],
+  "27-32": ["LED", "QLED"],
+  "40-43": ["LED", "QLED", "Mini LED", "OLED"],
+  "48-50": ["LED", "QLED", "Mini LED", "OLED"],
+  "55":    ["LED", "QLED", "Mini LED", "OLED"],
+  "58-65": ["LED", "QLED", "Mini LED", "OLED"],
+  "70-77": ["LED", "QLED", "Mini LED", "OLED"],
+  "83-86": ["LED", "QLED", "Mini LED", "OLED"],
+  "97-115":["LED", "QLED", "Mini LED"]
+};
+
+// Extra score bonus added to LED to reflect that at small screen sizes
+// the perceptual difference between LED and premium types is minimal.
+export const ledSizeBonuses = {
+  "24":    20,
+  "27-32":  7,
+  "40-43":  3
+};
+
 export const scoringSystem = {
   usage: {
     films: { "LED": 5, "Mini LED": 8, "QLED": 7, "OLED": 10 },
