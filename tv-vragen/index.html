@@ -456,7 +456,7 @@
 
    /* Question visibility */
    #question-1, #question-2, #question-3, #question-4,
-   #question-5, #question-6, #question-7, #question-8 {
+   #question-5, #question-6, #question-7, #question-8, #question-9 {
      position: relative;
      opacity: 0;
      transform: translateY(6px);
@@ -466,7 +466,7 @@
 
    #question-1.is-active, #question-2.is-active, #question-3.is-active,
    #question-4.is-active, #question-5.is-active, #question-6.is-active,
-   #question-7.is-active, #question-8.is-active {
+   #question-7.is-active, #question-8.is-active, #question-9.is-active {
      opacity: 1;
      transform: translateY(0);
      pointer-events: auto;
@@ -627,14 +627,16 @@
    #question-5 input[type="radio"],
    #question-6 input[type="radio"],
    #question-7 input[type="radio"],
-   #question-8 input[type="checkbox"] {
+   #question-8 input[type="checkbox"],
+   #question-9 input[type="radio"] {
      margin-right: calc(30px * var(--scale));
    }
    #question-4 .answer-info-icon,
    #question-5 .answer-info-icon,
    #question-6 .answer-info-icon,
    #question-7 .answer-info-icon,
-   #question-8 .answer-info-icon {
+   #question-8 .answer-info-icon,
+   #question-9 .answer-info-icon {
      margin-left: calc(-20px * var(--scale));
      margin-right: calc(10px * var(--scale));
    }
@@ -678,7 +680,7 @@
    #restart-q1,
    #back-to-question-1, #back-to-question-2, #back-to-question-3,
    #back-to-question-4, #back-to-question-5, #back-to-question-6,
-   #back-to-question-7 {
+   #back-to-question-7, #back-to-question-8 {
      background: rgba(255,255,255,.90);
      backdrop-filter: blur(12px) saturate(180%);
      -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -690,7 +692,7 @@
    #restart-q1:hover,
    #back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover,
    #back-to-question-4:hover, #back-to-question-5:hover, #back-to-question-6:hover,
-   #back-to-question-7:hover {
+   #back-to-question-7:hover, #back-to-question-8:hover {
      background: rgba(232,242,255,.97);
      border-color: rgba(9,84,163,.50);
      box-shadow: 0 4px 14px rgba(9,84,163,.14);
@@ -712,7 +714,8 @@
    #question-5 .button-container,
    #question-6 .button-container,
    #question-7 .button-container,
-   #question-8 .button-container {
+   #question-8 .button-container,
+   #question-9 .button-container {
      left: calc(26.2291px * var(--scale));
      width: calc(366.968px * var(--scale));
    }
@@ -1213,14 +1216,16 @@
      #question-5 input[type="radio"],
      #question-6 input[type="radio"],
      #question-7 input[type="radio"],
-     #question-8 input[type="checkbox"] {
+     #question-8 input[type="checkbox"],
+     #question-9 input[type="radio"] {
        margin-right: 10px;
      }
      #question-4 .answer-info-icon,
      #question-5 .answer-info-icon,
      #question-6 .answer-info-icon,
      #question-7 .answer-info-icon,
-     #question-8 .answer-info-icon {
+     #question-8 .answer-info-icon,
+     #question-9 .answer-info-icon {
        margin-left: 0;
        margin-right: 8px;
      }
@@ -1257,7 +1262,7 @@
      #restart-q1,
      #back-to-question-1, #back-to-question-2, #back-to-question-3,
      #back-to-question-4, #back-to-question-5, #back-to-question-6,
-     #back-to-question-7 {
+     #back-to-question-7, #back-to-question-8 {
        border-width: 1.5px;
        background: #fff;
        box-shadow: 0 1px 4px rgba(0,0,0,.06);
@@ -1271,7 +1276,8 @@
      #question-5 .button-container,
      #question-6 .button-container,
      #question-7 .button-container,
-     #question-8 .button-container {
+     #question-8 .button-container,
+     #question-9 .button-container {
        left: auto;
        width: 100%;
        max-width: 100%;
@@ -1696,8 +1702,7 @@
            <div class="question-heading-wrap"><h2>Welke van de volgende dingen is extra belangrijk voor je tv?</h2><span class="multi-select-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>Meerdere antwoorden mogelijk</span></div>
            <div class="question-popover" data-popover="8">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Hier geef je aan welke extra eigenschappen zwaarder mogen meewegen. Perfecte zwarttinten zijn het specialisme van OLED: elk pixel kan afzonderlijk worden uitgeschakeld voor oneindig contrast. Extreme helderheid is het domein van Mini-LED/QLED-tv's met krachtige achtergrondverlichting. Ambilight – exclusief bij Philips – projecteert de dominante schermkleuren via LED-strips op de muur achter en naast de tv, wat het gevoel van onderdompeling sterk vergroot (zie afbeelding). Je kunt meerdere opties aanvinken.</p>
-             <img class="question-popover-img" src="ambilight2.png" alt="Ambiligh2">
+             <p class="question-popover-text">Hier geef je aan welke extra eigenschappen zwaarder mogen meewegen. Perfecte zwarttinten zijn het specialisme van OLED: elk pixel kan afzonderlijk worden uitgeschakeld voor oneindig contrast. Extreme helderheid is het domein van Mini-LED/QLED-tv's met krachtige achtergrondverlichting. Je kunt meerdere opties aanvinken.</p>
            </div>
          </div>
          <div class="answers-container">
@@ -1717,18 +1722,46 @@
              <span>Kleur; de mooiste kleuren moeten naar voor komen</span>
            </label>
            <label class="answer-option">
-             <input type="checkbox" name="extra" value="ambilight">
-             <svg class="answer-info-icon" data-icon="lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-             <span>Ambilight; verlichting voor achter de tv</span>
-           </label>
-           <label class="answer-option">
              <input type="checkbox" name="extra" value="niks">
              <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Ik heb niks wat ik extra belangrijk vindt</span>
            </label>
          </div>
-         <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 51.3935px) + (4 * 8px) + 22px) * var(--scale));">
+         <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
            <button id="back-to-question-7">Terug</button>
+           <button id="to-question-9">Volgende</button>
+         </div>
+       </div>
+
+       <!-- VRAAG 9 -->
+       <div id="question-9" class="question-block" style="display:none;">
+         <div class="question-container">
+           <h2>Wil je Ambilight op je tv?</h2>
+           <div class="question-popover" data-popover="9">
+             <h3 class="question-popover-title">Waarom deze vraag?</h3>
+             <p class="question-popover-text">Ambilight is een exclusieve Philips-technologie waarbij LED-strips achter en naast de tv de dominante schermkleuren projecteren op de muur. Dit vergroot het gevoel van onderdompeling aanzienlijk. Kies je voor Ambilight, dan zoeken we alleen naar Philips-televisies die deze functie ondersteunen.</p>
+             <img class="question-popover-img" src="ambilight2.png" alt="Ambilight">
+           </div>
+         </div>
+         <div class="answers-container">
+           <label class="answer-option">
+             <input type="radio" name="ambilight" value="ja">
+             <svg class="answer-info-icon" data-icon="check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Ja, ik wil Ambilight</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="ambilight" value="nee">
+             <svg class="answer-info-icon" data-icon="x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Nee, Ambilight heb ik niet nodig</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="ambilight" value="maakt-niet-uit">
+             <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Dit maakt mij niet uit</span>
+           </label>
+         </div>
+         <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
+           <button id="back-to-question-8">Terug</button>
            <button id="start-matching">Resultaat</button>
          </div>
        </div>

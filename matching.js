@@ -142,7 +142,7 @@ export function matchTVs(tvs, sizeGroup, priceGroup, answers, scores) {
     return { bestMatch: null, bestType: null, filteredMatchedTVs: [] };
   }
 
-  const wantsAmbilight = (answers.extraAnswers ?? []).includes("ambilight");
+  const wantsAmbilight = answers.ambilight === "ja";
   if (wantsAmbilight) {
     const ambilightTVs = filteredTVs.filter(tv =>
       tv.Ambilight === "TRUE" || tv.Ambilight === true

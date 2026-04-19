@@ -297,6 +297,28 @@
 				height: 14px;
 			}
 
+			.ambilight-notice {
+				grid-column: 2;
+				display: flex;
+				align-items: flex-start;
+				gap: 10px;
+				background: #fff8ec;
+				border: 1.5px solid #f59e0b;
+				border-radius: 12px;
+				padding: 14px 16px;
+				margin-bottom: 4px;
+				color: #92400e;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 1.5;
+			}
+
+			.ambilight-notice svg {
+				flex-shrink: 0;
+				margin-top: 2px;
+				stroke: #f59e0b;
+			}
+
 			.results-heading {
 				grid-column: 2;
 				grid-row: 1;
@@ -1861,6 +1883,12 @@
 
 				<!-- Results Content -->
 				<div class="results-content">
+					<!-- Ambilight not available notice -->
+					<div id="ambilightNotice" class="ambilight-notice" style="display:none;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+						<span>Er zijn geen Ambilight-tv's beschikbaar binnen jouw gekozen maat en prijsklasse. We tonen je het beste alternatief.</span>
+					</div>
+
 					<!-- Best Match Detail Card -->
 					<section id="bestMatchCard" class="best-match-card">
 						<div class="best-match-label" aria-label="Goedkoopste keuze">

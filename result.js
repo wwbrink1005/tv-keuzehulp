@@ -633,4 +633,9 @@ export function initResultPage() {
   setResultState(filteredMatchedTVs, answers, bestType, sizeGroup);
   updateMatchCount(filteredMatchedTVs.length);
   updateResultMatchUI(bestMatch, scores, answers);
+
+  const noticeEl = qs("#ambilightNotice");
+  if (noticeEl && localStorage.getItem("ambilightNotAvailable") === "1") {
+    noticeEl.style.display = "flex";
+  }
 }

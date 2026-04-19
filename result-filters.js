@@ -129,12 +129,18 @@ function buildPriceMatches(tvs, sizeGroup, selectedPriceLabel) {
   const idealTypes = getIdealTypeSet(filterState.scores);
   const map = new Map();
 
+  // Ignore the ambilight preference when building filter menu options.
+  // The ambilight notice on the result page already informs the user;
+  // restricting the filter pool here can cause all price groups to come
+  // back empty when ambilight TVs don't satisfy the Hz/resolution filters.
+  const answersForFilter = { ...filterState.answers, ambilight: "" };
+
   groups.forEach(group => {
     const result = computeMatchForPriceGroup(
       tvs,
       sizeGroup,
       group,
-      filterState.answers,
+      answersForFilter,
       filterState.scores
     );
     let matches = Array.isArray(result.filteredMatchedTVs) ? result.filteredMatchedTVs : [];
@@ -657,6 +663,25 @@ function initResultFilters() {
     .then(rawProducts => {
       const tvs = normalizeProducts(rawProducts);
       filterState.priceMatches = buildPriceMatches(tvs, stored.sizeGroup, selectedPriceLabel);
+
+      // Fallback: if the selected price group has no computed matches, seed it
+      // with the TVs that were already matched during the quiz. This ensures
+      // the filter panel always shows options regardless of whether the dynamic
+      // computation succeeds (e.g. when ambilight or other strict filters would
+      // otherwise produce an empty pool).
+      if (!filterState.priceMatches.has(selectedPriceLabel) && selectedPriceLabel) {
+        const storedTVsData = localStorage.getItem("filteredMatchedTVs");
+        if (storedTVsData) {
+          try {
+            const storedTVs = JSON.parse(storedTVsData);
+            if (Array.isArray(storedTVs) && storedTVs.length > 0) {
+              filterState.priceMatches.set(selectedPriceLabel, storedTVs);
+            }
+          } catch {
+            // ignore parse errors
+          }
+        }
+      }
 
       const availableLabels = Array.from(filterState.priceMatches.keys());
       if (availableLabels.length === 0) return;
