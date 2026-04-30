@@ -2,7 +2,7 @@
 <html lang="nl">
 	<head>
 		<meta charset="UTF-8" />
-		<base href="../">
+		<base href="../../">
 		<link rel="icon" type="image/svg+xml" href="logo_favicon.svg">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Resultaat - TV Keuzehulp</title>
@@ -12,11 +12,11 @@
 			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
-		<link rel="stylesheet" href="menu.css" />
-		<link rel="stylesheet" href="footer.css" />
+		<link rel="stylesheet" href="shared/menu.css" />
+		<link rel="stylesheet" href="shared/footer.css" />
 		<script src="https://unpkg.com/lucide@latest"></script>
-		<script src="menu.js" defer></script>
-		<script src="footer.js" defer></script>
+		<script src="shared/menu.js" defer></script>
+		<script src="shared/footer.js" defer></script>
 		<style>
 			/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 			   DESIGN TOKENS
@@ -1804,7 +1804,7 @@
 
 			<!-- Desktop: restart + info buttons grouped left -->
 			<div class="title-left-wrap">
-				<a class="restart-link" href="tv-vragen">
+				<a class="restart-link" href="tv-keuzehulp/vragen">
 					<i data-lucide="arrow-left"></i>
 					<span>Opnieuw beginnen</span>
 				</a>
@@ -1900,8 +1900,8 @@
 						</button>
 						<div class="best-match-row">
 							<div class="best-match-media" aria-hidden="true">
-								<img id="bestMatchImage" src="tv.png" alt="" role="presentation" />
-								<button class="tv-preview-btn" id="bestMatchPreviewBtn" type="button" aria-label="Afbeelding vergroten" data-preview-src="tv.png" data-preview-name="">
+								<img id="bestMatchImage" src="tv-keuzehulp/images/tv.png" alt="" role="presentation" />
+								<button class="tv-preview-btn" id="bestMatchPreviewBtn" type="button" aria-label="Afbeelding vergroten" data-preview-src="tv-keuzehulp/images/tv.png" data-preview-name="">
 									<i data-lucide="eye"></i>
 								</button>
 							</div>
@@ -1924,9 +1924,9 @@
 			</div>
 		</main>
 
-		<script src="result-ui.js" defer></script>
-		<script type="module" src="result-filters.js"></script>
-		<script type="module" src="main.js"></script>
+		<script src="tv-keuzehulp/js/result-ui.js" defer></script>
+		<script type="module" src="tv-keuzehulp/js/result-filters.js"></script>
+		<script type="module" src="tv-keuzehulp/js/main.js"></script>
 
 		<!-- ── Info card (fixed portal) ── -->
 		<div id="infoCard" class="info-card" role="dialog" aria-hidden="true" aria-label="Over deze keuzehulp">
@@ -1936,7 +1936,7 @@
 			<div class="info-card-body">
 				<p class="info-card-title">Over deze keuzehulp</p>
 				<p class="info-card-text">Voor een volledige uitleg over deze keuzehulp, hoe die is opgebouwd en welke tv's worden meegenomen, lees de uitlegpagina.</p>
-				<a href="tv-uitleg" class="info-card-cta">
+				<a href="tv-keuzehulp/uitleg" class="info-card-cta">
 					Lees de volledige uitleg
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
 				</a>

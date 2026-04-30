@@ -11,10 +11,10 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="menu.css" />
-    <link rel="stylesheet" href="footer.css" />
-    <script src="menu.js" defer></script>
-    <script src="footer.js" defer></script>
+    <link rel="stylesheet" href="shared/menu.css" />
+    <link rel="stylesheet" href="shared/footer.css" />
+    <script src="shared/menu.js" defer></script>
+    <script src="shared/footer.js" defer></script>
 
     <style>
       /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1691,7 +1691,7 @@
               </div>
               <!-- Mobile category chips (visible only on mobile) -->
               <div class="mobile-cats-chips" role="list" aria-label="Categorieën">
-                <a class="mobile-cat-chip chip-active" href="tv-vragen" role="listitem">Televisies</a>
+                <a class="mobile-cat-chip chip-active" href="tv-keuzehulp/vragen" role="listitem">Televisies</a>
                 <a class="mobile-cat-chip" href="#" role="listitem">Smartphones</a>
                 <a class="mobile-cat-chip" href="#" role="listitem">Laptops</a>
                 <a class="mobile-cat-chip" href="#" role="listitem">Wasmachines</a>
@@ -1706,7 +1706,7 @@
                 <img class="hero-room-img" src="ja header2.png" alt="" aria-hidden="true" />
                 <div class="hero-tv-display" aria-hidden="true"></div>
               </div>
-              <a class="hero-promo-link" href="tv-vragen">
+              <a class="hero-promo-link" href="tv-keuzehulp/vragen">
                 Televisie keuzehulp
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
               </a>
@@ -1715,7 +1715,7 @@
 
           <!-- Category icons strip (desktop) -->
           <div class="hero-cats-strip" role="list" aria-label="Categorieën">
-            <a class="hero-cat-item" href="tv-vragen" role="listitem">
+            <a class="hero-cat-item" href="tv-keuzehulp/vragen" role="listitem">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
               <span>Televisies</span>
             </a>
@@ -1777,9 +1777,9 @@
           <div class="pop-scroll">
             <div class="pop-row">
 
-              <a class="pop-card" href="tv-vragen">
+              <a class="pop-card" href="tv-keuzehulp/vragen">
                 <div class="pop-card-img">
-                  <img src="tv-resultaat/images/tv lg.webp" alt="Televisie keuzehulp" loading="lazy" />
+                  <img src="images/tv lg.webp" alt="Televisie keuzehulp" loading="lazy" />
                 </div>
                 <div class="pop-card-info">
                   <h3>Televisie keuzehulp</h3>
@@ -1796,7 +1796,7 @@
 
               <a class="pop-card" href="#">
                 <div class="pop-card-img">
-                  <img src="tv-resultaat/images/bbq rood.png" alt="Barbecue keuzehulp" loading="lazy" />
+                  <img src="images/bbq rood.png" alt="Barbecue keuzehulp" loading="lazy" />
                 </div>
                 <div class="pop-card-info">
                   <h3>Barbecue keuzehulp</h3>
@@ -1813,7 +1813,7 @@
 
               <a class="pop-card" href="#">
                 <div class="pop-card-img">
-                  <img src="tv-resultaat/images/wasmachine ,.png" alt="Wasmachine keuzehulp" loading="lazy" />
+                  <img src="images/wasmachine ,.png" alt="Wasmachine keuzehulp" loading="lazy" />
                 </div>
                 <div class="pop-card-info">
                   <h3>Wasmachine keuzehulp</h3>
@@ -1830,7 +1830,7 @@
 
               <a class="pop-card" href="#">
                 <div class="pop-card-img">
-                  <img src="tv-resultaat/images/laptop ,.png" alt="Laptop keuzehulp" loading="lazy" />
+                  <img src="images/laptop ,.png" alt="Laptop keuzehulp" loading="lazy" />
                 </div>
                 <div class="pop-card-info">
                   <h3>Laptop keuzehulp</h3>
@@ -1868,7 +1868,7 @@
               </button>
               <ul>
                 <li>
-                  <a href="tv-vragen">
+                  <a href="tv-keuzehulp/vragen">
                     Televisies
                     <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
                   </a>
@@ -2018,7 +2018,7 @@
 
     <!-- ═══ SCRIPTS ═══ -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="zoekbalk.js" defer></script>
+    <script src="shared/zoekbalk.js" defer></script>
     <script>
       lucide.createIcons();
 

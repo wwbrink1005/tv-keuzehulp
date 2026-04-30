@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3 class="footer-col-title">Keuzehulpen</h3>
           <ul>
             <li>
-              <a href="tv-vragen" class="footer-link-active">Televisies</a>
+              <a href="tv-keuzehulp/vragen" class="footer-link-active">Televisies</a>
             </li>
             <li><span class="footer-soon">Soundbars <span class="footer-soon-tag">binnenkort</span></span></li>
             <li><span class="footer-soon">Laptops <span class="footer-soon-tag">binnenkort</span></span></li>

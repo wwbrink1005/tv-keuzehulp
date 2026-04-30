@@ -383,7 +383,7 @@ function handleStartMatching() {
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
       setTimeout(() => {
-        window.location.href = "tv-resultaat";
+        window.location.href = "tv-keuzehulp/resultaat";
       }, 180);
     });
 }

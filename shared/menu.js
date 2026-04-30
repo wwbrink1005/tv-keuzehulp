@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="menu-dropdown-col">
                 <h4>Beeld, Geluid &amp; Foto</h4>
                 <ul>
-                  <li><a href="tv-vragen">Televisies <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  <li><a href="tv-keuzehulp/vragen">Televisies <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><span>Soundbars <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Camera's <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Fototoestellen <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="mobile-cat-group">
             <h4>Beeld, Geluid &amp; Foto</h4>
             <ul>
-              <li><a href="tv-vragen">Televisies <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="tv-keuzehulp/vragen">Televisies <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><span>Soundbars</span></li>
               <li><span>Fototoestellen</span></li>
             </ul>
