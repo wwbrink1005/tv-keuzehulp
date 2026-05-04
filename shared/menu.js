@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="menu-brand">
         <a href="./" aria-label="producthulp.nl — home">
           <img
-            src="logo.svg"
+            src="logo's/logo.svg"
             alt="producthulp.nl"
             class="menu-logo"
             height="44"
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     >
       <div class="mobile-nav-header">
         <a class="mobile-brand" href="./">
-          <img src="logo.svg" alt="producthulp.nl" class="menu-logo" />
+          <img src="logo's/logo.svg" alt="producthulp.nl" class="menu-logo" />
         </a>
         <button
           class="mobile-nav-close"
