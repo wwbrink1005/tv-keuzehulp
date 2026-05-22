@@ -8,83 +8,123 @@ const HEADERS = {
 };
 
 /**
- * Transforms the Supabase aanbieders array into the flat cb/expert shape
- * that normalizeProducts() expects.
+ * Extracts the inch value from scherm_inch strings like "40,6 cm (16\")" → "16"
+ * or "33,8 cm (13.3\")" → "13.3".
  */
-function adaptAanbieders(aanbieders) {
-  const cb = Array.isArray(aanbieders)
-    ? aanbieders.find((a) => a.aanbieder === "coolblue") ?? {}
-    : {};
-  const expert = Array.isArray(aanbieders)
-    ? aanbieders.find((a) => a.aanbieder === "expert") ?? {}
-    : {};
+function parseSchermInch(value) {
+  if (!value) return "";
+  const inParens = String(value).match(/\((\d+(?:[.,]\d+)?)/);
+  if (inParens) return inParens[1].replace(",", ".");
+  const firstNum = String(value).match(/(\d+(?:[.,]\d+)?)/);
+  return firstNum ? firstNum[1].replace(",", ".") : "";
+}
 
+/**
+ * Extracts the first integer from strings like "24 GB".
+ */
+function parseFirstInt(value) {
+  if (!value) return "";
+  const m = String(value).match(/(\d+)/);
+  return m ? m[1] : "";
+}
+
+/**
+ * Parses opslag strings like "512 GB" → "512" or "1 TB" → "1024".
+ */
+function parseOpslag(value) {
+  if (!value) return "";
+  const m = String(value).match(/(\d+(?:[.,]\d+)?)\s*(TB|GB)/i);
+  if (!m) return "";
+  const num = parseFloat(m[1].replace(",", "."));
+  return m[2].toUpperCase() === "TB" ? String(Math.round(num * 1024)) : String(Math.round(num));
+}
+
+/**
+ * Parses weight strings like "1,85 kg" → "1.85".
+ */
+function parseGewicht(value) {
+  if (!value) return "";
+  const m = String(value).match(/(\d+[.,]\d+|\d+)/);
+  return m ? m[1].replace(",", ".") : "";
+}
+
+/**
+ * Builds the flat cb/expert aanbieder shape that normalizeProducts() expects,
+ * from a single laptops row (with coolblue_* and expert_* columns).
+ */
+function adaptAanbieders(row) {
   return {
-    productnaam_cb:     cb.productnaam ?? "",
-    afbeelding_cb:      cb.afbeelding  ?? "",
-    prijs_cb:           cb.prijs != null ? String(cb.prijs) : "",
-    url_cb:             cb.url         ?? "",
-    levertijd_cb:       cb.levertijd   ?? "",
-    verzendkosten_cb:   cb.verzendkosten != null ? String(cb.verzendkosten) : "",
-    productnaam_expert: expert.productnaam ?? "",
-    afbeelding_expert:  expert.afbeelding  ?? "",
-    prijs_expert:       expert.prijs != null ? String(expert.prijs) : "",
-    url_expert:         expert.url         ?? "",
-    levertijd_expert:   expert.levertijd   ?? "",
-    verzendkosten_expert:
-      expert.verzendkosten != null ? String(expert.verzendkosten) : "",
+    productnaam_cb:       row.coolblue_naam              ?? "",
+    afbeelding_cb:        row.coolblue_afbeelding        ?? "",
+    prijs_cb:             row.coolblue_prijs    != null  ? String(row.coolblue_prijs)    : "",
+    url_cb:               row.coolblue_affiliate_link    ?? "",
+    levertijd_cb:         row.coolblue_levertijd         ?? "",
+    verzendkosten_cb:     row.coolblue_bezorgkosten != null ? String(row.coolblue_bezorgkosten) : "",
+    productnaam_expert:   row.expert_naam                ?? "",
+    afbeelding_expert:    row.expert_afbeelding          ?? "",
+    prijs_expert:         row.expert_prijs     != null   ? String(row.expert_prijs)      : "",
+    url_expert:           row.expert_affiliate_link      ?? "",
+    levertijd_expert:     row.expert_levertijd           ?? "",
+    verzendkosten_expert: row.expert_bezorgkosten != null ? String(row.expert_bezorgkosten) : "",
   };
 }
 
 /**
- * Adapts a single Supabase laptop row to the normalizeProducts shape.
+ * Adapts a single laptops row to the shape that normalizeProducts() expects.
  */
-function adaptLaptop(row) {
+function adaptRow(row) {
   return {
-    ean:            row.ean,
-    extra_eans:     row.extra_eans ?? [],
-    merk:           row.merk,
-    schermdiagonaal: String(row.schermdiagonaal),
-    werkgeheugen:   String(row.werkgeheugen),
-    opslag:         String(row.opslag),
-    touchscreen:    row.touchscreen ?? "Nee",
-    usb_c:          row.usb_c ?? "Nee",
-    hdmi:           row.hdmi != null ? String(row.hdmi) : "0",
-    resolutie:      row.resolutie,
-    paneeltype:     row.paneeltype,
-    hz:             String(row.hz),
-    processor:      row.processor,
-    gpu:            row.gpu,
-    gewicht:        String(row.gewicht),
-    aanbieders:     [adaptAanbieders(row.aanbieders)],
+    ean:             row.ean,
+    extra_eans:      [],
+    merk:            row.merk,
+    schermdiagonaal: parseSchermInch(row.scherm_inch),
+    werkgeheugen:    parseFirstInt(row.ram),
+    opslag:          parseOpslag(row.opslag),
+    touchscreen:     row.touchscreen ?? "Nee",
+    usb_c:           parseInt(row.usb_c, 10) > 0 ? "Ja" : "Nee",
+    hdmi:            row.hdmi ?? "0",
+    resolutie:       row.scherm_resolutie ?? "",
+    paneeltype:      row.scherm_type ?? "",
+    hz:              "60",
+    processor:       row.processor ?? "",
+    gpu:             row.gpu ?? "",
+    gewicht:         parseGewicht(row.gewicht),
+    aanbieders:      [adaptAanbieders(row)],
   };
 }
 
 /**
- * Fetches all live laptops from Supabase.
- * Uses page-based pagination so it works regardless of row count.
+ * Fetches all rows from the `laptops` table with offset-based pagination.
  */
-export async function fetchProducts() {
+async function fetchAll() {
   const PAGE_SIZE = 1000;
   const results = [];
   let offset = 0;
 
   while (true) {
-    const url = `${SUPABASE_URL}/rest/v1/laptops?status=eq.live&order=id&limit=${PAGE_SIZE}&offset=${offset}`;
+    const url = `${SUPABASE_URL}/rest/v1/laptops?order=ean&limit=${PAGE_SIZE}&offset=${offset}`;
     const response = await fetch(url, { headers: HEADERS });
 
     if (!response.ok) {
       throw new Error(
-        `Supabase fetch mislukt: ${response.status} ${response.statusText}`
+        `Supabase fetch mislukt (laptops): ${response.status} ${response.statusText}`
       );
     }
 
     const page = await response.json();
-    results.push(...page.map(adaptLaptop));
+    results.push(...page);
 
     if (page.length < PAGE_SIZE) break;
     offset += PAGE_SIZE;
   }
 
   return results;
+}
+
+/**
+ * Fetches all laptops and returns them in the shape normalizeProducts() expects.
+ */
+export async function fetchProducts() {
+  const rows = await fetchAll();
+  return rows.map(adaptRow).filter(Boolean);
 }

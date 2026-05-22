@@ -203,17 +203,6 @@ function buildSpecList(tv) {
     specs.push(formatScherpte(scherpteValue));
   }
 
-  const ambiValue = tv.Ambilight ?? tv.ambilight;
-  const ambiEnabled =
-    ambiValue === true ||
-    ambiValue === "TRUE" ||
-    ambiValue === "true" ||
-    ambiValue === 1 ||
-    ambiValue === "1";
-  if (ambiEnabled) {
-    specs.push("Ambilight");
-  }
-
   return specs;
 }
 
@@ -633,9 +622,4 @@ export function initResultPage() {
   setResultState(filteredMatchedTVs, answers, bestType, sizeGroup);
   updateMatchCount(filteredMatchedTVs.length);
   updateResultMatchUI(bestMatch, scores, answers);
-
-  const noticeEl = qs("#ambilightNotice");
-  if (noticeEl && localStorage.getItem("ambilightNotAvailable") === "1") {
-    noticeEl.style.display = "flex";
-  }
 }

@@ -22,6 +22,8 @@
     :root {
       --base-width: 1242.21;
       --base-height: 630.138;
+      --laptop-right-offset: 332;
+      --laptop-bottom-offset: 115;
 
       --c-bg: #f5f5f7;
       --c-surface: #ffffff;
@@ -257,7 +259,7 @@
       width: 100%;
       max-width: calc(var(--base-width) * 1px);
       aspect-ratio: 1242.21 / 630.138;
-      background-image: url('laptop-keuzehulp/images/laptop achtergrond.png');
+      background-image: url('laptop-keuzehulp/images/laptop achtergrond2.png');
       background-size: cover;
       background-position: center;
       border-radius: var(--r-lg);
@@ -597,6 +599,23 @@
 
     .questions-panel { overflow: hidden; border-radius: var(--r-lg); }
 
+    /* ====== LAPTOP DISPLAY ====== */
+    #laptop-display {
+      position: absolute;
+      background-image: url('laptop-keuzehulp/images/laptop visualisatie.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center bottom;
+      opacity: 0;
+      transition: opacity .3s ease,
+                  width .3s ease,
+                  height .3s ease,
+                  right .3s ease,
+                  bottom .3s ease;
+      display: none;
+      pointer-events: none;
+    }
+
     /* ====== CONTAINER WRAPPER ====== */
     .container-wrapper {
       display: flex;
@@ -792,8 +811,10 @@
       .background-container {
         --base-width: 605.5;
         --base-height: 595;
-        background-image: url('laptop-keuzehulp/images/laptop achtergrond.png');
-        aspect-ratio: 1242.21 / 630.138;
+        --laptop-right-offset: 325;
+        --laptop-bottom-offset: 110;
+        background-image: url('laptop-keuzehulp/images/laptop telefoon.png');
+        aspect-ratio: 1 / 1;
         width: min(92vw, 560px);
         max-width: min(92vw, 560px);
         margin-top: 0;
@@ -1058,6 +1079,8 @@
           <div class="top-bar">
             <div class="progress-bar" id="progress-bar"></div>
           </div>
+          <!-- Laptop size visualisation -->
+          <div id="laptop-display"></div>
           <!-- Mobile hint button -->
           <button id="question-hint-btn-mobile" class="question-hint-btn-mobile" type="button" aria-label="Waarom deze vraag?">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

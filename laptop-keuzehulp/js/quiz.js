@@ -41,6 +41,70 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
+// Dimensions (px in 1242.21-wide coordinate space) per size group
+const laptopDimensions = {
+  'licht-compact':  { width: 186, height: 173 },  // 13–14 inch
+  'middenweg':      { width: 222, height: 205 },  // 15–16 inch
+  'groot-krachtig': { width: 258, height: 239 }   // 17 inch+
+};
+
+function updateLaptopDisplay() {
+  const checked = qs('input[name="formaat"]:checked');
+  const laptopDisplay = qs("#laptop-display");
+  const container = qs(".background-container");
+  const fadeDurationMs = 120;
+
+  if (!checked || !laptopDisplay || !container) {
+    if (laptopDisplay) {
+      laptopDisplay.style.opacity = "0";
+      window.setTimeout(() => { laptopDisplay.style.display = "none"; }, fadeDurationMs);
+    }
+    return;
+  }
+
+  const dims = laptopDimensions[checked.value];
+  if (!dims) {
+    laptopDisplay.style.opacity = "0";
+    window.setTimeout(() => { laptopDisplay.style.display = "none"; }, fadeDurationMs);
+    return;
+  }
+
+  const style = getComputedStyle(container);
+  const originalWidth  = parseFloat(style.getPropertyValue("--base-width"))  || 1242.21;
+  const originalHeight = parseFloat(style.getPropertyValue("--base-height")) || 630.138;
+  const containerWidth = container.offsetWidth;
+  const scaleFactor    = containerWidth / originalWidth;
+
+  laptopDisplay.style.width  = `${dims.width  * scaleFactor}px`;
+  laptopDisplay.style.height = `${dims.height * scaleFactor}px`;
+
+  const rightOffset  = parseFloat(style.getPropertyValue("--laptop-right-offset"))  || 370;
+  const bottomOffset = parseFloat(style.getPropertyValue("--laptop-bottom-offset")) || 55;
+
+  // rightOffset = distance from right edge to the horizontal CENTRE of the laptop
+  const rightPct  = ((rightOffset - dims.width / 2) / originalWidth)  * 100;
+  const bottomPct = (bottomOffset / originalHeight) * 100;
+
+  laptopDisplay.style.right  = `${rightPct}%`;
+  laptopDisplay.style.bottom = `${bottomPct}%`;
+  laptopDisplay.style.left   = "auto";
+
+  if (laptopDisplay.style.display !== "block") {
+    laptopDisplay.style.display = "block";
+    laptopDisplay.style.opacity = "0";
+    requestAnimationFrame(() => { laptopDisplay.style.opacity = "1"; });
+  } else {
+    laptopDisplay.style.opacity = "1";
+  }
+}
+
+function hideLaptopDisplay() {
+  const laptopDisplay = qs("#laptop-display");
+  if (!laptopDisplay) return;
+  laptopDisplay.style.opacity = "0";
+  window.setTimeout(() => { laptopDisplay.style.display = "none"; }, 120);
+}
+
 function showQuestion(num) {
   for (let i = 1; i <= 6; i++) {
     const q = qs(`#question-${i}`);
@@ -53,6 +117,7 @@ function showQuestion(num) {
   const totalQuestions = 6;
 
   if (num === "result") {
+    hideLaptopDisplay();
     updateProgressBar("result");
     const hintBtn = qs("#question-hint-btn");
     const hintBtnMobile = qs("#question-hint-btn-mobile");
@@ -65,6 +130,13 @@ function showQuestion(num) {
   if (!currentQuestion) return;
 
   currentQuestion.style.display = "block";
+
+  // Laptop display: hide on Q1, show on Q2+ if a size is selected
+  if (num === 1) {
+    hideLaptopDisplay();
+  } else if (num >= 2 && quizState.selectedSizeGroup) {
+    updateLaptopDisplay();
+  }
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -309,6 +381,11 @@ export function initQuizPage() {
     showQuestion(5);
   });
 
+  // Listen for formaat (Q2) changes → update laptop visualisation
+  qsa('input[name="formaat"]').forEach(radio => {
+    radio.addEventListener("change", updateLaptopDisplay);
+  });
+
   setupGebruikLimit();
   setupExtraLimit();
 
@@ -334,6 +411,11 @@ export function initQuizPage() {
 
   // Re-position elements on window resize (desktop only)
   window.addEventListener("resize", () => {
+    // Re-render laptop display on every resize
+    const laptopDisplay = qs("#laptop-display");
+    if (laptopDisplay && laptopDisplay.style.display === "block") {
+      updateLaptopDisplay();
+    }
     if (mobileQuery.matches) return;
     for (let i = 1; i <= 6; i++) {
       const q = qs(`#question-${i}`);

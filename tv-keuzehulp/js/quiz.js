@@ -103,7 +103,7 @@ function positionElements(questionNum) {
 }
 
 function resetQuestionsFrom(questionNumber) {
-  for (let i = questionNumber; i <= 9; i++) {
+  for (let i = questionNumber; i <= 8; i++) {
     const inputs = qsa(`#question-${i} input`);
     inputs.forEach(input => {
       input.checked = false;
@@ -117,8 +117,8 @@ function updateProgressBar(questionNum) {
 
   if (questionNum === "result") {
     progressBar.style.width = "100%";
-  } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 9) {
-    progressBar.style.width = `${(questionNum / 9) * 100}%`;
+  } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 8) {
+    progressBar.style.width = `${(questionNum / 8) * 100}%`;
   }
 }
 
@@ -188,7 +188,7 @@ function updateTVDisplay() {
 }
 
 function showQuestion(num) {
-  for (let i = 1; i <= 9; i++) {
+  for (let i = 1; i <= 8; i++) {
     const q = qs(`#question-${i}`);
     if (q) {
       q.classList.remove("is-active");
@@ -202,7 +202,7 @@ function showQuestion(num) {
   const tvDisplay = qs("#tv-display");
   if (num === 1 && tvDisplay) {
     tvDisplay.style.display = "none";
-  } else if (num >= 2 && num <= 9 && quizState.selectedSizeGroup) {
+  } else if (num >= 2 && num <= 8 && quizState.selectedSizeGroup) {
     updateTVDisplay();
   }
 
@@ -346,17 +346,13 @@ function buildAnswers() {
     quality: qs('input[name="quality"]:checked')?.value ?? "",
     timing: qs('input[name="timing"]:checked')?.value ?? "",
     viewing: qs('input[name="viewing"]:checked')?.value ?? "",
-    extraAnswers: qsa('input[name="extra"]:checked').map(cb => cb.value),
-    ambilight: qs('input[name="ambilight"]:checked')?.value ?? ""
+    extraAnswers: qsa('input[name="extra"]:checked').map(cb => cb.value)
   };
 }
 
 function handleStartMatching() {
   const extraChecked = qsa('input[name="extra"]:checked');
   if (extraChecked.length === 0) return alert("Kies minimaal 1 antwoord");
-
-  const ambilightChecked = qs('input[name="ambilight"]:checked');
-  if (!ambilightChecked) return alert("Kies een antwoord");
 
   const answers = buildAnswers();
   const scores = calculateScores(answers);
@@ -365,11 +361,6 @@ function handleStartMatching() {
     .then(rawProducts => {
       const tvs = normalizeProducts(rawProducts ?? []);
       const result = matchTVs(tvs, quizState.selectedSizeGroup, quizState.selectedPriceGroup, answers, scores);
-
-      const wantedAmbilight = answers.ambilight === "ja";
-      const gotAmbilight = wantedAmbilight &&
-        (result.bestMatch?.Ambilight === "TRUE" || result.bestMatch?.Ambilight === true);
-      localStorage.setItem("ambilightNotAvailable", wantedAmbilight && !gotAmbilight ? "1" : "0");
 
       localStorage.setItem("bestMatch", JSON.stringify(result.bestMatch));
       localStorage.setItem("bestType", result.bestType ?? "");
@@ -523,17 +514,6 @@ export function initQuizPage() {
   qs("#back-to-question-7")?.addEventListener("click", () => {
     resetQuestionsFrom(8);
     showQuestion(7);
-  });
-
-  qs("#to-question-9")?.addEventListener("click", () => {
-    const checked = qsa('input[name="extra"]:checked');
-    if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
-    showQuestion(9);
-  });
-
-  qs("#back-to-question-8")?.addEventListener("click", () => {
-    resetQuestionsFrom(9);
-    showQuestion(8);
   });
 
   qs("#start-matching")?.addEventListener("click", handleStartMatching);

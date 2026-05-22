@@ -142,16 +142,6 @@ export function matchTVs(tvs, sizeGroup, priceGroup, answers, scores) {
     return { bestMatch: null, bestType: null, filteredMatchedTVs: [] };
   }
 
-  const wantsAmbilight = answers.ambilight === "ja";
-  if (wantsAmbilight) {
-    const ambilightTVs = filteredTVs.filter(tv =>
-      tv.Ambilight === "TRUE" || tv.Ambilight === true
-    );
-    if (ambilightTVs.length > 0) {
-      filteredTVs = ambilightTVs;
-    }
-  }
-
   // Apply LED size bonus: at small screen sizes the perceptual difference between
   // LED and premium types is minimal, so we boost LED's effective score.
   const sizeBonus = ledSizeBonuses[sizeGroup] ?? 0;

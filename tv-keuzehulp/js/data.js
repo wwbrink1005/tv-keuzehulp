@@ -128,7 +128,6 @@ export const scoringSystem = {
     zwart: { "LED": 5, "Mini LED": 7, "QLED": 6, "OLED": 10 },
     helderheid: { "LED": 7, "Mini LED": 9, "QLED": 10, "OLED": 6 },
     kleur: { "LED": 6, "Mini LED": 8, "QLED": 10, "OLED": 9 },
-    ambilight: { "LED": 0, "Mini LED": 0, "QLED": 0, "OLED": 0 },
     niks: { "LED": 6, "Mini LED": 5, "QLED": 5, "OLED": 5 }
   }
 };

@@ -89,7 +89,7 @@ export function normalizeProducts(rawProducts) {
   if (!Array.isArray(rawProducts)) return [];
 
   return rawProducts.flatMap(product => {
-    if (!product.type || !product.grootte || !product.merk || !product.scherpte || !product.hz || product.ambilight === undefined || product.ambilight === "") {
+    if (!product.type || !product.grootte || !product.merk || !product.scherpte || !product.hz) {
       return [];
     }
 
@@ -125,7 +125,6 @@ export function normalizeProducts(rawProducts) {
       merk: product.merk,
       scherpte: product.scherpte,
       Hz: hzNum,
-      Ambilight: product.ambilight,
       afbeelding,
       aanbieder
     }];
