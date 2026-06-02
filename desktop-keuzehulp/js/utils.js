@@ -5,20 +5,16 @@ export function getContainerScale(element) {
   const container = element?.closest?.(".background-container")
     ?? document.querySelector(".background-container");
   if (!container) return 1;
-
   const style = getComputedStyle(container);
   const baseWidth = parseFloat(style.getPropertyValue("--base-width"));
   const resolvedBaseWidth = Number.isFinite(baseWidth) && baseWidth > 0 ? baseWidth : 1242.21;
-
   const scale = container.offsetWidth / resolvedBaseWidth;
   return Number.isFinite(scale) && scale > 0 ? scale : 1;
 }
 
 export function parsePrice(value) {
   if (value === undefined || value === null) return Number.NaN;
-  if (typeof value === "string") {
-    return parseFloat(value.replace(",", "."));
-  }
+  if (typeof value === "string") return parseFloat(value.replace(",", "."));
   return parseFloat(value);
 }
 
@@ -30,13 +26,27 @@ export function formatPriceLabel(priceValue) {
 
 export function getStoredSelection() {
   return {
-    sizeGroup:  localStorage.getItem("laptop_selectedSizeGroup")  || "",
-    priceLabel: localStorage.getItem("laptop_selectedPriceGroupLabel") || ""
+    behuizingType: localStorage.getItem("desktop_selectedBehuizingType") || "",
+    priceLabel:    localStorage.getItem("desktop_selectedPriceGroupLabel") || ""
   };
 }
 
+export function parseRamGb(value) {
+  if (!value) return 0;
+  const m = String(value).match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : 0;
+}
+
+export function parseOpslagGb(value) {
+  if (!value) return 0;
+  const m = String(value).match(/(\d+(?:[.,]\d+)?)\s*(TB|GB)/i);
+  if (!m) return 0;
+  const num = parseFloat(m[1].replace(",", "."));
+  return m[2].toUpperCase() === "TB" ? Math.round(num * 1024) : Math.round(num);
+}
+
 /**
- * Normalizes raw laptop products from Supabase to a consistent internal shape.
+ * Normalizes raw desktop products from Supabase to a consistent internal shape.
  */
 export function normalizeProducts(rawProducts) {
   if (!Array.isArray(rawProducts)) return [];
@@ -59,41 +69,27 @@ export function normalizeProducts(rawProducts) {
     const afbeelding   = String(product.icecat_afbeelding || "").trim();
     const afbeeldingen = Array.isArray(product.icecat_afbeeldingen) ? product.icecat_afbeeldingen : [];
 
-    const schermdiagonaal = parseFloat(product.schermdiagonaal);
-    if (Number.isNaN(schermdiagonaal)) return [];
+    const ram    = parseRamGb(product.ram_gb);
+    const opslag = parseOpslagGb(product.opslag_gb);
 
-    const werkgeheugen = parseInt(product.werkgeheugen, 10);
-    if (Number.isNaN(werkgeheugen)) return [];
-
-    const opslag = parseInt(product.opslag, 10);
-    if (Number.isNaN(opslag)) return [];
-
-    const hz = parseInt(String(product.hz).replace(/[^0-9]/g, ""), 10);
-    if (Number.isNaN(hz)) return [];
-
-    const gewicht = parseFloat(product.gewicht);
-    // gewicht may be missing for some laptops; don't reject if NaN
-
-    if (!product.merk || !product.processor || !product.paneeltype || !product.resolutie) {
-      return [];
-    }
+    if (!product.merk) return [];
 
     return [{
-      merk:           product.merk,
+      merk:         product.merk,
       naam,
       prijs,
-      schermdiagonaal,
-      werkgeheugen,
+      ram,
       opslag,
-      touchscreen:    product.touchscreen ?? "Nee",
-      usb_c:          product.usb_c ?? "Nee",
-      hdmi:           parseInt(product.hdmi, 10) || 0,
-      resolutie:      product.resolutie,
-      paneeltype:     product.paneeltype,
-      hz,
-      processor:      product.processor,
-      gpu:            product.gpu ?? "",
-      gewicht:        Number.isFinite(gewicht) ? gewicht : null,
+      gpuTier:      product.gpuTier    ?? "Budget",
+      gpu:          product.gpu        ?? "",
+      gpuApart:     product.gpuApart   ?? "Nee",
+      behuizing:    product.behuizing  ?? null,
+      wifi:         product.wifi       ?? "Nee",
+      rgb:          product.rgb        ?? "Nee",
+      waterkoeling: product.waterkoeling ?? "Nee",
+      hdmiPoorten:  product.hdmiPoorten ?? 0,
+      displayport:  product.displayport ?? 0,
+      usbC:         product.usbC       ?? 0,
       afbeelding,
       afbeeldingen,
       aanbieder
@@ -103,47 +99,46 @@ export function normalizeProducts(rawProducts) {
 
 function roundNice(value) {
   let step;
-  if (value <= 100) step = 10;
-  else if (value <= 500) step = 50;
+  if (value <= 100)       step = 10;
+  else if (value <= 500)  step = 50;
   else if (value <= 2000) step = 100;
   else if (value <= 5000) step = 500;
-  else step = 1000;
+  else                    step = 1000;
   return Math.round(value / step) * step;
 }
 
 function floorNice(value) {
   let step;
-  if (value <= 100) step = 10;
-  else if (value <= 500) step = 50;
+  if (value <= 100)       step = 10;
+  else if (value <= 500)  step = 50;
   else if (value <= 2000) step = 100;
   else if (value <= 5000) step = 500;
-  else step = 1000;
+  else                    step = 1000;
   return Math.floor(value / step) * step;
 }
 
 /**
- * Dynamically computes 2–3 price buckets from actual laptop prices
- * in the given size group.
+ * Dynamically computes 2–3 price buckets from actual desktop prices
+ * filtered by the chosen behuizing type.
  */
-export function computeDynamicPriceGroups(laptops, sizeGroup, allowedSizes) {
-  const sizes = allowedSizes[sizeGroup] || [];
-  const prices = laptops
-    .filter(l => sizes.includes(l.schermdiagonaal))
-    .map(l => parsePrice(l.prijs))
+export function computeDynamicPriceGroups(desktops, behuizingType, behuizingTypeToAllowed) {
+  const allowedTypes = behuizingTypeToAllowed[behuizingType];
+
+  const prices = desktops
+    .filter(d => allowedTypes === null || allowedTypes.includes(d.behuizing))
+    .map(d => parsePrice(d.prijs))
     .filter(p => Number.isFinite(p) && p > 0)
     .sort((a, b) => a - b);
 
   if (prices.length === 0) return [];
 
   const n = prices.length;
-
   if (n <= 2) {
     const displayMin = floorNice(prices[0]);
     return [{ label: `${displayMin}+`, min: 0, max: Number.POSITIVE_INFINITY }];
   }
 
   const numBuckets = n < 6 ? 2 : 3;
-
   const rawSplits = [];
   for (let i = 1; i < numBuckets; i++) {
     const idx = Math.floor(n * i / numBuckets);
@@ -152,9 +147,7 @@ export function computeDynamicPriceGroups(laptops, sizeGroup, allowedSizes) {
 
   const splits = [];
   for (const s of rawSplits) {
-    if (splits.length === 0 || s > splits[splits.length - 1]) {
-      splits.push(s);
-    }
+    if (splits.length === 0 || s > splits[splits.length - 1]) splits.push(s);
   }
 
   if (splits.length === 0) {
@@ -166,7 +159,6 @@ export function computeDynamicPriceGroups(laptops, sizeGroup, allowedSizes) {
   for (let i = 0; i <= splits.length; i++) {
     const min = i === 0 ? 0 : splits[i - 1];
     const max = i === splits.length ? Number.POSITIVE_INFINITY : splits[i];
-
     let label;
     if (i === splits.length) {
       label = `${min}+`;
@@ -174,7 +166,6 @@ export function computeDynamicPriceGroups(laptops, sizeGroup, allowedSizes) {
       const displayMin = i === 0 ? floorNice(prices[0]) : min;
       label = `${displayMin}-${max}`;
     }
-
     groups.push({ label, min, max });
   }
 

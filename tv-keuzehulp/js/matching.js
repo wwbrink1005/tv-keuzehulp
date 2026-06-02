@@ -124,7 +124,7 @@ export function applyHzFilter(tvs, usageAnswers, quality) {
 }
 
 export function matchTVs(tvs, sizeGroup, priceGroup, answers, scores) {
-  if (!Array.isArray(tvs) || !sizeGroup || !priceGroup) {
+  if (!Array.isArray(tvs) || !sizeGroup) {
     return { bestMatch: null, bestType: null, filteredMatchedTVs: [] };
   }
 
@@ -133,8 +133,7 @@ export function matchTVs(tvs, sizeGroup, priceGroup, answers, scores) {
     const price = parsePrice(tv.prijs);
     return (
       allowedSizes.includes(tv.grootte) &&
-      price >= priceGroup.min &&
-      price <= priceGroup.max
+      (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max))
     );
   });
 

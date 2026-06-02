@@ -5,7 +5,7 @@
   <base href="../../">
   <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laptop Keuzehulp – Vind jouw perfecte laptop</title>
+  <title>Monitor Keuzehulp – Vind jouw perfecte monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,15 +15,9 @@
   <script src="shared/menu.js" defer></script>
   <script src="shared/footer.js" defer></script>
   <style>
-    /* =============================================
-       LAPTOP KEUZEHULP – VRAGEN
-       ============================================= */
-
     :root {
       --base-width: 1242.21;
       --base-height: 630.138;
-      --laptop-right-offset: 332;
-      --laptop-bottom-offset: 115;
 
       --c-bg: #f5f5f7;
       --c-surface: #ffffff;
@@ -57,9 +51,6 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* ════════════════════════════════════════
-       QUIZ PAGE HEADER
-       ════════════════════════════════════════ */
     .quiz-page-header {
       width: 100%;
       position: relative;
@@ -81,14 +72,6 @@
       gap: 12px;
       text-align: center;
       animation: headerFadeUp .6s ease-out both;
-    }
-
-    .quiz-title-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
     }
 
     @keyframes headerFadeUp {
@@ -123,8 +106,6 @@
       top: -3px;
     }
 
-    .quiz-header-subtitle { display: none; }
-
     .quiz-toggle-row {
       display: flex;
       align-items: center;
@@ -138,8 +119,6 @@
       align-items: center;
       gap: 6px;
       background: rgba(255,255,255,.65);
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
       border: 1.5px solid rgba(0,0,0,.09);
       color: var(--c-text-2);
       font-family: inherit;
@@ -150,17 +129,12 @@
       cursor: pointer;
       transition: background .2s, border-color .2s, color .2s;
     }
-    .quiz-toggle-btn:hover,
-    .quiz-toggle-btn.is-open {
+    .quiz-toggle-btn:hover, .quiz-toggle-btn.is-open {
       background: rgba(255,255,255,.92);
       border-color: rgba(9, 84, 163, 0.28);
       color: var(--c-accent);
     }
-    .quiz-toggle-btn svg {
-      width: 14px; height: 14px;
-      opacity: .6;
-      transition: transform .3s cubic-bezier(.4,0,.2,1);
-    }
+    .quiz-toggle-btn svg { width: 14px; height: 14px; opacity: .6; transition: transform .3s cubic-bezier(.4,0,.2,1); }
     .quiz-toggle-btn.is-open svg:last-child { transform: rotate(180deg); }
 
     .quiz-panel-content {
@@ -169,10 +143,7 @@
       opacity: 0;
       transition: max-height .45s cubic-bezier(.4,0,.2,1), opacity .3s ease;
     }
-    .quiz-panel-content.is-open {
-      max-height: 700px;
-      opacity: 1;
-    }
+    .quiz-panel-content.is-open { max-height: 700px; opacity: 1; }
 
     .quiz-panel-inner {
       max-width: 680px;
@@ -183,52 +154,16 @@
       border-radius: var(--r-lg);
       text-align: left;
     }
-    .quiz-panel-inner > p {
-      font-size: 14px;
-      color: var(--c-text-2);
-      line-height: 1.65;
-      margin-bottom: 22px;
-    }
+    .quiz-panel-inner > p { font-size: 14px; color: var(--c-text-2); line-height: 1.65; margin-bottom: 22px; }
 
-    .quiz-how-steps {
-      display: flex;
-      gap: 16px;
-    }
-    .quiz-how-step {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 8px;
-    }
-    .quiz-how-step-num {
-      width: 32px; height: 32px;
-      background: #ffffff;
-      border: 1.5px solid rgba(9, 84, 163, 0.28);
-      color: var(--c-accent);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 13px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .quiz-how-step-label {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--c-text);
-      line-height: 1.3;
-    }
-    .quiz-how-step-desc {
-      font-size: 12px;
-      color: var(--c-text-3);
-      line-height: 1.4;
-    }
+    .quiz-how-steps { display: flex; gap: 16px; }
+    .quiz-how-step { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+    .quiz-how-step-num { width: 32px; height: 32px; background: #ffffff; border: 1.5px solid rgba(9, 84, 163, 0.28); color: var(--c-accent); border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .quiz-how-step-label { font-size: 13px; font-weight: 700; color: var(--c-text); line-height: 1.3; }
+    .quiz-how-step-desc { font-size: 12px; color: var(--c-text-3); line-height: 1.4; }
 
-    /* ════════════════════════════════════════
-       PAGE CONTENT WRAPPER
-       ════════════════════════════════════════ */
+    @keyframes hero-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
     .page-content {
       width: 100%;
       display: flex;
@@ -237,9 +172,6 @@
       padding: clamp(12px, 1.8vh, 20px) clamp(16px, 3vw, 24px) 0;
       flex: 1;
     }
-
-    .landing-footer { width: 100%; }
-    .landing-footer ul { margin: 0; padding: 0; }
 
     .quiz-hero {
       width: 100%;
@@ -251,7 +183,6 @@
       animation: hero-in .55s ease-out .22s both;
     }
 
-    /* ====== BACKGROUND CONTAINER ====== */
     .background-container {
       --base-width: 1242.21;
       --base-height: 630.138;
@@ -266,12 +197,10 @@
       position: relative;
       margin-bottom: clamp(28px, 5vh, 56px);
       z-index: 1;
-      box-shadow: 0 8px 40px rgba(0,0,0,.07),
-                  0 2px 8px rgba(0,0,0,.04);
+      box-shadow: 0 8px 40px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.04);
       overflow: hidden;
     }
 
-    /* ====== QUESTIONS PANEL ====== */
     .questions-panel {
       --scale: var(--page-scale, 1);
       position: absolute;
@@ -284,7 +213,6 @@
       z-index: 2;
     }
 
-    /* ====== QUESTION CONTAINER ====== */
     .question-container {
       position: absolute;
       left: calc(36.9291px * var(--scale));
@@ -305,14 +233,11 @@
       text-shadow: 0 1px 0 rgba(255,255,255,.7);
     }
 
-    /* Desktop hint pill */
     button.question-hint-btn {
       position: absolute;
       top: calc(14px * var(--scale, 1));
       right: calc(14px * var(--scale, 1));
       z-index: 5;
-      width: auto;
-      height: auto;
       display: inline-flex;
       align-items: center;
       gap: calc(6px * var(--scale, 1));
@@ -331,27 +256,10 @@
       box-shadow: 0 2px 12px rgba(9,84,163,.13), 0 1px 3px rgba(0,0,0,.07);
       transition: background .2s, color .2s, border-color .2s, box-shadow .2s, transform .15s;
     }
-    button.question-hint-btn svg {
-      width: calc(14px * var(--scale, 1));
-      height: calc(14px * var(--scale, 1));
-      flex-shrink: 0;
-      stroke-width: 2;
-    }
-    button.question-hint-btn:hover {
-      background: rgba(232,240,254,.98);
-      color: #073d7a;
-      border-color: rgba(9,84,163,.35);
-      box-shadow: 0 6px 20px rgba(9,84,163,.18), 0 1px 4px rgba(0,0,0,.08);
-      transform: translateY(-1px);
-    }
-    button.question-hint-btn.hint-btn-active {
-      background: rgba(232,240,254,.98);
-      color: #073d7a;
-      border-color: rgba(9,84,163,.35);
-      box-shadow: 0 4px 16px rgba(9,84,163,.16);
-    }
+    button.question-hint-btn svg { width: calc(14px * var(--scale, 1)); height: calc(14px * var(--scale, 1)); flex-shrink: 0; stroke-width: 2; }
+    button.question-hint-btn:hover { background: rgba(232,240,254,.98); color: #073d7a; border-color: rgba(9,84,163,.35); box-shadow: 0 6px 20px rgba(9,84,163,.18), 0 1px 4px rgba(0,0,0,.08); transform: translateY(-1px); }
+    button.question-hint-btn.hint-btn-active { background: rgba(232,240,254,.98); color: #073d7a; border-color: rgba(9,84,163,.35); }
 
-    /* Mobile hint circle */
     button.question-hint-btn-mobile {
       position: absolute;
       bottom: 12px;
@@ -359,7 +267,6 @@
       z-index: 10;
       width: 32px;
       height: 32px;
-      min-width: 0;
       background: rgba(255,255,255,.80);
       backdrop-filter: blur(8px) saturate(150%);
       -webkit-backdrop-filter: blur(8px) saturate(150%);
@@ -373,37 +280,23 @@
       color: var(--c-text-2);
       transition: background .2s, color .2s;
     }
-    button.question-hint-btn-mobile svg {
-      width: 18px;
-      height: 18px;
-      stroke-width: 1.75;
-    }
-    button.question-hint-btn-mobile:hover,
-    button.question-hint-btn-mobile.hint-btn-active {
-      background: rgba(235,244,255,.97);
-      color: var(--c-accent);
-      border-color: rgba(9,84,163,.3);
-      box-shadow: 0 2px 10px rgba(9,84,163,.14);
-    }
+    button.question-hint-btn-mobile svg { width: 18px; height: 18px; stroke-width: 1.75; }
+    button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-active { background: rgba(235,244,255,.97); color: var(--c-accent); }
 
-    /* Question visibility */
-    #question-1, #question-2, #question-3, #question-4,
-    #question-5, #question-6 {
+    #question-1, #question-2, #question-3, #question-4, #question-5 {
       position: relative;
       opacity: 0;
       transform: translateY(6px);
       transition: opacity .32s ease, transform .32s ease;
       pointer-events: none;
     }
-
     #question-1.is-active, #question-2.is-active, #question-3.is-active,
-    #question-4.is-active, #question-5.is-active, #question-6.is-active {
+    #question-4.is-active, #question-5.is-active {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
     }
 
-    /* ====== ANSWERS ====== */
     .answers-container {
       position: absolute;
       left: calc(26.2291px * var(--scale));
@@ -412,7 +305,6 @@
       gap: calc(15px * var(--scale));
     }
 
-    /* ====== ANSWER OPTION ====== */
     .answer-option {
       width: calc(366.968px * var(--scale));
       min-height: calc(58px * var(--scale));
@@ -427,41 +319,15 @@
       padding: calc(13px * var(--scale)) calc(14px * var(--scale));
       cursor: pointer;
       gap: calc(10px * var(--scale));
-      transition: border-color .22s ease, box-shadow .22s ease,
-                  transform .18s ease, background .22s ease;
-      box-shadow: 0 2px 10px rgba(0,0,0,.09),
-                  inset 0 1px 0 rgba(255,255,255,.85);
+      transition: border-color .22s ease, box-shadow .22s ease, transform .18s ease, background .22s ease;
+      box-shadow: 0 2px 10px rgba(0,0,0,.09), inset 0 1px 0 rgba(255,255,255,.85);
     }
-
-    .answer-option:has(input:checked) {
-      border-color: rgba(9,84,163,.55);
-      background: rgba(232,242,255,.97);
-      box-shadow: 0 0 0 2.5px rgba(9,84,163,.18),
-                  0 2px 12px rgba(9,84,163,.12);
-    }
-
-    .answer-option:hover {
-      border-color: rgba(9,84,163,.30);
-      background: rgba(255,255,255,.97);
-      box-shadow: 0 6px 18px rgba(0,0,0,.11),
-                  inset 0 1px 0 rgba(255,255,255,.9);
-      transform: translateY(-1px);
-    }
-
-    .answer-option:has(input:checked):hover {
-      border-color: rgba(9,84,163,.65);
-      box-shadow: 0 0 0 2.5px rgba(9,84,163,.22),
-                  0 6px 18px rgba(9,84,163,.14);
-    }
-
+    .answer-option:has(input:checked) { border-color: rgba(9,84,163,.55); background: rgba(232,242,255,.97); box-shadow: 0 0 0 2.5px rgba(9,84,163,.18), 0 2px 12px rgba(9,84,163,.12); }
+    .answer-option:hover { border-color: rgba(9,84,163,.30); background: rgba(255,255,255,.97); box-shadow: 0 6px 18px rgba(0,0,0,.11), inset 0 1px 0 rgba(255,255,255,.9); transform: translateY(-1px); }
+    .answer-option:has(input:checked):hover { border-color: rgba(9,84,163,.65); box-shadow: 0 0 0 2.5px rgba(9,84,163,.22), 0 6px 18px rgba(9,84,163,.14); }
     .answer-option:active { transform: translateY(0); }
+    .answer-option:focus-within { border-color: rgba(9,84,163,.55); box-shadow: 0 0 0 2.5px rgba(9,84,163,.18); }
 
-    .answer-option:focus-within {
-      border-color: rgba(9,84,163,.55);
-      box-shadow: 0 0 0 2.5px rgba(9,84,163,.18);
-    }
-
-    /* Radio / Checkbox */
     .answer-option input[type="radio"],
     .answer-option input[type="checkbox"] {
       width: calc(21.08px * var(--scale));
@@ -475,7 +341,6 @@
       background: #fff;
       transition: all .2s ease;
     }
-
     .answer-option input[type="radio"]:checked,
     .answer-option input[type="checkbox"]:checked {
       background: var(--c-accent);
@@ -483,21 +348,10 @@
       box-shadow: inset 0 0 0 2.5px #fff, 0 2px 6px rgba(9,84,163,.30);
     }
 
-    .answer-option span {
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      font-size: calc(15.5px * var(--scale));
-      color: var(--c-text);
-      line-height: 1.4;
-    }
-    .answer-option:has(input:checked) span {
-      color: var(--c-accent);
-      font-weight: 500;
-    }
-
+    .answer-option span { font-family: 'Inter', sans-serif; font-weight: 500; font-size: calc(15.5px * var(--scale)); color: var(--c-text); line-height: 1.4; }
+    .answer-option:has(input:checked) span { color: var(--c-accent); font-weight: 500; }
     .answers-toggle { display: none; }
 
-    /* ====== ANSWER INFO ICONS ====== */
     .answer-info-icon {
       width: calc(20px * var(--scale));
       height: calc(20px * var(--scale));
@@ -506,28 +360,22 @@
       stroke-width: 1.75;
       transition: color .2s;
     }
-    .answer-option:has(input:checked) .answer-info-icon {
-      color: var(--c-accent);
-    }
+    .answer-option:has(input:checked) .answer-info-icon { color: var(--c-accent); }
 
-    /* Input right margin to make room for icon */
     #question-1 input[type="checkbox"],
     #question-2 input[type="radio"],
     #question-4 input[type="radio"],
-    #question-5 input[type="radio"],
-    #question-6 input[type="checkbox"] {
+    #question-5 input[type="checkbox"] {
       margin-right: calc(30px * var(--scale));
     }
     #question-1 .answer-info-icon,
     #question-2 .answer-info-icon,
     #question-4 .answer-info-icon,
-    #question-5 .answer-info-icon,
-    #question-6 .answer-info-icon {
+    #question-5 .answer-info-icon {
       margin-left: calc(-20px * var(--scale));
       margin-right: calc(10px * var(--scale));
     }
 
-    /* ====== BUTTONS ====== */
     .button-container {
       position: absolute;
       display: flex;
@@ -554,21 +402,11 @@
       letter-spacing: .01em;
       box-shadow: 0 4px 14px rgba(9,84,163,.32);
     }
+    .button-container button:hover { filter: brightness(1.08); box-shadow: 0 6px 20px rgba(9,84,163,.40); transform: translateY(-1.5px); }
+    .button-container button:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(9,84,163,.22); filter: brightness(1); }
+    .button-container button:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-    .button-container button:hover {
-      filter: brightness(1.08);
-      box-shadow: 0 6px 20px rgba(9,84,163,.40);
-      transform: translateY(-1.5px);
-    }
-    .button-container button:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 6px rgba(9,84,163,.22);
-      filter: brightness(1);
-    }
-
-    /* Back buttons */
-    #back-to-question-1, #back-to-question-2, #back-to-question-3,
-    #back-to-question-4, #back-to-question-5 {
+    #back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
       background: rgba(255,255,255,.90);
       backdrop-filter: blur(12px) saturate(180%);
       -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -577,8 +415,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,.08);
       filter: none;
     }
-    #back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover,
-    #back-to-question-4:hover, #back-to-question-5:hover {
+    #back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover, #back-to-question-4:hover {
       background: rgba(232,242,255,.97);
       border-color: rgba(9,84,163,.50);
       box-shadow: 0 4px 14px rgba(9,84,163,.14);
@@ -586,37 +423,17 @@
       transform: translateY(-1.5px);
     }
 
-    /* Button positions */
     #question-1 .button-container,
     #question-2 .button-container,
     #question-3 .button-container,
     #question-4 .button-container,
-    #question-5 .button-container,
-    #question-6 .button-container {
+    #question-5 .button-container {
       left: calc(26.2291px * var(--scale));
       width: calc(366.968px * var(--scale));
     }
 
     .questions-panel { overflow: hidden; border-radius: var(--r-lg); }
 
-    /* ====== LAPTOP DISPLAY ====== */
-    #laptop-display {
-      position: absolute;
-      background-image: url('laptop-keuzehulp/images/laptop visualisatie.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center bottom;
-      opacity: 0;
-      transition: opacity .3s ease,
-                  width .3s ease,
-                  height .3s ease,
-                  right .3s ease,
-                  bottom .3s ease;
-      display: none;
-      pointer-events: none;
-    }
-
-    /* ====== CONTAINER WRAPPER ====== */
     .container-wrapper {
       display: flex;
       flex-direction: column;
@@ -626,12 +443,8 @@
       transition: opacity .3s ease, transform .3s ease;
       margin-bottom: clamp(48px, 8vh, 80px);
     }
-    .container-wrapper.is-exiting {
-      opacity: 0;
-      transform: translateY(4px);
-    }
+    .container-wrapper.is-exiting { opacity: 0; transform: translateY(4px); }
 
-    /* ====== MULTI-SELECT HINT ====== */
     .question-heading-wrap > h2 { display: inline; max-width: none; }
 
     .multi-select-hint {
@@ -655,22 +468,13 @@
       pointer-events: none;
       user-select: none;
     }
-    .multi-select-hint svg {
-      width: calc(13px * var(--scale, 1));
-      height: calc(13px * var(--scale, 1));
-      stroke-width: 2.2;
-      flex-shrink: 0;
-    }
+    .multi-select-hint svg { width: calc(13px * var(--scale, 1)); height: calc(13px * var(--scale, 1)); stroke-width: 2.2; flex-shrink: 0; }
 
-    /* ====== POPOVERS — hidden data containers only ====== */
     .question-popover { display: none !important; }
 
-    /* ====== INFO PANEL ====== */
     .info-panel {
       position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; right: 0; bottom: 0;
       width: 38%;
       min-width: 260px;
       background: #ffffff;
@@ -686,30 +490,17 @@
       overflow: hidden;
       box-shadow: -8px 0 32px rgba(0,0,0,.11);
     }
-    .info-panel.is-open {
-      transform: translateX(0);
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .info-panel.is-open { transform: translateX(0); opacity: 1; pointer-events: auto; }
 
-    .info-panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding: 0;
-      flex-shrink: 0;
-    }
-
+    .info-panel-header { display: flex; align-items: center; justify-content: flex-end; padding: 0; flex-shrink: 0; }
     .info-panel-icon-wrap { display: none; }
     .info-panel-header-label { display: none; }
 
     .info-panel-close {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: 12px; right: 12px;
       z-index: 2;
-      width: 28px;
-      height: 28px;
+      width: 28px; height: 28px;
       border: none;
       background: rgba(0,0,0,.05);
       border-radius: 50%;
@@ -722,10 +513,7 @@
       padding: 0;
       font-family: inherit;
     }
-    .info-panel-close:hover {
-      background: rgba(0,0,0,.07);
-      color: var(--c-text-2);
-    }
+    .info-panel-close:hover { background: rgba(0,0,0,.07); color: var(--c-text-2); }
     .info-panel-close svg { width: 14px; height: 14px; stroke-width: 2.6; }
 
     .info-panel-body {
@@ -739,28 +527,12 @@
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
     }
-
     .info-panel-body::-webkit-scrollbar { width: 4px; }
     .info-panel-body::-webkit-scrollbar-track { background: transparent; }
     .info-panel-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.14); border-radius: 2px; }
-    .info-panel-body::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.22); }
 
-    .info-panel-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--c-accent);
-      line-height: 1.35;
-      letter-spacing: -.012em;
-      margin: 0;
-    }
-
-    .info-panel-text {
-      font-size: 13.5px;
-      color: var(--c-text-2);
-      line-height: 1.68;
-      margin: 0;
-    }
-
+    .info-panel-title { font-size: 15px; font-weight: 700; color: var(--c-accent); line-height: 1.35; letter-spacing: -.012em; margin: 0; }
+    .info-panel-text { font-size: 13.5px; color: var(--c-text-2); line-height: 1.68; margin: 0; }
     .info-panel-drag-handle { display: none; }
 
     .info-panel-scrim {
@@ -775,11 +547,9 @@
     }
     .questions-panel.panel-open .info-panel-scrim { opacity: 1; }
 
-    /* ====== PROGRESS BAR ====== */
     .top-bar {
       position: absolute;
-      bottom: 0;
-      left: 0; right: 0;
+      bottom: 0; left: 0; right: 0;
       width: 100%;
       height: calc(5px * var(--scale));
       background: rgba(255,255,255,.18);
@@ -798,21 +568,15 @@
       box-shadow: 0 0 8px rgba(9,84,163,.5);
     }
 
-    /* ============================================================
-       RESPONSIVE — MOBILE (≤ 900px)
-       ============================================================ */
     @media (max-width: 900px) {
       .quiz-how-steps { flex-direction: column; gap: 12px; }
       .quiz-how-step { flex-direction: row; text-align: left; gap: 12px; }
       .quiz-panel-inner { padding: 20px 18px; }
-
       .quiz-hero { max-width: none; }
 
       .background-container {
         --base-width: 605.5;
         --base-height: 595;
-        --laptop-right-offset: 325;
-        --laptop-bottom-offset: 110;
         background-image: url('laptop-keuzehulp/images/laptop telefoon.png');
         aspect-ratio: 1 / 1;
         width: min(92vw, 560px);
@@ -840,27 +604,13 @@
         box-shadow: 0 8px 32px rgba(0,0,0,.06);
       }
 
-      .question-container {
-        position: static;
-        max-width: 100%;
-        line-height: 1.4;
-        margin-bottom: 14px;
-      }
-
-      .question-container h2 {
-        font-size: clamp(18px, 5vw, 22px);
-        max-width: 100%;
-        display: block;
-      }
+      .question-container { position: static; max-width: 100%; line-height: 1.4; margin-bottom: 14px; }
+      .question-container h2 { font-size: clamp(18px, 5vw, 22px); max-width: 100%; display: block; }
 
       button.question-hint-btn { display: none; }
       button.question-hint-btn-mobile { display: grid; }
 
-      .answers-container {
-        position: static;
-        width: 100%;
-        gap: 10px;
-      }
+      .answers-container { position: static; width: 100%; gap: 10px; }
 
       .answer-option {
         width: 100%;
@@ -875,13 +625,7 @@
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
       }
-
-      .answer-option:has(input:checked) {
-        background: rgba(232,242,255,.80);
-        border-color: rgba(9,84,163,.45);
-        box-shadow: 0 0 0 2px rgba(9,84,163,.15);
-      }
-
+      .answer-option:has(input:checked) { background: rgba(232,242,255,.80); border-color: rgba(9,84,163,.45); box-shadow: 0 0 0 2px rgba(9,84,163,.15); }
       .answer-option span { font-size: 15px; }
 
       .question-block .answer-option input[type="radio"],
@@ -894,11 +638,7 @@
       #question-1 .answer-info-icon,
       #question-2 .answer-info-icon,
       #question-4 .answer-info-icon,
-      #question-5 .answer-info-icon,
-      #question-6 .answer-info-icon {
-        margin-left: 0;
-        margin-right: 8px;
-      }
+      #question-5 .answer-info-icon { margin-left: 0; margin-right: 8px; }
 
       .answers-toggle { display: none; }
 
@@ -920,8 +660,7 @@
         padding: 0 8px;
       }
 
-      #back-to-question-1, #back-to-question-2, #back-to-question-3,
-      #back-to-question-4, #back-to-question-5 {
+      #back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
         border-width: 1.5px;
         background: #fff;
         box-shadow: 0 1px 4px rgba(0,0,0,.06);
@@ -932,34 +671,18 @@
       #question-2 .button-container,
       #question-3 .button-container,
       #question-4 .button-container,
-      #question-5 .button-container,
-      #question-6 .button-container {
+      #question-5 .button-container {
         left: auto;
         width: 100%;
         max-width: 100%;
       }
 
-      .top-bar {
-        height: 3px;
-        border-radius: 0;
-        background: rgba(0,0,0,.04);
-      }
+      .top-bar { height: 3px; border-radius: 0; background: rgba(0,0,0,.04); }
 
-      .info-panel-drag-handle {
-        display: block;
-        width: 36px;
-        height: 4px;
-        background: rgba(0,0,0,.12);
-        border-radius: 2px;
-        margin: 10px auto 4px;
-        flex-shrink: 0;
-      }
+      .info-panel-drag-handle { display: block; width: 36px; height: 4px; background: rgba(0,0,0,.12); border-radius: 2px; margin: 10px auto 4px; flex-shrink: 0; }
       .info-panel {
         position: fixed;
-        top: auto;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        top: auto; left: 0; right: 0; bottom: 0;
         width: 100%;
         min-width: 0;
         height: 72%;
@@ -971,48 +694,19 @@
         z-index: 9999;
       }
       .info-panel.is-open { transform: translateY(0); }
-      .info-panel-scrim {
-        position: fixed;
-        inset: 0;
-        z-index: 9998;
-      }
-      .questions-panel.panel-open .info-panel-scrim {
-        opacity: 1;
-        pointer-events: auto;
-      }
+      .info-panel-scrim { position: fixed; inset: 0; z-index: 9998; }
+      .questions-panel.panel-open .info-panel-scrim { opacity: 1; pointer-events: auto; }
 
-      .multi-select-hint {
-        display: inline-flex;
-        vertical-align: initial;
-        top: 0;
-        margin-left: 0;
-        margin-top: 8px;
-        font-size: 12px;
-        padding: 4px 12px 4px 9px;
-        border-radius: 100px;
-      }
+      .multi-select-hint { display: inline-flex; vertical-align: initial; top: 0; margin-left: 0; margin-top: 8px; font-size: 12px; padding: 4px 12px 4px 9px; border-radius: 100px; }
       .multi-select-hint svg { width: 13px; height: 13px; }
       .question-heading-wrap > h2 { display: block; }
     }
 
     @media (max-width: 480px) {
-      #question-1 .answer-option,
-      #question-2 .answer-option {
-        padding: 8px 10px;
-        gap: 8px;
-      }
-      #question-1 .answer-option span,
-      #question-2 .answer-option span {
-        font-size: 13px;
-        line-height: 1.3;
-        word-break: break-word;
-      }
+      #question-1 .answer-option, #question-2 .answer-option { padding: 8px 10px; gap: 8px; }
+      #question-1 .answer-option span, #question-2 .answer-option span { font-size: 13px; line-height: 1.3; word-break: break-word; }
       #question-1 .answer-option input[type="checkbox"],
-      #question-2 .answer-option input[type="radio"] {
-        flex-shrink: 0;
-        width: 17px; height: 17px;
-        margin-right: 8px;
-      }
+      #question-2 .answer-option input[type="radio"] { flex-shrink: 0; width: 17px; height: 17px; margin-right: 8px; }
     }
 
     .menu-bar { position: static; }
@@ -1021,13 +715,9 @@
 </head>
 <body>
 
-  <!-- ══════════════════════════════════════════
-       QUIZ PAGE HEADER
-       ══════════════════════════════════════════ -->
   <header class="quiz-page-header">
     <div class="quiz-header-inner">
-      <h1 class="quiz-header-title">Laptop Keuzehulp<span class="quiz-time-badge">± 2 min</span></h1>
-
+      <h1 class="quiz-header-title">Monitor Keuzehulp<span class="quiz-time-badge">± 2 min</span></h1>
       <div class="quiz-toggle-row">
         <button class="quiz-toggle-btn" id="how-toggle" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/></svg>
@@ -1036,11 +726,9 @@
         </button>
       </div>
     </div>
-
-    <!-- How it works panel -->
     <div class="quiz-panel-content" id="how-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>We stellen zes korte vragen over jouw gebruik, formaat, budget en voorkeuren. Op basis van je antwoorden berekenen we welke laptop het beste bij je past. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+        <p>We stellen vijf korte vragen over jouw gebruik, schermgrootte, budget en voorkeuren. Op basis van je antwoorden berekenen we welke monitor het beste bij je past. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
         <div class="quiz-how-steps">
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">1</span>
@@ -1053,14 +741,14 @@
             <span class="quiz-how-step-num">2</span>
             <div>
               <div class="quiz-how-step-label">Wij analyseren</div>
-              <div class="quiz-how-step-desc">We matchen je antwoorden met alle laptops</div>
+              <div class="quiz-how-step-desc">We matchen je antwoorden met alle monitoren</div>
             </div>
           </div>
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">3</span>
             <div>
               <div class="quiz-how-step-label">Ontvang advies</div>
-              <div class="quiz-how-step-desc">Bekijk welke laptops het beste bij je passen</div>
+              <div class="quiz-how-step-desc">Bekijk welke monitoren het beste bij je passen</div>
             </div>
           </div>
         </div>
@@ -1068,20 +756,13 @@
     </div>
   </header>
 
-  <!-- ══════════════════════════════════════════
-       MAIN CONTENT
-       ══════════════════════════════════════════ -->
   <main class="page-content">
-
     <div class="container-wrapper">
       <div class="quiz-hero">
         <div class="background-container">
           <div class="top-bar">
             <div class="progress-bar" id="progress-bar"></div>
           </div>
-          <!-- Laptop size visualisation -->
-          <div id="laptop-display"></div>
-          <!-- Mobile hint button -->
           <button id="question-hint-btn-mobile" class="question-hint-btn-mobile" type="button" aria-label="Waarom deze vraag?">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>
@@ -1092,11 +773,8 @@
         </div>
 
         <div class="questions-panel">
-
-          <!-- Scrim -->
           <div class="info-panel-scrim" aria-hidden="true"></div>
 
-          <!-- INFO PANEL -->
           <div id="info-panel" class="info-panel" role="dialog" aria-modal="false" aria-label="Vraag uitleg">
             <div class="info-panel-drag-handle" aria-hidden="true"></div>
             <div class="info-panel-header">
@@ -1116,7 +794,6 @@
             </div>
           </div>
 
-          <!-- Desktop hint button -->
           <button id="question-hint-btn" class="question-hint-btn" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             Waarom deze vraag?
@@ -1125,79 +802,86 @@
           <!-- VRAAG 1: Gebruik (multi-select, max 2) -->
           <div id="question-1" class="question-block">
             <div class="question-container">
-              <div class="question-heading-wrap"><h2>Waar ga je je laptop vooral voor gebruiken?</h2></div>
+              <div class="question-heading-wrap">
+                <h2>Waarvoor gebruik je de monitor?</h2>
+              </div>
               <div class="question-popover" data-popover="1">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Het doel van je laptop bepaalt welk type processor, hoeveel werkgeheugen en welke grafische kaart je nodig hebt. Dagelijks gebruik vraagt om een snelle maar zuinige laptop. Creatief werk of gaming vragen om een krachtigere machine. Je kunt maximaal 2 doelen aanvinken.</p>
+                <p class="question-popover-text">Het gebruik bepaalt welk type monitor het beste bij je past. Voor thuiswerk en kantoor is een scherp IPS-scherm met nauwkeurige kleuren ideaal. Gamers profiteren van een hoge verversingssnelheid (144Hz+). Creatieve professionals hebben baat bij kleurnauwkeurige schermen met hoge resolutie. Je kunt maximaal 2 doelen aanvinken.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
-                <input type="checkbox" name="gebruik" value="dagelijks">
-                <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Dagelijks gebruik — Surfen, mailen en Netflix</span>
-              </label>
-              <label class="answer-option">
-                <input type="checkbox" name="gebruik" value="werk">
+                <input type="checkbox" name="gebruik" value="thuiswerk">
                 <svg class="answer-info-icon" data-icon="briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Studie of werk — Documenten en videobellen</span>
-              </label>
-              <label class="answer-option">
-                <input type="checkbox" name="gebruik" value="creatief">
-                <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Creatief werk — Foto's en video's bewerken</span>
+                <span>Thuiswerk of kantoor — Documenten, mailen, videobellen</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="gaming">
                 <svg class="answer-info-icon" data-icon="gamepad-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gaming — Spellen spelen</span>
+                <span>Gaming — Vloeiend en snel beeld</span>
+              </label>
+              <label class="answer-option">
+                <input type="checkbox" name="gebruik" value="creatief">
+                <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Creatief — Foto- of videobewerking, ontwerp</span>
+              </label>
+              <label class="answer-option">
+                <input type="checkbox" name="gebruik" value="algemeen">
+                <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Algemeen — Internetten, series kijken, van alles</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 43.3935px) + 8px + (2 * 43.3935px) + 8px + 22px) * var(--scale));">
-              <button id="back-to-start" style="background:rgba(255,255,255,.90);border:1.5px solid rgba(9,84,163,.30);color:var(--c-accent);box-shadow:0 2px 8px rgba(0,0,0,.08);filter:none;" onclick="window.location.href='laptop-keuzehulp/vragen'">Terug</button>
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 15px) + 22px) * var(--scale));">
+              <button id="back-to-start" style="background:rgba(255,255,255,.90);border:1.5px solid rgba(9,84,163,.30);color:var(--c-accent);box-shadow:0 2px 8px rgba(0,0,0,.08);filter:none;" onclick="window.location.href='./'">Terug</button>
               <button id="to-question-2">Volgende</button>
             </div>
           </div>
 
-          <!-- VRAAG 2: Formaat en draagbaarheid -->
+          <!-- VRAAG 2: Schermgrootte -->
           <div id="question-2" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Hoe gebruik je je laptop het liefst?</h2>
+              <h2>Hoe groot wil je het scherm?</h2>
               <div class="question-popover" data-popover="2">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Het formaat en gewicht van je laptop bepalen hoeveel comfort je hebt onderweg en thuis. Een lichte compact laptop (13–14 inch) is ideaal voor dagelijks meenemen. Een middenweg (15–16 inch) biedt een goede balans. Een grote krachtige laptop (17 inch) is het prettigst voor thuisgebruik met groot scherm.</p>
+                <p class="question-popover-text">De schermgrootte bepaalt hoeveel werkruimte je hebt. Een 24" monitor is compact en past op elk bureau. Een 27" is de populairste maat voor thuis en kantoor. Een 32" biedt extra ruimte voor multitasking. Een ultrawide (34"+) geeft een breed panoramisch beeld — ideaal voor meerdere vensters naast elkaar.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
-                <input type="radio" name="formaat" value="licht-compact">
-                <svg class="answer-info-icon" data-icon="laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Licht en compact — 13-14 inch, voor onderweg</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="formaat" value="middenweg">
-                <svg class="answer-info-icon" data-icon="laptop-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Middenweg — 15-16 inch</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="formaat" value="groot-krachtig">
+                <input type="radio" name="schermgrootte" value="compact">
                 <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Groot en krachtig — 17 inch, voor thuis</span>
+                <span>Compact — 24 inch, ruimtebesparend</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="schermgrootte" value="standaard">
+                <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Standaard — 27 inch, populairste maat</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="schermgrootte" value="groot">
+                <svg class="answer-info-icon" data-icon="tv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Groot — 32 inch, meer werkruimte</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="schermgrootte" value="ultrawide">
+                <svg class="answer-info-icon" data-icon="layout-panel-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Ultrawide — 34 inch of breder, panoramisch beeld</span>
               </label>
             </div>
-            <div class="button-container" id="q2-buttons" style="top: calc((70.11px + 37.77px + 44px + 8px + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-1">Terug</button>
               <button id="to-question-3">Volgende</button>
             </div>
           </div>
 
-          <!-- VRAAG 3: Budget -->
+          <!-- VRAAG 3: Budget (dynamisch) -->
           <div id="question-3" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Hoeveel wil je uitgeven aan je laptop?</h2>
+              <h2>Hoeveel wil je uitgeven aan de monitor?</h2>
               <div class="question-popover" data-popover="3">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Je budget bepaalt in welke klasse we zoeken. Goedkopere laptops zijn prima voor dagelijks gebruik, terwijl duurdere modellen snellere processors, betere schermen en meer opslag bieden. Kies het bedrag dat voor jou realistisch is – in elke categorie zijn goede opties te vinden.</p>
+                <p class="question-popover-text">Je budget bepaalt in welke klasse we zoeken. Budgetmonitoren bieden prima beeldkwaliteit voor dagelijks gebruik. Duurdere modellen hebben betere panelen (IPS, OLED), hogere resolutie (QHD, 4K) of hogere verversingssnelheden voor gaming. In elke prijsklasse zijn goede opties te vinden.</p>
               </div>
             </div>
             <div class="answers-container" id="price-options" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));"></div>
@@ -1207,99 +891,69 @@
             </div>
           </div>
 
-          <!-- VRAAG 4: Intensiteit -->
+          <!-- VRAAG 4: Verversingssnelheid -->
           <div id="question-4" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Hoe zwaar ga je de laptop gebruiken?</h2>
+              <h2>Hoe snel moet het beeld vernieuwen?</h2>
               <div class="question-popover" data-popover="4">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Licht gebruik zoals surfen en e-mailen vraagt weinig rekenkracht. Intensief gebruik zoals videobewerking, 3D-rendering of gamen vereist een krachtigere processor en meer werkgeheugen. Hoe zwaarder je de laptop gebruikt, hoe belangrijker snelle hardware is.</p>
+                <p class="question-popover-text">De verversingssnelheid (Hz) bepaalt hoe vloeiend bewegend beeld eruitziet. Voor kantoorwerk en films is 60Hz prima. Gamers profiteren van 144Hz voor soepelere bewegingen en minder invoervertraging. Competitief gamers kiezen voor 240Hz of meer voor het scherpste reactievermogen.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
-                <input type="radio" name="intensiteit" value="licht">
+                <input type="radio" name="hz" value="normaal">
                 <svg class="answer-info-icon" data-icon="coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Licht — Mailen en series kijken</span>
+                <span>Normaal (60-75Hz) — Voor kantoor en dagelijks gebruik</span>
               </label>
               <label class="answer-option">
-                <input type="radio" name="intensiteit" value="gemiddeld">
-                <svg class="answer-info-icon" data-icon="layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gemiddeld — Office en videobellen</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="intensiteit" value="intensief">
+                <input type="radio" name="hz" value="snel">
                 <svg class="answer-info-icon" data-icon="zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Intensief — Videobewerking of zware software</span>
+                <span>Snel (144Hz) — Vloeiend voor gaming en video</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="hz" value="ultra">
+                <svg class="answer-info-icon" data-icon="trending-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Ultra snel (240Hz+) — Maximaal voor competitief gaming</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-3">Terug</button>
               <button id="to-question-5">Volgende</button>
             </div>
           </div>
 
-          <!-- VRAAG 5: Opslag -->
+          <!-- VRAAG 5: Extra's (multi-select) -->
           <div id="question-5" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Hoeveel opslagruimte heb je nodig?</h2>
+              <div class="question-heading-wrap">
+                <h2>Wat is nog meer belangrijk voor jou?</h2>
+              </div>
               <div class="question-popover" data-popover="5">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Opslag bepaalt hoeveel bestanden, programma's en media je lokaal kunt bewaren. Sla je alles op in de cloud? Dan is 256 GB voldoende. Heb je veel foto's, programma's of video's? Kies dan voor 512 GB of meer. Professionele gebruikers met grote projecten zijn het best geholpen met 1 TB of meer.</p>
+                <p class="question-popover-text">Hier geef je extra wensen aan. USB-C is handig voor laptops aansluiten én opladen met één kabel. Een gebogen scherm zorgt voor een meeslependere ervaring. Ingebouwde speakers betekenen geen extra apparatuur nodig. 4K resolutie geeft superscherpe tekst en beelden. HDR-ondersteuning verbetert de kleurweergave bij foto's en video. Je kunt meerdere opties aanvinken.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
-              <label class="answer-option">
-                <input type="radio" name="opslag" value="weinig">
-                <svg class="answer-info-icon" data-icon="cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Weinig — Alles online opslaan, 256 GB</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="opslag" value="gemiddeld">
-                <svg class="answer-info-icon" data-icon="hard-drive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gemiddeld — Foto's en programma's, 512 GB</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="opslag" value="veel">
-                <svg class="answer-info-icon" data-icon="server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Veel — Video's en grote projecten, 1 TB of meer</span>
-              </label>
-            </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
-              <button id="back-to-question-4">Terug</button>
-              <button id="to-question-6">Volgende</button>
-            </div>
-          </div>
-
-          <!-- VRAAG 6: Extra's -->
-          <div id="question-6" class="question-block" style="display:none;">
-            <div class="question-container">
-              <div class="question-heading-wrap"><h2>Wat is nog meer belangrijk voor jou?</h2></div>
-              <div class="question-popover" data-popover="6">
-                <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Hier kun je extra wensen aangeven. Een touchscreen maakt bediening intuïtiever. USB-C is handig voor modern opladen en accessoires. Meerdere schermen aansluiten kan met extra HDMI-poorten. Een scherp beeldscherm (OLED of hoge resolutie) is prettig voor foto's, video en lang werken. Je kunt meerdere opties aanvinken.</p>
-              </div>
-            </div>
-            <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
-              <label class="answer-option">
-                <input type="checkbox" name="extra" value="touchscreen">
-                <svg class="answer-info-icon" data-icon="tablet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Touchscreen — Bediening via het scherm</span>
-              </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="usb-c">
                 <svg class="answer-info-icon" data-icon="plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>USB-C — Modern opladen en accessoires</span>
+                <span>USB-C — Laptop aansluiten en opladen met één kabel</span>
               </label>
               <label class="answer-option">
-                <input type="checkbox" name="extra" value="meerdere-schermen">
-                <svg class="answer-info-icon" data-icon="layout-panel-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Meerdere schermen — Extra monitor aansluiten</span>
+                <input type="checkbox" name="extra" value="gebogen">
+                <svg class="answer-info-icon" data-icon="circle-dot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Gebogen scherm — Curved voor meer onderdompeling</span>
               </label>
               <label class="answer-option">
-                <input type="checkbox" name="extra" value="scherp-beeldscherm">
+                <input type="checkbox" name="extra" value="speakers">
+                <svg class="answer-info-icon" data-icon="volume-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Ingebouwde speakers — Geen externe speakers nodig</span>
+              </label>
+              <label class="answer-option">
+                <input type="checkbox" name="extra" value="4k">
                 <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Scherp beeldscherm — OLED of hoge resolutie</span>
+                <span>4K resolutie — Superscherp beeld</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="geen">
@@ -1307,8 +961,8 @@
                 <span>Geen extra wensen</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 51.3935px) + (4 * 8px) + 22px) * var(--scale));">
-              <button id="back-to-question-5">Terug</button>
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 51.3935px) + (4 * 15px) + 22px) * var(--scale));">
+              <button id="back-to-question-4">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>
           </div>
@@ -1316,13 +970,10 @@
         </div>
       </div>
     </div>
-
   </main>
 
-  <!-- Core quiz engine -->
-  <script type="module" src="laptop-keuzehulp/js/main.js"></script>
+  <script type="module" src="monitor-keuzehulp/js/main.js"></script>
 
-  <!-- Toggle panels -->
   <script>
   (function () {
     function initToggle(btnId, contentId) {
@@ -1344,42 +995,27 @@
   })();
   </script>
 
-  <!-- Scroll-to-top button -->
   <button id="scroll-top-btn" aria-label="Terug naar boven" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    z-index: 9999;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #0954a3;
-    border: none;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
+    position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+    width: 44px; height: 44px; border-radius: 12px;
+    background: #0954a3; border: none; cursor: pointer;
+    display: grid; place-items: center;
     box-shadow: 0 4px 16px rgba(9,84,163,.35);
-    opacity: 0;
-    transform: translateY(10px);
+    opacity: 0; transform: translateY(10px);
     transition: opacity .25s ease, transform .25s ease;
-    pointer-events: none;
-  ">
+    pointer-events: none;">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
   </button>
   <script>
   (function(){
     var btn = document.getElementById('scroll-top-btn');
-    window.addEventListener('scroll', function(){
-      if (window.scrollY > 300) {
-        btn.style.opacity = '1';
-        btn.style.transform = 'translateY(0)';
-        btn.style.pointerEvents = 'auto';
-      } else {
-        btn.style.opacity = '0';
-        btn.style.transform = 'translateY(10px)';
-        btn.style.pointerEvents = 'none';
-      }
-    }, {passive: true});
+    if (!btn) return;
+    window.addEventListener('scroll', function () {
+      var show = window.scrollY > 300;
+      btn.style.opacity = show ? '1' : '0';
+      btn.style.transform = show ? 'translateY(0)' : 'translateY(10px)';
+      btn.style.pointerEvents = show ? 'auto' : 'none';
+    }, { passive: true });
   })();
   </script>
 

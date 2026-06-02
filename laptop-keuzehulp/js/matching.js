@@ -124,7 +124,7 @@ export function applyExtraFilter(laptops, extraAnswers) {
 // ─── Main matching function ───────────────────────────────────────────────────
 
 export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
-  if (!Array.isArray(laptops) || !sizeGroup || !priceGroup) {
+  if (!Array.isArray(laptops) || !sizeGroup) {
     return { bestMatch: null, bestType: null, filteredMatchedLaptops: [] };
   }
 
@@ -135,8 +135,7 @@ export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
     const price = parsePrice(l.prijs);
     return (
       allowedSizes.includes(l.schermdiagonaal) &&
-      price >= priceGroup.min &&
-      price <= priceGroup.max
+      (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max))
     );
   });
 

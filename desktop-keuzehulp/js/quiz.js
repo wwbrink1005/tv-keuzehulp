@@ -1,12 +1,12 @@
-import { priceGroupsBySize, sizeGroupToAllowedSizes } from "./data.js";
-import { calculateScores, matchLaptops } from "./matching.js";
+import { behuizingTypeToAllowed, priceGroupsByType } from "./data.js";
+import { calculateScores, matchDesktops } from "./matching.js";
 import { computeDynamicPriceGroups, getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 
 const quizState = {
-  selectedSizeGroup:  null,
-  selectedPriceGroup: null,
-  priceGroups:        []
+  selectedBehuizingType: null,
+  selectedPriceGroup:    null,
+  priceGroups:           []
 };
 
 let productsFetchPromise = null;
@@ -26,14 +26,6 @@ function getMenuOffset() {
   return Number.isFinite(menuHeight) ? menuHeight : 64;
 }
 
-function scrollMobileAnswersIntoView(question) {
-  if (!mobileQuery.matches || !question) return;
-  const answers = question.querySelector(".answers-container");
-  if (!answers) return;
-  const top = answers.getBoundingClientRect().top + window.scrollY - getMenuOffset() - 12;
-  window.scrollTo({ top, behavior: "smooth" });
-}
-
 function setQuestionExpanded(question, expanded) {
   if (!question) return;
   question.classList.toggle("is-expanded", expanded);
@@ -41,83 +33,13 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
-// Dimensions (px in 1242.21-wide coordinate space) per size group
-const laptopDimensions = {
-  'licht-compact':  { width: 186, height: 173 },  // 13–14 inch
-  'middenweg':      { width: 222, height: 205 },  // 15–16 inch
-  'groot-krachtig': { width: 258, height: 239 }   // 17 inch+
-};
-
-function updateLaptopDisplay() {
-  const checked = qs('input[name="formaat"]:checked');
-  const laptopDisplay = qs("#laptop-display");
-  const container = qs(".background-container");
-  const fadeDurationMs = 120;
-
-  if (!checked || !laptopDisplay || !container) {
-    if (laptopDisplay) {
-      laptopDisplay.style.opacity = "0";
-      window.setTimeout(() => { laptopDisplay.style.display = "none"; }, fadeDurationMs);
-    }
-    return;
-  }
-
-  const dims = laptopDimensions[checked.value];
-  if (!dims) {
-    laptopDisplay.style.opacity = "0";
-    window.setTimeout(() => { laptopDisplay.style.display = "none"; }, fadeDurationMs);
-    return;
-  }
-
-  const style = getComputedStyle(container);
-  const originalWidth  = parseFloat(style.getPropertyValue("--base-width"))  || 1242.21;
-  const originalHeight = parseFloat(style.getPropertyValue("--base-height")) || 630.138;
-  const containerWidth = container.offsetWidth;
-  const scaleFactor    = containerWidth / originalWidth;
-
-  laptopDisplay.style.width  = `${dims.width  * scaleFactor}px`;
-  laptopDisplay.style.height = `${dims.height * scaleFactor}px`;
-
-  const rightOffset  = parseFloat(style.getPropertyValue("--laptop-right-offset"))  || 370;
-  const bottomOffset = parseFloat(style.getPropertyValue("--laptop-bottom-offset")) || 55;
-
-  // rightOffset = distance from right edge to the horizontal CENTRE of the laptop
-  const rightPct  = ((rightOffset - dims.width / 2) / originalWidth)  * 100;
-  const bottomPct = (bottomOffset / originalHeight) * 100;
-
-  laptopDisplay.style.right  = `${rightPct}%`;
-  laptopDisplay.style.bottom = `${bottomPct}%`;
-  laptopDisplay.style.left   = "auto";
-
-  if (laptopDisplay.style.display !== "block") {
-    laptopDisplay.style.display = "block";
-    laptopDisplay.style.opacity = "0";
-    requestAnimationFrame(() => { laptopDisplay.style.opacity = "1"; });
-  } else {
-    laptopDisplay.style.opacity = "1";
-  }
-}
-
-function hideLaptopDisplay() {
-  const laptopDisplay = qs("#laptop-display");
-  if (!laptopDisplay) return;
-  laptopDisplay.style.opacity = "0";
-  window.setTimeout(() => { laptopDisplay.style.display = "none"; }, 120);
-}
-
 function showQuestion(num) {
   for (let i = 1; i <= 6; i++) {
     const q = qs(`#question-${i}`);
-    if (q) {
-      q.classList.remove("is-active");
-      q.style.display = "none";
-    }
+    if (q) { q.classList.remove("is-active"); q.style.display = "none"; }
   }
 
-  const totalQuestions = 6;
-
   if (num === "result") {
-    hideLaptopDisplay();
     updateProgressBar("result");
     const hintBtn = qs("#question-hint-btn");
     const hintBtnMobile = qs("#question-hint-btn-mobile");
@@ -128,15 +50,7 @@ function showQuestion(num) {
 
   const currentQuestion = qs(`#question-${num}`);
   if (!currentQuestion) return;
-
   currentQuestion.style.display = "block";
-
-  // Laptop display: hide on Q1, show on Q2+ if a size is selected
-  if (num === 1) {
-    hideLaptopDisplay();
-  } else if (num >= 2 && quizState.selectedSizeGroup) {
-    updateLaptopDisplay();
-  }
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -146,10 +60,7 @@ function showQuestion(num) {
       updateProgressBar(num);
 
       const hintBtn = qs("#question-hint-btn");
-      if (hintBtn) {
-        hintBtn.style.display = "";
-        hintBtn.textContent = "Waarom deze vraag?";
-      }
+      if (hintBtn) { hintBtn.style.display = ""; hintBtn.textContent = "Waarom deze vraag?"; }
       const hintBtnMobile = qs("#question-hint-btn-mobile");
       if (hintBtnMobile) hintBtnMobile.style.display = "";
     });
@@ -188,10 +99,6 @@ function positionElements(questionNum) {
   }
 }
 
-function renderSizeOptions() {
-  // Size options are static in the HTML for laptop (Q2)
-}
-
 function renderPriceOptions(groups) {
   const container = qs("#price-options");
   if (!container) return;
@@ -218,16 +125,15 @@ function renderPriceOptions(groups) {
 
 function resetQuestionsFrom(questionNumber) {
   for (let i = questionNumber; i <= 6; i++) {
-    const inputs = qsa(`#question-${i} input`);
-    inputs.forEach(input => { input.checked = false; });
+    qsa(`#question-${i} input`).forEach(input => { input.checked = false; });
   }
 }
 
 function buildAnswers() {
   return {
     gebruik:      qsa('input[name="gebruik"]:checked').map(cb => cb.value),
+    behuizing:    qs('input[name="behuizing"]:checked')?.value   ?? "",
     intensiteit:  qs('input[name="intensiteit"]:checked')?.value ?? "",
-    formaat:      qs('input[name="formaat"]:checked')?.value     ?? "",
     opslag:       qs('input[name="opslag"]:checked')?.value      ?? "",
     extraAnswers: qsa('input[name="extra"]:checked').map(cb => cb.value)
   };
@@ -238,30 +144,22 @@ function setupGebruikLimit() {
   checkboxes.forEach(cb => {
     cb.addEventListener("change", function () {
       const checked = qsa('input[name="gebruik"]:checked');
-      if (checked.length > 2) {
-        this.checked = false;
-      }
+      if (checked.length > 2) this.checked = false;
     });
   });
 }
 
 function setupExtraLimit() {
   const geenCheckbox = qs('input[name="extra"][value="geen"]');
-  const otherExtraCheckboxes = qsa('input[name="extra"]:not([value="geen"])');
+  const otherExtra   = qsa('input[name="extra"]:not([value="geen"])');
+  if (!geenCheckbox || otherExtra.length === 0) return;
 
-  if (!geenCheckbox || otherExtraCheckboxes.length === 0) return;
-
-  geenCheckbox.addEventListener("change", function() {
-    if (this.checked) {
-      otherExtraCheckboxes.forEach(cb => { cb.checked = false; });
-    }
+  geenCheckbox.addEventListener("change", function () {
+    if (this.checked) otherExtra.forEach(cb => { cb.checked = false; });
   });
-
-  otherExtraCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener("change", function() {
-      if (this.checked) {
-        geenCheckbox.checked = false;
-      }
+  otherExtra.forEach(checkbox => {
+    checkbox.addEventListener("change", function () {
+      if (this.checked) geenCheckbox.checked = false;
     });
   });
 }
@@ -271,32 +169,32 @@ function handleStartMatching() {
   if (extraChecked.length === 0) return alert("Kies minimaal 1 antwoord");
 
   const answers = buildAnswers();
-  const scores = calculateScores(answers);
+  const scores  = calculateScores(answers);
 
   prefetchProducts()
     .then(rawProducts => {
-      const laptops = normalizeProducts(rawProducts ?? []);
-      const result = matchLaptops(
-        laptops,
-        quizState.selectedSizeGroup,
+      const desktops = normalizeProducts(rawProducts ?? []);
+      const result = matchDesktops(
+        desktops,
+        quizState.selectedBehuizingType,
         quizState.selectedPriceGroup,
         answers,
         scores
       );
 
-      localStorage.setItem("laptop_bestMatch",               JSON.stringify(result.bestMatch));
-      localStorage.setItem("laptop_bestType",                result.bestType ?? "");
-      localStorage.setItem("laptop_scores",                  JSON.stringify(scores));
-      localStorage.setItem("laptop_filteredMatchedLaptops",  JSON.stringify(result.filteredMatchedLaptops));
-      localStorage.setItem("laptop_answers",                 JSON.stringify(answers));
-      localStorage.setItem("laptop_selectedSizeGroup",       quizState.selectedSizeGroup ?? "");
-      localStorage.setItem("laptop_selectedPriceGroupLabel", quizState.selectedPriceGroup?.label ?? "");
-      localStorage.setItem("laptop_dynamicPriceGroups",      JSON.stringify(quizState.priceGroups));
+      localStorage.setItem("desktop_bestMatch",               JSON.stringify(result.bestMatch));
+      localStorage.setItem("desktop_bestType",                result.bestType ?? "");
+      localStorage.setItem("desktop_scores",                  JSON.stringify(scores));
+      localStorage.setItem("desktop_filteredMatchedDesktops", JSON.stringify(result.filteredMatchedDesktops));
+      localStorage.setItem("desktop_answers",                 JSON.stringify(answers));
+      localStorage.setItem("desktop_selectedBehuizingType",   quizState.selectedBehuizingType ?? "");
+      localStorage.setItem("desktop_selectedPriceGroupLabel", quizState.selectedPriceGroup?.label ?? "");
+      localStorage.setItem("desktop_dynamicPriceGroups",      JSON.stringify(quizState.priceGroups));
 
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
       setTimeout(() => {
-        window.location.href = "laptop-keuzehulp/resultaat";
+        window.location.href = "desktop-keuzehulp/resultaat";
       }, 180);
     });
 }
@@ -304,10 +202,10 @@ function handleStartMatching() {
 export function initQuizPage() {
   if (!qs("#question-1")) return;
 
-  // Pre-fetch products in the background
+  // Pre-fetch products in background
   prefetchProducts();
 
-  // Q1 → Q2 (gebruik is multi-select, require at least 1)
+  // Q1 → Q2
   qs("#to-question-2")?.addEventListener("click", () => {
     const checked = qsa('input[name="gebruik"]:checked');
     if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
@@ -320,22 +218,22 @@ export function initQuizPage() {
     showQuestion(1);
   });
 
-  // Q2 → Q3 (fetch dynamic price groups based on selected formaat)
+  // Q2 → Q3 (fetch dynamic price groups based on behuizing)
   qs("#to-question-3")?.addEventListener("click", async () => {
-    const checked = qs('input[name="formaat"]:checked');
-    if (!checked) return alert("Kies een formaat");
+    const checked = qs('input[name="behuizing"]:checked');
+    if (!checked) return alert("Kies een behuizing");
 
-    quizState.selectedSizeGroup = checked.value;
+    quizState.selectedBehuizingType = checked.value;
 
     const btn = qs("#to-question-3");
     if (btn) btn.disabled = true;
     try {
       const rawProducts = await prefetchProducts();
-      const laptops = normalizeProducts(rawProducts ?? []);
-      const dynamic = computeDynamicPriceGroups(laptops, quizState.selectedSizeGroup, sizeGroupToAllowedSizes);
-      quizState.priceGroups = dynamic.length > 0 ? dynamic : (priceGroupsBySize[quizState.selectedSizeGroup] ?? []);
+      const desktops = normalizeProducts(rawProducts ?? []);
+      const dynamic = computeDynamicPriceGroups(desktops, quizState.selectedBehuizingType, behuizingTypeToAllowed);
+      quizState.priceGroups = dynamic.length > 0 ? dynamic : (priceGroupsByType[quizState.selectedBehuizingType] ?? []);
     } catch {
-      quizState.priceGroups = priceGroupsBySize[quizState.selectedSizeGroup] ?? [];
+      quizState.priceGroups = priceGroupsByType[quizState.selectedBehuizingType] ?? [];
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -345,9 +243,7 @@ export function initQuizPage() {
   });
 
   // Q3 → Q2
-  qs("#back-to-question-2")?.addEventListener("click", () => {
-    showQuestion(2);
-  });
+  qs("#back-to-question-2")?.addEventListener("click", () => showQuestion(2));
 
   // Q3 → Q4
   qs("#to-question-4")?.addEventListener("click", () => {
@@ -391,41 +287,14 @@ export function initQuizPage() {
     showQuestion(5);
   });
 
-  // Listen for formaat (Q2) changes → update laptop visualisation
-  qsa('input[name="formaat"]').forEach(radio => {
-    radio.addEventListener("change", updateLaptopDisplay);
-  });
-
   setupGebruikLimit();
   setupExtraLimit();
 
   // Q6 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
-  // Toggle panels
-  const explanationTab = qs("#explanation-tab");
-  const explanationDrawer = qs("#explanation-drawer");
-  if (explanationTab && explanationDrawer) {
-    explanationTab.addEventListener("click", () => {
-      const isOpen = explanationDrawer.classList.toggle("is-open");
-      explanationTab.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    });
-    document.addEventListener("click", (e) => {
-      if (explanationDrawer.classList.contains("is-open") &&
-          !explanationDrawer.contains(e.target)) {
-        explanationDrawer.classList.remove("is-open");
-        explanationTab.setAttribute("aria-expanded", "false");
-      }
-    });
-  }
-
-  // Re-position elements on window resize (desktop only)
+  // Re-position on resize (desktop only)
   window.addEventListener("resize", () => {
-    // Re-render laptop display on every resize
-    const laptopDisplay = qs("#laptop-display");
-    if (laptopDisplay && laptopDisplay.style.display === "block") {
-      updateLaptopDisplay();
-    }
     if (mobileQuery.matches) return;
     for (let i = 1; i <= 6; i++) {
       const q = qs(`#question-${i}`);
@@ -437,8 +306,6 @@ export function initQuizPage() {
   }, { passive: true });
 
   window.addEventListener("load", () => {
-    if (qs("#question-1")) {
-      showQuestion(1);
-    }
+    if (qs("#question-1")) showQuestion(1);
   });
 }

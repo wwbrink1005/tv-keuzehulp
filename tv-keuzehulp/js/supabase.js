@@ -67,13 +67,11 @@ function mapScherpte(value) {
 function adaptAanbieders(row) {
   return {
     productnaam_cb:       row.coolblue_naam              ?? "",
-    afbeelding_cb:        row.coolblue_afbeelding        ?? "",
     prijs_cb:             row.coolblue_prijs    != null  ? String(row.coolblue_prijs)    : "",
     url_cb:               row.coolblue_affiliate_link    ?? "",
     levertijd_cb:         row.coolblue_levertijd         ?? "",
     verzendkosten_cb:     row.coolblue_bezorgkosten != null ? String(row.coolblue_bezorgkosten) : "",
     productnaam_expert:   row.expert_naam                ?? "",
-    afbeelding_expert:    row.expert_afbeelding          ?? "",
     prijs_expert:         row.expert_prijs     != null   ? String(row.expert_prijs)      : "",
     url_expert:           row.expert_affiliate_link      ?? "",
     levertijd_expert:     row.expert_levertijd           ?? "",
@@ -93,13 +91,15 @@ function adaptRow(row) {
   if (!type) return null;
 
   return {
-    ean:        row.ean,
+    ean:                 row.ean,
     type,
     grootte,
-    merk:       row.merk,
-    scherpte:   mapScherpte(row.scherm_type),
-    hz:         parseRefreshRate(row.refresh_rate),
-    aanbieders: [adaptAanbieders(row)],
+    merk:                row.merk,
+    scherpte:            mapScherpte(row.scherm_type),
+    hz:                  parseRefreshRate(row.refresh_rate),
+    icecat_afbeelding:   row.icecat_afbeelding  ?? "",
+    icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
+    aanbieders:          [adaptAanbieders(row)],
   };
 }
 
@@ -132,9 +132,47 @@ async function fetchAll() {
 }
 
 /**
+ * Normaliseert een EAN naar 13 cijfers.
+ * UPC-A (12 cijfers) is hetzelfde als EAN-13 mét een voorloopnul.
+ * Sommige feeds slaan EANs op als getal waardoor de voorloopnul wegvalt.
+ */
+function normaliseEan(ean) {
+  if (!ean) return ean;
+  const s = String(ean).trim();
+  return (s.length === 12 && /^\d+$/.test(s)) ? "0" + s : s;
+}
+
+/**
+ * Voegt rijen met hetzelfde EAN samen tot één rij.
+ * Normaliseert EANs naar 13 cijfers zodat UPC-A en EAN-13 varianten van
+ * hetzelfde product als één rij worden herkend.
+ * Bij elk veld wint de eerste niet-lege waarde.
+ */
+function samenvoegDuplicaten(rows) {
+  const byEan = new Map();
+  for (const row of rows) {
+    const ean = normaliseEan(row.ean);
+    const normRow = ean !== row.ean ? { ...row, ean } : row;
+    if (!byEan.has(ean)) {
+      byEan.set(ean, { ...normRow });
+    } else {
+      const existing = byEan.get(ean);
+      for (const [key, value] of Object.entries(normRow)) {
+        if (existing[key] === null || existing[key] === undefined || existing[key] === "") {
+          if (value !== null && value !== undefined && value !== "") {
+            existing[key] = value;
+          }
+        }
+      }
+    }
+  }
+  return Array.from(byEan.values());
+}
+
+/**
  * Fetches all televisies and returns them in the shape normalizeProducts() expects.
  */
 export async function fetchProducts() {
   const rows = await fetchAll();
-  return rows.map(adaptRow).filter(Boolean);
+  return samenvoegDuplicaten(rows).map(adaptRow).filter(Boolean);
 }

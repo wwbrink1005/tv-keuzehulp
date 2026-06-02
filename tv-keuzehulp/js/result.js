@@ -268,13 +268,13 @@ function updateBestMatchCard(tv, type, answers) {
   const imageEl = qs("#bestMatchImage");
   if (imageEl) {
     imageEl.src = tv.afbeelding || "tv.png";
-    imageEl.dataset.provider = (tv.afbeelding && tv.afbeelding.includes("expert.nl")) ? "expert" : "coolblue";
   }
 
   const previewBtn = qs("#bestMatchPreviewBtn");
   if (previewBtn) {
-    previewBtn.dataset.previewSrc = tv.afbeelding || "tv.png";
+    previewBtn.dataset.previewSrc  = tv.afbeelding || "tv.png";
     previewBtn.dataset.previewName = tv.naam || "";
+    previewBtn.dataset.previewImgs = JSON.stringify(tv.afbeeldingen || []);
   }
 
   if (specsEl) {
@@ -331,8 +331,8 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
       return `
         <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
           <div class="tv-card-image" aria-hidden="true">
-            <img src="${tv.afbeelding || 'tv.png'}" alt="" role="presentation" data-provider="${tv.afbeelding && tv.afbeelding.includes('expert.nl') ? 'expert' : 'coolblue'}">
-            <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${tv.afbeelding || 'tv.png'}" data-preview-name="${tv.naam}">
+            <img src="${tv.afbeelding || 'tv.png'}" alt="" role="presentation">
+            <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${tv.afbeelding || 'tv.png'}" data-preview-name="${tv.naam}" data-preview-imgs="${JSON.stringify(tv.afbeeldingen || []).replace(/"/g, '&quot;')}">
               <i data-lucide="eye"></i>
             </button>
           </div>

@@ -7,8 +7,8 @@ function formatShipping(verzendkosten) {
   return `+ \u20ac${val.toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} verzending`;
 }
 
-function buildProvidersHtml(laptop) {
-  const aanbieder = laptop?.aanbieder;
+function buildProvidersHtml(monitor) {
+  const aanbieder = monitor?.aanbieder;
   if (!aanbieder) return "";
 
   const providers = [];
@@ -68,36 +68,27 @@ function buildProvidersHtml(laptop) {
   `;
 }
 
-function buildSpecList(laptop) {
+function buildSpecList(monitor) {
   const specs = [];
 
-  if (laptop.schermdiagonaal) {
-    specs.push(`${laptop.schermdiagonaal}" scherm`);
+  if (monitor.schermdiagonaal) {
+    specs.push(`${monitor.schermdiagonaal}" monitor`);
   }
 
-  if (laptop.processor) {
-    specs.push(laptop.processor);
+  if (monitor.resolutie) {
+    specs.push(monitor.resolutie);
   }
 
-  if (laptop.werkgeheugen) {
-    specs.push(`${laptop.werkgeheugen} GB RAM`);
+  if (monitor.paneeltype) {
+    specs.push(monitor.paneeltype);
   }
 
-  if (laptop.opslag) {
-    const opslagNum = parseInt(laptop.opslag, 10);
-    if (opslagNum >= 1024) {
-      specs.push(`${opslagNum / 1024} TB SSD`);
-    } else {
-      specs.push(`${opslagNum} GB SSD`);
-    }
+  if (monitor.hz) {
+    specs.push(`${monitor.hz}Hz`);
   }
 
-  if (laptop.paneeltype) {
-    specs.push(laptop.paneeltype);
-  }
-
-  if (laptop.resolutie) {
-    specs.push(laptop.resolutie);
+  if (monitor.responstijd) {
+    specs.push(`${monitor.responstijd} reactietijd`);
   }
 
   return specs;
@@ -109,44 +100,44 @@ function updateMatchCount(count) {
   countEl.textContent = `${Number.isFinite(count) ? count : 0}`;
 }
 
-function displayOtherMatchesRedesign(filteredMatchedLaptops) {
+function displayOtherMatchesRedesign(filteredMatchedMonitors) {
   const container = qs("#otherMatchesGrid");
   if (!container) return;
 
-  if (filteredMatchedLaptops.length === 0) {
-    container.innerHTML = '<p class="no-matches">Geen passende laptops gevonden.</p>';
+  if (filteredMatchedMonitors.length === 0) {
+    container.innerHTML = '<p class="no-matches">Geen passende monitoren gevonden.</p>';
     return;
   }
 
-  const prices = filteredMatchedLaptops.map(l => parsePrice(l.prijs));
+  const prices = filteredMatchedMonitors.map(m => parsePrice(m.prijs));
   const minPrice = Math.min(...prices);
 
-  container.innerHTML = filteredMatchedLaptops
-    .map((laptop, index) => {
-      const price = parsePrice(laptop.prijs);
+  container.innerHTML = filteredMatchedMonitors
+    .map((monitor, index) => {
+      const price = parsePrice(monitor.prijs);
       const isCheapest = price === minPrice;
-      const specs = buildSpecList(laptop);
+      const specs = buildSpecList(monitor);
       const specsText = specs.join(" \u2022 ");
-      const points = buildResultPoints(laptop, currentAnswers);
+      const points = buildResultPoints(monitor, currentAnswers);
       const pointsHtml = points.map(point => `
         <li>
           <i data-lucide="check" class="tv-card-check" aria-hidden="true"></i>
           <span>${point}</span>
         </li>
       `).join("");
-      const providersHtml = buildProvidersHtml(laptop);
+      const providersHtml = buildProvidersHtml(monitor);
 
       return `
         <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
           <div class="tv-card-image" aria-hidden="true">
-            <img src="${laptop.afbeelding || ''}" alt="" role="presentation">
-            <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${laptop.afbeelding || ''}" data-preview-name="${laptop.naam}" data-preview-imgs="${JSON.stringify(laptop.afbeeldingen || []).replace(/"/g, '&quot;')}">
+            <img src="${monitor.afbeelding || ''}" alt="" role="presentation">
+            <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${monitor.afbeelding || ''}" data-preview-name="${monitor.naam}" data-preview-imgs="${JSON.stringify(monitor.afbeeldingen || []).replace(/"/g, '&quot;')}">
               <i data-lucide="eye"></i>
             </button>
           </div>
           <div class="tv-card-body">
             ${isCheapest ? '<span class="tv-card-cheapest-badge">Goedkoopste keuze</span>' : ''}
-            <h3 class="tv-card-name">${laptop.naam}</h3>
+            <h3 class="tv-card-name">${monitor.naam}</h3>
             ${points.length > 0 ? `<ul class="tv-card-points">${pointsHtml}</ul>` : ""}
             <div class="tv-card-specs">${specsText}</div>
             <div class="tv-card-price">Vanaf \u20ac${formatPriceLabel(price)}</div>
@@ -261,20 +252,18 @@ export function initResultPage() {
   const hasRedesignLayout = Boolean(qs("#bestMatchCard"));
   if (!hasRedesignLayout) return;
 
-  const bestMatchData  = localStorage.getItem("laptop_bestMatch");
-  const bestType       = localStorage.getItem("laptop_bestType");
-  const scoresData     = localStorage.getItem("laptop_scores");
-  const filteredData   = localStorage.getItem("laptop_filteredMatchedLaptops");
-  const answersData    = localStorage.getItem("laptop_answers");
+  const bestMatchData  = localStorage.getItem("monitor_bestMatch");
+  const bestType       = localStorage.getItem("monitor_bestType");
+  const filteredData   = localStorage.getItem("monitor_filteredMatchedMonitors");
+  const answersData    = localStorage.getItem("monitor_answers");
 
-  if (!bestMatchData || !bestType) return;
+  if (!bestMatchData) return;
 
-  const bestMatch           = JSON.parse(bestMatchData);
-  const answers             = answersData ? JSON.parse(answersData) : null;
-  const filteredMatchedLaptops = filteredData ? JSON.parse(filteredData) : [];
+  const filteredMatchedMonitors = filteredData ? JSON.parse(filteredData) : [];
+  const answers                 = answersData  ? JSON.parse(answersData)  : null;
 
   currentAnswers = answers;
-  baseMatches    = Array.isArray(filteredMatchedLaptops) ? filteredMatchedLaptops : [];
+  baseMatches    = Array.isArray(filteredMatchedMonitors) ? filteredMatchedMonitors : [];
 
   initSortControl();
   applySortAndRender("price-asc");

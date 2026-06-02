@@ -297,6 +297,14 @@ function renderPriceOptions(groups) {
     container.appendChild(label);
   });
 
+  const noPriceLabel = document.createElement("label");
+  noPriceLabel.className = "answer-option";
+  noPriceLabel.innerHTML = `
+    <input type="radio" name="priceGroup" value="geen-voorkeur">
+    <span>Geen voorkeur – toon alle prijzen</span>
+  `;
+  container.appendChild(noPriceLabel);
+
   ensureMobileToggle(qs("#question-3"));
 }
 
@@ -458,7 +466,9 @@ export function initQuizPage() {
     const checked = qs('input[name="priceGroup"]:checked');
     if (!checked) return alert("Kies een budget");
 
-    quizState.selectedPriceGroup = quizState.priceGroups.find(p => p.label === checked.value);
+    quizState.selectedPriceGroup = checked.value === "geen-voorkeur"
+      ? null
+      : quizState.priceGroups.find(p => p.label === checked.value);
 
     showQuestion(4);
   });

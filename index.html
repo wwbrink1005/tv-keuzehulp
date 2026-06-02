@@ -103,6 +103,11 @@
         50%      { opacity: 0.6; }
       }
 
+      @keyframes collage-fly-in {
+        from { opacity: 0; transform: translateX(-110vw); }
+        to   { opacity: 1; transform: translateX(0);      }
+      }
+
       /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
          HERO SECTION — new design
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -121,12 +126,16 @@
 
       /* Full-bleed hero card */
       .hero-card {
+        position: relative;
         background: #f5f3f0;
         border-radius: 20px;
         display: grid;
         grid-template-columns: 48fr 52fr;
-        min-height: 380px;
-        overflow: hidden;
+        /* aspect-ratio zorgt dat hoogte altijd proportioneel mee schaalt met breedte
+           → TV-percentages blijven exact op dezelfde plek ongeacht schermgrootte.
+           3.6/1 = ~380px hoog bij 1376px kaartbreedte (1440px viewport) */
+        aspect-ratio: 3.6 / 1;
+        overflow: visible;
       }
 
       .hero-card-left {
@@ -142,77 +151,201 @@
 
       .hero-card-right {
         position: relative;
-        overflow: hidden;
         border-radius: 0 20px 20px 0;
-        background: #c9bfb2;
-        min-height: 380px;
+        background: #f5f3f0;
       }
 
-      /* Wrapper sized to the header image native ratio (1669 × 929),
-         centred so the sofa stays visible when the panel is narrower */
-      .hero-room-wrap {
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         HERO COLLAGE (desktop right panel)
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .hero-collage {
         position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        height: 100%;
-        aspect-ratio: 1669 / 929;
+        inset: 0;
       }
 
-      /* Room photo — fills the wrapper exactly */
-      .hero-room-img {
+      .collage-item {
+        position: absolute;
+        cursor: pointer;
+      }
+
+      .collage-item img {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center center;
+        height: auto;
         display: block;
+        object-fit: contain;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
       }
 
-      /* TV overlay — centred on the blank wall above the sideboard
-         image: 1669 × 929 px (cropped 261px from top of original)
-         TV bottom  ≈ y 469  → bottom: (929-469)/929  = 49.5%
-         TV right   ≈ x 820  → right:  (1669-820)/1669 = 50.9%
-         TV width   ≈ 420 px → width:  420/1669        = 25.2%
-         TV height  ≈ 236 px → height: 236/929         = 25.4% */
-      .hero-tv-display {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 49.5%;
-        width: 25.2%;
-        height: 25.4%;
-        background-image: url('tv-keuzehulp/images/tv aarde.png');
-        background-size: cover;
-        background-position: center;
+      .collage-item:hover img,
+      .collage-item.pinned img {
+        transform: scale(1.05);
+      }
+
+      /* TV — large, left background */
+      .hero-collage-tv {
+        left: 10%;
+        bottom: 20%;
+        width: 55%;
         z-index: 2;
+        /* left: 10% — tweede vanuit links */
+        animation: collage-fly-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.88s both;
       }
 
-      .hero-promo-link {
+      /* Washing machine — top right, slightly clipped top/right */
+      .hero-collage-wasmachine {
+        right: 8%;
+        top: 5%;
+        width: 30%;
+        z-index: 1;
+        /* right: 8% ≈ left: 62% — op een na verste */
+        animation: collage-fly-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) 1.28s both;
+      }
+
+      /* Desktop tower — anchored bottom-right, fully visible */
+      .hero-collage-desktop {
+        right: 9%;
+        bottom: 7%;
+        width: 12%;
+        z-index: 3;
+        /* right: 9% ≈ left: 79% — verste, komt als laatste */
+        animation: collage-fly-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) 1.44s both;
+      }
+
+      /* Laptop — center hero, most prominent */
+      .hero-collage-laptop {
+        left: 44%;
+        bottom: 4%;
+        width: 38%;
+        z-index: 5;
+        /* left: 44% — vierde */
+        animation: collage-fly-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.12s both;
+      }
+
+      /* Printer — bottom left foreground, in front of TV */
+      .hero-collage-printer {
+        left: 19%;
+        bottom: 7%;
+        width: 32%;
+        z-index: 4;
+        /* left: 19% — derde */
+        animation: collage-fly-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) 1.0s both;
+      }
+
+      /* Stofzuiger — far left, tall, in front of TV */
+      .hero-collage-stofzuiger {
+        left: 0%;
+        bottom: 5%;
+        width: 20%;
+        z-index: 3;
+        /* left: 0% — meest links, komt als eerste */
+        animation: collage-fly-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both;
+      }
+
+      /* Medium desktop 881–1200 px */
+      @media (min-width: 881px) and (max-width: 1200px) {
+        .hero-collage-tv          { width: 55%; left: 10%; bottom: 20%; }
+        .hero-collage-wasmachine  { width: 30%; right: 8%;  top: 5%;    }
+        .hero-collage-desktop     { width: 12%; right: 9%;  bottom: 7%;  }
+        .hero-collage-laptop      { width: 38%; left: 44%;  bottom: 4%;  }
+        .hero-collage-printer     { width: 32%; left: 19%;  bottom: 7%;  }
+        .hero-collage-stofzuiger  { width: 20%; left: 0%;   bottom: 5%;  }
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         COLLAGE ITEM TOOLTIPS
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .collage-tooltip {
         position: absolute;
-        bottom: 0;
+        bottom: calc(70% + 8px);
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: var(--color-white);
+        border: 1.5px solid rgba(9, 84, 163, 0.18);
+        border-radius: var(--radius-md);
+        padding: 14px 18px 16px;
+        box-shadow: 0 8px 32px rgba(9, 84, 163, 0.10);
+        min-width: 175px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 999;
+        white-space: nowrap;
+      }
+
+      /* Default: above + centered */
+      .collage-item:hover .collage-tooltip:not(.align-left):not(.align-right),
+      .collage-item.pinned .collage-tooltip:not(.align-left):not(.align-right) {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        pointer-events: auto;
+      }
+
+      /* Below modifier (for top-anchored products) */
+      .collage-tooltip.below {
+        bottom: auto;
+        top: calc(100% + 12px);
+        transform: translateX(-50%) translateY(-10px);
+      }
+
+      /* Align to left edge of wrapper */
+      .collage-tooltip.align-left {
         left: 0;
+        transform: translateY(10px);
+      }
+
+      /* Align to right edge of wrapper */
+      .collage-tooltip.align-right {
+        left: auto;
         right: 0;
-        padding: 22px 28px;
-        background: linear-gradient(to top, rgba(0,0,0,0.62), transparent);
-        display: flex;
+        transform: translateY(10px);
+      }
+
+      /* Hover/pinned for left- or right-aligned tooltips */
+      .collage-item:hover .collage-tooltip.align-left,
+      .collage-item:hover .collage-tooltip.align-right,
+      .collage-item.pinned .collage-tooltip.align-left,
+      .collage-item.pinned .collage-tooltip.align-right {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .collage-tooltip-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 8px;
+      }
+
+      .collage-tooltip-link {
+        display: inline-flex;
         align-items: center;
-        gap: 7px;
-        color: rgba(255,255,255,0.9);
-        font-size: 15px;
-        font-weight: 500;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-primary);
         text-decoration: none;
-        transition: color 0.2s;
+        transition: gap 0.2s ease;
       }
 
-      .hero-promo-link:hover { color: #fff; }
+      .collage-tooltip-link:hover { gap: 8px; }
 
-      .hero-promo-link svg {
-        width: 16px;
-        height: 16px;
-        transition: transform 0.2s;
+      .collage-tooltip-link svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
       }
 
-      .hero-promo-link:hover svg { transform: translateX(3px); }
+      .collage-tooltip-soon {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        background: var(--color-bg);
+        padding: 3px 9px;
+        border-radius: var(--radius-full);
+      }
 
       .hero-title {
         font-family: var(--font-body);
@@ -409,6 +542,7 @@
 
         .hero-card {
           grid-template-columns: 1fr;
+          aspect-ratio: unset;
           min-height: unset;
           border-radius: 16px;
         }
@@ -908,6 +1042,7 @@
       @media (max-width: 880px) {
         .hero-card {
           grid-template-columns: 1fr;
+          aspect-ratio: unset;
           min-height: unset;
           border-radius: 16px;
         }
@@ -1291,88 +1426,77 @@
         /* ── Hero ── */
         .hero {
           padding: 0;
-          background: #f5f3f0;
+          background: #ffffff;
         }
 
         .hero-inner {
           max-width: 100%;
         }
 
+        /* ── Hero card: column layout, full-width grey strip ── */
         .hero-card {
           display: flex;
           flex-direction: column;
           border-radius: 0;
-          min-height: unset;
           background: #f5f3f0;
+          aspect-ratio: unset;
+          overflow: visible;
+          /* reset desktop grid */
+          grid-template-columns: unset;
         }
 
-        .hero-card-right { display: none !important; }
-
+        /* Title section: normal flow at top of grey card */
         .hero-card-left {
-          padding: 52px 20px 36px;
+          position: relative;
+          width: 100%;
+          padding: 28px 20px 20px;
+          background: transparent;
+          display: flex;
+          flex-direction: column;
           align-items: flex-start;
           text-align: left;
-          gap: 20px;
-          background: transparent;
+          gap: 0;
+          z-index: 1;
+        }
+
+        /* Hide search bar and chips */
+        .hero-card-left .hero-search,
+        .hero-card-left .mobile-cats-chips {
+          display: none;
         }
 
         .hero-title {
-          font-size: clamp(26px, 7.5vw, 34px);
+          font-size: clamp(22px, 6vw, 32px);
           white-space: normal;
           color: #1d1d1f;
           letter-spacing: -0.03em;
-          line-height: 1.15;
+          line-height: 1.2;
         }
 
-        .hero-search {
-          max-width: 100%;
+        /* Collage panel: full-width, SAME aspect-ratio as desktop right panel
+           desktop: aspect-ratio 3.6/1, grid 48fr/52fr → right panel = 52% × 3.6 = 1.872 */
+        .hero-card-right {
+          display: block !important;
+          position: relative;
           width: 100%;
+          aspect-ratio: 1.872 / 1;
+          overflow: visible;
+          border-radius: 0;
+          background: transparent;
+          flex-shrink: 0;
         }
 
-        .hero-search input {
-          height: 52px;
-          font-size: 15px;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.07), inset 0 1px 3px rgba(0,0,0,0.04);
+        /* Collage fills its container */
+        .hero-collage {
+          position: absolute;
+          inset: 0;
         }
 
         .hero-cats-strip { display: none; }
         .hero-cats-btn-wrap { display: none; }
 
-        /* ── Mobile category chips ── */
-        .mobile-cats-chips {
-          display: flex;
-          gap: 8px;
-          overflow-x: auto;
-          scrollbar-width: none;
-          width: calc(100% + 40px);
-          margin-left: -20px;
-          padding: 2px 20px 4px;
-        }
-
-        .mobile-cats-chips::-webkit-scrollbar { display: none; }
-
-        .mobile-cat-chip {
-          display: inline-flex;
-          align-items: center;
-          padding: 8px 16px;
-          border-radius: 999px;
-          background: rgba(9, 84, 163, 0.07);
-          color: var(--color-primary);
-          font-size: 13px;
-          font-weight: 600;
-          white-space: nowrap;
-          text-decoration: none;
-          flex-shrink: 0;
-          transition: background 0.2s, color 0.2s, border-color 0.2s;
-          border: 1.5px solid rgba(9, 84, 163, 0.14);
-        }
-
-        .mobile-cat-chip:hover,
-        .mobile-cat-chip.chip-active {
-          background: var(--color-primary);
-          color: #fff;
-          border-color: var(--color-primary);
-        }
+        .hero-cats-strip { display: none; }
+        .hero-cats-btn-wrap { display: none; }
 
         /* ── Popular section ── */
         .popular-section {
@@ -1498,17 +1622,11 @@
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
       @media (max-width: 480px) {
         .hero-card-left {
-          padding: 44px 16px 32px;
-        }
-
-        .mobile-cats-chips {
-          width: calc(100% + 32px);
-          margin-left: -16px;
-          padding: 2px 16px 4px;
+          padding: 22px 16px 16px;
         }
 
         .hero-title {
-          font-size: clamp(22px, 7.5vw, 28px);
+          font-size: clamp(20px, 6vw, 28px);
         }
 
         .popular-section {
@@ -1692,24 +1810,75 @@
               <!-- Mobile category chips (visible only on mobile) -->
               <div class="mobile-cats-chips" role="list" aria-label="Categorieën">
                 <a class="mobile-cat-chip chip-active" href="tv-keuzehulp/vragen" role="listitem">Televisies</a>
-                <a class="mobile-cat-chip" href="#" role="listitem">Smartphones</a>
                 <a class="mobile-cat-chip" href="laptop-keuzehulp/vragen" role="listitem">Laptops</a>
-                <a class="mobile-cat-chip" href="#" role="listitem">Wasmachines</a>
+                <a class="mobile-cat-chip" href="monitor-keuzehulp/vragen" role="listitem">Monitoren</a>
+                <a class="mobile-cat-chip" href="desktop-keuzehulp/vragen" role="listitem">Desktops</a>
+                <a class="mobile-cat-chip" href="#" role="listitem">Smartphones</a>
                 <a class="mobile-cat-chip" href="#" role="listitem">Koelkasten</a>
-                <a class="mobile-cat-chip" href="#" role="listitem">Barbecues</a>
                 <a class="mobile-cat-chip" href="#" role="listitem">E-bikes</a>
               </div>
             </div>
-            <!-- Right — room scene with TV on cabinet (desktop only) -->
+            <!-- Right — grey panel (desktop only) -->
             <div class="hero-card-right">
-              <div class="hero-room-wrap">
-                <img class="hero-room-img" src="images/ja header2.png" alt="" aria-hidden="true" />
-                <div class="hero-tv-display" aria-hidden="true"></div>
+              <div class="hero-collage">
+                <!-- Wasmachine (achterste laag) -->
+                <div class="hero-collage-wasmachine collage-item">
+                  <img src="images/header/wasmachine%20header.png" alt="" aria-hidden="true" draggable="false" />
+                  <div class="collage-tooltip align-right">
+                    <p class="collage-tooltip-label">Wasmachines</p>
+                    <span class="collage-tooltip-soon">Binnenkort beschikbaar</span>
+                  </div>
+                </div>
+                <!-- TV -->
+                <div class="hero-collage-tv collage-item">
+                  <img src="images/header/televisie%20header.png" alt="" aria-hidden="true" draggable="false" />
+                  <div class="collage-tooltip">
+                    <p class="collage-tooltip-label">Televisies</p>
+                    <a href="tv-keuzehulp/vragen" class="collage-tooltip-link">
+                      Bekijk keuzehulp
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
+                  </div>
+                </div>
+                <!-- Stofzuiger -->
+                <div class="hero-collage-stofzuiger collage-item">
+                  <img src="images/header/stofzuiger%20header.png" alt="" aria-hidden="true" draggable="false" />
+                  <div class="collage-tooltip align-left">
+                    <p class="collage-tooltip-label">Stofzuigers</p>
+                    <span class="collage-tooltip-soon">Binnenkort beschikbaar</span>
+                  </div>
+                </div>
+                <!-- Desktop -->
+                <div class="hero-collage-desktop collage-item">
+                  <img src="images/header/desktop%20header.png" alt="" aria-hidden="true" draggable="false" />
+                  <div class="collage-tooltip align-right">
+                    <p class="collage-tooltip-label">Desktops</p>
+                    <a href="desktop-keuzehulp/vragen" class="collage-tooltip-link">
+                      Bekijk keuzehulp
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
+                  </div>
+                </div>
+                <!-- Printer -->
+                <div class="hero-collage-printer collage-item">
+                  <img src="images/header/printer%20header.png" alt="" aria-hidden="true" draggable="false" />
+                  <div class="collage-tooltip">
+                    <p class="collage-tooltip-label">Printers</p>
+                    <span class="collage-tooltip-soon">Binnenkort beschikbaar</span>
+                  </div>
+                </div>
+                <!-- Laptop (voorste laag) -->
+                <div class="hero-collage-laptop collage-item">
+                  <img src="images/header/laptop%20header.png" alt="" aria-hidden="true" draggable="false" />
+                  <div class="collage-tooltip">
+                    <p class="collage-tooltip-label">Laptops</p>
+                    <a href="laptop-keuzehulp/vragen" class="collage-tooltip-link">
+                      Bekijk keuzehulp
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
+                  </div>
+                </div>
               </div>
-              <a class="hero-promo-link" href="tv-keuzehulp/vragen">
-                Televisie keuzehulp
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-              </a>
             </div>
           </div>
 
@@ -1731,9 +1900,9 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
               <span>Tablets</span>
             </a>
-            <a class="hero-cat-item" href="#" role="listitem">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
-              <span>Wasmachines</span>
+            <a class="hero-cat-item" href="desktop-keuzehulp/vragen" role="listitem">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="5" y1="10" x2="5" y2="10"/></svg>
+              <span>Desktops</span>
             </a>
             <a class="hero-cat-item" href="#" role="listitem">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -1794,40 +1963,6 @@
                 </div>
               </a>
 
-              <a class="pop-card" href="#">
-                <div class="pop-card-img">
-                  <img src="images/bbq rood.png" alt="Barbecue keuzehulp" loading="lazy" />
-                </div>
-                <div class="pop-card-info">
-                  <h3>Barbecue keuzehulp</h3>
-                  <ul class="pop-card-features">
-                    <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> 100+ barbecues</li>
-                    <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> Actuele prijzen</li>
-                  </ul>
-                  <div class="pop-card-cta">
-                    Start keuzehulp
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-                  </div>
-                </div>
-              </a>
-
-              <a class="pop-card" href="#">
-                <div class="pop-card-img">
-                  <img src="images/wasmachine ,.png" alt="Wasmachine keuzehulp" loading="lazy" />
-                </div>
-                <div class="pop-card-info">
-                  <h3>Wasmachine keuzehulp</h3>
-                  <ul class="pop-card-features">
-                    <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> 200+ wasmachines</li>
-                    <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> Actuele prijzen</li>
-                  </ul>
-                  <div class="pop-card-cta">
-                    Start keuzehulp
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-                  </div>
-                </div>
-              </a>
-
               <a class="pop-card" href="laptop-keuzehulp/vragen">
                 <div class="pop-card-img">
                   <img src="images/laptop ,.png" alt="Laptop keuzehulp" loading="lazy" />
@@ -1836,6 +1971,40 @@
                   <h3>Laptop keuzehulp</h3>
                   <ul class="pop-card-features">
                     <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> 300+ laptops</li>
+                    <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> Actuele prijzen</li>
+                  </ul>
+                  <div class="pop-card-cta">
+                    Start keuzehulp
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+              </a>
+
+              <a class="pop-card" href="monitor-keuzehulp/vragen">
+                <div class="pop-card-img">
+                  <img src="images/monitor.png" alt="Monitor keuzehulp" loading="lazy" />
+                </div>
+                <div class="pop-card-info">
+                  <h3>Monitor keuzehulp</h3>
+                  <ul class="pop-card-features">
+                    <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> 200+ monitoren</li>
+                    <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> Actuele prijzen</li>
+                  </ul>
+                  <div class="pop-card-cta">
+                    Start keuzehulp
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+              </a>
+
+              <a class="pop-card" href="desktop-keuzehulp/vragen">
+                <div class="pop-card-img">
+                  <img src="images/desktop.png" alt="Desktop keuzehulp" loading="lazy" />
+                </div>
+                <div class="pop-card-info">
+                  <h3>Desktop keuzehulp</h3>
+                  <ul class="pop-card-features">
+                    <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> 150+ desktops</li>
                     <li><i data-lucide="check" class="pop-feat-check" aria-hidden="true"></i> Actuele prijzen</li>
                   </ul>
                   <div class="pop-card-cta">
@@ -1935,7 +2104,18 @@
                     <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
                   </a>
                 </li>
-                <li><span>PC <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
+                <li>
+                  <a href="monitor-keuzehulp/vragen">
+                    Monitoren
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="desktop-keuzehulp/vragen">
+                    Desktop PC
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
                 <li><span>Smartphone <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
                 <li><span>Tablets <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
                 <li><span>Printers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></span></li>
@@ -2092,6 +2272,56 @@
             col.classList.toggle('is-open', !isOpen);
             this.setAttribute('aria-expanded', String(!isOpen));
           });
+        });
+      })();
+
+      /* ── Collage: verwijder animatie én z-index na afloop.
+             Wacht tot ALLE items klaar zijn (laatste animatie wint) zodat de
+             CSS z-index volgorde intact blijft zolang er nog items vliegen.
+             Daarna verdwijnen stacking contexts zodat tooltip z-index:999 werkt. ── */
+      (() => {
+        const collageItems = Array.from(document.querySelectorAll('.collage-item'));
+        let doneCount = 0;
+        collageItems.forEach(item => {
+          item.addEventListener('animationend', () => {
+            doneCount++;
+            if (doneCount === collageItems.length) {
+              collageItems.forEach(i => {
+                i.style.animation = 'none';
+                i.style.zIndex = 'auto';
+              });
+            }
+          });
+        });
+      })();
+
+      /* ── Collage hover / click-to-pin ── */
+      (() => {
+        const items = document.querySelectorAll('.collage-item');
+        if (!items.length) return;
+
+        items.forEach(item => {
+          // Click to pin
+          item.addEventListener('click', e => {
+            if (e.target.closest('.collage-tooltip-link')) return;
+            const wasPinned = item.classList.contains('pinned');
+            items.forEach(i => i.classList.remove('pinned'));
+            if (!wasPinned) item.classList.add('pinned');
+            e.stopPropagation();
+          });
+
+          // Hovering another item while one is pinned: unpin the old one
+          item.addEventListener('mouseenter', () => {
+            const pinned = document.querySelector('.collage-item.pinned');
+            if (pinned && pinned !== item) {
+              pinned.classList.remove('pinned');
+            }
+          });
+        });
+
+        // Click outside any item to unpin all
+        document.addEventListener('click', () => {
+          items.forEach(i => i.classList.remove('pinned'));
         });
       })();
 

@@ -109,7 +109,8 @@ export function normalizeProducts(rawProducts) {
     if (validPrices.length === 0) return [];
     const prijs = Math.min(...validPrices);
 
-    const afbeelding = String(aanbieder.afbeelding_cb || "").trim() || String(aanbieder.afbeelding_expert || "").trim();
+    const afbeelding   = String(product.icecat_afbeelding || "").trim();
+    const afbeeldingen = Array.isArray(product.icecat_afbeeldingen) ? product.icecat_afbeeldingen : [];
 
     const hzNum = parseInt(String(product.hz).replace(/[^0-9]/g, ""), 10);
     if (Number.isNaN(hzNum)) return [];
@@ -126,6 +127,7 @@ export function normalizeProducts(rawProducts) {
       scherpte: product.scherpte,
       Hz: hzNum,
       afbeelding,
+      afbeeldingen,
       aanbieder
     }];
   });

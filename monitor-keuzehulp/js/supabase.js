@@ -8,49 +8,64 @@ const HEADERS = {
 };
 
 /**
- * Extracts the inch value from scherm_inch strings like "40,6 cm (16\")" → "16"
- * or "33,8 cm (13.3\")" → "13.3".
+ * Extracts inch value from strings like "60,5 cm (24\")" → 24
+ * or "68,6 cm (27\")" → 27
  */
 function parseSchermInch(value) {
-  if (!value) return "";
+  if (!value) return null;
   const inParens = String(value).match(/\((\d+(?:[.,]\d+)?)/);
-  if (inParens) return inParens[1].replace(",", ".");
-  const firstNum = String(value).match(/(\d+(?:[.,]\d+)?)/);
-  return firstNum ? firstNum[1].replace(",", ".") : "";
+  if (inParens) return parseFloat(inParens[1].replace(",", "."));
+  const firstNum = String(value).match(/^(\d+(?:[.,]\d+)?)/);
+  return firstNum ? parseFloat(firstNum[1].replace(",", ".")) : null;
 }
 
 /**
- * Extracts the first integer from strings like "24 GB".
+ * Extracts the Hz value from strings like "144 Hz" → 144
+ */
+function parseHz(value) {
+  if (!value) return 60;
+  const m = String(value).match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : 60;
+}
+
+/**
+ * Maps resolution strings like "1920 x 1080", "3840 x 2160" to a label.
+ */
+function parseResolutie(value) {
+  if (!value) return "";
+  const s = String(value).toLowerCase().replace(/\s+/g, "");
+  if (s.includes("3840x2160") || s.includes("uhd") || s.includes("4k")) return "4K";
+  if (s.includes("2560x1440") || s.includes("qhd")) return "QHD";
+  if (s.includes("2560x1080") || s.includes("uwfhd")) return "UWFHD";
+  if (s.includes("3440x1440") || s.includes("uwqhd")) return "UWQHD";
+  if (s.includes("5120x1440")) return "5K Ultrawide";
+  if (s.includes("1920x1200") || s.includes("wuxga")) return "WUXGA";
+  if (s.includes("1920x1080") || s.includes("fhd") || s.includes("fullhd")) return "Full HD";
+  if (s.includes("1280x1024") || s.includes("1024x768")) return "HD";
+  return String(value).trim();
+}
+
+/**
+ * Normalise "Ja"/"Nee"/true/false/null to "Ja" or "Nee".
+ */
+function parseJaNee(value) {
+  if (!value) return "Nee";
+  const s = String(value).toLowerCase();
+  if (s === "ja" || s === "true" || s === "yes" || s === "1" || s.includes("curved")) return "Ja";
+  return "Nee";
+}
+
+/**
+ * Extracts the first integer from strings like "2" or "2 poorten".
  */
 function parseFirstInt(value) {
-  if (!value) return "";
+  if (!value) return 0;
   const m = String(value).match(/(\d+)/);
-  return m ? m[1] : "";
+  return m ? parseInt(m[1], 10) : 0;
 }
 
 /**
- * Parses opslag strings like "512 GB" → "512" or "1 TB" → "1024".
- */
-function parseOpslag(value) {
-  if (!value) return "";
-  const m = String(value).match(/(\d+(?:[.,]\d+)?)\s*(TB|GB)/i);
-  if (!m) return "";
-  const num = parseFloat(m[1].replace(",", "."));
-  return m[2].toUpperCase() === "TB" ? String(Math.round(num * 1024)) : String(Math.round(num));
-}
-
-/**
- * Parses weight strings like "1,85 kg" → "1.85".
- */
-function parseGewicht(value) {
-  if (!value) return "";
-  const m = String(value).match(/(\d+[.,]\d+|\d+)/);
-  return m ? m[1].replace(",", ".") : "";
-}
-
-/**
- * Builds the flat cb/expert aanbieder shape that normalizeProducts() expects,
- * from a single laptops row (with coolblue_* and expert_* columns).
+ * Build flat aanbieder shape from a monitoren row.
  */
 function adaptAanbieders(row) {
   return {
@@ -68,25 +83,25 @@ function adaptAanbieders(row) {
 }
 
 /**
- * Adapts a single laptops row to the shape that normalizeProducts() expects.
+ * Adapts a single monitoren row to the shape that normalizeProducts() expects.
  */
 function adaptRow(row) {
+  const inch = parseSchermInch(row.scherm_inch);
   return {
     ean:             row.ean,
-    extra_eans:      [],
     merk:            row.merk,
-    schermdiagonaal: parseSchermInch(row.scherm_inch),
-    werkgeheugen:    parseFirstInt(row.ram),
-    opslag:          parseOpslag(row.opslag),
-    touchscreen:         row.touchscreen ?? "Nee",
-    usb_c:               parseInt(row.usb_c, 10) > 0 ? "Ja" : "Nee",
-    hdmi:                row.hdmi ?? "0",
-    resolutie:           row.scherm_resolutie ?? "",
-    paneeltype:          row.scherm_type ?? "",
-    hz:                  "60",
-    processor:           row.processor ?? "",
-    gpu:                 row.gpu ?? "",
-    gewicht:             parseGewicht(row.gewicht),
+    schermdiagonaal: inch,
+    resolutie:       parseResolutie(row.scherm_resolutie),
+    paneeltype:      row.scherm_type ?? "",
+    hz:              parseHz(row.refresh_rate),
+    responstijd:     row.responstijd ?? "",
+    hdr:                 parseJaNee(row.hdr),
+    hdmi_poorten:        parseFirstInt(row.hdmi_poorten),
+    dp_poorten:          parseFirstInt(row.displayport_poorten),
+    speakers:            parseJaNee(row.speakers),
+    gebogen:             parseJaNee(row.gebogen),
+    usb_c:               parseJaNee(row.usb_c),
+    beeldverhouding:     row.beeldverhouding ?? "",
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          [adaptAanbieders(row)],
@@ -94,7 +109,7 @@ function adaptRow(row) {
 }
 
 /**
- * Fetches all rows from the `laptops` table with offset-based pagination.
+ * Fetches all rows from the `monitoren` table with offset-based pagination.
  */
 async function fetchAll() {
   const PAGE_SIZE = 1000;
@@ -102,12 +117,12 @@ async function fetchAll() {
   let offset = 0;
 
   while (true) {
-    const url = `${SUPABASE_URL}/rest/v1/laptops?order=ean&limit=${PAGE_SIZE}&offset=${offset}`;
+    const url = `${SUPABASE_URL}/rest/v1/monitoren?order=ean&limit=${PAGE_SIZE}&offset=${offset}`;
     const response = await fetch(url, { headers: HEADERS });
 
     if (!response.ok) {
       throw new Error(
-        `Supabase fetch mislukt (laptops): ${response.status} ${response.statusText}`
+        `Supabase fetch mislukt (monitoren): ${response.status} ${response.statusText}`
       );
     }
 
@@ -160,7 +175,7 @@ function samenvoegDuplicaten(rows) {
 }
 
 /**
- * Fetches all laptops and returns them in the shape normalizeProducts() expects.
+ * Fetches all monitors and returns them in the shape normalizeProducts() expects.
  */
 export async function fetchProducts() {
   const rows = await fetchAll();
