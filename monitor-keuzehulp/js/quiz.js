@@ -43,6 +43,98 @@ function setQuestionExpanded(question, expanded) {
 
 const TOTAL_QUESTIONS = 5;
 
+// Dimensions (px in 1242.21-wide coordinate space) per size group
+const monitorDimensions = {
+  'compact':   { width: 180, height: 205 },  // 24 inch
+  'standaard': { width: 215, height: 244 },  // 27 inch
+  'groot':     { width: 250, height: 284 },  // 32 inch
+  'ultrawide': { width: 320, height: 183 }   // ultrawide
+};
+
+function updateMonitorDisplay() {
+  const checked = qs('input[name="schermgrootte"]:checked');
+  const monitorDisplay = qs("#monitor-display");
+  const container = qs(".background-container");
+  const fadeDurationMs = 120;
+
+  if (!checked || !monitorDisplay || !container) {
+    if (monitorDisplay) {
+      monitorDisplay.style.opacity = "0";
+      window.setTimeout(() => { monitorDisplay.style.display = "none"; }, fadeDurationMs);
+    }
+    return;
+  }
+
+  const dims = monitorDimensions[checked.value];
+  if (!dims) {
+    monitorDisplay.style.opacity = "0";
+    window.setTimeout(() => { monitorDisplay.style.display = "none"; }, fadeDurationMs);
+    return;
+  }
+
+  const isUltrawide = checked.value === "ultrawide";
+  const newImageType = isUltrawide ? "wide" : "normal";
+  const prevImageType = monitorDisplay.dataset.imageType;
+
+  const newImage = isUltrawide
+    ? "url('monitor-keuzehulp/images/wide.png')"
+    : "url('monitor-keuzehulp/images/draak.png')";
+
+  const style = getComputedStyle(container);
+  const originalWidth  = parseFloat(style.getPropertyValue("--base-width"))  || 1242.21;
+  const originalHeight = parseFloat(style.getPropertyValue("--base-height")) || 630.138;
+  const containerWidth = container.offsetWidth;
+  const scaleFactor    = containerWidth / originalWidth;
+
+  const rightOffset  = parseFloat(style.getPropertyValue("--monitor-right-offset"))  || 332;
+  const bottomOffset = parseFloat(style.getPropertyValue("--monitor-bottom-offset")) || 100;
+
+  const rightPct  = ((rightOffset - dims.width / 2) / originalWidth)  * 100;
+  const bottomPct = (bottomOffset / originalHeight) * 100;
+
+  const applyDims = () => {
+    monitorDisplay.dataset.imageType = newImageType;
+    monitorDisplay.style.backgroundImage = newImage;
+    monitorDisplay.style.width  = `${dims.width  * scaleFactor}px`;
+    monitorDisplay.style.height = `${dims.height * scaleFactor}px`;
+    monitorDisplay.style.right  = `${rightPct}%`;
+    monitorDisplay.style.bottom = `${bottomPct}%`;
+    monitorDisplay.style.left   = "auto";
+  };
+
+  if (monitorDisplay.style.display !== "block") {
+    // First appearance: apply immediately and fade in via CSS transition
+    applyDims();
+    monitorDisplay.style.display = "block";
+    monitorDisplay.style.opacity = "0";
+    requestAnimationFrame(() => { monitorDisplay.style.opacity = "1"; });
+  } else if (prevImageType && prevImageType !== newImageType) {
+    // Image switches (ultrawide ↔ regular): fade out → snap to new size+image → fade in
+    // Override transition so fade-out is fast (150ms), matching the timeout below
+    monitorDisplay.style.transition = "opacity .15s ease";
+    monitorDisplay.style.opacity = "0";
+    window.setTimeout(() => {
+      applyDims();
+      requestAnimationFrame(() => {
+        // Restore CSS transitions so fade-in and future size transitions work normally
+        monitorDisplay.style.transition = "";
+        monitorDisplay.style.opacity = "1";
+      });
+    }, fadeDurationMs);
+  } else {
+    // Same image (compact/standaard/groot): CSS size+opacity transition, identical to laptop
+    applyDims();
+    monitorDisplay.style.opacity = "1";
+  }
+}
+
+function hideMonitorDisplay() {
+  const monitorDisplay = qs("#monitor-display");
+  if (!monitorDisplay) return;
+  monitorDisplay.style.opacity = "0";
+  window.setTimeout(() => { monitorDisplay.style.display = "none"; }, 120);
+}
+
 function showQuestion(num) {
   for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
     const q = qs(`#question-${i}`);
@@ -65,6 +157,13 @@ function showQuestion(num) {
   if (!currentQuestion) return;
 
   currentQuestion.style.display = "block";
+
+  // Monitor display: hide on Q1, show on Q2+ if a size is selected
+  if (num === 1) {
+    hideMonitorDisplay();
+  } else if (num >= 2 && quizState.selectedSizeGroup) {
+    updateMonitorDisplay();
+  }
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -312,6 +411,27 @@ export function initQuizPage() {
 
   // Q5 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
+
+  // Listen for schermgrootte (Q2) changes → update monitor visualisation
+  qsa('input[name="schermgrootte"]').forEach(radio => {
+    radio.addEventListener("change", updateMonitorDisplay);
+  });
+
+  // Re-render monitor display on resize
+  window.addEventListener("resize", () => {
+    const monitorDisplay = qs("#monitor-display");
+    if (monitorDisplay && monitorDisplay.style.display === "block") {
+      updateMonitorDisplay();
+    }
+    if (mobileQuery.matches) return;
+    for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+      const q = qs(`#question-${i}`);
+      if (q && q.classList.contains("is-active")) {
+        positionElements(i);
+        break;
+      }
+    }
+  }, { passive: true });
 
   showQuestion(1);
 }

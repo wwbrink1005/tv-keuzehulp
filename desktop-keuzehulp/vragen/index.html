@@ -510,6 +510,18 @@
     }
     .questions-panel { overflow: hidden; border-radius: var(--r-lg); }
 
+    /* ====== PC TYPE DISPLAY ====== */
+    #pc-type-display {
+      position: absolute;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center bottom;
+      opacity: 0;
+      transition: opacity .3s ease, width .3s ease, height .3s ease, right .3s ease, bottom .3s ease;
+      display: none;
+      pointer-events: none;
+    }
+
     /* ====== MULTI-SELECT HINT ====== */
     .question-heading-wrap > h2 { display: inline; max-width: none; }
     .multi-select-hint {
@@ -630,6 +642,27 @@
         --base-width: 605.5;
         --base-height: 595;
         background-image: url('laptop-keuzehulp/images/laptop telefoon.png');
+
+        /* ── MOBILE PC VISUALISATIES ─────────────────────────────────────────────
+           Coördinatenruimte: 605.5 breed × 595 hoog.
+           Pas hieronder de waarden aan totdat de visualisaties goed staan.
+           rightOffset = afstand van de rechterrand tot het MIDDEN van het beeld.
+           bottomOffset = afstand van de onderrand tot de ONDERKANT van het beeld.
+           ──────────────────────────────────────────────────────────────────────── */
+        --pc-tower-width: 236;
+        --pc-tower-height: 535;
+        --pc-tower-right-offset: 470;
+        --pc-tower-bottom-offset: 120;
+
+        --pc-mini-pc-width: 91;
+        --pc-mini-pc-height: 63;
+        --pc-mini-pc-right-offset: 515;
+        --pc-mini-pc-bottom-offset: 145;
+
+        --pc-all-in-one-width: 280;
+        --pc-all-in-one-height: 296;
+        --pc-all-in-one-right-offset: 310;
+        --pc-all-in-one-bottom-offset: 115;
         aspect-ratio: 1 / 1;
         width: min(92vw, 560px);
         max-width: min(92vw, 560px);
@@ -789,6 +822,8 @@
           <div class="top-bar">
             <div id="progress-bar"></div>
           </div>
+          <!-- PC type visualisation -->
+          <div id="pc-type-display"></div>
           <!-- Mobile hint button -->
           <button id="question-hint-btn-mobile" class="question-hint-btn-mobile" type="button" aria-label="Waarom deze vraag?">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -875,7 +910,7 @@
               <h2>Welk type behuizing wil je?</h2>
               <div class="question-popover" data-popover="2">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Het type behuizing bepaalt de grootte, uitbreidbaarheid en stroomverbruik van je desktop. Een tower is uitbreidbaar en krachtig maar neemt meer ruimte in. Een mini-pc is compact en energiezuinig, ideaal als je weinig ruimte hebt. Kies 'Maakt niet uit' als je geen voorkeur hebt.</p>
+                <p class="question-popover-text">Het type behuizing bepaalt de grootte, uitbreidbaarheid en stroomverbruik van je desktop. Een tower is uitbreidbaar en krachtig maar neemt meer ruimte in. Een mini-pc is compact en energiezuinig, ideaal als je weinig ruimte hebt. Een all-in-one combineert pc en monitor in één apparaat. Kies 'Maakt niet uit' als je geen voorkeur hebt.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
@@ -890,12 +925,17 @@
                 <span>Mini PC — Compact, zuinig en ruimtebesparend</span>
               </label>
               <label class="answer-option">
+                <input type="radio" name="behuizing" value="all-in-one">
+                <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>All-in-One — PC en monitor in één apparaat</span>
+              </label>
+              <label class="answer-option">
                 <input type="radio" name="behuizing" value="maakt-niet-uit">
                 <svg class="answer-info-icon" data-icon="sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Maakt niet uit — Toon alle opties</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 58px) + (2 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 58px) + (3 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-1">Terug</button>
               <button id="to-question-3">Volgende</button>
             </div>

@@ -125,7 +125,10 @@ export function computeDynamicPriceGroups(desktops, behuizingType, behuizingType
   const allowedTypes = behuizingTypeToAllowed[behuizingType];
 
   const prices = desktops
-    .filter(d => allowedTypes === null || allowedTypes.includes(d.behuizing))
+    .filter(d => {
+      const beh = typeof d.behuizing === "string" ? d.behuizing.toLowerCase() : "";
+      return allowedTypes === null || allowedTypes.includes(beh);
+    })
     .map(d => parsePrice(d.prijs))
     .filter(p => Number.isFinite(p) && p > 0)
     .sort((a, b) => a - b);

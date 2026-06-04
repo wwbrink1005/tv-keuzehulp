@@ -83,10 +83,11 @@ export function matchDesktops(desktops, behuizingType, priceGroup, answers, scor
 
   const allowedTypes = behuizingType ? behuizingTypeToAllowed[behuizingType] : null;
 
-  // 1. Filter by behuizing type + price
+  // 1. Filter by behuizing type + price (case-insensitive behuizing match)
   let filtered = desktops.filter(d => {
     const price  = parsePrice(d.prijs);
-    const typeOk = allowedTypes === null || allowedTypes.includes(d.behuizing);
+    const beh    = typeof d.behuizing === "string" ? d.behuizing.toLowerCase() : "";
+    const typeOk = allowedTypes === null || allowedTypes.includes(beh);
     return typeOk && (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max));
   });
 

@@ -33,6 +33,103 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
+// ─── PC Type Visualisation ──────────────────────────────────────────────────────
+// Dimensions (px in 1242.21-wide coordinate space) per behuizing type.
+// rightOffset = distance from right edge to the CENTER of the image.
+// bottomOffset = distance from bottom edge to the BOTTOM of the image.
+const pcTypeDimensions = {
+  'tower':      { width: 213.84, height: 485.1, rightOffset: 525, bottomOffset: 118 },
+  'mini-pc':    { width: 70,  height: 48,  rightOffset: 545, bottomOffset: 148 },
+  'all-in-one': { width: 285, height: 300, rightOffset: 330, bottomOffset: 118 }
+  // 'maakt-niet-uit' intentionally absent → no visualisation
+};
+
+const pcTypeImages = {
+  'tower':      "url('desktop-keuzehulp/images/tower.png')",
+  'mini-pc':    "url('desktop-keuzehulp/images/desktop mini visualisatie.png')",
+  'all-in-one': "url('desktop-keuzehulp/images/all in one visualisatie.png')"
+};
+
+function updatePcTypeDisplay() {
+  const checked   = qs('input[name="behuizing"]:checked');
+  const pcDisplay = qs("#pc-type-display");
+  const container = qs(".background-container");
+  const fadeDurationMs = 120;
+
+  if (!pcDisplay || !container) return;
+
+  if (!checked || !pcTypeDimensions[checked.value]) {
+    pcDisplay.style.opacity = "0";
+    window.setTimeout(() => { pcDisplay.style.display = "none"; }, fadeDurationMs);
+    return;
+  }
+
+  const dims     = pcTypeDimensions[checked.value];
+  const newType  = checked.value;
+  const prevType = pcDisplay.dataset.currentType;
+  const newImage = pcTypeImages[newType];
+
+  const style          = getComputedStyle(container);
+  const originalWidth  = parseFloat(style.getPropertyValue("--base-width"))  || 1242.21;
+  const originalHeight = parseFloat(style.getPropertyValue("--base-height")) || 630.138;
+  const scaleFactor    = container.offsetWidth / originalWidth;
+
+  // On mobile, read per-type dimensions from CSS variables for easy manual adjustment.
+  // Adjust the variables in the @media (max-width: 900px) section of the HTML.
+  let w, h, rightOff, bottomOff;
+  if (mobileQuery.matches) {
+    w         = parseFloat(style.getPropertyValue(`--pc-${newType}-width`))         || dims.width;
+    h         = parseFloat(style.getPropertyValue(`--pc-${newType}-height`))        || dims.height;
+    rightOff  = parseFloat(style.getPropertyValue(`--pc-${newType}-right-offset`))  || dims.rightOffset;
+    bottomOff = parseFloat(style.getPropertyValue(`--pc-${newType}-bottom-offset`)) || dims.bottomOffset;
+  } else {
+    w         = dims.width;
+    h         = dims.height;
+    rightOff  = dims.rightOffset;
+    bottomOff = dims.bottomOffset;
+  }
+
+  const rightPct  = ((rightOff - w / 2) / originalWidth)  * 100;
+  const bottomPct = (bottomOff / originalHeight) * 100;
+
+  const applyDims = () => {
+    pcDisplay.dataset.currentType = newType;
+    pcDisplay.style.backgroundImage = newImage;
+    pcDisplay.style.width  = `${w * scaleFactor}px`;
+    pcDisplay.style.height = `${h * scaleFactor}px`;
+    pcDisplay.style.right  = `${rightPct}%`;
+    pcDisplay.style.bottom = `${bottomPct}%`;
+    pcDisplay.style.left   = "auto";
+  };
+
+  if (pcDisplay.style.display !== "block") {
+    applyDims();
+    pcDisplay.style.display = "block";
+    pcDisplay.style.opacity = "0";
+    requestAnimationFrame(() => { pcDisplay.style.opacity = "1"; });
+  } else if (prevType && prevType !== newType) {
+    pcDisplay.style.transition = "opacity .15s ease";
+    pcDisplay.style.opacity = "0";
+    window.setTimeout(() => {
+      applyDims();
+      requestAnimationFrame(() => {
+        pcDisplay.style.transition = "";
+        pcDisplay.style.opacity = "1";
+      });
+    }, fadeDurationMs);
+  } else {
+    applyDims();
+    pcDisplay.style.opacity = "1";
+  }
+}
+
+function hidePcTypeDisplay() {
+  const pcDisplay = qs("#pc-type-display");
+  if (!pcDisplay) return;
+  pcDisplay.style.opacity = "0";
+  window.setTimeout(() => { pcDisplay.style.display = "none"; }, 120);
+}
+
 function showQuestion(num) {
   for (let i = 1; i <= 6; i++) {
     const q = qs(`#question-${i}`);
@@ -41,11 +138,19 @@ function showQuestion(num) {
 
   if (num === "result") {
     updateProgressBar("result");
+    hidePcTypeDisplay();
     const hintBtn = qs("#question-hint-btn");
     const hintBtnMobile = qs("#question-hint-btn-mobile");
     if (hintBtn) hintBtn.style.display = "none";
     if (hintBtnMobile) hintBtnMobile.style.display = "none";
     return;
+  }
+
+  // PC type display: hide on Q1, show/update from Q2 onwards
+  if (num === 1) {
+    hidePcTypeDisplay();
+  } else {
+    updatePcTypeDisplay();
   }
 
   const currentQuestion = qs(`#question-${num}`);
@@ -290,16 +395,21 @@ export function initQuizPage() {
   setupGebruikLimit();
   setupExtraLimit();
 
+  // Update PC visualisation when behuizing selection changes
+  qsa('input[name="behuizing"]').forEach(radio => {
+    radio.addEventListener('change', updatePcTypeDisplay);
+  });
+
   // Q6 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
-  // Re-position on resize (desktop only)
+  // Re-position on resize
   window.addEventListener("resize", () => {
-    if (mobileQuery.matches) return;
     for (let i = 1; i <= 6; i++) {
       const q = qs(`#question-${i}`);
       if (q && q.classList.contains("is-active")) {
-        positionElements(i);
+        if (!mobileQuery.matches) positionElements(i);
+        if (i >= 2) updatePcTypeDisplay();
         break;
       }
     }

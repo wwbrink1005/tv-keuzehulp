@@ -133,6 +133,13 @@ function buildPriceMatches(monitors, sizeGroup) {
   const groups = getDynamicPriceGroups(sizeGroup);
   const map = new Map();
 
+  // Always add a no-price-filter entry ("") so "geen voorkeur" stays consistent
+  const allResult = computeMatchForPriceGroup(
+    monitors, sizeGroup, null, filterState.answers, filterState.scores
+  );
+  const allMatches = Array.isArray(allResult.filteredMatchedMonitors) ? allResult.filteredMatchedMonitors : [];
+  if (allMatches.length > 0) map.set("", allMatches);
+
   groups.forEach(group => {
     const result = computeMatchForPriceGroup(
       monitors, sizeGroup, group, filterState.answers, filterState.scores
@@ -353,7 +360,6 @@ export async function initFilters() {
   const sizeGroupData   = localStorage.getItem("monitor_selectedSizeGroup");
   const priceLabelData  = localStorage.getItem("monitor_selectedPriceGroupLabel");
   const bestTypeData    = localStorage.getItem("monitor_bestType");
-  const filteredData    = localStorage.getItem("monitor_filteredMatchedMonitors");
 
   filterState.answers   = answersData  ? JSON.parse(answersData)  : null;
   filterState.scores    = scoresData   ? JSON.parse(scoresData)   : null;
@@ -373,10 +379,10 @@ export async function initFilters() {
   // Build price match map
   filterState.priceMatches = buildPriceMatches(allMonitors, filterState.sizeGroup);
 
-  // If no stored price label, pick first available
-  if (!filterState.priceLabel || !filterState.priceMatches.has(filterState.priceLabel)) {
-    const firstKey = filterState.priceMatches.keys().next().value;
-    filterState.priceLabel = firstKey ?? "";
+  // If stored label isn't in the map, fall back to "" (all prices) or the first bucket
+  if (!filterState.priceMatches.has(filterState.priceLabel)) {
+    filterState.priceLabel = filterState.priceMatches.has("") ? "" :
+      (filterState.priceMatches.keys().next().value ?? "");
   }
 
   renderAllFilters(allMonitors);
@@ -399,11 +405,7 @@ export async function initFilters() {
     });
   }
 
-  // Trigger initial render with stored matches
-  const initialMatches = filteredData ? JSON.parse(filteredData) : getActivePriceMatches();
-  updateResultMatches(
-    Array.isArray(initialMatches) ? initialMatches : [],
-    filterState.answers,
-    filterState.bestType
-  );
+  // Always use the freshly computed matches so the initial render
+  // is consistent with what applyFilters() will produce later.
+  applyFilters();
 }

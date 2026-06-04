@@ -18,6 +18,8 @@
     :root {
       --base-width: 1242.21;
       --base-height: 630.138;
+      --monitor-right-offset: 331;
+      --monitor-bottom-offset: 150;
 
       --c-bg: #f5f5f7;
       --c-surface: #ffffff;
@@ -434,6 +436,22 @@
 
     .questions-panel { overflow: hidden; border-radius: var(--r-lg); }
 
+    /* ====== MONITOR DISPLAY ====== */
+    #monitor-display {
+      position: absolute;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center bottom;
+      opacity: 0;
+      transition: opacity .3s ease,
+                  width .3s ease,
+                  height .3s ease,
+                  right .3s ease,
+                  bottom .3s ease;
+      display: none;
+      pointer-events: none;
+    }
+
     .container-wrapper {
       display: flex;
       flex-direction: column;
@@ -574,9 +592,11 @@
       .quiz-panel-inner { padding: 20px 18px; }
       .quiz-hero { max-width: none; }
 
-      .background-container {
-        --base-width: 605.5;
-        --base-height: 595;
+.background-container {
+  --base-width: 605.5;
+  --base-height: 595;
+  --monitor-right-offset: 307;   /* ← pas dit aan */
+  --monitor-bottom-offset: 155;  /* ← pas dit aan */
         background-image: url('laptop-keuzehulp/images/laptop telefoon.png');
         aspect-ratio: 1 / 1;
         width: min(92vw, 560px);
@@ -763,6 +783,8 @@
           <div class="top-bar">
             <div class="progress-bar" id="progress-bar"></div>
           </div>
+          <!-- Monitor size visualisation -->
+          <div id="monitor-display"></div>
           <button id="question-hint-btn-mobile" class="question-hint-btn-mobile" type="button" aria-label="Waarom deze vraag?">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>

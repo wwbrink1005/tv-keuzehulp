@@ -23,8 +23,9 @@ export function getGpuTier(gpu, gpuApart) {
 // ─── Behuizing type mapping ────────────────────────────────────────────────────
 // null = no filter (any type allowed)
 export const behuizingTypeToAllowed = {
-  "tower":          ["Tower", "Desktop"],
-  "mini-pc":        ["Mini PC"],
+  "tower":          ["tower", "desktop"],
+  "mini-pc":        ["mini pc", "mini-pc"],
+  "all-in-one":     ["all-in-one", "alles-in-één", "alles-in-een", "all in one"],
   "maakt-niet-uit": null
 };
 
@@ -39,6 +40,11 @@ export const priceGroupsByType = {
     { label: "400-700",  min: 0,   max: 700  },
     { label: "700-1200", min: 700, max: 1200 },
     { label: "1200+",    min: 1200, max: Number.POSITIVE_INFINITY }
+  ],
+  "all-in-one": [
+    { label: "600-1000",  min: 0,    max: 1000 },
+    { label: "1000-1500", min: 1000, max: 1500 },
+    { label: "1500+",     min: 1500, max: Number.POSITIVE_INFINITY }
   ],
   "maakt-niet-uit": [
     { label: "400-1200",  min: 0,    max: 1200 },

@@ -43,9 +43,9 @@ function setQuestionExpanded(question, expanded) {
 
 // Dimensions (px in 1242.21-wide coordinate space) per size group
 const laptopDimensions = {
-  'licht-compact':  { width: 186, height: 173 },  // 13–14 inch
-  'middenweg':      { width: 222, height: 205 },  // 15–16 inch
-  'groot-krachtig': { width: 258, height: 239 }   // 17 inch+
+  'licht-compact':  { width: 155, height: 144 },  // 13–14 inch
+  'middenweg':      { width: 185, height: 171 },  // 15–16 inch
+  'groot-krachtig': { width: 215, height: 199 }   // 17 inch+
 };
 
 function updateLaptopDisplay() {
