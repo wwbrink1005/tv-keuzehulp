@@ -1,6 +1,6 @@
 export const distanceToSizeGroup = {
-  "1m": "24",
-  "1.5m": "27-32",
+  "1m": "24-32",
+  "1.5m": "24-32",
   "2m": "40-43",
   "2.5m": "48-50",
   "3m": "58-65",
@@ -10,8 +10,7 @@ export const distanceToSizeGroup = {
 };
 
 export const tvDimensions = {
-  "24": { width: 103.57, height: 58.26 },
-  "27-32": { width: 138.11, height: 77.76 },
+  "24-32": { width: 138.11, height: 77.76 },
   "40-43": { width: 185.58, height: 104.39 },
   "48-50": { width: 215.79, height: 121.38 },
   "55": { width:  237.36, height: 133.52 },
@@ -22,8 +21,7 @@ export const tvDimensions = {
 };
 
 export const sizeGroupToAllowedSizes = {
-  "24": [24],
-  "27-32": [27, 28, 29, 30, 31, 32],
+  "24-32": [24, 27, 28, 29, 30, 31, 32],
   "40-43": [40, 42, 43],
   "48-50": [48, 50],
   "55": [55],
@@ -34,11 +32,7 @@ export const sizeGroupToAllowedSizes = {
 };
 
 export const priceGroupsBySize = {
-  "24": [
-    { label: "100-150", min: 100, max: 150 },
-    { label: "150-250", min: 150, max: 250 }
-  ],
-  "27-32": [
+  "24-32": [
     { label: "100-300", min: 100, max: 300 },
     { label: "300-600", min: 300, max: 600 }
   ],
@@ -82,8 +76,7 @@ export const priceGroupsBySize = {
 // Types that realistically exist per size group.
 // Only these types are considered during matching for each size group.
 export const availableTypesBySize = {
-  "24":    ["LED"],
-  "27-32": ["LED", "QLED"],
+  "24-32": ["LED", "QLED"],
   "40-43": ["LED", "QLED", "Mini LED", "OLED"],
   "48-50": ["LED", "QLED", "Mini LED", "OLED"],
   "55":    ["LED", "QLED", "Mini LED", "OLED"],
@@ -96,8 +89,7 @@ export const availableTypesBySize = {
 // Extra score bonus added to LED to reflect that at small screen sizes
 // the perceptual difference between LED and premium types is minimal.
 export const ledSizeBonuses = {
-  "24":    20,
-  "27-32":  7,
+  "24-32": 10,
   "40-43":  3
 };
 

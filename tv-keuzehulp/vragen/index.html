@@ -22,8 +22,8 @@
    :root {
      --base-width: 1242.21;
      --base-height: 630.138;
-     --tv-right-offset: 510;
-     --tv-bottom-offset: 224;
+     --tv-right-offset: 410;
+     --tv-bottom-offset: 234;
 
      /* — Color Palette — */
      --c-bg: #f5f5f7;
@@ -321,7 +321,7 @@
      width: 100%;
      max-width: calc(var(--base-width) * 1px);
      aspect-ratio: 1242.21 / 630.138;
-     background-image: url('tv-keuzehulp/images/ja.png');
+     background-image: url('tv-keuzehulp/images/tv achtergrond nieuw design.png');
      background-size: cover;
      background-position: center;
      border-radius: var(--r-lg);
@@ -498,17 +498,17 @@
    }
    #question-1 .answer-option:nth-child(odd) { margin-right: 0; }
 
-   /* Q2 — 3-column grid */
+   /* Q2 — 2-column grid */
    #question-2 .answers-container {
      display: grid;
-     grid-template-columns: repeat(3, 1fr);
-     width: calc(((135.323px * 3) + (8px * 2)) * var(--scale));
-     gap: calc(15px * var(--scale));
-     row-gap: calc(15px * var(--scale));
+     grid-template-columns: repeat(2, 1fr);
+     width: calc(((160.984px * 2) + 8px) * var(--scale));
+     gap: calc(8px * var(--scale));
+     row-gap: calc(8px * var(--scale));
      column-gap: calc(8px * var(--scale));
    }
    #question-2 .answer-option {
-     width: calc(135.323px * var(--scale));
+     width: calc(160.984px * var(--scale));
      height: calc(48.3935px * var(--scale));
    }
 
@@ -707,7 +707,7 @@
    }
    #question-2 .button-container {
      left: calc(26.2291px * var(--scale));
-     width: calc(((135.323px * 3) + (8px * 2)) * var(--scale));
+     width: calc(((160.984px * 2) + 8px) * var(--scale));
    }
    #question-3 .button-container,
    #question-4 .button-container,
@@ -1049,12 +1049,7 @@
       DESKTOP — VRAAG 2: PILL SIZE PICKER  (≥ 901px)
       ============================================================ */
    @media (min-width: 901px) {
-     #question-2 .answers-container {
-       gap: calc(8px * var(--scale));
-       row-gap: calc(8px * var(--scale));
-       column-gap: calc(8px * var(--scale));
-     }
-
+     /* Q2 desktop: pill-style 2-column size picker */
      #question-2 .answer-option {
        height: calc(44px * var(--scale));
        padding-left: calc(14px * var(--scale));
@@ -1114,7 +1109,7 @@
        --base-height: 595;
        --tv-right-offset: 315;
        --tv-bottom-offset: 212;
-       background-image: url('tv-keuzehulp/images/ja telefoon.png');
+       background-image: url('tv-keuzehulp/images/nieuw design telefoon.png');
        aspect-ratio: 1211 / 1190;
        width: min(92vw, 560px);
        max-width: min(92vw, 560px);

@@ -19,7 +19,7 @@ function prefetchProducts() {
   return productsFetchPromise;
 }
 
-const sizeGroups = ["24", "27-32", "40-43", "48-50", "55", "58-65", "70-77", "83-86", "97-115"];
+const sizeGroups = ["24-32", "40-43", "48-50", "55", "58-65", "70-77", "83-86", "97-115"];
 
 const mobileQuery = window.matchMedia("(max-width: 900px)");
 
@@ -268,9 +268,9 @@ function renderSizeOptions(advisedSize) {
     container.appendChild(label);
   });
 
-  const buttonCount = sizeGroups.length;
+  const rowCount = Math.ceil(sizeGroups.length / 2);
   const scale = getContainerScale(container);
-  const baseTop = 70.11 + 37.77 + (buttonCount * 51.3935) + ((buttonCount - 1) * 8) + 22;
+  const baseTop = 70.11 + 37.77 + (rowCount * 48.3935) + ((rowCount - 1) * 8) + 22;
   const q2Buttons = qs("#q2-buttons");
   if (q2Buttons) q2Buttons.style.top = `${baseTop * scale}px`;
 
@@ -429,7 +429,10 @@ export function initQuizPage() {
 
     const bgContainer = qs(".background-container");
     if (bgContainer) {
-      bgContainer.style.backgroundImage = 'url("ja.png")';
+      const defaultBackground = mobileQuery.matches
+        ? 'url("tv-keuzehulp/images/nieuw design telefoon.png")'
+        : 'url("tv-keuzehulp/images/tv achtergrond nieuw design.png")';
+      bgContainer.style.backgroundImage = defaultBackground;
     }
 
     showQuestion(1);
