@@ -124,6 +124,87 @@
         margin: 0 auto;
       }
 
+      .hero-usp-row {
+        display: none;
+        list-style: none;
+        margin: 0 0 16px;
+        padding: 0;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 28px;
+      }
+
+      .hero-usp-row li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #1d1d1f;
+        white-space: nowrap;
+      }
+
+      .hero-usp-row li strong {
+        color: var(--color-primary);
+        font-weight: 700;
+      }
+
+      .hero-usp-check {
+        width: 16px;
+        height: 16px;
+        color: #10b981;
+        flex-shrink: 0;
+      }
+
+      @media (min-width: 901px) {
+        .hero-usp-row {
+          display: flex;
+        }
+      }
+
+      /* USP rotator (mobile only): stacked items, one visible at a time, slides in/out horizontally */
+      .hero-usp-rotator {
+        display: none;
+        position: relative;
+        max-width: var(--max-width);
+        margin: 20px auto;
+        padding: 0 16px;
+        min-height: 20px;
+        overflow: hidden;
+      }
+
+      .hero-usp-rotator-item {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #1d1d1f;
+        position: absolute;
+        inset: 0;
+        transform: translateX(100%);
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+      }
+
+      .hero-usp-rotator-item.is-active {
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+
+      .hero-usp-rotator-item.is-leaving {
+        transform: translateX(-100%);
+      }
+
+      .hero-usp-rotator-item.no-transition {
+        transition: none !important;
+      }
+
+      .hero-usp-rotator-item strong {
+        color: var(--color-primary);
+        font-weight: 700;
+      }
+
       /* Full-bleed hero card */
       .hero-card {
         position: relative;
@@ -538,7 +619,7 @@
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
       @media (max-width: 768px) {
         .hero {
-          padding: 12px 16px 0;
+          padding: 20px 16px 0;
         }
 
         .hero-card {
@@ -548,14 +629,35 @@
           border-radius: 16px;
         }
 
+        /* Product images: shown again on mobile, but smaller and tucked
+           bottom-right of the grey card instead of the full desktop collage. */
         .hero-card-right {
-          display: none;
+          display: block;
+          width: 100%;
+          aspect-ratio: 3.6 / 1;
+          border-radius: 0 0 16px 16px;
+        }
+
+        .hero-collage {
+          transform: scale(0.9);
+          transform-origin: bottom right;
         }
 
         .hero-card-left {
-          padding: 40px 28px 40px;
+          padding: 40px 28px 24px;
           align-items: center;
           text-align: center;
+        }
+
+        /* Search bar shows first, above the title, but stays inside the grey card */
+        .hero-card-left {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .hero-card-left > .hero-search {
+          order: -1;
+          margin-bottom: 8px;
         }
 
         .hero-title {
@@ -575,6 +677,10 @@
 
         .hero-cats-btn-wrap {
           display: flex;
+        }
+
+        .hero-usp-rotator {
+          display: block;
         }
       }
 
@@ -1048,12 +1154,25 @@
           border-radius: 16px;
         }
         .hero-card-right {
-          display: none;
+          display: block;
+          width: 100%;
+          aspect-ratio: 3.6 / 1;
+          border-radius: 0 0 16px 16px;
+        }
+        .hero-collage {
+          transform: scale(0.9);
+          transform-origin: bottom right;
         }
         .hero-card-left {
-          padding: 60px 48px;
+          padding: 60px 48px 24px;
           align-items: center;
           text-align: center;
+          display: flex;
+          flex-direction: column;
+        }
+        .hero-card-left > .hero-search {
+          order: -1;
+          margin-bottom: 8px;
         }
         .hero-title {
           font-size: clamp(20px, 4.5vw, 36px);
@@ -1460,10 +1579,17 @@
           z-index: 1;
         }
 
-        /* Hide search bar and chips */
-        .hero-card-left .hero-search,
+        /* Hide category chips; search bar stays visible, above the title */
         .hero-card-left .mobile-cats-chips {
           display: none;
+        }
+
+        .hero-card-left .hero-search {
+          display: flex;
+          order: -1;
+          width: 100%;
+          max-width: 100%;
+          margin-bottom: 16px;
         }
 
         .hero-title {
@@ -1789,6 +1915,13 @@
       <section class="hero" aria-label="Hero sectie">
         <div class="hero-inner">
 
+          <!-- USP row -->
+          <ul class="hero-usp-row">
+            <li><i data-lucide="check" class="hero-usp-check" aria-hidden="true"></i><span><strong>Actuele</strong> prijzen</span></li>
+            <li><i data-lucide="check" class="hero-usp-check" aria-hidden="true"></i><span><strong>100%</strong> onafhankelijk</span></li>
+            <li><i data-lucide="check" class="hero-usp-check" aria-hidden="true"></i><span>Wij helpen met het kiezen uit <strong>3000+</strong> producten</span></li>
+          </ul>
+
           <!-- Grey hero card: left = content, right = promotions (empty) -->
           <div class="hero-card">
             <div class="hero-card-left">
@@ -1938,6 +2071,13 @@
         </div>
       </section>
 
+      <!-- USP rotator (mobile only) — cycles through the 3 USPs -->
+      <div class="hero-usp-rotator" aria-live="polite">
+        <p class="hero-usp-rotator-item is-active"><i data-lucide="check" class="hero-usp-check" aria-hidden="true"></i><span><strong>Actuele</strong> prijzen</span></p>
+        <p class="hero-usp-rotator-item"><i data-lucide="check" class="hero-usp-check" aria-hidden="true"></i><span><strong>100%</strong> onafhankelijk</span></p>
+        <p class="hero-usp-rotator-item"><i data-lucide="check" class="hero-usp-check" aria-hidden="true"></i><span>Wij helpen met het kiezen uit <strong>3000+</strong> producten</span></p>
+      </div>
+
       <!-- ════════════════════════════════════════════
            POPULAR KEUZEHULPEN
            ════════════════════════════════════════════ -->
@@ -1949,7 +2089,7 @@
 
               <a class="pop-card" href="tv-keuzehulp/vragen">
                 <div class="pop-card-img">
-                  <img src="images/header/televisie header.png" alt="Televisie keuzehulp" loading="lazy" />
+                  <img src="images/header/oled.png" alt="Televisie keuzehulp" loading="lazy" />
                 </div>
                 <div class="pop-card-info">
                   <h3>Televisie keuzehulp</h3>
@@ -2326,6 +2466,31 @@
         });
       })();
 
+    </script>
+
+    <!-- USP rotator (mobile hero) -->
+    <script>
+      (function () {
+        var items = document.querySelectorAll('.hero-usp-rotator-item');
+        if (items.length < 2) return;
+        var current = 0;
+        setInterval(function () {
+          var prevItem = items[current];
+          current = (current + 1) % items.length;
+          var nextItem = items[current];
+
+          prevItem.classList.remove('is-active');
+          prevItem.classList.add('is-leaving');
+          nextItem.classList.add('is-active');
+
+          setTimeout(function () {
+            prevItem.classList.add('no-transition');
+            prevItem.classList.remove('is-leaving');
+            void prevItem.offsetWidth; // force reflow so the jump back isn't animated
+            prevItem.classList.remove('no-transition');
+          }, 550);
+        }, 5000);
+      })();
     </script>
 
 <!-- Begin TradeTracker SuperTag Code -->

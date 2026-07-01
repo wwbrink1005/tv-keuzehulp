@@ -10,14 +10,14 @@ export const distanceToSizeGroup = {
 };
 
 export const tvDimensions = {
-  "24-32": { width: 138.11, height: 77.76 },
-  "40-43": { width: 185.58, height: 104.39 },
-  "48-50": { width: 215.79, height: 121.38 },
-  "55": { width:  237.36, height: 133.52 },
-  "58-65": { width: 280.52, height: 157.79 },
-  "70-77": { width: 323.68, height: 182.07 },
-  "83-86": { width: 366.84, height: 206.35 },
-  "97-115": { width: 422.94, height: 237.91 }
+  "24-32": { width: 131.20, height: 73.87 },
+  "40-43": { width: 176.30, height: 99.17 },
+  "48-50": { width: 205.01, height: 115.28 },
+  "55": { width:  225.49, height: 126.84 },
+  "58-65": { width: 266.494, height: 149.90 },
+  "70-77": { width: 307.50, height: 172.97 },
+  "83-86": { width: 348.49, height: 196.03 },
+  "97-115": { width: 401.79, height: 226.01 }
 };
 
 export const sizeGroupToAllowedSizes = {
