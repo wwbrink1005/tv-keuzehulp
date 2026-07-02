@@ -10,6 +10,7 @@ function initResultMobileUI() {
     if (!filterPanel || !filterToggle) return;
     filterPanel.classList.toggle("is-open", isOpen);
     filterToggle.setAttribute("aria-expanded", String(isOpen));
+    document.body.classList.toggle("filter-drawer-open", isOpen);
   };
 
   const setRestartOpen = (isOpen) => {

@@ -20,14 +20,35 @@ export function getGpuTier(gpu, gpuApart) {
   return "Mid";
 }
 
-// ─── Behuizing type mapping ────────────────────────────────────────────────────
-// null = no filter (any type allowed)
-export const behuizingTypeToAllowed = {
-  "tower":          ["tower", "desktop"],
-  "mini-pc":        ["mini pc", "mini-pc"],
-  "all-in-one":     ["all-in-one", "alles-in-één", "alles-in-een", "all in one"],
-  "maakt-niet-uit": null
-};
+// ─── Behuizing classification ──────────────────────────────────────────────────
+// The Supabase "desktops" table has two relevant columns:
+//   - type_product:   e.g. "PC", "Alles-in-één-pc", "Mini PC", "Workstation"
+//   - type_behuizing: e.g. "Tower", "SFF", "Mini PC", "Clamshell" (often empty)
+// Neither column alone is reliable (type_behuizing is null for ~85% of rows),
+// so we classify using both, with type_product taking priority since it has
+// far better coverage and includes the all-in-one category that
+// type_behuizing doesn't have at all.
+export function classifyBehuizing(typeProduct, typeBehuizing) {
+  const tp = String(typeProduct ?? "").toLowerCase();
+  const tb = String(typeBehuizing ?? "").toLowerCase();
+
+  if (tp.includes("alles-in-één") || tp.includes("alles-in-een") ||
+      tp.includes("all-in-one") || tp.includes("all in one")) {
+    return "all-in-one";
+  }
+
+  if (tp.includes("mini pc") || tp.includes("mini-pc") ||
+      tb.includes("mini pc") || tb.includes("mini-pc") || tb.includes("clamshell")) {
+    return "mini-pc";
+  }
+
+  if (tp === "pc" || tp.includes("workstation") ||
+      tb.includes("tower") || tb.includes("sff")) {
+    return "tower";
+  }
+
+  return null;
+}
 
 // ─── Static fallback price groups per behuizing type ──────────────────────────
 export const priceGroupsByType = {

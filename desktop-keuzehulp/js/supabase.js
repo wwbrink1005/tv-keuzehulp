@@ -35,6 +35,7 @@ function adaptRow(row) {
     ean:                 row.ean,
     merk:                row.merk,
     behuizing:           row.type_behuizing  ?? null,
+    type_product:        row.type_product    ?? null,
     ram_gb:              row.ram_gb          ?? "",
     opslag_gb:           row.opslag_gb       ?? "",
     gpu:                 row.gpu_model       ?? "",

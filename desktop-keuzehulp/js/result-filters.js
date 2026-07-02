@@ -123,7 +123,11 @@ function renderFilterOptions(container, card, items, filterName, labelFn) {
 function renderPriceOptions(container, card, behuizingType) {
   const groups = getDynamicPriceGroups(behuizingType);
   container.innerHTML = "";
-  const relevant = groups.filter(g => filterState.priceMatches.has(g.label));
+  // Show every price bucket that has desktops of the right behuizing type,
+  // even if the current tier/usage answers happen to match 0 of them —
+  // hiding it would silently make the user's quiz answer disappear with no
+  // explanation.
+  const relevant = groups;
   if (relevant.length === 0) { card.hidden = true; return; }
   card.hidden = false;
 

@@ -10,6 +10,10 @@ function initResultMobileUI() {
     if (!filterPanel || !filterToggle) return;
     filterPanel.classList.toggle("is-open", isOpen);
     filterToggle.setAttribute("aria-expanded", String(isOpen));
+    // Lock background scroll while the drawer is open so it always stays
+    // aligned with the (frozen) viewport instead of the page scrolling
+    // underneath it.
+    document.body.classList.toggle("filter-drawer-open", isOpen);
   };
 
   const setRestartOpen = (isOpen) => {

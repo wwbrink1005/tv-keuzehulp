@@ -1,3 +1,5 @@
+import { classifyBehuizing } from "./data.js";
+
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -84,6 +86,7 @@ export function normalizeProducts(rawProducts) {
       gpu:          product.gpu        ?? "",
       gpuApart:     product.gpuApart   ?? "Nee",
       behuizing:    product.behuizing  ?? null,
+      behuizingCategory: classifyBehuizing(product.type_product, product.behuizing),
       wifi:         product.wifi       ?? "Nee",
       rgb:          product.rgb        ?? "Nee",
       waterkoeling: product.waterkoeling ?? "Nee",
@@ -121,13 +124,11 @@ function floorNice(value) {
  * Dynamically computes 2–3 price buckets from actual desktop prices
  * filtered by the chosen behuizing type.
  */
-export function computeDynamicPriceGroups(desktops, behuizingType, behuizingTypeToAllowed) {
-  const allowedTypes = behuizingTypeToAllowed[behuizingType];
-
+export function computeDynamicPriceGroups(desktops, behuizingType) {
   const prices = desktops
     .filter(d => {
-      const beh = typeof d.behuizing === "string" ? d.behuizing.toLowerCase() : "";
-      return allowedTypes === null || allowedTypes.includes(beh);
+      return !behuizingType || behuizingType === "maakt-niet-uit" ||
+             d.behuizingCategory === behuizingType;
     })
     .map(d => parsePrice(d.prijs))
     .filter(p => Number.isFinite(p) && p > 0)

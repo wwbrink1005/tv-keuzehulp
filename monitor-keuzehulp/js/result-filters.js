@@ -224,7 +224,12 @@ function renderAllFilters(monitors) {
 
   if (priceContainer && priceCard) {
     const groups = getDynamicPriceGroups(filterState.sizeGroup);
-    const labels = groups.filter(g => filterState.priceMatches.has(g.label));
+    // Show every price bucket that has monitors of the right size, even if
+    // the current tier/usage answers happen to match 0 of them — hiding it
+    // would silently make the user's quiz answer disappear with no
+    // explanation. Selecting a bucket with 0 matches just shows an empty
+    // result state instead.
+    const labels = groups;
     priceContainer.innerHTML = "";
     if (labels.length === 0) { priceCard.hidden = true; }
     else {
@@ -379,8 +384,29 @@ export async function initFilters() {
   // Build price match map
   filterState.priceMatches = buildPriceMatches(allMonitors, filterState.sizeGroup);
 
-  // If stored label isn't in the map, fall back to "" (all prices) or the first bucket
-  if (!filterState.priceMatches.has(filterState.priceLabel)) {
+  // Safety net: if the freshly-recomputed map doesn't have the price bucket
+  // the user actually picked in the quiz (e.g. a transient fetch hiccup, or
+  // scores/answers not reproducing identically), fall back to the matches
+  // that were already computed and stored at quiz-submit time, instead of
+  // showing "no results" for a bucket that demonstrably had results.
+  if (!filterState.priceMatches.has(filterState.priceLabel) && filterState.priceLabel) {
+    const storedData = localStorage.getItem("monitor_filteredMatchedMonitors");
+    if (storedData) {
+      try {
+        const storedMonitors = JSON.parse(storedData);
+        if (Array.isArray(storedMonitors) && storedMonitors.length > 0) {
+          filterState.priceMatches.set(filterState.priceLabel, storedMonitors);
+        }
+      } catch { /* ignore */ }
+    }
+  }
+
+  // Only reset the stored label if it doesn't correspond to a real price
+  // bucket for this size at all (e.g. stale data). A bucket that's valid but
+  // currently has 0 tier-matches should stay selected, not silently reset —
+  // resetting it makes the user's quiz answer disappear with no explanation.
+  const validLabels = new Set(getDynamicPriceGroups(filterState.sizeGroup).map(g => g.label));
+  if (filterState.priceLabel && !validLabels.has(filterState.priceLabel)) {
     filterState.priceLabel = filterState.priceMatches.has("") ? "" :
       (filterState.priceMatches.keys().next().value ?? "");
   }

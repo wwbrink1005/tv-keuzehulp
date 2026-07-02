@@ -40,6 +40,14 @@ body {
 				color: var(--text-primary);
 			}
 
+/* Freezes the background page while the mobile filter drawer is open, so the
+   fixed drawer always stays aligned with the viewport instead of the page
+   scrolling underneath (which used to cut off its top edge). */
+body.filter-drawer-open {
+				overflow: hidden;
+				height: 100vh;
+			}
+
 .title-bar {
 				width: 100%;
 				position: relative;
@@ -428,13 +436,6 @@ body {
 				transform: scale(0.84);
 			}
 
-.tv-card:hover .tv-card-image img {
-				transform: scale(1.04);
-			}
-
-.tv-card:hover .tv-card-image img[data-provider="coolblue"] {
-				transform: scale(0.872);
-			}
 
 .tv-preview-btn svg {
 				width: 13px;
@@ -459,8 +460,8 @@ body {
 			}
 
 .image-preview-img {
-				max-width: 100%;
-				max-height: calc(100dvh - 180px);
+				width: 100%;
+				height: 100%;
 				object-fit: contain;
 				display: block;
 				border-radius: var(--radius-sm);
@@ -487,6 +488,10 @@ body {
 				align-items: center;
 				justify-content: center;
 				width: 100%;
+				/* Fixed-size box so every image (portrait or landscape) scales down to
+				   fit the same area, instead of the dialog resizing per image and
+				   pushing the nav arrows / thumbnails around. */
+				height: min(420px, calc(100dvh - 260px));
 			}
 
 .image-preview-nav {

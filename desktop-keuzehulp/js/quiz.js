@@ -1,4 +1,4 @@
-import { behuizingTypeToAllowed, priceGroupsByType } from "./data.js";
+import { priceGroupsByType } from "./data.js";
 import { calculateScores, matchDesktops } from "./matching.js";
 import { computeDynamicPriceGroups, getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
@@ -335,7 +335,7 @@ export function initQuizPage() {
     try {
       const rawProducts = await prefetchProducts();
       const desktops = normalizeProducts(rawProducts ?? []);
-      const dynamic = computeDynamicPriceGroups(desktops, quizState.selectedBehuizingType, behuizingTypeToAllowed);
+      const dynamic = computeDynamicPriceGroups(desktops, quizState.selectedBehuizingType);
       quizState.priceGroups = dynamic.length > 0 ? dynamic : (priceGroupsByType[quizState.selectedBehuizingType] ?? []);
     } catch {
       quizState.priceGroups = priceGroupsByType[quizState.selectedBehuizingType] ?? [];

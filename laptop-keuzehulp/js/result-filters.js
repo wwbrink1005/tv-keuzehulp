@@ -148,7 +148,10 @@ function renderSizeOptions(container, card, matches) {
 function renderPriceOptions(container, card, sizeGroup) {
   const groups = getDynamicPriceGroups(sizeGroup);
   container.innerHTML = "";
-  const labels = groups.filter(g => filterState.priceMatches.has(g.label));
+  // Show every price bucket that has laptops of the right size, even if the
+  // current tier/usage answers happen to match 0 of them — hiding it would
+  // silently make the user's quiz answer disappear with no explanation.
+  const labels = groups;
   if (labels.length === 0) { card.hidden = true; return; }
   card.hidden = false;
 

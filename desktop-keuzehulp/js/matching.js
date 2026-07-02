@@ -1,4 +1,4 @@
-import { behuizingTypeToAllowed, scoringSystem, TIER_ORDER } from "./data.js";
+import { scoringSystem, TIER_ORDER } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 // ─── Score computation ────────────────────────────────────────────────────────
@@ -81,13 +81,14 @@ export function matchDesktops(desktops, behuizingType, priceGroup, answers, scor
     return { bestMatch: null, bestType: null, filteredMatchedDesktops: [] };
   }
 
-  const allowedTypes = behuizingType ? behuizingTypeToAllowed[behuizingType] : null;
-
-  // 1. Filter by behuizing type + price (case-insensitive behuizing match)
+  // 1. Filter by behuizing category + price.
+  // "maakt-niet-uit" (or no type selected) means every category is allowed —
+  // including products whose category we couldn't classify (behuizingCategory
+  // is null), since excluding them would throw away most of the catalog.
   let filtered = desktops.filter(d => {
     const price  = parsePrice(d.prijs);
-    const beh    = typeof d.behuizing === "string" ? d.behuizing.toLowerCase() : "";
-    const typeOk = allowedTypes === null || allowedTypes.includes(beh);
+    const typeOk = !behuizingType || behuizingType === "maakt-niet-uit" ||
+                   d.behuizingCategory === behuizingType;
     return typeOk && (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max));
   });
 

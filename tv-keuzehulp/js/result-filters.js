@@ -161,7 +161,10 @@ function renderPriceOptions(container, priceCard, sizeGroup) {
   const groups = getDynamicPriceGroups(sizeGroup);
   container.innerHTML = "";
 
-  const labels = groups.filter(group => filterState.priceMatches.has(group.label));
+  // Show every price bucket that has tv's of the right size, even if the
+  // current answers happen to match 0 of them — hiding it would silently
+  // make the user's quiz answer disappear with no explanation.
+  const labels = groups;
   if (labels.length === 0) {
     priceCard.hidden = true;
     return;
