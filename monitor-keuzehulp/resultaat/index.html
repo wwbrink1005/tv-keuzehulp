@@ -148,7 +148,7 @@
 
 .result-title { text-align: center; }
 
-.filters-panel { position: fixed; top: var(--menu-height, 64px); left: 0; bottom: 0; width: min(78vw, 280px); background: var(--page-bg); padding: 16px 14px 24px; box-shadow: 10px 0 30px rgba(0,0,0,0.12); transform: translateX(-105%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); z-index: 900; overflow-y: auto; }
+.filters-panel { position: fixed; top: var(--menu-height, 64px); left: 0; bottom: 0; width: min(78vw, 280px); background: var(--page-bg); padding: 16px 14px 24px; box-shadow: 10px 0 30px rgba(0,0,0,0.12); transform: translateX(-105%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); z-index: 900; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
 
 .filters-panel.is-open { transform: translateX(0); }
 
@@ -156,13 +156,43 @@
 
 .filters-panel-header { padding-bottom: 14px; margin-bottom: 4px; }
 
-.tv-card { padding: 14px 16px; row-gap: 14px; }
-
-.tv-card-image { width: 114px; min-width: 114px; height: 90px; margin-right: 16px; }
-
-.tv-card-body { min-width: 110px; }
-
 .tv-providers-list { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+}
+
+/* Card layout switches to the stacked (mobile) design as soon as the results
+   column gets too narrow for the side-by-side desktop layout — this happens
+   well before the viewport itself is "mobile" width, because the filters
+   sidebar eats into the available space (tablets / small laptops). */
+@media (max-width: 1100px) {
+.tv-card {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-areas:
+		"badge badge"
+		"image name"
+		"points points"
+		"specs specs"
+		"providers providers";
+	column-gap: 14px;
+	row-gap: 10px;
+	padding: 16px;
+}
+
+.tv-card-image { grid-area: image; width: 72px; min-width: 72px; height: 72px; margin-right: 0; }
+
+.tv-card-body { display: contents; }
+
+.tv-card-cheapest-badge { grid-area: badge; }
+
+.tv-card-name { grid-area: name; align-self: center; }
+
+.tv-card-points { grid-area: points; }
+
+.tv-card-specs { grid-area: specs; padding-top: 10px; border-top: 1px solid var(--line); }
+
+.tv-card-price { display: none; }
+
+.tv-card-providers { grid-area: providers; width: auto; border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-top: 10px; }
 }
 
 @media (max-width: 520px) {
@@ -289,6 +319,25 @@
           <h1 id="resultTitle" class="result-title">
             <span id="resultTitleText">De monitor die het beste bij je past!</span><span id="resultMatchCount" class="result-count-badge">0</span>
           </h1>
+        </div>
+
+        <!-- Uitleg over de keuzes -->
+        <div class="results-explainer" id="resultsExplainer">
+          <h3 class="results-explainer-heading">Uitleg over de keuzes</h3>
+          <button class="results-explainer-btn" type="button" id="explainerToggleBtn" aria-expanded="false" aria-controls="explainerBody">
+            <i data-lucide="help-circle" aria-hidden="true"></i>
+            Uitleg over de keuzes
+            <i data-lucide="chevron-down" class="results-explainer-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="results-explainer-body" id="explainerBody">
+            <p>
+              Hieronder vind je alle monitoren die passen bij de keuzes die je hebt gemaakt. We raden aan om voor de bovenste optie te kiezen, want dat is de monitor die het beste bij jouw wensen past.<span class="results-explainer-text-extra"> Staan er nog veel opties in de lijst? Gebruik de filters aan de linkerkant om verder te verfijnen op bijvoorbeeld schermgrootte, verversingssnelheid of prijs, zodat je nog sneller bij de perfecte monitor voor jou uitkomt.</span>
+              <button class="results-explainer-more-btn" type="button" id="explainerMoreBtn" aria-expanded="false">
+                <span>Meer</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </p>
+          </div>
         </div>
 
         <!-- Results Content -->
@@ -451,6 +500,30 @@
         btn.style.transform = show ? 'translateY(0)' : 'translateY(10px)';
         btn.style.pointerEvents = show ? 'auto' : 'none';
       }, { passive: true });
+    })();
+    </script>
+
+    <!-- Uitleg over de keuzes toggle -->
+    <script>
+    (function () {
+      var explainer = document.getElementById('resultsExplainer');
+      var toggleBtn = document.getElementById('explainerToggleBtn');
+      var body = document.getElementById('explainerBody');
+      var moreBtn = document.getElementById('explainerMoreBtn');
+      if (toggleBtn && body) {
+        toggleBtn.addEventListener('click', function () {
+          var open = body.classList.toggle('is-open');
+          toggleBtn.classList.toggle('is-open', open);
+          toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+      }
+      if (moreBtn && explainer) {
+        moreBtn.addEventListener('click', function () {
+          var expanded = explainer.classList.toggle('is-expanded');
+          moreBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+          moreBtn.querySelector('span').textContent = expanded ? 'Minder' : 'Meer';
+        });
+      }
     })();
     </script>
 
