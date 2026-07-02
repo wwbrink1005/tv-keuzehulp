@@ -389,6 +389,11 @@ button.question-hint-btn-mobile { display: grid; }
           Hoe werkt het?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
+        <button class="quiz-toggle-btn" id="uitleg-toggle" data-toggle-target="uitleg-content" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Keuzehulp uitleg
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
       </div>
     </div>
 
@@ -400,6 +405,11 @@ button.question-hint-btn-mobile { display: grid; }
           <div class="quiz-how-step"><span class="quiz-how-step-num">2</span><div><div class="quiz-how-step-label">Wij analyseren</div><div class="quiz-how-step-desc">We matchen je antwoorden met alle desktops</div></div></div>
           <div class="quiz-how-step"><span class="quiz-how-step-num">3</span><div><div class="quiz-how-step-label">Ontvang advies</div><div class="quiz-how-step-desc">Bekijk welke desktops het beste bij je passen</div></div></div>
         </div>
+      </div>
+    </div>
+    <div class="quiz-panel-content" id="uitleg-content">
+      <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
+        <p>Deze desktop-keuzehulp kijkt naar waar je de desktop voor gebruikt, hoe intensief dat is en welk soort behuizing je wilt — tower, mini-pc of all-in-one. Op basis daarvan bepalen we welke GPU-klasse passend is, en filteren we het aanbod verder op werkgeheugen, opslag en extra's. We nemen alleen desktops mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
       </div>
     </div>
   </header>
@@ -472,22 +482,22 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="dagelijks">
                 <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Dagelijks gebruik — Surfen, mailen en streamen</span>
+                <span>Dagelijks gebruik</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="werk">
                 <svg class="answer-info-icon" data-icon="briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Werk en studie — Documenten en videobellen</span>
+                <span>Werk of studie</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="gaming">
                 <svg class="answer-info-icon" data-icon="gamepad-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gaming — Spellen spelen op hoge instellingen</span>
+                <span>Gamen</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="creatief">
                 <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Creatief werk — Video's, foto's of 3D bewerken</span>
+                <span>Creatief werk</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 58px) + (3 * 15px) + 22px) * var(--scale));">
@@ -509,22 +519,22 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="radio" name="behuizing" value="tower">
                 <svg class="answer-info-icon" data-icon="server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Tower — Groot, uitbreidbaar en krachtig</span>
+                <span>Tower</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="behuizing" value="mini-pc">
                 <svg class="answer-info-icon" data-icon="box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Mini PC — Compact, zuinig en ruimtebesparend</span>
+                <span>Mini pc</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="behuizing" value="all-in-one">
                 <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>All-in-One — PC en monitor in één apparaat</span>
+                <span>All-in-one</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="behuizing" value="maakt-niet-uit">
                 <svg class="answer-info-icon" data-icon="sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Maakt niet uit — Toon alle opties</span>
+                <span>Maakt niet uit</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 58px) + (3 * 15px) + 22px) * var(--scale));">
@@ -562,17 +572,17 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="radio" name="intensiteit" value="licht">
                 <svg class="answer-info-icon" data-icon="coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Licht — Mailen, surfen en series kijken</span>
+                <span>Licht gebruik</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="intensiteit" value="gemiddeld">
                 <svg class="answer-info-icon" data-icon="layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gemiddeld — Casual gaming en Office</span>
+                <span>Gemiddeld gebruik</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="intensiteit" value="intensief">
                 <svg class="answer-info-icon" data-icon="zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Intensief — Zware games, video of 3D-software</span>
+                <span>Intensief gebruik</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 58px) + (2 * 15px) + 22px) * var(--scale));">
@@ -594,17 +604,17 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="radio" name="opslag" value="weinig">
                 <svg class="answer-info-icon" data-icon="cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Weinig — Voornamelijk cloudopslag, 512 GB</span>
+                <span>Weinig, 512 GB</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="opslag" value="gemiddeld">
                 <svg class="answer-info-icon" data-icon="hard-drive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gemiddeld — Games en programma's, 1 TB</span>
+                <span>Gemiddeld, 1 TB</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="opslag" value="veel">
                 <svg class="answer-info-icon" data-icon="server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Veel — Grote projecten en games, 2 TB of meer</span>
+                <span>Veel, 2 TB of meer</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 58px) + (2 * 15px) + 22px) * var(--scale));">
@@ -628,17 +638,17 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="rgb">
                 <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>RGB-verlichting — Stijlvolle uitstraling</span>
+                <span>RGB-verlichting</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="waterkoeling">
                 <svg class="answer-info-icon" data-icon="droplets" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Waterkoeling — Koel en stil onder belasting</span>
+                <span>Waterkoeling</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="veel-aansluitingen">
                 <svg class="answer-info-icon" data-icon="layout-panel-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Veel aansluitingen — Extra monitoren en apparaten</span>
+                <span>Veel aansluitingen</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="geen">
@@ -681,6 +691,7 @@ button.question-hint-btn-mobile { display: grid; }
       });
     }
     initToggle('how-content');
+    initToggle('uitleg-content');
   })();
   </script>
 

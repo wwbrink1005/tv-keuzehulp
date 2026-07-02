@@ -1,6 +1,6 @@
-import { priceGroupsBySize } from "./data.js";
+import { priceGroupsBySize, sizeGroupToAllowedSizes } from "./data.js";
 import { computeMatchForPriceGroup, getIdealTypeSet } from "./matching.js";
-import { getResolutionTier, getStoredSelection, normalizeProducts, normalizeTypeLabel, qs } from "./utils.js";
+import { computeDynamicPriceGroups, getResolutionTier, getStoredSelection, normalizeProducts, normalizeTypeLabel, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 
@@ -11,6 +11,7 @@ const filterState = {
   types: new Set(),
   resolutions: new Set(),
   hzOptions: new Set(),
+  hdmiOptions: new Set(),
   aanbieder: new Set(),
   priceMatches: new Map(),
   answers: null,
@@ -19,15 +20,14 @@ const filterState = {
   sizeGroup: ""
 };
 
+// Price buckets are recomputed fresh from the live-fetched catalog on every
+// results page load (not trusted from the quiz-time localStorage snapshot),
+// since a stale/short-lived fetch during the quiz can produce fewer or
+// narrower buckets than the catalog actually supports (e.g. missing the
+// most expensive bucket entirely).
 function getDynamicPriceGroups(sizeGroup) {
-  const stored = localStorage.getItem("dynamicPriceGroups");
-  if (stored) {
-    try {
-      const groups = JSON.parse(stored);
-      if (Array.isArray(groups) && groups.length > 0) return groups;
-    } catch {
-      // fall through to static fallback
-    }
+  if (Array.isArray(filterState.priceGroups) && filterState.priceGroups.length > 0) {
+    return filterState.priceGroups;
   }
   return priceGroupsBySize[sizeGroup] || [];
 }
@@ -111,6 +111,12 @@ function collectHzOptions(matches) {
   return Array.from(set).sort((a, b) => a - b);
 }
 
+function collectHdmiOptions(matches) {
+  const set = new Set();
+  matches.forEach(tv => { if (tv.hdmiPoorten) set.add(tv.hdmiPoorten); });
+  return Array.from(set).sort((a, b) => a - b);
+}
+
 function collectAanbiederOptions(matches) {
   const set = new Set();
   matches.forEach(tv => {
@@ -124,9 +130,8 @@ function collectAanbiederOptions(matches) {
   return Array.from(set).sort();
 }
 
-function buildPriceMatches(tvs, sizeGroup, selectedPriceLabel) {
+function buildPriceMatches(tvs, sizeGroup) {
   const groups = getDynamicPriceGroups(sizeGroup);
-  const idealTypes = getIdealTypeSet(filterState.scores);
   const map = new Map();
 
   // Ignore the ambilight preference when building filter menu options.
@@ -135,6 +140,9 @@ function buildPriceMatches(tvs, sizeGroup, selectedPriceLabel) {
   // back empty when ambilight TVs don't satisfy the Hz/resolution filters.
   const answersForFilter = { ...filterState.answers, ambilight: "" };
 
+  // Every price bucket that has at least one matching TV stays in the menu,
+  // regardless of type/tier — users should always get the full set of price
+  // options to pick from themselves.
   groups.forEach(group => {
     const result = computeMatchForPriceGroup(
       tvs,
@@ -143,12 +151,7 @@ function buildPriceMatches(tvs, sizeGroup, selectedPriceLabel) {
       answersForFilter,
       filterState.scores
     );
-    let matches = Array.isArray(result.filteredMatchedTVs) ? result.filteredMatchedTVs : [];
-
-    if (group.label !== selectedPriceLabel && idealTypes.size > 0) {
-      matches = matches.filter(tv => idealTypes.has(normalizeTypeLabel(tv.type)));
-    }
-
+    const matches = Array.isArray(result.filteredMatchedTVs) ? result.filteredMatchedTVs : [];
     if (matches.length > 0) {
       map.set(group.label, matches);
     }
@@ -157,14 +160,31 @@ function buildPriceMatches(tvs, sizeGroup, selectedPriceLabel) {
   return map;
 }
 
+/**
+ * Picks which price bucket should be selected by default when the user
+ * didn't pick a budget in the quiz ("geen voorkeur"): the cheapest bucket
+ * that still contains a TV of the highest-scoring type, ignoring price
+ * entirely when judging "best match". Falls back to the cheapest bucket
+ * with any match at all if no bucket has the ideal type.
+ */
+function pickDefaultPriceLabel(priceMatches, scores) {
+  const idealTypes = getIdealTypeSet(scores);
+  if (idealTypes.size > 0) {
+    for (const [label, matches] of priceMatches) {
+      if (matches.some(tv => idealTypes.has(normalizeTypeLabel(tv.type)))) return label;
+    }
+  }
+  return priceMatches.keys().next().value ?? "";
+}
+
 function renderPriceOptions(container, priceCard, sizeGroup) {
   const groups = getDynamicPriceGroups(sizeGroup);
   container.innerHTML = "";
 
-  // Show every price bucket that has tv's of the right size, even if the
-  // current answers happen to match 0 of them — hiding it would silently
-  // make the user's quiz answer disappear with no explanation.
-  const labels = groups;
+  // Only show price buckets that actually contain a matching TV for the
+  // current quiz answers — otherwise users click a bucket that can never
+  // show a result.
+  const labels = groups.filter(g => filterState.priceMatches.has(g.label));
   if (labels.length === 0) {
     priceCard.hidden = true;
     return;
@@ -338,6 +358,40 @@ function renderHzOptions(container, hzCard, matches) {
   });
 }
 
+function renderHdmiOptions(container, hdmiCard, matches) {
+  container.innerHTML = "";
+  const hdmiValues = collectHdmiOptions(matches);
+  if (hdmiValues.length === 0) { hdmiCard.hidden = true; return; }
+  hdmiCard.hidden = false;
+
+  const isAllSelected = filterState.hdmiOptions.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = "hdmiFilter";
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
+
+  hdmiValues.forEach(count => {
+    const label = document.createElement("label");
+    label.className = "filter-option";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = "hdmiFilter";
+    input.value = count;
+    input.checked = filterState.hdmiOptions.has(count);
+    const text = document.createElement("span");
+    text.textContent = `${count} HDMI`;
+    label.append(input, text);
+    container.appendChild(label);
+  });
+}
+
 function renderAanbiederOptions(container, aanbiederCard, matches) {
   container.innerHTML = "";
   const aanbieders = collectAanbiederOptions(matches);
@@ -376,7 +430,8 @@ function updateClearFiltersBtn() {
   const btn = qs("#clearFiltersBtn");
   if (!btn) return;
   const hasActive = filterState.sizes.size > 0 || filterState.brands.size > 0 || filterState.types.size > 0 ||
-    filterState.resolutions.size > 0 || filterState.hzOptions.size > 0 || filterState.aanbieder.size > 0;
+    filterState.resolutions.size > 0 || filterState.hzOptions.size > 0 || filterState.hdmiOptions.size > 0 ||
+    filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
@@ -403,6 +458,9 @@ function applyFilters() {
   if (filterState.hzOptions.size > 0) {
     filtered = filtered.filter(tv => filterState.hzOptions.has(tv.Hz));
   }
+  if (filterState.hdmiOptions.size > 0) {
+    filtered = filtered.filter(tv => filterState.hdmiOptions.has(tv.hdmiPoorten));
+  }
   if (filterState.aanbieder.size > 0) {
     filtered = filtered.filter(tv => {
       const a = tv.aanbieder;
@@ -423,7 +481,7 @@ function applyFilters() {
   updateResultMatches(filtered, filterState.answers, filterState.bestType, filterState.scores, filterState.sizeGroup);
 }
 
-function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, aanbiederContainer) {
+function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, hdmiContainer, aanbiederContainer) {
   function renderAllSecondary() {
     const matches = getActivePriceMatches();
     renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), matches);
@@ -431,6 +489,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), matches);
     renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), matches);
     renderHzOptions(hzContainer, qs(".filter-card[data-filter='hz']"), matches);
+    renderHdmiOptions(hdmiContainer, qs(".filter-card[data-filter='hdmi']"), matches);
     renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), matches);
   }
 
@@ -444,6 +503,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     filterState.types.clear();
     filterState.resolutions.clear();
     filterState.hzOptions.clear();
+    filterState.hdmiOptions.clear();
     filterState.aanbieder.clear();
 
     renderAllSecondary();
@@ -587,6 +647,34 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     applyFilters();
   });
 
+  hdmiContainer.addEventListener("change", event => {
+    const input = event.target.closest("input[type=checkbox]");
+    if (!input) return;
+
+    if (input.value === "all") {
+      if (input.checked) {
+        filterState.hdmiOptions.clear();
+        renderHdmiOptions(hdmiContainer, qs(".filter-card[data-filter='hdmi']"), getActivePriceMatches());
+      } else if (filterState.hdmiOptions.size === 0) {
+        input.checked = true;
+      }
+    } else {
+      const count = parseInt(input.value, 10);
+      if (input.checked) {
+        filterState.hdmiOptions.add(count);
+      } else {
+        filterState.hdmiOptions.delete(count);
+      }
+      if (filterState.hdmiOptions.size === 0) {
+        renderHdmiOptions(hdmiContainer, qs(".filter-card[data-filter='hdmi']"), getActivePriceMatches());
+      } else {
+        const allInput = hdmiContainer.querySelector('input[value="all"]');
+        if (allInput) allInput.checked = false;
+      }
+    }
+    applyFilters();
+  });
+
   aanbiederContainer.addEventListener("change", event => {
     const input = event.target.closest("input[type=checkbox]");
     if (!input) return;
@@ -622,6 +710,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
       filterState.types.clear();
       filterState.resolutions.clear();
       filterState.hzOptions.clear();
+      filterState.hdmiOptions.clear();
       filterState.aanbieder.clear();
       renderAllSecondary();
       applyFilters();
@@ -636,6 +725,7 @@ function initResultFilters() {
   const typeContainer = qs("#typeFilterOptions");
   const resolutionContainer = qs("#resolutionFilterOptions");
   const hzContainer = qs("#hzFilterOptions");
+  const hdmiContainer = qs("#hdmiFilterOptions");
   const aanbiederContainer = qs("#aanbiederFilterOptions");
 
   const priceCard = qs(".filter-card[data-filter='price']");
@@ -644,10 +734,11 @@ function initResultFilters() {
   const typeCard = qs(".filter-card[data-filter='type']");
   const resolutionCard = qs(".filter-card[data-filter='resolution']");
   const hzCard = qs(".filter-card[data-filter='hz']");
+  const hdmiCard = qs(".filter-card[data-filter='hdmi']");
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
-  if (!priceContainer || !sizeContainer || !brandContainer || !typeContainer || !resolutionContainer || !hzContainer || !aanbiederContainer) return;
-  if (!priceCard || !sizeCard || !brandCard || !typeCard || !resolutionCard || !hzCard || !aanbiederCard) return;
+  if (!priceContainer || !sizeContainer || !brandContainer || !typeContainer || !resolutionContainer || !hzContainer || !hdmiContainer || !aanbiederContainer) return;
+  if (!priceCard || !sizeCard || !brandCard || !typeCard || !resolutionCard || !hzCard || !hdmiCard || !aanbiederCard) return;
 
   const stored = getStoredSelection();
   const answersData = localStorage.getItem("answers");
@@ -665,7 +756,8 @@ function initResultFilters() {
   fetchProducts()
     .then(rawProducts => {
       const tvs = normalizeProducts(rawProducts);
-      filterState.priceMatches = buildPriceMatches(tvs, stored.sizeGroup, selectedPriceLabel);
+      filterState.priceGroups = computeDynamicPriceGroups(tvs, stored.sizeGroup, sizeGroupToAllowedSizes);
+      filterState.priceMatches = buildPriceMatches(tvs, stored.sizeGroup);
 
       // Fallback: if the selected price group has no computed matches, seed it
       // with the TVs that were already matched during the quiz. This ensures
@@ -691,7 +783,7 @@ function initResultFilters() {
 
       filterState.priceLabel = filterState.priceMatches.has(selectedPriceLabel)
         ? selectedPriceLabel
-        : availableLabels[0];
+        : pickDefaultPriceLabel(filterState.priceMatches, filterState.scores);
 
       const matches = getActivePriceMatches();
       renderPriceOptions(priceContainer, priceCard, stored.sizeGroup);
@@ -700,12 +792,13 @@ function initResultFilters() {
       renderTypeOptions(typeContainer, typeCard, matches);
       renderResolutionOptions(resolutionContainer, resolutionCard, matches);
       renderHzOptions(hzContainer, hzCard, matches);
+      renderHdmiOptions(hdmiContainer, hdmiCard, matches);
       renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
-      initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, aanbiederContainer);
+      initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, hdmiContainer, aanbiederContainer);
       applyFilters();
     })
     .catch(() => {
-      [priceCard, sizeCard, brandCard, typeCard, resolutionCard, hzCard, aanbiederCard].forEach(card => { card.hidden = true; });
+      [priceCard, sizeCard, brandCard, typeCard, resolutionCard, hzCard, hdmiCard, aanbiederCard].forEach(card => { card.hidden = true; });
     });
 }
 

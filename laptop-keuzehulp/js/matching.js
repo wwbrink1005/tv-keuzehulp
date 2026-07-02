@@ -177,8 +177,16 @@ export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
     break;
   }
 
+  // Fallback: if tier matching yielded nothing, use all size+price filtered
+  // laptops (still applying formaat/opslag/extra where possible) so a
+  // non-empty price bucket never results in an empty result set.
   if (matchedLaptops.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedLaptops: [] };
+    let fallback = applyFormaatFilter(filtered, answers.formaat ?? "");
+    fallback = applyOpslagFilter(fallback, answers.opslag ?? "");
+    fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
+    if (fallback.length === 0) fallback = [...filtered];
+    matchedLaptops = fallback;
+    bestType = "Algemeen";
   }
 
   // Best match = cheapest in the matched set

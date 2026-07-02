@@ -47,6 +47,8 @@ function adaptRow(row) {
     hdmiPoorten:         parseFirstInt(row.hdmi_poorten),
     displayport:         parseFirstInt(row.displayport_poorten),
     usbC:                parseFirstInt(row.usb32_gen2_type_c),
+    os:                  row.os                ?? "",
+    processorFabrikant:  row.processor_fabrikant ?? "",
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          [adaptAanbieders(row)],

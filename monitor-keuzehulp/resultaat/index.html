@@ -236,14 +236,21 @@
             <button class="restart-confirm" type="button">Begin opnieuw</button>
           </div>
         </div>
+        <!-- Info trigger — mobile only -->
+        <button class="icon-button" id="infoTriggerMobile" type="button" aria-label="Hoe werkt het?" aria-expanded="false" aria-controls="infoCard">
+          <i data-lucide="info"></i>
+        </button>
       </div>
 
-      <!-- Desktop: restart button -->
+      <!-- Desktop: restart + info buttons grouped left -->
       <div class="title-left-wrap">
         <a class="restart-link" href="monitor-keuzehulp/vragen">
           <i data-lucide="arrow-left"></i>
           <span>Opnieuw beginnen</span>
         </a>
+        <button class="info-btn" id="infoTriggerDesktop" type="button" aria-label="Hoe werkt het?" aria-expanded="false" aria-controls="infoCard">
+          <i data-lucide="info"></i>
+        </button>
       </div>
 
       <div class="results-toolbar">
@@ -307,6 +314,26 @@
             <div id="hzFilterOptions" class="filter-options" data-filter-container="hz"></div>
           </div>
 
+          <div class="filter-card" data-filter="aspect" hidden>
+            <h3 class="filter-title">Beeldverhouding</h3>
+            <div id="aspectFilterOptions" class="filter-options" data-filter-container="aspect"></div>
+          </div>
+
+          <div class="filter-card" data-filter="curved" hidden>
+            <h3 class="filter-title">Gebogen scherm</h3>
+            <div id="curvedFilterOptions" class="filter-options" data-filter-container="curved"></div>
+          </div>
+
+          <div class="filter-card" data-filter="speakers" hidden>
+            <h3 class="filter-title">Ingebouwde speakers</h3>
+            <div id="speakersFilterOptions" class="filter-options" data-filter-container="speakers"></div>
+          </div>
+
+          <div class="filter-card" data-filter="hdmi" hidden>
+            <h3 class="filter-title">HDMI-poorten</h3>
+            <div id="hdmiFilterOptions" class="filter-options" data-filter-container="hdmi"></div>
+          </div>
+
           <div class="filter-card" data-filter="aanbieder" hidden>
             <h3 class="filter-title">Winkel</h3>
             <div id="aanbiederFilterOptions" class="filter-options" data-filter-container="aanbieder"></div>
@@ -331,7 +358,7 @@
           </button>
           <div class="results-explainer-body" id="explainerBody">
             <p>
-              Hieronder vind je alle monitoren die passen bij de keuzes die je hebt gemaakt. We raden aan om voor de bovenste optie te kiezen, want dat is de monitor die het beste bij jouw wensen past.<span class="results-explainer-text-extra"> Staan er nog veel opties in de lijst? Gebruik de filters aan de linkerkant om verder te verfijnen op bijvoorbeeld schermgrootte, verversingssnelheid of prijs, zodat je nog sneller bij de perfecte monitor voor jou uitkomt.</span>
+              Hieronder vind je alle monitoren die passen bij de keuzes die je hebt gemaakt. We raden aan om voor een van deze opties te kiezen, omdat deze monitoren het beste aansluiten op jouw wensen.<span class="results-explainer-text-extra"> Staan er nog veel opties in de lijst? Gebruik de filters aan de linkerkant om verder te verfijnen op bijvoorbeeld schermgrootte, verversingssnelheid of prijs, zodat je nog sneller bij de perfecte monitor voor jou uitkomt.</span>
               <button class="results-explainer-more-btn" type="button" id="explainerMoreBtn" aria-expanded="false">
                 <span>Meer</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -397,6 +424,7 @@
 
       function showImage(idx) {
         currentIndex = idx;
+        previewImg.onerror = function () { this.onerror = null; this.src = window.IMG_FALLBACK; };
         previewImg.src = allImages[idx];
         thumbsEl.querySelectorAll('.image-preview-thumb').forEach(function (t, i) {
           t.classList.toggle('is-active', i === idx);
@@ -408,12 +436,13 @@
         currentIndex = 0;
         var hasGallery = allImages.length > 1;
         dialog.classList.toggle('image-preview-has-gallery', hasGallery);
+        previewImg.onerror = function () { this.onerror = null; this.src = window.IMG_FALLBACK; };
         previewImg.src = src;
         previewImg.alt = name || '';
         previewName.textContent = name || '';
         thumbsEl.innerHTML = hasGallery
           ? allImages.map(function (s, i) {
-              return '<img class="image-preview-thumb' + (i === 0 ? ' is-active' : '') + '" src="' + s + '" alt="" data-idx="' + i + '" loading="lazy">';
+              return '<img class="image-preview-thumb' + (i === 0 ? ' is-active' : '') + '" src="' + s + '" alt="" data-idx="' + i + '" loading="lazy" onerror="this.style.display=\'none\';">';
             }).join('')
           : '';
         overlay.classList.add('is-open');
@@ -525,6 +554,87 @@
         });
       }
     })();
+    </script>
+
+    <!-- ── Info card (fixed portal) ── -->
+    <div id="infoCard" class="info-card" role="dialog" aria-hidden="true" aria-label="Over deze keuzehulp">
+      <button class="info-card-close" id="infoCardClose" type="button" aria-label="Sluit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="info-card-body">
+        <p class="info-card-title">Over deze keuzehulp</p>
+        <p class="info-card-text">Deze monitor-keuzehulp kijkt naar je gebruik — thuiswerk, gaming, creatief werk of algemeen —, de gewenste schermgrootte en verversingssnelheid. Op basis daarvan bepalen we welk type monitor (Budget, Mid, Gaming of Premium) het beste bij je past, en filteren we verder op resolutie, paneeltype en extra's zoals HDR of een gebogen scherm. We nemen alleen monitoren mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
+      </div>
+    </div>
+
+    <script>
+      // ── Info card toggle ──────────────────────────────────────────────────
+      (function () {
+        var card             = document.getElementById('infoCard');
+        var triggerDesktop   = document.getElementById('infoTriggerDesktop');
+        var triggerMobile    = document.getElementById('infoTriggerMobile');
+        var closeBtn         = document.getElementById('infoCardClose');
+
+        if (!card) return;
+
+        function positionCard(trigger) {
+          var rect = trigger.getBoundingClientRect();
+          var vw   = window.innerWidth;
+          var cardW = Math.min(310, vw - 24);
+
+          var left = rect.left;
+          if (left + cardW > vw - 12) left = vw - cardW - 12;
+          if (left < 12) left = 12;
+
+          card.style.top    = (rect.bottom + 10) + 'px';
+          card.style.left   = left + 'px';
+          card.style.width  = cardW + 'px';
+          card.style.right  = 'auto';
+        }
+
+        function openCard(trigger) {
+          positionCard(trigger);
+          card.classList.add('is-open');
+          card.setAttribute('aria-hidden', 'false');
+          if (triggerDesktop) { triggerDesktop.setAttribute('aria-expanded', 'true');  triggerDesktop.classList.add('is-active'); }
+          if (triggerMobile)  { triggerMobile.setAttribute('aria-expanded', 'true');   triggerMobile.classList.add('is-active'); }
+        }
+
+        function closeCard() {
+          card.classList.remove('is-open');
+          card.setAttribute('aria-hidden', 'true');
+          if (triggerDesktop) { triggerDesktop.setAttribute('aria-expanded', 'false'); triggerDesktop.classList.remove('is-active'); }
+          if (triggerMobile)  { triggerMobile.setAttribute('aria-expanded', 'false');  triggerMobile.classList.remove('is-active'); }
+        }
+
+        function toggleCard(trigger) {
+          card.classList.contains('is-open') ? closeCard() : openCard(trigger);
+        }
+
+        if (triggerDesktop) triggerDesktop.addEventListener('click', function (e) { e.stopPropagation(); toggleCard(triggerDesktop); });
+        if (triggerMobile)  triggerMobile.addEventListener('click',  function (e) { e.stopPropagation(); toggleCard(triggerMobile); });
+        if (closeBtn)       closeBtn.addEventListener('click', closeCard);
+
+        document.addEventListener('click', function (e) {
+          if (!card.classList.contains('is-open')) return;
+          if (card.contains(e.target)) return;
+          var clickedTrigger =
+            (triggerDesktop && (e.target === triggerDesktop || triggerDesktop.contains(e.target))) ||
+            (triggerMobile  && (e.target === triggerMobile  || triggerMobile.contains(e.target)));
+          if (clickedTrigger) return;
+          closeCard();
+        });
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && card.classList.contains('is-open')) closeCard();
+        });
+
+        window.addEventListener('resize', function () {
+          if (!card.classList.contains('is-open')) return;
+          var activeTrigger = triggerDesktop && triggerDesktop.offsetParent ? triggerDesktop : triggerMobile;
+          if (activeTrigger) positionCard(activeTrigger);
+        });
+      })();
     </script>
 
   </body>

@@ -29,6 +29,16 @@ function parseRefreshRate(value) {
 }
 
 /**
+ * Extracts the integer HDMI port count from hdmi_poorten values like "4" → 4.
+ * Returns null when the value is absent so the filter can skip unknowns.
+ */
+function parseHdmiPoorten(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const m = String(value).match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+/**
  * Maps display_technologie values to the panel types the scoring system knows.
  */
 const TECHNOLOGIE_MAP = {
@@ -97,6 +107,7 @@ function adaptRow(row) {
     merk:                row.merk,
     scherpte:            mapScherpte(row.scherm_type),
     hz:                  parseRefreshRate(row.refresh_rate),
+    hdmiPoorten:         parseHdmiPoorten(row.hdmi_poorten),
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          [adaptAanbieders(row)],

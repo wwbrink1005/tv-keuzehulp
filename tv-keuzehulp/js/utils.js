@@ -126,6 +126,7 @@ export function normalizeProducts(rawProducts) {
       merk: product.merk,
       scherpte: product.scherpte,
       Hz: hzNum,
+      hdmiPoorten: Number.isFinite(product.hdmiPoorten) ? product.hdmiPoorten : null,
       afbeelding,
       afbeeldingen,
       aanbieder

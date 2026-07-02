@@ -125,8 +125,15 @@ export function matchDesktops(desktops, behuizingType, priceGroup, answers, scor
     break;
   }
 
+  // Fallback: if tier matching yielded nothing, use all behuizing+price
+  // filtered desktops (still applying opslag/extra where possible) so a
+  // non-empty price bucket never results in an empty result set.
   if (matchedDesktops.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedDesktops: [] };
+    let fallback = applyOpslagFilter(filtered, answers.opslag ?? "");
+    fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
+    if (fallback.length === 0) fallback = [...filtered];
+    matchedDesktops = fallback;
+    bestType = "Algemeen";
   }
 
   // Best match = cheapest in the matched set

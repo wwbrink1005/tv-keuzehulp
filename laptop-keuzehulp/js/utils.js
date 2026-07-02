@@ -94,6 +94,7 @@ export function normalizeProducts(rawProducts) {
       processor:      product.processor,
       gpu:            product.gpu ?? "",
       gewicht:        Number.isFinite(gewicht) ? gewicht : null,
+      os:             product.os ?? "",
       afbeelding,
       afbeeldingen,
       aanbieder

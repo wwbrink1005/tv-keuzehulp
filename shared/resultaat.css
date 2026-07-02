@@ -909,3 +909,130 @@ body.has-menu {
 		display: none;
 	}
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   "OVER DEZE KEUZEHULP" INFO CARD
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.info-toggle-wrap {
+				position: relative;
+			}
+
+.info-btn {
+				width: 38px;
+				height: 38px;
+				border-radius: 999px;
+				border: 1px solid var(--line);
+				background: var(--card-bg);
+				backdrop-filter: none;
+				-webkit-backdrop-filter: none;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--text-secondary);
+				cursor: pointer;
+				transition: all var(--transition);
+				padding: 0;
+				font-family: inherit;
+			}
+
+.info-btn:hover {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
+				color: var(--accent);
+			}
+
+.info-btn.is-active {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
+				color: var(--accent);
+			}
+
+.info-btn svg {
+				width: 16px;
+				height: 16px;
+			}
+
+.info-card {
+				position: fixed;
+				top: 144px;
+				left: 50px;
+				width: 310px;
+				background: var(--card-bg);
+				border-radius: var(--radius-lg);
+				border: 1px solid var(--line);
+				box-shadow: var(--shadow-elevated);
+				overflow: hidden;
+				opacity: 0;
+				transform: translateY(-8px) scale(0.97);
+				pointer-events: none;
+				transition: opacity 0.22s ease,
+							transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+				z-index: 1000;
+			}
+
+.info-card.is-open {
+				opacity: 1;
+				transform: translateY(0) scale(1);
+				pointer-events: auto;
+			}
+
+.info-card-close {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				width: 26px;
+				height: 26px;
+				border: none;
+				background: rgba(0, 0, 0, 0.05);
+				border-radius: 50%;
+				cursor: pointer;
+				display: grid;
+				place-items: center;
+				color: var(--text-tertiary);
+				transition: background 0.18s, color 0.18s;
+				padding: 0;
+				font-family: inherit;
+			}
+
+.info-card-close:hover {
+				background: rgba(0, 0, 0, 0.1);
+				color: var(--text-primary);
+			}
+
+.info-card-close svg {
+				width: 12px;
+				height: 12px;
+				stroke-width: 2.6;
+			}
+
+.info-card-body {
+				padding: 18px 16px 18px;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+
+.info-card-title {
+				font-size: 15px;
+				font-weight: 700;
+				color: var(--text-primary);
+				letter-spacing: -0.012em;
+				line-height: 1.35;
+				margin: 0;
+			}
+
+.info-card-text {
+				font-size: 13.5px;
+				line-height: 1.65;
+				color: var(--text-secondary);
+				margin: 0;
+			}
+
+@media (max-width: 700px) {
+.info-card {
+					left: 12px;
+					right: 12px;
+					width: auto;
+					top: 120px;
+				}
+}

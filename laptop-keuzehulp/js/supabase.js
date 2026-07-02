@@ -49,6 +49,33 @@ function parseGewicht(value) {
 }
 
 /**
+ * Bucketizes scherm_resolutie strings like "3840x2400" into display labels.
+ */
+function parseResolutieLabel(value) {
+  if (!value) return "";
+  const m = String(value).match(/(\d+)\s*x\s*(\d+)/i);
+  if (!m) return String(value).trim();
+  const width = parseInt(m[1], 10);
+  if (width >= 3800) return "4K";
+  if (width >= 2800) return "QHD+";
+  if (width >= 2500) return "QHD";
+  if (width >= 1900) return "Full HD";
+  return "HD";
+}
+
+/**
+ * Normalizes os strings like "Windows 11 Home in S mode" into simple labels.
+ */
+function parseOs(value) {
+  if (!value) return "";
+  const s = String(value).toLowerCase();
+  if (s.includes("chrome")) return "Chrome OS";
+  if (s.includes("windows")) return "Windows";
+  if (s.includes("mac")) return "macOS";
+  return String(value).trim();
+}
+
+/**
  * Builds the flat cb/expert aanbieder shape that normalizeProducts() expects,
  * from a single laptops row (with coolblue_* and expert_* columns).
  */
@@ -81,12 +108,13 @@ function adaptRow(row) {
     touchscreen:         row.touchscreen ?? "Nee",
     usb_c:               parseInt(row.usb_c, 10) > 0 ? "Ja" : "Nee",
     hdmi:                row.hdmi ?? "0",
-    resolutie:           row.scherm_resolutie ?? "",
+    resolutie:           parseResolutieLabel(row.scherm_resolutie),
     paneeltype:          row.scherm_type ?? "",
     hz:                  "60",
     processor:           row.processor ?? "",
     gpu:                 row.gpu ?? "",
     gewicht:             parseGewicht(row.gewicht),
+    os:                  parseOs(row.os),
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          [adaptAanbieders(row)],

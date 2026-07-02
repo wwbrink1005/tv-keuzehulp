@@ -263,9 +263,13 @@ button.question-hint-btn-mobile:hover,
 
 #question-1 .answer-option {
      width: calc(160.984px * var(--scale));
-     height: calc(48.3935px * var(--scale));
+     min-height: calc(48.3935px * var(--scale));
+     height: auto;
      flex-basis: calc(50% - calc(4px * var(--scale)));
      margin-right: 0;
+     padding-left: calc(8.52303px * var(--scale));
+     padding-right: calc(8px * var(--scale));
+     gap: calc(6px * var(--scale));
    }
 
 #question-1 .answer-option:nth-child(odd) { margin-right: 0; }
@@ -281,12 +285,17 @@ button.question-hint-btn-mobile:hover,
 
 #question-2 .answer-option {
      width: calc(160.984px * var(--scale));
-     height: calc(48.3935px * var(--scale));
+     min-height: calc(48.3935px * var(--scale));
+     height: auto;
+     padding-left: calc(8.52303px * var(--scale));
+     padding-right: calc(8px * var(--scale));
+     gap: calc(6px * var(--scale));
    }
 
 .answer-option {
      width: calc(366.968px * var(--scale));
-     height: calc(58.3935px * var(--scale));
+     min-height: calc(58px * var(--scale));
+     height: auto;
      background: rgba(255,255,255,.92);
      backdrop-filter: blur(20px) saturate(200%);
      -webkit-backdrop-filter: blur(20px) saturate(200%);
@@ -294,10 +303,9 @@ button.question-hint-btn-mobile:hover,
      border-radius: calc(var(--r-sm) * var(--scale));
      display: flex;
      align-items: center;
-     padding-left: calc(8.52303px * var(--scale));
-     padding-right: calc(10px * var(--scale));
+     padding: calc(13px * var(--scale)) calc(14px * var(--scale));
      cursor: pointer;
-     gap: calc(3px * var(--scale));
+     gap: calc(10px * var(--scale));
      transition: border-color .22s ease,
                  box-shadow .22s ease,
                  transform .18s ease,
@@ -745,11 +753,7 @@ button.question-hint-btn-mobile { display: grid; }
    <!-- Uitleg panel -->
    <div class="quiz-panel-content" id="uitleg-content">
      <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-       <p>Voor een volledige uitleg over deze keuzehulp, hoe die is opgebouwd en welke tv's worden meegenomen, lees de volledige keuzehulp uitleg.</p>
-       <a href="tv-keuzehulp/uitleg" class="uitleg-link-btn">
-         Lees de volledige uitleg
-         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-       </a>
+       <p>Deze tv-keuzehulp is gebaseerd op je kijkafstand, budget en gebruik. Op basis daarvan berekenen we welk schermtype — LED, QLED, Mini LED of OLED — het beste bij je past, en filteren we verder op beeldkwaliteit, beeldverversing en resolutie. We nemen alleen tv's mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
      </div>
    </div>
 

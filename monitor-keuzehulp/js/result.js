@@ -1,6 +1,10 @@
 import { buildResultPoints } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 
+// Fallback shown when an Icecat product image URL 404's (stale/broken CDN entry).
+const IMG_FALLBACK = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f4f5f7'/%3E%3Cg fill='none' stroke='%23c8ccd2' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='40' y='50' width='120' height='90' rx='8'/%3E%3Ccircle cx='75' cy='85' r='10'/%3E%3Cpath d='M40 125l35-30 30 25 20-18 35 28'/%3E%3C/g%3E%3C/svg%3E";
+window.IMG_FALLBACK = IMG_FALLBACK;
+
 function formatShipping(verzendkosten) {
   const val = parseFloat(String(verzendkosten ?? "").replace(",", "."));
   if (!Number.isFinite(val) || val <= 0) return "Gratis bezorgd";
@@ -130,7 +134,7 @@ function displayOtherMatchesRedesign(filteredMatchedMonitors) {
       return `
         <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
           <div class="tv-card-image" aria-hidden="true">
-            <img src="${monitor.afbeelding || ''}" alt="" role="presentation">
+            <img src="${monitor.afbeelding || ''}" alt="" role="presentation" onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
             <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${monitor.afbeelding || ''}" data-preview-name="${monitor.naam}" data-preview-imgs="${JSON.stringify(monitor.afbeeldingen || []).replace(/"/g, '&quot;')}">
               <i data-lucide="eye"></i>
             </button>

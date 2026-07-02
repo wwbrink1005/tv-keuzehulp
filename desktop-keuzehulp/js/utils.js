@@ -93,6 +93,8 @@ export function normalizeProducts(rawProducts) {
       hdmiPoorten:  product.hdmiPoorten ?? 0,
       displayport:  product.displayport ?? 0,
       usbC:         product.usbC       ?? 0,
+      os:                 product.os                 ?? "",
+      processorFabrikant: product.processorFabrikant  ?? "",
       afbeelding,
       afbeeldingen,
       aanbieder

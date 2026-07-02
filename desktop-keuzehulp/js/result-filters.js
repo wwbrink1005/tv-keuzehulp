@@ -1,6 +1,6 @@
 import { priceGroupsByType } from "./data.js";
-import { computeMatchForPriceGroup } from "./matching.js";
-import { getStoredSelection, normalizeProducts, qs } from "./utils.js";
+import { computeMatchForPriceGroup, getIdealTierSet } from "./matching.js";
+import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 
@@ -11,6 +11,8 @@ const filterState = {
   gpuTiers:      new Set(),
   ramOptions:    new Set(),
   opslagOptions: new Set(),
+  osOptions:     new Set(),
+  processorFabrikanten: new Set(),
   aanbieder:     new Set(),
   priceMatches:  new Map(),
   answers:       null,
@@ -19,13 +21,14 @@ const filterState = {
   behuizingType: ""
 };
 
+// Price buckets are recomputed fresh from the live-fetched catalog on every
+// results page load (not trusted from the quiz-time localStorage snapshot),
+// since a stale/short-lived fetch during the quiz can produce fewer or
+// narrower buckets than the catalog actually supports (e.g. missing the
+// most expensive bucket entirely).
 function getDynamicPriceGroups(behuizingType) {
-  const stored = localStorage.getItem("desktop_dynamicPriceGroups");
-  if (stored) {
-    try {
-      const groups = JSON.parse(stored);
-      if (Array.isArray(groups) && groups.length > 0) return groups;
-    } catch { /* fall through */ }
+  if (Array.isArray(filterState.priceGroups) && filterState.priceGroups.length > 0) {
+    return filterState.priceGroups;
   }
   return priceGroupsByType[behuizingType] || priceGroupsByType["maakt-niet-uit"];
 }
@@ -70,6 +73,24 @@ function collectOpslagOptions(matches) {
   matches.forEach(d => { if (d.opslag) set.add(d.opslag); });
   const sorted = Array.from(set).sort((a, b) => a - b);
   return sorted;
+}
+
+function collectOsOptions(matches) {
+  const set = new Set();
+  matches.forEach(d => { if (d.os) set.add(d.os); });
+  const order = ["Windows 11 Home", "Windows 11 Pro"];
+  const inOrder = order.filter(t => set.has(t));
+  set.forEach(t => { if (!order.includes(t)) inOrder.push(t); });
+  return inOrder;
+}
+
+function collectProcessorFabrikantOptions(matches) {
+  const set = new Set();
+  matches.forEach(d => { if (d.processorFabrikant) set.add(d.processorFabrikant); });
+  const order = ["Intel", "AMD"];
+  const inOrder = order.filter(t => set.has(t));
+  set.forEach(t => { if (!order.includes(t)) inOrder.push(t); });
+  return inOrder;
 }
 
 function collectAanbiederOptions(matches) {
@@ -123,11 +144,10 @@ function renderFilterOptions(container, card, items, filterName, labelFn) {
 function renderPriceOptions(container, card, behuizingType) {
   const groups = getDynamicPriceGroups(behuizingType);
   container.innerHTML = "";
-  // Show every price bucket that has desktops of the right behuizing type,
-  // even if the current tier/usage answers happen to match 0 of them —
-  // hiding it would silently make the user's quiz answer disappear with no
-  // explanation.
-  const relevant = groups;
+  // Only show price buckets that actually contain a matching desktop for the
+  // current quiz answers — otherwise users click a bucket that can never
+  // show a result.
+  const relevant = groups.filter(g => filterState.priceMatches.has(g.label));
   if (relevant.length === 0) { card.hidden = true; return; }
   card.hidden = false;
 
@@ -199,6 +219,24 @@ function renderOpslagOptions(container, card, matches) {
   });
 }
 
+function renderOsOptions(container, card, matches) {
+  const options = collectOsOptions(matches);
+  renderFilterOptions(container, card, options, "osOptions", null);
+  container.querySelectorAll("input[type=checkbox]").forEach(input => {
+    if (input.value === "all") input.checked = filterState.osOptions.size === 0;
+    else input.checked = filterState.osOptions.has(input.value);
+  });
+}
+
+function renderProcessorFabrikantOptions(container, card, matches) {
+  const options = collectProcessorFabrikantOptions(matches);
+  renderFilterOptions(container, card, options, "processorFabrikanten", null);
+  container.querySelectorAll("input[type=checkbox]").forEach(input => {
+    if (input.value === "all") input.checked = filterState.processorFabrikanten.size === 0;
+    else input.checked = filterState.processorFabrikanten.has(input.value);
+  });
+}
+
 function renderAanbiederOptions(container, card, matches) {
   const aanbieders = collectAanbiederOptions(matches);
   renderFilterOptions(container, card, aanbieders, "aanbieder", null);
@@ -217,6 +255,8 @@ function updateClearFiltersBtn() {
     filterState.gpuTiers.size > 0       ||
     filterState.ramOptions.size > 0     ||
     filterState.opslagOptions.size > 0  ||
+    filterState.osOptions.size > 0      ||
+    filterState.processorFabrikanten.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
@@ -226,6 +266,9 @@ function buildPriceMatches(desktops, behuizingType) {
   const map = new Map();
   const answersForFilter = { ...filterState.answers };
 
+  // Every price bucket that has at least one matching desktop stays in the
+  // menu, regardless of GPU tier — users should always get the full set of
+  // price options to pick from themselves.
   groups.forEach(group => {
     const result = computeMatchForPriceGroup(
       desktops, behuizingType, group, answersForFilter, filterState.scores
@@ -235,6 +278,23 @@ function buildPriceMatches(desktops, behuizingType) {
   });
 
   return map;
+}
+
+/**
+ * Picks which price bucket should be selected by default when the user
+ * didn't pick a budget in the quiz ("geen voorkeur"): the cheapest bucket
+ * that still contains a desktop of the highest-scoring GPU tier, ignoring
+ * price entirely when judging "best match". Falls back to the cheapest
+ * bucket with any match at all if no bucket has the ideal tier.
+ */
+function pickDefaultPriceLabel(priceMatches, scores) {
+  const idealTiers = getIdealTierSet(scores);
+  if (idealTiers.size > 0) {
+    for (const [label, matches] of priceMatches) {
+      if (matches.some(d => idealTiers.has(d.gpuTier))) return label;
+    }
+  }
+  return priceMatches.keys().next().value ?? "";
 }
 
 function applyFilters() {
@@ -260,6 +320,14 @@ function applyFilters() {
     filtered = filtered.filter(d => filterState.opslagOptions.has(d.opslag));
   }
 
+  if (filterState.osOptions.size > 0) {
+    filtered = filtered.filter(d => filterState.osOptions.has(d.os));
+  }
+
+  if (filterState.processorFabrikanten.size > 0) {
+    filtered = filtered.filter(d => filterState.processorFabrikanten.has(d.processorFabrikant));
+  }
+
   if (filterState.aanbieder.size > 0) {
     filtered = filtered.filter(d => {
       const a = d.aanbieder;
@@ -280,13 +348,15 @@ function applyFilters() {
   updateResultMatches(filtered, filterState.answers, filterState.bestType);
 }
 
-function renderAllSecondary(behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, aanbiederContainer) {
+function renderAllSecondary(behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, aanbiederContainer) {
   const matches = getActivePriceMatches();
   const behuizingCard   = qs(".filter-card[data-filter='behuizing']");
   const brandCard       = qs(".filter-card[data-filter='brand']");
   const gpuTierCard     = qs(".filter-card[data-filter='gpu-tier']");
   const ramCard         = qs(".filter-card[data-filter='ram']");
   const opslagCard      = qs(".filter-card[data-filter='opslag']");
+  const osCard          = qs(".filter-card[data-filter='os']");
+  const processorFabrikantCard = qs(".filter-card[data-filter='processor-fabrikant']");
   const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
 
   renderBehuizingOptions(behuizingContainer, behuizingCard, matches);
@@ -294,12 +364,14 @@ function renderAllSecondary(behuizingContainer, brandContainer, gpuTierContainer
   renderGpuTierOptions(gpuTierContainer, gpuTierCard, matches);
   renderRamOptions(ramContainer, ramCard, matches);
   renderOpslagOptions(opslagContainer, opslagCard, matches);
+  renderOsOptions(osContainer, osCard, matches);
+  renderProcessorFabrikantOptions(processorFabrikantContainer, processorFabrikantCard, matches);
   renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
 }
 
-function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, aanbiederContainer) {
+function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, aanbiederContainer) {
   function renderAll() {
-    renderAllSecondary(behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, aanbiederContainer);
+    renderAllSecondary(behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, aanbiederContainer);
   }
 
   priceContainer.addEventListener("change", event => {
@@ -311,6 +383,8 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
     filterState.gpuTiers.clear();
     filterState.ramOptions.clear();
     filterState.opslagOptions.clear();
+    filterState.osOptions.clear();
+    filterState.processorFabrikanten.clear();
     filterState.aanbieder.clear();
     renderAll();
     applyFilters();
@@ -342,6 +416,8 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
   const gpuTierCard   = qs(".filter-card[data-filter='gpu-tier']");
   const ramCard       = qs(".filter-card[data-filter='ram']");
   const opslagCard    = qs(".filter-card[data-filter='opslag']");
+  const osCard        = qs(".filter-card[data-filter='os']");
+  const processorFabrikantCard = qs(".filter-card[data-filter='processor-fabrikant']");
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
   handleCheckboxSet(behuizingContainer, filterState.behuizingTypes, behuizingCard, renderBehuizingOptions);
@@ -349,6 +425,8 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
   handleCheckboxSet(gpuTierContainer,   filterState.gpuTiers,       gpuTierCard,   renderGpuTierOptions);
   handleCheckboxSet(ramContainer,       filterState.ramOptions,     ramCard,       renderRamOptions,   v => parseInt(v, 10));
   handleCheckboxSet(opslagContainer,    filterState.opslagOptions,  opslagCard,    renderOpslagOptions, v => parseInt(v, 10));
+  handleCheckboxSet(osContainer,        filterState.osOptions,      osCard,        renderOsOptions);
+  handleCheckboxSet(processorFabrikantContainer, filterState.processorFabrikanten, processorFabrikantCard, renderProcessorFabrikantOptions);
   handleCheckboxSet(aanbiederContainer, filterState.aanbieder,      aanbiederCard, renderAanbiederOptions);
 
   const clearBtn = qs("#clearFiltersBtn");
@@ -359,6 +437,8 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
       filterState.gpuTiers.clear();
       filterState.ramOptions.clear();
       filterState.opslagOptions.clear();
+      filterState.osOptions.clear();
+      filterState.processorFabrikanten.clear();
       filterState.aanbieder.clear();
       renderAll();
       applyFilters();
@@ -373,6 +453,8 @@ function initResultFilters() {
   const gpuTierContainer  = qs("#gpuTierFilterOptions");
   const ramContainer      = qs("#ramFilterOptions");
   const opslagContainer   = qs("#opslagFilterOptions");
+  const osContainer       = qs("#osFilterOptions");
+  const processorFabrikantContainer = qs("#processorFabrikantFilterOptions");
   const aanbiederContainer = qs("#aanbiederFilterOptions");
 
   const priceCard     = qs(".filter-card[data-filter='price']");
@@ -381,12 +463,15 @@ function initResultFilters() {
   const gpuTierCard   = qs(".filter-card[data-filter='gpu-tier']");
   const ramCard       = qs(".filter-card[data-filter='ram']");
   const opslagCard    = qs(".filter-card[data-filter='opslag']");
+  const osCard        = qs(".filter-card[data-filter='os']");
+  const processorFabrikantCard = qs(".filter-card[data-filter='processor-fabrikant']");
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
   if (!priceContainer || !behuizingContainer || !brandContainer || !gpuTierContainer ||
-      !ramContainer || !opslagContainer || !aanbiederContainer) return;
+      !ramContainer || !opslagContainer || !osContainer || !processorFabrikantContainer ||
+      !aanbiederContainer) return;
   if (!priceCard || !behuizingCard || !brandCard || !gpuTierCard ||
-      !ramCard || !opslagCard || !aanbiederCard) return;
+      !ramCard || !opslagCard || !osCard || !processorFabrikantCard || !aanbiederCard) return;
 
   const stored      = getStoredSelection();
   const answersData = localStorage.getItem("desktop_answers");
@@ -404,6 +489,7 @@ function initResultFilters() {
   fetchProducts()
     .then(rawProducts => {
       const desktops = normalizeProducts(rawProducts);
+      filterState.priceGroups = computeDynamicPriceGroups(desktops, filterState.behuizingType);
       filterState.priceMatches = buildPriceMatches(desktops, filterState.behuizingType);
 
       // Seed from stored results if computed map is empty for selected label
@@ -424,7 +510,7 @@ function initResultFilters() {
 
       filterState.priceLabel = filterState.priceMatches.has(selectedPriceLabel)
         ? selectedPriceLabel
-        : availableLabels[0];
+        : pickDefaultPriceLabel(filterState.priceMatches, filterState.scores);
 
       const matches = getActivePriceMatches();
       renderPriceOptions(priceContainer, priceCard, filterState.behuizingType);
@@ -433,12 +519,14 @@ function initResultFilters() {
       renderGpuTierOptions(gpuTierContainer, gpuTierCard, matches);
       renderRamOptions(ramContainer, ramCard, matches);
       renderOpslagOptions(opslagContainer, opslagCard, matches);
+      renderOsOptions(osContainer, osCard, matches);
+      renderProcessorFabrikantOptions(processorFabrikantContainer, processorFabrikantCard, matches);
       renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
-      initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, aanbiederContainer);
+      initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, aanbiederContainer);
       applyFilters();
     })
     .catch(() => {
-      [priceCard, behuizingCard, brandCard, gpuTierCard, ramCard, opslagCard, aanbiederCard]
+      [priceCard, behuizingCard, brandCard, gpuTierCard, ramCard, opslagCard, osCard, processorFabrikantCard, aanbiederCard]
         .forEach(card => { card.hidden = true; });
     });
 }
