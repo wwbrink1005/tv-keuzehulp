@@ -16,17 +16,6 @@ export function initQuestionPopovers() {
   const hintBtn        = qs("#question-hint-btn");
   const hintBtnMobile  = qs("#question-hint-btn-mobile");
 
-  function lockBodyScroll() {
-    if (window.innerWidth <= 900) {
-      document.body.style.overflow = "hidden";
-      // Do NOT set touch-action:none on body — that would suppress scrolling
-      // inside the panel body as well. overflow:hidden alone stops page drift.
-    }
-  }
-
-  function unlockBodyScroll() {
-    document.body.style.overflow = "";
-  }
 
   function openPanel(popover) {
     if (!infoPanel || !popover) return;
@@ -55,7 +44,6 @@ export function initQuestionPopovers() {
 
     infoPanel.classList.add("is-open");
     if (questionsPanel) questionsPanel.classList.add("panel-open");
-    lockBodyScroll();
   }
 
   function closePanel() {
@@ -64,7 +52,6 @@ export function initQuestionPopovers() {
     if (questionsPanel) questionsPanel.classList.remove("panel-open");
     hintBtn?.classList.remove("hint-btn-active");
     hintBtnMobile?.classList.remove("hint-btn-active");
-    unlockBodyScroll();
   }
 
   if (panelClose) {

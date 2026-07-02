@@ -20,6 +20,15 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+  /* Always reserve space for the vertical scrollbar. Without this, opening
+     the info-panel can make the page taller and trigger a scrollbar that
+     wasn't there before, which shifts the centered hero image sideways by
+     the scrollbar's width — misaligning it from the popover that overlays
+     it and exposing a sliver at the rounded corner. */
+  scrollbar-gutter: stable;
+}
+
 body {
      display: flex;
      flex-direction: column;
@@ -371,7 +380,13 @@ button.question-hint-btn-mobile svg {
      min-width: 260px;
      background: #ffffff;
      border-left: 1px solid rgba(0,0,0,.06);
-     border-radius: 0 var(--r-lg) var(--r-lg) 0;
+     /* Round all 4 corners (not just the right side): the panel's top-left
+        and bottom-left corners sit at the same height as the image's own
+        rounded top-right/bottom-right corners, so they need to curve too —
+        otherwise a small sliver of page background peeks through where the
+        image's curve has already started but the panel's edge is still
+        square. */
+     border-radius: var(--r-lg);
      z-index: 100;
      transform: translateX(102%);
      transition: transform .42s cubic-bezier(.4,0,.2,1),
@@ -463,7 +478,10 @@ button.question-hint-btn-mobile svg {
      pointer-events: none;
      transition: opacity .4s ease;
      z-index: 99;
-     border-radius: inherit;
+     /* "inherit" resolved to 0 here because the parent (.questions-panel)
+        has no border-radius of its own, giving the scrim square corners
+        that visibly clashed with the image's rounded corner underneath. */
+     border-radius: var(--r-lg);
    }
 
 .questions-panel.panel-open .info-panel-scrim {
@@ -533,6 +551,10 @@ body.has-menu {
      }
 
 .info-panel {
+       /* Fixed bottom sheet, like before. The body scroll-lock that used to
+          trap scrolling while this was open has been removed in JS, so the
+          page behind it still scrolls normally — that was the actual bug,
+          not the fixed positioning itself. */
        position: fixed;
        top: auto;
        left: 0;
