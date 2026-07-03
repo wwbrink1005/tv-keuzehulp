@@ -1,15 +1,36 @@
 const keuzehulpen = [
   {
     title: "Televisie keuzehulp",
-    keywords: ["tv", "televisie"],
-    url: "vragen",
+    keywords: ["tv", "tv's", "televisie", "televisies", "smart tv", "smart-tv"],
+    url: "tv-keuzehulp/vragen",
+  },
+  {
+    title: "Laptop keuzehulp",
+    keywords: ["laptop", "laptops", "notebook", "notebooks"],
+    url: "laptop-keuzehulp/vragen",
+  },
+  {
+    title: "Monitor keuzehulp",
+    keywords: ["monitor", "monitoren", "beeldscherm", "beeldschermen", "scherm", "schermen"],
+    url: "monitor-keuzehulp/vragen",
+  },
+  {
+    title: "Desktop keuzehulp",
+    keywords: [
+      "desktop", "desktops", "desktop pc", "desktop-pc",
+      "pc", "pc's", "computer", "computers",
+      "mini pc", "mini-pc", "minipc",
+      "all-in-one", "all in one", "alles-in-een",
+    ],
+    url: "desktop-keuzehulp/vragen",
   },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();
 
 const matchesQuery = (item, query) =>
-  item.keywords.some((keyword) => keyword.startsWith(query));
+  item.keywords.some((keyword) => keyword.includes(query)) ||
+  normalize(item.title).includes(query);
 
 const getElements = (searchWrapper) => {
   if (!searchWrapper) return {};
