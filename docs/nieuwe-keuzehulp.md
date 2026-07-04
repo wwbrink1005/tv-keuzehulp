@@ -164,3 +164,4 @@ doen.
 - Test minstens één "geen voorkeur"-scenario voor prijs: klopt de default-selectie?
 - Test de zoekbalk met een paar synoniemen.
 - Check mobiele weergave van de (mogelijk lange) filter-sidebar.
+

@@ -24,6 +24,11 @@ const keuzehulpen = [
     ],
     url: "desktop-keuzehulp/vragen",
   },
+  {
+    title: "Wasmachine keuzehulp",
+    keywords: ["wasmachine", "wasmachines", "wasautomaat", "wasautomaten", "wasgoed"],
+    url: "wasmachine-keuzehulp/vragen",
+  },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();
