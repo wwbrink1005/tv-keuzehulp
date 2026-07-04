@@ -45,9 +45,9 @@ const pcTypeDimensions = {
 };
 
 const pcTypeImages = {
-  'tower':      "url('desktop-keuzehulp/images/tower.png')",
-  'mini-pc':    "url('desktop-keuzehulp/images/desktop mini visualisatie.png')",
-  'all-in-one': "url('desktop-keuzehulp/images/all in one visualisatie.png')"
+  'tower':      "url('keuzehulpen/desktop-keuzehulp/images/tower.png')",
+  'mini-pc':    "url('keuzehulpen/desktop-keuzehulp/images/desktop mini visualisatie.png')",
+  'all-in-one': "url('keuzehulpen/desktop-keuzehulp/images/all in one visualisatie.png')"
 };
 
 function updatePcTypeDisplay() {
@@ -299,7 +299,7 @@ function handleStartMatching() {
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
       setTimeout(() => {
-        window.location.href = "desktop-keuzehulp/resultaat";
+        window.location.href = "keuzehulpen/desktop-keuzehulp/resultaat";
       }, 180);
     });
 }

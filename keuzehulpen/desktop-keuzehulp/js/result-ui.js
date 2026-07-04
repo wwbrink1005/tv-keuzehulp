@@ -40,7 +40,7 @@ function initResultMobileUI() {
 
   if (restartConfirm) {
     restartConfirm.addEventListener("click", () => {
-      window.location.href = "desktop-keuzehulp/vragen";
+      window.location.href = "keuzehulpen/desktop-keuzehulp/vragen";
     });
   }
 

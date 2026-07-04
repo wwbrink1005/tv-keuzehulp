@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3 class="footer-col-title">Keuzehulpen</h3>
           <ul>
             <li>
-              <a href="tv-keuzehulp/vragen" class="footer-link-active">Televisies</a>
+              <a href="keuzehulpen/tv-keuzehulp/vragen" class="footer-link-active">Televisies</a>
             </li>
             <li><span class="footer-soon">Soundbars <span class="footer-soon-tag">binnenkort</span></span></li>
             <li><span class="footer-soon">Laptops <span class="footer-soon-tag">binnenkort</span></span></li>
@@ -41,9 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="footer-col">
           <h3 class="footer-col-title">Informatie</h3>
           <ul>
-            <li><a href="over-ons">Over ons</a></li>
-            <li><a href="hoe-werkt-het">Hoe werkt het?</a></li>
-            <li><a href="contact">Contact</a></li>
+            <li><a href="overige-paginas/over-ons">Over ons</a></li>
+            <li><a href="overige-paginas/hoe-werkt-het">Hoe werkt het?</a></li>
+            <li><a href="overige-paginas/contact">Contact</a></li>
           </ul>
         </div>
 
@@ -51,8 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="footer-col">
           <h3 class="footer-col-title">Juridisch</h3>
           <ul>
-            <li><a href="disclaimer">Disclaimer</a></li>
-            <li><a href="privacy">Privacybeleid</a></li>
+            <li><a href="overige-paginas/disclaimer">Disclaimer</a></li>
+            <li><a href="overige-paginas/privacy">Privacybeleid</a></li>
           </ul>
         </div>
 
@@ -62,9 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="footer-bottom">
         <p class="footer-bottom-left">&copy; ${year} producthulp.nl &mdash; Alle rechten voorbehouden</p>
         <div class="footer-bottom-right">
-          <a href="disclaimer">Disclaimer</a>
-          <a href="privacy">Privacy</a>
-          <a href="contact">Contact</a>
+          <a href="overige-paginas/disclaimer">Disclaimer</a>
+          <a href="overige-paginas/privacy">Privacy</a>
+          <a href="overige-paginas/contact">Contact</a>
         </div>
       </div>
 

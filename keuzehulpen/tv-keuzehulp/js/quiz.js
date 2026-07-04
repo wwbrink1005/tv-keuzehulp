@@ -382,7 +382,7 @@ function handleStartMatching() {
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
       setTimeout(() => {
-        window.location.href = "tv-keuzehulp/resultaat";
+        window.location.href = "keuzehulpen/tv-keuzehulp/resultaat";
       }, 180);
     });
 }
@@ -430,8 +430,8 @@ export function initQuizPage() {
     const bgContainer = qs(".background-container");
     if (bgContainer) {
       const defaultBackground = mobileQuery.matches
-        ? 'url("tv-keuzehulp/images/nieuw design telefoon.png")'
-        : 'url("tv-keuzehulp/images/tv achtergrond nieuw design.png")';
+        ? 'url("keuzehulpen/tv-keuzehulp/images/nieuw design telefoon.png")'
+        : 'url("keuzehulpen/tv-keuzehulp/images/tv achtergrond nieuw design.png")';
       bgContainer.style.backgroundImage = defaultBackground;
     }
 

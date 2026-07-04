@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="menu-dropdown-col">
                 <h4>Beeld, Geluid &amp; Foto</h4>
                 <ul>
-                  <li><a href="tv-keuzehulp/vragen">Televisies <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  <li><a href="keuzehulpen/tv-keuzehulp/vragen">Televisies <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><span>Soundbars <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Camera's <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Fototoestellen <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h4>Huishoudelijke Apparaten</h4>
                 <ul>
                   <li><span>Koelkasten <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
-                  <li><a href="wasmachine-keuzehulp/vragen">Wasmachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  <li><a href="keuzehulpen/wasmachine-keuzehulp/vragen">Wasmachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><span>Koffiemachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Vaatwassers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Stofzuigers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
@@ -49,8 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="menu-dropdown-col">
                 <h4>Computer &amp; Telefonie</h4>
                 <ul>
-                  <li><a href="laptop-keuzehulp/vragen">Laptops <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="monitor-keuzehulp/vragen">Monitoren <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  <li><a href="keuzehulpen/laptop-keuzehulp/vragen">Laptops <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  <li><a href="keuzehulpen/monitor-keuzehulp/vragen">Monitoren <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><span>Smartphones <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Tablets <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                 </ul>
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
         </div>
-        <a class="menu-link" href="over-ons">Over ons</a>
+        <a class="menu-link" href="overige-paginas/over-ons">Over ons</a>
       </div>
 
       <!-- Hamburger (always visible) -->
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="mobile-cat-group">
             <h4>Beeld, Geluid &amp; Foto</h4>
             <ul>
-              <li><a href="tv-keuzehulp/vragen">Televisies <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="keuzehulpen/tv-keuzehulp/vragen">Televisies <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><span>Soundbars</span></li>
               <li><span>Fototoestellen</span></li>
             </ul>
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <h4>Huishoudelijke Apparaten</h4>
             <ul>
               <li><span>Koelkasten</span></li>
-              <li><a href="wasmachine-keuzehulp/vragen">Wasmachines <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="keuzehulpen/wasmachine-keuzehulp/vragen">Wasmachines <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><span>Koffiemachines</span></li>
               <li><span>Vaatwassers</span></li>
               <li><span>Stofzuigers</span></li>
@@ -158,8 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="mobile-cat-group">
             <h4>Computer &amp; Telefonie</h4>
             <ul>
-              <li><a href="laptop-keuzehulp/vragen">Laptop <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
-              <li><a href="monitor-keuzehulp/vragen">Monitor <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="keuzehulpen/laptop-keuzehulp/vragen">Laptop <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="keuzehulpen/monitor-keuzehulp/vragen">Monitor <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><span>Smartphone</span></li>
               <li><span>Tablets</span></li>
             </ul>
@@ -173,14 +173,14 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
 
-        <a class="mobile-nav-link" href="hoe-werkt-het">Hoe werkt het?</a>
-        <a class="mobile-nav-link" href="over-ons">Over ons</a>
+        <a class="mobile-nav-link" href="overige-paginas/hoe-werkt-het">Hoe werkt het?</a>
+        <a class="mobile-nav-link" href="overige-paginas/over-ons">Over ons</a>
       </div>
 
       <div class="mobile-nav-footer">
-        <a href="contact">Contact</a>
-        <a href="disclaimer">Disclaimer</a>
-        <a href="privacy">Privacybeleid</a>
+        <a href="overige-paginas/contact">Contact</a>
+        <a href="overige-paginas/disclaimer">Disclaimer</a>
+        <a href="overige-paginas/privacy">Privacybeleid</a>
       </div>
     </nav>
   `;

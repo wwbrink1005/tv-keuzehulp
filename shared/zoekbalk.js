@@ -2,17 +2,17 @@ const keuzehulpen = [
   {
     title: "Televisie keuzehulp",
     keywords: ["tv", "tv's", "televisie", "televisies", "smart tv", "smart-tv"],
-    url: "tv-keuzehulp/vragen",
+    url: "keuzehulpen/tv-keuzehulp/vragen",
   },
   {
     title: "Laptop keuzehulp",
     keywords: ["laptop", "laptops", "notebook", "notebooks"],
-    url: "laptop-keuzehulp/vragen",
+    url: "keuzehulpen/laptop-keuzehulp/vragen",
   },
   {
     title: "Monitor keuzehulp",
     keywords: ["monitor", "monitoren", "beeldscherm", "beeldschermen", "scherm", "schermen"],
-    url: "monitor-keuzehulp/vragen",
+    url: "keuzehulpen/monitor-keuzehulp/vragen",
   },
   {
     title: "Desktop keuzehulp",
@@ -22,12 +22,12 @@ const keuzehulpen = [
       "mini pc", "mini-pc", "minipc",
       "all-in-one", "all in one", "alles-in-een",
     ],
-    url: "desktop-keuzehulp/vragen",
+    url: "keuzehulpen/desktop-keuzehulp/vragen",
   },
   {
     title: "Wasmachine keuzehulp",
     keywords: ["wasmachine", "wasmachines", "wasautomaat", "wasautomaten", "wasgoed"],
-    url: "wasmachine-keuzehulp/vragen",
+    url: "keuzehulpen/wasmachine-keuzehulp/vragen",
   },
 ];
 

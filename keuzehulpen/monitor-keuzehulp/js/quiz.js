@@ -77,8 +77,8 @@ function updateMonitorDisplay() {
   const prevImageType = monitorDisplay.dataset.imageType;
 
   const newImage = isUltrawide
-    ? "url('monitor-keuzehulp/images/wide.png')"
-    : "url('monitor-keuzehulp/images/draak.png')";
+    ? "url('keuzehulpen/monitor-keuzehulp/images/wide.png')"
+    : "url('keuzehulpen/monitor-keuzehulp/images/draak.png')";
 
   const style = getComputedStyle(container);
   const originalWidth  = parseFloat(style.getPropertyValue("--base-width"))  || 1242.21;
@@ -320,7 +320,7 @@ function handleStartMatching() {
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
       setTimeout(() => {
-        window.location.href = "monitor-keuzehulp/resultaat";
+        window.location.href = "keuzehulpen/monitor-keuzehulp/resultaat";
       }, 180);
     })
     .catch(() => {

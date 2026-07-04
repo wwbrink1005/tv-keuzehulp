@@ -47,12 +47,12 @@ const TOTAL_QUESTIONS = 5;
 // o.b.v. gezinsgrootte. De basismachine (zonder trommel) staat altijd vast;
 // alleen de trommel-laag wisselt, via crossfade tussen 2 lagen zodat er nooit
 // een moment is waarop de machine zonder trommel te zien is.
-const WASMACHINE_BASE_IMAGE = "wasmachine-keuzehulp/images/wasmachine zonder trommel.png";
+const WASMACHINE_BASE_IMAGE = "keuzehulpen/wasmachine-keuzehulp/images/wasmachine zonder trommel.png";
 
 const DRUM_IMAGES = {
-  klein:     "wasmachine-keuzehulp/images/trommel leeg.png",
-  gemiddeld: "wasmachine-keuzehulp/images/trommel normaal.png",
-  groot:     "wasmachine-keuzehulp/images/trommel vol.png"
+  klein:     "keuzehulpen/wasmachine-keuzehulp/images/trommel leeg.png",
+  gemiddeld: "keuzehulpen/wasmachine-keuzehulp/images/trommel normaal.png",
+  groot:     "keuzehulpen/wasmachine-keuzehulp/images/trommel vol.png"
 };
 
 // Afmetingen (px in de 1242.21-brede coördinatenruimte). Basismachine en
@@ -326,7 +326,7 @@ function handleStartMatching() {
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
       setTimeout(() => {
-        window.location.href = "wasmachine-keuzehulp/resultaat";
+        window.location.href = "keuzehulpen/wasmachine-keuzehulp/resultaat";
       }, 180);
     })
     .catch(() => {

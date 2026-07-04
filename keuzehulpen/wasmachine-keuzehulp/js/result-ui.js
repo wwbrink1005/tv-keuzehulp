@@ -40,7 +40,7 @@ function initResultMobileUI() {
 
   if (restartConfirm) {
     restartConfirm.addEventListener("click", () => {
-      window.location.href = "wasmachine-keuzehulp/vragen";
+      window.location.href = "keuzehulpen/wasmachine-keuzehulp/vragen";
     });
   }
 

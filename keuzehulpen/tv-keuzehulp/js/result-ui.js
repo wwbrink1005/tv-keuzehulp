@@ -45,7 +45,7 @@ function initResultMobileUI() {
 
   if (restartConfirm) {
     restartConfirm.addEventListener("click", () => {
-      window.location.href = "tv-keuzehulp/vragen";
+      window.location.href = "keuzehulpen/tv-keuzehulp/vragen";
     });
   }
 

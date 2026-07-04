@@ -64,14 +64,20 @@ Met de bestaande Icecat-API-credentials uit de pipeline:
 4. Pas dezelfde vuistregel toe als bij filters (zie stap 6): alleen features meenemen
    die "zo goed als volledig" gevuld zijn én genoeg variatie hebben om nuttig te zijn.
 
-## 4. Website: nieuwe map `{categorie}-keuzehulp/`
+## 4. Website: nieuwe map `keuzehulpen/{categorie}-keuzehulp/`
 
+Alle keuzehulpen staan onder de map `keuzehulpen/` (bijv. `keuzehulpen/wasmachine-keuzehulp/`).
 Kopieer de structuur van een bestaande keuzehulp (bij voorkeur **monitor-keuzehulp** als
 basis voor `result-filters.js` — die gebruikt een generieke `renderAllFilters()`-stijl,
 in tegenstelling tot tv/laptop/desktop's verbose per-filter-functie-stijl, die dit
 project meermaals bugs heeft opgeleverd bij onderhoud):
 
-- `vragen/index.html` — dunne pagina, `<link rel="stylesheet" href="../../shared/quiz.css">`,
+- `vragen/index.html` en `resultaat/index.html` zitten 3 mappen diep vanaf de repo-root
+  (`keuzehulpen/{categorie}-keuzehulp/vragen/index.html`), dus `<base href="../../../">`
+  (3x omhoog, niet 2x) — dit is de meest voorkomende fout bij het kopiëren van een
+  bestaande pagina.
+- `vragen/index.html` — dunne pagina, `<link rel="stylesheet" href="shared/quiz.css">` (dankzij
+  `<base href>` zijn alle relatieve paden in de pagina al t.o.v. de repo-root),
   categorie-specifieke vragen (gebruik, budget, formaat, etc.), "Keuzehulp uitleg"-tekst.
 - `resultaat/index.html` — `<link>` naar `shared/resultaat.css`, filter-card-skeleton,
   lightbox-script (image-preview met thumbnails), "Over deze keuzehulp"-infokaart.
@@ -148,7 +154,7 @@ Voeg een nieuwe entry toe aan de `keuzehulpen`-array:
 {
   title: "Wasmachine keuzehulp",
   keywords: ["wasmachine", "wasmachines", "wasautomaat", "wasautomaten"],
-  url: "wasmachine-keuzehulp/vragen",
+  url: "keuzehulpen/wasmachine-keuzehulp/vragen",
 },
 ```
 

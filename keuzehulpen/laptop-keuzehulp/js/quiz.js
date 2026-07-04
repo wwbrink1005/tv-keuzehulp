@@ -296,7 +296,7 @@ function handleStartMatching() {
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
       setTimeout(() => {
-        window.location.href = "laptop-keuzehulp/resultaat";
+        window.location.href = "keuzehulpen/laptop-keuzehulp/resultaat";
       }, 180);
     });
 }
