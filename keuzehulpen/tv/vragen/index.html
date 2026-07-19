@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+ <meta charset="UTF-8">
+  <base href="../../../">
+ <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>TV Keuzehulp – Vind jouw perfecte televisie</title>
+ <meta name="description" content="Welke tv moet ik kopen? Doe de gratis tv-keuzehulp en ontdek in een paar vragen welke televisie het beste bij jouw kijkgedrag, ruimte en budget past.">
+
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="shared/menu.css">
+ <link rel="stylesheet" href="shared/footer.css">
+ <link rel="stylesheet" href="shared/quiz.css">
+ <script src="https://unpkg.com/lucide@latest"></script>
+ <script src="shared/menu.js" defer></script>
+ <script src="shared/footer.js" defer></script>
+ <style>
+:root {
+  --tv-right-offset: 410;
+  --tv-bottom-offset: 234;
+}
+
+.quiz-title-row {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 12px;
+     flex-wrap: wrap;
+   }
+
+.quiz-header-badge {
+     display: inline-flex;
+     align-items: center;
+     gap: 6px;
+     background: rgba(255,255,255,.70);
+     backdrop-filter: none;
+     -webkit-backdrop-filter: none;
+     border: 1.5px solid rgba(0,0,0,.10);
+     color: var(--c-text-2);
+     font-size: 12px;
+     font-weight: 600;
+     padding: 5px 14px;
+     border-radius: var(--r-pill);
+     letter-spacing: .04em;
+     white-space: nowrap;
+     flex-shrink: 0;
+   }
+
+.quiz-header-badge svg { width: 13px; height: 13px; }
+
+.quiz-header-subtitle { display: none; }
+
+.quiz-toggle-row {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 8px;
+     flex-wrap: wrap;
+   }
+
+@media (min-width: 901px) {
+  .quiz-toggle-row {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    justify-content: flex-start;
+  }
+}
+
+
+.quiz-toggle-btn {
+     display: inline-flex;
+     align-items: center;
+     gap: 6px;
+     background: rgba(255,255,255,.65);
+     backdrop-filter: none;
+     -webkit-backdrop-filter: none;
+     border: 1.5px solid rgba(0,0,0,.09);
+     color: var(--c-text-2);
+     font-family: inherit;
+     font-size: 13px;
+     font-weight: 500;
+     padding: 7px 16px;
+     border-radius: var(--r-pill);
+     cursor: pointer;
+     transition: background .2s, border-color .2s, color .2s;
+   }
+
+.quiz-toggle-btn:hover,
+   .quiz-toggle-btn.is-open {
+     background: rgba(255,255,255,.92);
+     border-color: rgba(9, 84, 163, 0.28);
+     color: var(--c-accent);
+   }
+
+.quiz-toggle-btn.is-open svg { transform: rotate(180deg); }
+
+.quiz-panel-inner {
+     max-width: 680px;
+     margin: 18px auto 0;
+     padding: 26px 28px 24px;
+     background: var(--c-accent-soft);
+     backdrop-filter: none;
+     -webkit-backdrop-filter: none;
+     border: 1px solid rgba(9, 84, 163, 0.12);
+     border-radius: var(--r-lg);
+     text-align: left;
+   }
+
+.quiz-how-step-num {
+     width: 32px; height: 32px;
+     background: #ffffff;
+     border: 1.5px solid rgba(9, 84, 163, 0.28);
+     color: var(--c-accent);
+     border-radius: 50%;
+     display: grid;
+     place-items: center;
+     font-size: 13px;
+     font-weight: 700;
+     flex-shrink: 0;
+   }
+
+.uitleg-link-btn {
+     display: inline-flex;
+     align-items: center;
+     gap: 7px;
+     background: #fff;
+     color: var(--c-accent);
+     border: none;
+     font-family: inherit;
+     font-size: 14px;
+     font-weight: 600;
+     padding: 10px 24px;
+     border-radius: var(--r-pill);
+     cursor: pointer;
+     text-decoration: none;
+     transition: box-shadow .2s, transform .18s;
+     box-shadow: 0 2px 12px rgba(0,0,0,.15);
+     margin-top: 4px;
+   }
+
+.uitleg-link-btn:hover {
+     box-shadow: 0 6px 22px rgba(0,0,0,.2);
+     transform: translateY(-1px);
+   }
+
+.uitleg-link-btn svg { width: 15px; height: 15px; }
+
+.landing-footer { width: 100%; }
+
+.landing-footer ul { margin: 0; padding: 0; }
+
+.background-container {
+     --base-width: 1242.21;
+     --base-height: 630.138;
+     --scale: 1;
+     width: 100%;
+     max-width: calc(var(--base-width) * 1px);
+     aspect-ratio: 1242.21 / 630.138;
+     background-image: url('keuzehulpen/tv/images/tv achtergrond nieuw design.png');
+     background-size: cover;
+     background-position: center;
+     border-radius: var(--r-lg);
+     position: relative;
+     margin-bottom: clamp(28px, 5vh, 56px);
+     z-index: 1;
+     box-shadow: 0 8px 40px rgba(0,0,0,.07),
+                 0 2px 8px rgba(0,0,0,.04);
+     overflow: hidden;
+   }
+
+button.question-hint-btn {
+     position: absolute;
+     top: calc(14px * var(--scale, 1));
+     right: calc(14px * var(--scale, 1));
+     z-index: 5;
+     width: auto;
+     height: auto;
+     display: inline-flex;
+     align-items: center;
+     gap: calc(6px * var(--scale, 1));
+     background: rgba(255,255,255,.92);
+     backdrop-filter: blur(16px) saturate(200%);
+     -webkit-backdrop-filter: blur(16px) saturate(200%);
+     border: 1px solid rgba(9,84,163,.18);
+     border-radius: 100px;
+     font-family: 'Inter', sans-serif;
+     font-size: calc(12.5px * var(--scale, 1));
+     font-weight: 600;
+     color: #0954a3;
+     padding: calc(7px * var(--scale, 1)) calc(15px * var(--scale, 1)) calc(7px * var(--scale, 1)) calc(11px * var(--scale, 1));
+     cursor: pointer;
+     letter-spacing: 0.01em;
+     text-align: left;
+     box-shadow: 0 2px 12px rgba(9,84,163,.13), 0 1px 3px rgba(0,0,0,.07);
+     transition: background .2s, color .2s, border-color .2s, box-shadow .2s, transform .15s;
+   }
+
+button.question-hint-btn.hint-btn-active {
+     background: rgba(232,240,254,.98);
+     color: #073d7a;
+     border-color: rgba(9,84,163,.35);
+     box-shadow: 0 4px 16px rgba(9,84,163,.16);
+   }
+
+button.question-hint-btn-mobile {
+     position: absolute;
+     bottom: 12px;
+     right: 12px;
+     z-index: 10;
+     width: 32px;
+     height: 32px;
+     min-width: 0;
+     background: rgba(255,255,255,.80);
+     backdrop-filter: blur(8px) saturate(150%);
+     -webkit-backdrop-filter: blur(8px) saturate(150%);
+     border: 1px solid rgba(255,255,255,.55);
+     border-radius: 50%;
+     box-shadow: 0 1px 6px rgba(0,0,0,.12);
+     cursor: pointer;
+     display: none;
+     place-items: center;
+     padding: 0;
+     color: var(--c-text-2);
+     transition: background .2s, color .2s;
+   }
+
+button.question-hint-btn-mobile:hover,
+   button.question-hint-btn-mobile.hint-btn-active {
+     background: rgba(235,244,255,.97);
+     color: var(--c-accent);
+     border-color: rgba(9,84,163,.3);
+     box-shadow: 0 2px 10px rgba(9,84,163,.14);
+     transform: none;
+   }
+
+#question-1, #question-2, #question-3, #question-4,
+   #question-5, #question-6, #question-7 {
+     position: relative;
+     opacity: 0;
+     transform: translateY(6px);
+     transition: opacity .32s ease, transform .32s ease;
+     pointer-events: none;
+   }
+
+#question-1.is-active, #question-2.is-active, #question-3.is-active,
+   #question-4.is-active, #question-5.is-active, #question-6.is-active,
+   #question-7.is-active {
+     opacity: 1;
+     transform: translateY(0);
+     pointer-events: auto;
+   }
+
+#question-1 .answers-container {
+     flex-direction: row;
+     flex-wrap: wrap;
+     width: calc(((160.984px * 2) + 8px) * var(--scale));
+     gap: calc(15px * var(--scale));
+     row-gap: calc(15px * var(--scale));
+     column-gap: calc(8px * var(--scale));
+   }
+
+#question-1 .answer-option {
+     width: calc(160.984px * var(--scale));
+     min-height: calc(48.3935px * var(--scale));
+     height: auto;
+     flex-basis: calc(50% - calc(4px * var(--scale)));
+     margin-right: 0;
+     padding-left: calc(8.52303px * var(--scale));
+     padding-right: calc(8px * var(--scale));
+     gap: calc(6px * var(--scale));
+   }
+
+#question-1 .answer-option:nth-child(odd) { margin-right: 0; }
+
+#question-2 .answers-container {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     width: calc(((160.984px * 2) + 8px) * var(--scale));
+     gap: calc(8px * var(--scale));
+     row-gap: calc(8px * var(--scale));
+     column-gap: calc(8px * var(--scale));
+   }
+
+#question-2 .answer-option {
+     width: calc(160.984px * var(--scale));
+     min-height: calc(48.3935px * var(--scale));
+     height: auto;
+     padding-left: calc(8.52303px * var(--scale));
+     padding-right: calc(8px * var(--scale));
+     gap: calc(6px * var(--scale));
+   }
+
+.answer-option {
+     width: calc(366.968px * var(--scale));
+     min-height: calc(58px * var(--scale));
+     height: auto;
+     background: rgba(255,255,255,.92);
+     backdrop-filter: blur(20px) saturate(200%);
+     -webkit-backdrop-filter: blur(20px) saturate(200%);
+     border: 1.5px solid rgba(255,255,255,.68);
+     border-radius: calc(var(--r-sm) * var(--scale));
+     display: flex;
+     align-items: center;
+     padding: calc(13px * var(--scale)) calc(14px * var(--scale));
+     cursor: pointer;
+     gap: calc(10px * var(--scale));
+     transition: border-color .22s ease,
+                 box-shadow .22s ease,
+                 transform .18s ease,
+                 background .22s ease;
+     box-shadow: 0 2px 10px rgba(0,0,0,.09),
+                 inset 0 1px 0 rgba(255,255,255,.85);
+   }
+
+.answer-option .price-indicator {
+     margin-left: auto;
+     padding-left: calc(8px * var(--scale));
+     font-size: calc(11.5px * var(--scale));
+     font-weight: 700;
+     letter-spacing: 0.5px;
+     color: var(--c-text-3);
+     opacity: .55;
+     white-space: nowrap;
+     flex-shrink: 0;
+   }
+
+.answer-option input[type="radio"],
+   .answer-option input[type="checkbox"] {
+     width: calc(21.08px * var(--scale));
+     height: calc(21.08px * var(--scale));
+     border: 1.5px solid var(--c-text-3);
+     border-radius: 50%;
+     margin: 0;
+     margin-right: calc(8.52303px * var(--scale));
+     appearance: none;
+     cursor: pointer;
+     flex-shrink: 0;
+     background: #fff;
+     transition: all .2s ease;
+   }
+
+.answer-option input[type="radio"]:checked,
+   .answer-option input[type="checkbox"]:checked {
+     background: var(--c-accent);
+     border-color: var(--c-accent);
+     box-shadow: inset 0 0 0 2.5px #fff,
+                 0 2px 6px rgba(9,84,163,.30);
+   }
+
+.answers-toggle {
+     display: none;
+     margin-left: auto;
+     width: 28px; height: 28px;
+     border: 0;
+     background: transparent;
+     color: var(--c-text);
+     cursor: pointer;
+     align-items: center;
+     justify-content: center;
+     padding: 0;
+   }
+
+.answers-toggle svg {
+     width: 18px; height: 18px;
+     transition: transform .2s;
+   }
+
+.question-block.is-expanded .answers-toggle svg {
+     transform: rotate(180deg);
+   }
+
+#question-3 input[type="checkbox"],
+   #question-4 input[type="radio"],
+   #question-5 input[type="radio"],
+   #question-6 input[type="radio"],
+   #question-7 input[type="checkbox"] {
+     margin-right: calc(30px * var(--scale));
+   }
+
+#question-3 .answer-info-icon,
+   #question-4 .answer-info-icon,
+   #question-5 .answer-info-icon,
+   #question-6 .answer-info-icon,
+   #question-7 .answer-info-icon {
+     margin-left: calc(-20px * var(--scale));
+     margin-right: calc(10px * var(--scale));
+   }
+
+#restart-q1,
+   #back-to-question-1, #back-to-question-2, #back-to-question-3,
+   #back-to-question-4, #back-to-question-5, #back-to-question-6 {
+     background: rgba(255,255,255,.90);
+     backdrop-filter: blur(12px) saturate(180%);
+     -webkit-backdrop-filter: blur(12px) saturate(180%);
+     border: 1.5px solid rgba(9,84,163,.30);
+     color: var(--c-accent);
+     box-shadow: 0 2px 8px rgba(0,0,0,.08);
+     filter: none;
+   }
+
+#restart-q1:hover,
+   #back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover,
+   #back-to-question-4:hover, #back-to-question-5:hover, #back-to-question-6:hover {
+     background: rgba(232,242,255,.97);
+     border-color: rgba(9,84,163,.50);
+     box-shadow: 0 4px 14px rgba(9,84,163,.14);
+     filter: none;
+     transform: translateY(-1.5px);
+   }
+
+#question-1 .button-container {
+     left: calc(26.2291px * var(--scale));
+     width: calc(((160.984px * 2) + 8px) * var(--scale));
+   }
+
+#question-2 .button-container {
+     left: calc(26.2291px * var(--scale));
+     width: calc(((160.984px * 2) + 8px) * var(--scale));
+   }
+
+#question-3 .button-container,
+   #question-4 .button-container,
+   #question-5 .button-container,
+   #question-6 .button-container,
+   #question-7 .button-container {
+     left: calc(26.2291px * var(--scale));
+     width: calc(366.968px * var(--scale));
+   }
+
+.container-title {
+     font-family: 'Inter', sans-serif;
+     font-weight: 700;
+     font-size: calc(30px * var(--page-scale, 1));
+     color: var(--c-text);
+     text-align: center;
+     margin-bottom: calc(15px * var(--page-scale, 1));
+     margin-top: 0;
+     line-height: 1.42;
+   }
+
+#tv-display {
+     position: absolute;
+     background-image: url('keuzehulpen/tv/images/schilderij tv.png');
+     background-size: cover;
+     background-position: center;
+     opacity: 0;
+     transition: opacity .12s ease,
+                 width .12s ease,
+                 height .12s ease,
+                 border-width .12s ease,
+                 right .12s ease,
+                 bottom .12s ease;
+     display: none;
+   }
+
+.info-panel-icon-wrap { display: none; }
+
+.info-panel-header-label { display: none; }
+
+.info-panel-body {
+     padding: 44px 20px 20px;
+     overflow-y: auto;
+     flex: 1;
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+     /* Allow touch scrolling inside the panel even when body scroll is locked */
+     touch-action: pan-y;
+     -webkit-overflow-scrolling: touch;
+     overscroll-behavior: contain;
+   }
+
+.info-panel-body::-webkit-scrollbar-thumb {
+     background: rgba(0, 0, 0, .14);
+     border-radius: 2px;
+   }
+
+.info-panel-body::-webkit-scrollbar-thumb:hover {
+     background: rgba(0, 0, 0, .22);
+   }
+
+.info-panel-img {
+     width: 100%;
+     border-radius: var(--r-sm);
+     margin-top: 2px;
+     display: block;
+     object-fit: cover;
+     max-height: 180px;
+   }
+
+@media (max-width: 900px) {
+.info-panel::before {
+       border-radius: var(--r-lg) var(--r-lg) 0 0;
+     }
+
+.background-container {
+       --base-width: 605.5;
+       --base-height: 595;
+       --tv-right-offset: 315;
+       --tv-bottom-offset: 212;
+       background-image: url('keuzehulpen/tv/images/nieuw design telefoon.png');
+       aspect-ratio: 1211 / 1190;
+       width: min(92vw, 560px);
+       max-width: min(92vw, 560px);
+       margin-top: 0;
+       margin-bottom: 0;
+       border-radius: var(--r-lg) var(--r-lg) 0 0;
+       box-shadow: 0 -2px 20px rgba(0,0,0,.05);
+     }
+
+#question-1 .answers-container,
+     #question-2 .answers-container {
+       display: grid;
+       grid-template-columns: repeat(2, minmax(0, 1fr));
+       width: 100%;
+       gap: clamp(10px, 2vw, 14px);
+       column-gap: clamp(12px, 2.5vw, 18px);
+       align-items: stretch;
+       justify-items: stretch;
+     }
+
+#question-1 .answer-option,
+     #question-2 .answer-option {
+       width: 100%;
+       min-height: 56px;
+       height: auto;
+     }
+
+#question-2 .answer-option {
+       min-height: 56px;
+       justify-content: flex-start;
+     }
+
+#question-2 .answer-option span {
+       text-align: left;
+       width: 100%;
+     }
+
+#question-3 input[type="checkbox"],
+     #question-4 input[type="radio"],
+     #question-5 input[type="radio"],
+     #question-6 input[type="radio"],
+     #question-7 input[type="checkbox"] {
+       margin-right: 10px;
+     }
+
+#question-3 .answer-info-icon,
+     #question-4 .answer-info-icon,
+     #question-5 .answer-info-icon,
+     #question-6 .answer-info-icon,
+     #question-7 .answer-info-icon {
+       margin-left: 0;
+       margin-right: 8px;
+     }
+
+.question-block .answer-option input[type="radio"],
+     .question-block .answer-option input[type="checkbox"] {
+       display: inline-block;
+       width: 18px; height: 18px;
+       margin-right: 10px;
+     }
+
+#restart-q1,
+     #back-to-question-1, #back-to-question-2, #back-to-question-3,
+     #back-to-question-4, #back-to-question-5, #back-to-question-6 {
+       border-width: 1.5px;
+       background: #fff;
+       box-shadow: 0 1px 4px rgba(0,0,0,.06);
+       filter: none;
+     }
+
+#question-1 .button-container,
+     #question-2 .button-container,
+     #question-3 .button-container,
+     #question-4 .button-container,
+     #question-5 .button-container,
+     #question-6 .button-container,
+     #question-7 .button-container {
+       left: auto;
+       width: 100%;
+       max-width: 100%;
+     }
+
+
+/* mobile-order fix: moved out of shared css to restore correct cascade order */
+.quiz-panel-inner {
+       padding: 20px 18px;
+     }
+
+button.question-hint-btn { display: none; }
+
+button.question-hint-btn-mobile { display: grid; }
+
+.answer-option {
+       width: 100%;
+       height: auto;
+       min-height: 52px;
+       padding: 12px 14px;
+       border-radius: var(--r-sm);
+       gap: 10px;
+       background: #ffffff;
+       border-color: #e2e8f0;
+       box-shadow: 0 1px 4px rgba(0,0,0,.06);
+       backdrop-filter: none;
+       -webkit-backdrop-filter: none;
+     }
+
+.answers-toggle { display: none; }
+}
+
+@media (min-width: 901px) {
+#question-2 .answer-option {
+       height: calc(44px * var(--scale));
+       padding-left: calc(14px * var(--scale));
+       padding-right: calc(14px * var(--scale));
+       border-radius: calc(100px * var(--scale));
+       justify-content: center;
+       gap: 0;
+     }
+
+#question-2 .answer-option input[type="radio"] {
+       display: none;
+       margin: 0;
+     }
+
+#question-2 .answer-option span {
+       font-size: calc(14px * var(--scale));
+       font-weight: 500;
+       white-space: nowrap;
+       text-align: center;
+       color: var(--c-text);
+     }
+
+#question-2 .answer-option:has(input:checked) {
+       border-color: rgba(9,84,163,.55);
+       background: rgba(232,242,255,.97);
+       box-shadow: 0 0 0 2.5px rgba(9,84,163,.18),
+                   0 2px 12px rgba(9,84,163,.12);
+     }
+
+#question-2 .answer-option:has(input:checked) span {
+       color: var(--c-accent);
+       font-weight: 700;
+     }
+}
+
+@media (max-width: 480px) {
+#question-1 .answer-option,
+     #question-2 .answer-option {
+       padding: 8px 10px;
+       gap: 8px;
+     }
+
+#question-1 .answer-option span,
+     #question-2 .answer-option span {
+       font-size: 13px;
+       line-height: 1.3;
+       word-break: break-word;
+       overflow-wrap: break-word;
+     }
+
+#question-1 .answer-option input[type="radio"],
+     #question-2 .answer-option input[type="radio"] {
+       flex-shrink: 0;
+       width: 17px; height: 17px;
+       margin-right: 8px;
+     }
+}
+
+@media (max-width: 360px) {
+#question-1 .answer-option,
+     #question-2 .answer-option {
+       min-height: 48px;
+       padding: 8px 9px;
+       gap: 7px;
+     }
+
+#question-1 .answer-option span,
+     #question-2 .answer-option span {
+       font-size: 11px;
+       line-height: 1.15;
+       text-align: center;
+       word-break: break-word;
+       overflow-wrap: break-word;
+     }
+
+#question-1 .answer-option input[type="radio"],
+     #question-2 .answer-option input[type="radio"] {
+       width: 15px; height: 15px;
+       margin-right: 7px;
+     }
+}
+   </style>
+</head>
+<body>
+
+ <!-- ══════════════════════════════════════════
+      QUIZ PAGE HEADER
+      ══════════════════════════════════════════ -->
+ <header class="quiz-page-header">
+   <div class="quiz-header-inner">
+
+     <!-- Title + time badge -->
+     <h1 class="quiz-header-title">Televisie Keuzehulp</h1>
+
+     <!-- Toggle buttons centered below title -->
+     <div class="quiz-toggle-row">
+       <button class="quiz-toggle-btn" id="how-toggle" data-toggle-target="how-content" type="button">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/></svg>
+         Hoe werkt het?
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+       </button>
+       <button class="quiz-toggle-btn" id="uitleg-toggle" data-toggle-target="uitleg-content" type="button">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+         Keuzehulp uitleg
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+       </button>
+     </div>
+
+   </div>
+
+   <!-- Collapsible panels — outside flex row so they take full width -->
+   <!-- How it works panel -->
+   <div class="quiz-panel-content" id="how-content">
+     <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
+       <p>We stellen zeven korte vragen over je kijkafstand, budget, gebruik en voorkeuren. Op basis van je antwoorden berekenen we welk type televisie het beste bij je past en laten we je de beste opties zien. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+       <div class="quiz-how-steps">
+         <div class="quiz-how-step">
+           <span class="quiz-how-step-num">1</span>
+           <div>
+             <div class="quiz-how-step-label">Beantwoord vragen</div>
+             <div class="quiz-how-step-desc">Vertel ons over je wensen en voorkeuren</div>
+           </div>
+         </div>
+         <div class="quiz-how-step">
+           <span class="quiz-how-step-num">2</span>
+           <div>
+             <div class="quiz-how-step-label">Wij analyseren</div>
+             <div class="quiz-how-step-desc">We matchen je antwoorden met alle tv's</div>
+           </div>
+         </div>
+         <div class="quiz-how-step">
+           <span class="quiz-how-step-num">3</span>
+           <div>
+             <div class="quiz-how-step-label">Ontvang advies</div>
+             <div class="quiz-how-step-desc">Bekijk welke tv's het beste bij je passen</div>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+
+   <!-- Uitleg panel -->
+   <div class="quiz-panel-content" id="uitleg-content">
+     <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
+       <p>Deze tv is gebaseerd op je kijkafstand, formaat en gebruik. Op basis daarvan berekenen we welk schermtype — LED, QLED, Mini LED of OLED — het beste bij je past, en filteren we verder op beeldkwaliteit, beeldverversing en resolutie. We nemen alleen tv's mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
+       <p>De €-tekens naast sommige antwoorden geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) tv leidt — puur ter indicatie, dit filtert niets weg. We vragen geen budget vooraf, zodat de tv's die het best bij je passen niet per ongeluk buiten beeld vallen door een te streng gekozen prijsplafond. Na de quiz kun je op de resultatenpagina zelf nog filteren op prijscategorie.</p>
+     </div>
+   </div>
+
+ </header>
+
+ <!-- ══════════════════════════════════════════
+      MAIN CONTENT
+      ══════════════════════════════════════════ -->
+ <main class="page-content">
+
+   <!-- ============ QUIZ ============ -->
+   <div class="container-wrapper">
+     <div class="quiz-hero">
+       <div class="background-container">
+         <div class="top-bar">
+           <div class="progress-bar" id="progress-bar"></div>
+         </div>
+         <div id="tv-display"></div>
+         <!-- Mobile hint button: small ? circle at bottom-right of the image -->
+         <button id="question-hint-btn-mobile" class="question-hint-btn-mobile" type="button" aria-label="Waarom deze vraag?">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+             <circle cx="12" cy="12" r="10"/>
+             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+             <circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/>
+           </svg>
+         </button>
+       </div>
+
+       <div class="questions-panel">
+
+         <!-- Scrim — dims the question area behind the info panel -->
+         <div class="info-panel-scrim" aria-hidden="true"></div>
+
+         <!-- INFO PANEL — slides in from the right of the image -->
+         <div id="info-panel" class="info-panel" role="dialog" aria-modal="false" aria-label="Vraag uitleg">
+           <div class="info-panel-drag-handle" aria-hidden="true"></div>
+           <div class="info-panel-header">
+             <div class="info-panel-icon-wrap">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                 <circle cx="12" cy="12" r="10"/>
+                 <line x1="12" y1="8" x2="12" y2="12"/>
+                 <line x1="12" y1="16" x2="12.01" y2="16"/>
+               </svg>
+             </div>
+             <span class="info-panel-header-label">Vraag uitleg</span>
+             <button class="info-panel-close" id="info-panel-close" type="button" aria-label="Sluit uitleg">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                 <line x1="18" y1="6" x2="6" y2="18"/>
+                 <line x1="6" y1="6" x2="18" y2="18"/>
+               </svg>
+             </button>
+           </div>
+           <div class="info-panel-body">
+             <h3 class="info-panel-title" id="info-panel-title"></h3>
+             <div class="info-panel-divider"></div>
+             <p class="info-panel-text" id="info-panel-text"></p>
+             <img id="info-panel-img" class="info-panel-img" src="" alt="Voorbeeld afbeelding" style="display:none;">
+           </div>
+         </div>
+
+         <!-- Desktop hint button: frosted pill at bottom-right of the image -->
+         <button id="question-hint-btn" class="question-hint-btn" type="button">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+           Waarom deze vraag?
+         </button>
+
+       <!-- VRAAG 1 -->
+       <div id="question-1" class="question-block">
+         <div class="question-container">
+           <h2>Hoe ver zit je van de televisie af?</h2>
+           <div class="question-popover" data-popover="1">
+             <h3 class="question-popover-title">Waarom deze vraag?</h3>
+             <p class="question-popover-text">De kijkafstand bepaalt mede welke tv-grootte het meest comfortabel is. Te dichtbij geeft een overweldigend en vermoeiend beeld; te ver weg en je mist fijne details. Als vuistregel geldt: deel je kijkafstand in centimeters door twee om de aanbevolen schermdiagonaal in centimeter te benaderen. Op basis van jouw antwoord berekenen wij een advies. In de volgende stap maak je de definitieve groottekeuze voor de rest van de keuzehulp.</p>
+           </div>
+         </div>
+         <div class="answers-container">
+           <label class="answer-option">
+             <input type="radio" name="distance" value="1m">
+             <span>1 meter</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="distance" value="1.5m">
+             <span>1,5 meter</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="distance" value="2m">
+             <span>2 meter</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="distance" value="2.5m">
+             <span>2,5 meter</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="distance" value="3m">
+             <span>3 meter</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="distance" value="3.5m">
+             <span>3,5 meter</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="distance" value="4m">
+             <span>4 meter</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="distance" value="bioscoop">
+             <span>Ik wil een thuisbioscoop</span>
+           </label>
+         </div>
+         <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
+           <button id="restart-q1">Terug</button>
+           <button id="to-question-2">Volgende</button>
+         </div>
+       </div>
+
+       <!-- VRAAG 2 -->
+       <div id="question-2" class="question-block" style="display:none;">
+         <div class="question-container">
+           <h2 id="advies-tekst">Welke grootte past bij jou?</h2>
+           <div class="question-popover" data-popover="2">
+             <h3 class="question-popover-title">Waarom deze stap?</h3>
+             <p class="question-popover-text">Op basis van jouw kijkafstand laten we hier de aanbevolen schermgrootte zien. Je kunt dit advies opvolgen of zelf een andere maat kiezen. Een grotere tv bij een te korte kijkafstand kan vermoeiend zijn voor de ogen; een te kleine tv op grote afstand laat details verloren gaan. De maat die je hier kiest, wordt gebruikt voor alle verdere aanbevelingen in de keuzehulp.</p>
+           </div>
+         </div>
+         <div class="answers-container" id="size-options"></div>
+         <div class="button-container" id="q2-buttons">
+           <button id="back-to-question-1">Terug</button>
+           <button id="to-question-3">Volgende</button>
+         </div>
+       </div>
+
+       <!-- VRAAG 3 -->
+       <div id="question-3" class="question-block" style="display:none;">
+         <div class="question-container">
+           <div class="question-heading-wrap"><h2>Waar ga je de tv voornamelijk voor gebruiken?</h2></div>
+           <div class="question-popover" data-popover="3">
+             <h3 class="question-popover-title">Waarom deze vraag?</h3>
+             <p class="question-popover-text">Het gebruik heeft grote invloed op welk type tv het beste bij je past. Voor films en series is een hoge contrastratio cruciaal zodat donkere scènes er diep en gedetailleerd uitzien. Sportkijkers profiteren van een hoge beeldverversing (120 Hz of hoger) om bewegingsonscherpte te vermijden. Gamers hebben baat bij lage invoervertraging (input lag) en ondersteuning voor VRR of G-Sync. Je kunt meerdere opties aanvinken als je de tv voor een combinatie van doeleinden gebruikt.</p>
+           </div>
+         </div>
+         <div class="answers-container">
+           <label class="answer-option">
+             <input type="checkbox" name="usage" value="films">
+             <svg class="answer-info-icon" data-icon="popcorn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Films en series kijken</span>
+             <span class="price-indicator">€€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="checkbox" name="usage" value="sport">
+             <svg class="answer-info-icon" data-icon="volleyball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Sport kijken</span>
+             <span class="price-indicator">€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="checkbox" name="usage" value="gamen">
+             <svg class="answer-info-icon" data-icon="gamepad-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Gamen</span>
+             <span class="price-indicator">€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="checkbox" name="usage" value="normaal">
+             <svg class="answer-info-icon" data-icon="tv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Normale televisie kijken</span>
+             <span class="price-indicator">€</span>
+           </label>
+         </div>
+         <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
+           <button id="back-to-question-2">Terug</button>
+           <button id="to-question-4">Volgende</button>
+         </div>
+       </div>
+
+       <!-- VRAAG 4 -->
+       <div id="question-4" class="question-block" style="display:none;">
+         <div class="question-container">
+           <h2>Hoe belangrijk vind je de beeldkwaliteit?</h2>
+           <div class="question-popover" data-popover="4">
+             <h3 class="question-popover-title">Waarom deze vraag?</h3>
+             <p class="question-popover-text">Beeldkwaliteit is een breed begrip: het omvat scherpte, kleurnauwkeurigheid, contrastratio en helderheid. Wie absoluut het beste wil, kiest doorgaans voor een OLED- of high-end Mini-LED-tv met uitstekende HDR-prestaties. Wie een goede maar betaalbare keuze maakt, heeft genoeg aan een moderne LCD met degelijk lokaal dimmen. Voor casual gebruik zijn er aangenamere opties met een uitstekende prijs-kwaliteitverhouding. Hoe ambitieuzer je beeldwens, hoe geavanceerder en duurder het geadviseerde model wordt.</p>
+           </div>
+         </div>
+         <div class="answers-container">
+           <label class="answer-option">
+             <input type="radio" name="quality" value="best">
+             <svg class="answer-info-icon" data-icon="trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Ik wil de best mogelijke beeldkwaliteit</span>
+             <span class="price-indicator">€€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="quality" value="belangrijk">
+             <svg class="answer-info-icon" data-icon="star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Belangrijk, maar ik hoef niet het beste</span>
+             <span class="price-indicator">€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="quality" value="prima">
+             <svg class="answer-info-icon" data-icon="thumbs-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Als het gewoon prima is ben ik tevreden</span>
+             <span class="price-indicator">€</span>
+           </label>
+         </div>
+         <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
+           <button id="back-to-question-3">Terug</button>
+           <button id="to-question-5">Volgende</button>
+         </div>
+       </div>
+
+       <!-- VRAAG 5 -->
+       <div id="question-5" class="question-block" style="display:none;">
+         <div class="question-container">
+           <h2>Wanneer kijk je meestal tv?</h2>
+           <div class="question-popover" data-popover="5">
+             <h3 class="question-popover-title">Waarom deze vraag?</h3>
+             <p class="question-popover-text">Het moment waarop je kijkt, bepaalt welk type tv het meest geschikt is. In een donkere kamer kunnen OLED-tv's prachtig diepe zwarttinten tonen doordat elk pixel afzonderlijk wordt uitgeschakeld. Overdag zijn heldere LCD- of QLED-tv's beter bestand tegen invallend omgevingslicht en spiegelende reflecties op het scherm. Kijk je zowel overdag als 's avonds, dan zoeken we een model dat in beide situaties goed presteert — een goede balans tussen helderheid en contrast.</p>
+           </div>
+         </div>
+         <div class="answers-container">
+           <label class="answer-option">
+             <input type="radio" name="timing" value="avonds">
+             <svg class="answer-info-icon" data-icon="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>In de avond als het donker is</span>
+             <span class="price-indicator">€€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="timing" value="overdag">
+             <svg class="answer-info-icon" data-icon="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Overdag als het licht is</span>
+             <span class="price-indicator">€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="timing" value="beide">
+             <svg class="answer-info-icon" data-icon="sun-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Beide</span>
+             <span class="price-indicator">€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="timing" value="nvt">
+             <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Dit is voor mij niet belangrijk</span>
+             <span class="price-indicator">€</span>
+           </label>
+         </div>
+         <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
+           <button id="back-to-question-4">Terug</button>
+           <button id="to-question-6">Volgende</button>
+         </div>
+       </div>
+
+       <!-- VRAAG 6 -->
+       <div id="question-6" class="question-block" style="display:none;">
+         <div class="question-container">
+           <h2>Hoe kijk je meestal tv?</h2>
+           <div class="question-popover" data-popover="6">
+             <h3 class="question-popover-title">Waarom deze vraag?</h3>
+             <p class="question-popover-text">De kijkhoek bepaalt hoeveel de beeldkwaliteit afneemt naarmate je verder opzij kijkt. OLED- en IPS/QLED-panelen zijn daarin het sterkst: kleuren en contrast blijven vrijwel ongewijzigd, zelfs bij ruime kijkhoeken. Standaard VA-LCD-panelen vertonen bij een schuine kijkhoek kleurvervaging en een duidelijk lager contrast. Kijk je altijd recht voor het scherm, dan is dit minder relevant en kun je budget besparen op dit onderdeel van de tv.</p>
+           </div>
+         </div>
+         <div class="answers-container">
+           <label class="answer-option">
+             <input type="radio" name="viewing" value="recht">
+             <svg class="answer-info-icon" data-icon="sofa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Met 1 of 2 mensen recht voor de tv</span>
+             <span class="price-indicator">€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="viewing" value="meerdere">
+             <svg class="answer-info-icon" data-icon="users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Met meerdere mensen die niet recht voor de tv zitten</span>
+             <span class="price-indicator">€€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="radio" name="viewing" value="nvt">
+             <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Dit is voor mij niet belangrijk</span>
+             <span class="price-indicator">€</span>
+           </label>
+         </div>
+         <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
+           <button id="back-to-question-5">Terug</button>
+           <button id="to-question-7">Volgende</button>
+         </div>
+       </div>
+
+       <!-- VRAAG 7 -->
+       <div id="question-7" class="question-block" style="display:none;">
+         <div class="question-container">
+           <div class="question-heading-wrap"><h2>Welke van de volgende dingen is extra belangrijk voor je tv?</h2></div>
+           <div class="question-popover" data-popover="7">
+             <h3 class="question-popover-title">Waarom deze vraag?</h3>
+             <p class="question-popover-text">Hier geef je aan welke extra eigenschappen zwaarder mogen meewegen. Perfecte zwarttinten zijn het specialisme van OLED: elk pixel kan afzonderlijk worden uitgeschakeld voor oneindig contrast. Extreme helderheid is het domein van Mini-LED/QLED-tv's met krachtige achtergrondverlichting. Je kunt meerdere opties aanvinken.</p>
+           </div>
+         </div>
+         <div class="answers-container">
+           <label class="answer-option">
+             <input type="checkbox" name="extra" value="zwart">
+             <svg class="answer-info-icon" data-icon="cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Zwarttinten; donkere beelden zijn extra mooi</span>
+             <span class="price-indicator">€€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="checkbox" name="extra" value="helderheid">
+             <svg class="answer-info-icon" data-icon="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Helderheid; de tv moet heel helder kunnen zijn</span>
+             <span class="price-indicator">€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="checkbox" name="extra" value="kleur">
+             <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Kleur; de mooiste kleuren moeten naar voor komen</span>
+             <span class="price-indicator">€€</span>
+           </label>
+           <label class="answer-option">
+             <input type="checkbox" name="extra" value="niks">
+             <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Ik heb niks wat ik extra belangrijk vindt</span>
+             <span class="price-indicator">€</span>
+           </label>
+         </div>
+         <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
+           <button id="back-to-question-6">Terug</button>
+           <button id="start-matching">Resultaat</button>
+         </div>
+       </div>
+
+       </div>
+     </div>
+   </div>
+
+ </main>
+
+<!-- Core quiz engine -->
+<script type="module" src="keuzehulpen/tv/js/main.js"></script>
+
+<!-- Toggle panels -->
+<script>
+(function () {
+  function initToggle(contentId) {
+    var content = document.getElementById(contentId);
+    var btns = Array.prototype.slice.call(document.querySelectorAll('[data-toggle-target="' + contentId + '"]'));
+    if (!content || btns.length === 0) return;
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var open = content.classList.toggle('is-open');
+        btns.forEach(function (b) { b.classList.toggle('is-open', open); });
+        /* Close the sibling panel */
+        document.querySelectorAll('.quiz-panel-content').forEach(function (c) {
+          if (c !== content) c.classList.remove('is-open');
+        });
+        document.querySelectorAll('.quiz-toggle-btn').forEach(function (b) {
+          if (btns.indexOf(b) === -1) b.classList.remove('is-open');
+        });
+      });
+    });
+  }
+  initToggle('how-content');
+  initToggle('uitleg-content');
+})();
+</script>
+
+<!-- Scroll-to-top button -->
+<button id="scroll-top-btn" aria-label="Terug naar boven" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #0954a3;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 16px rgba(9,84,163,.35);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .25s ease, transform .25s ease;
+  pointer-events: none;
+">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+</button>
+<script>
+(function(){
+  var btn = document.getElementById('scroll-top-btn');
+  window.addEventListener('scroll', function(){
+    if (window.scrollY > 300) {
+      btn.style.opacity = '1';
+      btn.style.transform = 'translateY(0)';
+      btn.style.pointerEvents = 'auto';
+    } else {
+      btn.style.opacity = '0';
+      btn.style.transform = 'translateY(10px)';
+      btn.style.pointerEvents = 'none';
+    }
+  }, {passive: true});
+})();
+</script>
+</body>
+</html>

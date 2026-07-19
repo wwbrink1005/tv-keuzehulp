@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="nl">
+	<head>
+		<meta charset="UTF-8" />
+		<base href="../../../">
+		<link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Resultaat - TV Keuzehulp</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="shared/menu.css" />
+		<link rel="stylesheet" href="shared/footer.css" />
+ <link rel="stylesheet" href="shared/resultaat.css">
+		<script src="https://unpkg.com/lucide@latest"></script>
+		<script src="shared/menu.js" defer></script>
+		<script src="shared/footer.js" defer></script>
+		<style>
+*,
+			*::before,
+			*::after {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+@keyframes fadeUp {
+				from {
+					opacity: 0;
+					transform: translateY(16px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+@keyframes fadeIn {
+				from { opacity: 0; }
+				to { opacity: 1; }
+			}
+
+.restart-link {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				padding: 9px 18px;
+				border-radius: 999px;
+				background: var(--card-bg);
+				backdrop-filter: none;
+				-webkit-backdrop-filter: none;
+				border: 1px solid var(--line);
+				font-size: 14px;
+				font-weight: 500;
+				color: var(--text-secondary);
+				text-decoration: none;
+				transition: all var(--transition);
+			}
+
+.info-toggle-wrap {
+				position: relative;
+			}
+
+.info-btn {
+				width: 38px;
+				height: 38px;
+				border-radius: 999px;
+				border: 1px solid var(--line);
+				background: var(--card-bg);
+				backdrop-filter: none;
+				-webkit-backdrop-filter: none;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--text-secondary);
+				cursor: pointer;
+				transition: all var(--transition);
+				padding: 0;
+				font-family: inherit;
+			}
+
+.info-btn:hover {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
+				color: var(--accent);
+			}
+
+.info-btn.is-active {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
+				color: var(--accent);
+			}
+
+.info-btn svg {
+				width: 16px;
+				height: 16px;
+			}
+
+.info-card {
+				position: fixed;
+				top: 144px;
+				left: 50px;
+				width: 310px;
+				background: var(--card-bg);
+				border-radius: var(--radius-lg);
+				border: 1px solid var(--line);
+				box-shadow: var(--shadow-elevated);
+				overflow: hidden;
+				opacity: 0;
+				transform: translateY(-8px) scale(0.97);
+				pointer-events: none;
+				transition: opacity 0.22s ease,
+							transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+				z-index: 1000;
+			}
+
+.info-card.is-open {
+				opacity: 1;
+				transform: translateY(0) scale(1);
+				pointer-events: auto;
+			}
+
+.info-card-close {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				width: 26px;
+				height: 26px;
+				border: none;
+				background: rgba(0, 0, 0, 0.05);
+				border-radius: 50%;
+				cursor: pointer;
+				display: grid;
+				place-items: center;
+				color: var(--text-tertiary);
+				transition: background 0.18s, color 0.18s;
+				padding: 0;
+				font-family: inherit;
+			}
+
+.info-card-close:hover {
+				background: rgba(0, 0, 0, 0.1);
+				color: var(--text-primary);
+			}
+
+.info-card-close svg {
+				width: 12px;
+				height: 12px;
+				stroke-width: 2.6;
+			}
+
+.info-card-body {
+				padding: 18px 16px 18px;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+
+.info-card-title {
+				font-size: 15px;
+				font-weight: 700;
+				color: var(--text-primary);
+				letter-spacing: -0.012em;
+				line-height: 1.35;
+				margin: 0;
+			}
+
+.info-card-text {
+				font-size: 13.5px;
+				line-height: 1.65;
+				color: var(--text-secondary);
+				margin: 0;
+			}
+
+.info-card-cta {
+				display: inline-flex;
+				align-items: center;
+				gap: 7px;
+				background: var(--accent);
+				color: #fff;
+				border: none;
+				font-family: inherit;
+				font-size: 14px;
+				font-weight: 600;
+				padding: 10px 20px;
+				border-radius: 999px;
+				cursor: pointer;
+				text-decoration: none;
+				align-self: flex-start;
+				transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
+			}
+
+.info-card-cta:hover {
+				background: #073d7a;
+				box-shadow: 0 4px 14px rgba(9, 84, 163, 0.22);
+				transform: translateY(-1px);
+			}
+
+.info-card-cta svg {
+				width: 14px;
+				height: 14px;
+			}
+
+.restart-link:hover {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
+				color: var(--accent);
+			}
+
+.result-count-badge {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				background: var(--accent-soft);
+				color: var(--accent);
+				font-size: 13px;
+				font-weight: 600;
+				padding: 3px 10px;
+				border-radius: 999px;
+				flex-shrink: 0;
+				font-family: inherit;
+				min-width: 28px;
+				margin-left: 8px;
+				vertical-align: middle;
+			}
+
+.sort-button {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				height: 34px;
+				padding: 0 14px;
+				border: 1px solid var(--line);
+				border-radius: 999px;
+				background: var(--card-bg);
+				backdrop-filter: none;
+				-webkit-backdrop-filter: none;
+				color: var(--text-secondary);
+				font-size: 13px;
+				font-weight: 500;
+				font-family: "Inter", sans-serif;
+				cursor: pointer;
+				transition: all var(--transition);
+			}
+
+.sort-button:hover {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
+				color: var(--accent);
+			}
+
+.filter-option input[type="radio"],
+			.filter-option input[type="checkbox"] {
+				position: absolute;
+				opacity: 0;
+				width: 0;
+				height: 0;
+				pointer-events: none;
+			}
+
+.icon-button {
+				width: 36px;
+				height: 36px;
+				border-radius: var(--radius-sm);
+				border: 1px solid var(--line);
+				background: var(--card-bg);
+				backdrop-filter: none;
+				-webkit-backdrop-filter: none;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--text-secondary);
+				cursor: pointer;
+				transition: all var(--transition);
+			}
+
+.icon-button:hover {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
+				color: var(--accent);
+			}
+
+.icon-button.is-active {
+				background: var(--accent-soft);
+				border-color: rgba(9, 84, 163, 0.22);
+				color: var(--accent);
+			}
+
+.clear-filters-btn {
+				display: inline-flex;
+				align-items: center;
+				height: 26px;
+				padding: 0 11px;
+				border: 1.5px solid rgba(9, 84, 163, 0.28);
+				border-radius: 999px;
+				background: var(--accent-soft);
+				color: var(--accent);
+				font-size: 12px;
+				font-weight: 600;
+				font-family: inherit;
+				cursor: pointer;
+				transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+				white-space: nowrap;
+			}
+
+.best-match-card {
+				width: 100%;
+				max-width: var(--container-max);
+				background: var(--card-bg);
+				border-radius: var(--radius-xl);
+				border: 2px solid var(--accent);
+				box-shadow: 0 4px 28px var(--accent-glow);
+				display: flex;
+				flex-direction: column;
+				padding: clamp(1rem, 2.5vw, 1.25rem) clamp(1.5rem, 5vw, 4rem) clamp(1.25rem, 3vw, 1.75rem);
+				position: relative;
+				transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition);
+				animation: fadeUp 0.5s ease-out;
+				overflow: hidden;
+			}
+
+.best-match-card:hover {
+				box-shadow: var(--shadow-card-hover);
+				transform: translateY(-2px);
+			}
+
+.best-match-card.inline {
+				width: 100%;
+				max-width: var(--container-max);
+				grid-column: 1 / -1;
+				margin: 0 auto clamp(0.25rem, 1vw, 0.5rem);
+			}
+
+.best-match-card.is-opening {
+				transform: translateY(8px);
+				opacity: 0.9;
+			}
+
+.best-match-label {
+				display: none;
+				align-items: center;
+				gap: 6px;
+				align-self: flex-start;
+				background: var(--accent-green);
+				color: #fff;
+				font-size: 12px;
+				font-weight: 700;
+				letter-spacing: 0.04em;
+				padding: 6px 14px;
+				border-radius: 999px;
+				margin-bottom: 0;
+				box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+			}
+
+.best-match-card.is-best-match .best-match-label {
+				display: inline-flex;
+			}
+
+.best-match-label svg {
+				width: 12px;
+				height: 12px;
+			}
+
+.best-match-row {
+				display: flex;
+				flex-direction: column;
+				gap: clamp(1.25rem, 3vw, 2rem);
+				align-items: center;
+				margin-top: clamp(0.75rem, 2.5vw, 1.5rem);
+			}
+
+.best-match-close {
+				position: absolute;
+				top: 16px;
+				right: 16px;
+				width: 32px;
+				height: 32px;
+				border: none;
+				border-radius: 999px;
+				background: var(--page-bg);
+				color: var(--text-tertiary);
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				transition: all var(--transition);
+			}
+
+.best-match-close:hover {
+				background: #e8e8ec;
+				color: var(--text-primary);
+			}
+
+.best-match-close svg {
+				width: 14px;
+				height: 14px;
+			}
+
+.best-match-media {
+				width: clamp(14rem, 50vw, 20rem);
+				aspect-ratio: 4 / 3;
+				flex-shrink: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				overflow: hidden;
+				background: #fff;
+				border-radius: var(--radius-md);
+				position: relative;
+			}
+
+.best-match-media img {
+				width: 100%;
+				height: 100%;
+				max-width: 100%;
+				object-fit: contain;
+				display: block;
+				padding: 10px;
+				transition: transform var(--transition);
+			}
+
+.best-match-media img[data-provider="coolblue"] {
+				transform: scale(0.82);
+			}
+
+.best-match-body {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				gap: 0.6rem;
+			}
+
+.best-match-name {
+				font-size: 22px;
+				font-weight: 800;
+				color: var(--text-primary);
+				letter-spacing: -0.02em;
+				margin: 0;
+			}
+
+.best-match-points {
+				list-style: none;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				font-size: 14px;
+				color: var(--text-secondary);
+				max-width: 26rem;
+			}
+
+.best-match-points li {
+				display: flex;
+				align-items: flex-start;
+				gap: 8px;
+				line-height: 1.45;
+			}
+
+.best-match-check {
+				width: 18px;
+				height: 18px;
+				color: var(--accent-green);
+				flex-shrink: 0;
+				margin-top: 1px;
+			}
+
+.best-match-specs {
+				font-size: 13px;
+				color: var(--text-tertiary);
+				letter-spacing: 0.01em;
+			}
+
+.best-match-price {
+				font-size: 26px;
+				font-weight: 800;
+				color: var(--accent-dark);
+				letter-spacing: -0.03em;
+				margin-top: 0.15rem;
+			}
+
+.best-match-divider {
+				width: 100%;
+				height: 1px;
+				background: var(--line);
+				margin: clamp(0.75rem, 2vw, 1rem) 0 0;
+				display: none;
+			}
+
+.best-match-card.has-providers .best-match-divider {
+				display: block;
+			}
+
+.best-match-footer {
+				height: auto;
+			}
+
+.best-match-providers {
+				padding-top: clamp(0.75rem, 2vw, 1rem);
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				width: 100%;
+			}
+
+.providers-header {
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.09em;
+				color: var(--text-tertiary);
+				margin: 0 0 2px;
+			}
+
+.providers-list {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+.provider-btn {
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				padding: 13px 16px;
+				background: var(--page-bg);
+				border: 1.5px solid var(--line);
+				border-radius: var(--radius-md);
+				text-decoration: none;
+				color: inherit;
+				transition: border-color 0.2s ease, background 0.2s ease,
+							transform 0.15s ease, box-shadow 0.2s ease;
+			}
+
+.provider-btn:hover {
+				border-color: rgba(9, 84, 163, 0.28);
+				background: var(--accent-soft);
+				transform: translateY(-1px);
+				box-shadow: 0 4px 14px rgba(9, 84, 163, 0.1);
+			}
+
+.provider-name {
+				min-width: 72px;
+				flex-shrink: 0;
+				font-size: 14px;
+				font-weight: 700;
+				color: var(--text-primary);
+			}
+
+.provider-price {
+				min-width: 82px;
+				flex-shrink: 0;
+				font-size: 16px;
+				font-weight: 800;
+				color: var(--accent-dark);
+				letter-spacing: -0.02em;
+			}
+
+.provider-meta {
+				flex: 1;
+				min-width: 0;
+				display: flex;
+				flex-direction: column;
+				gap: 3px;
+			}
+
+.provider-delivery {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				color: var(--text-tertiary);
+				font-size: 13px;
+			}
+
+.provider-delivery i {
+				width: 14px;
+				height: 14px;
+				flex-shrink: 0;
+			}
+
+.provider-delivery-text {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				min-width: 0;
+			}
+
+.provider-shipping {
+				font-size: 11.5px;
+				font-weight: 600;
+				color: var(--accent-green-dark);
+			}
+
+.provider-chevron {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 32px;
+				height: 32px;
+				border-radius: 50%;
+				background: var(--accent);
+				color: #fff;
+				flex-shrink: 0;
+				margin-left: 4px;
+				transition: background 0.2s ease, transform 0.15s ease;
+			}
+
+.provider-btn:hover .provider-chevron {
+				background: var(--accent-dark);
+				transform: translateX(2px);
+			}
+
+.provider-chevron i {
+				width: 15px;
+				height: 15px;
+			}
+
+.tv-card {
+				width: 100%;
+				background: var(--card-bg);
+				border-radius: var(--radius-lg);
+				border: 1px solid var(--line);
+				border-left-width: 1px;
+				padding: 20px 26px;
+				display: flex;
+				flex-direction: row;
+				align-items: flex-start;
+				gap: 22px;
+				box-shadow: var(--shadow-card);
+				transition: all var(--transition);
+				position: relative;
+				overflow: hidden;
+				animation: fadeUp 0.4s ease-out backwards;
+			}
+
+.tv-card:hover {
+				border-color: rgba(9, 84, 163, 0.15);
+				box-shadow: var(--shadow-card-hover);
+				transform: translateY(-2px);
+			}
+
+.tv-preview-btn {
+				position: absolute;
+				bottom: 7px;
+				right: 7px;
+				width: 28px;
+				height: 28px;
+				border-radius: 50%;
+				border: 1px solid rgba(0, 0, 0, 0.1);
+				background: rgba(255, 255, 255, 0.92);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				color: var(--text-secondary);
+				opacity: 0;
+				transition: opacity 0.2s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+				z-index: 1;
+				padding: 0;
+				font-family: inherit;
+				backdrop-filter: blur(4px);
+				-webkit-backdrop-filter: blur(4px);
+			}
+
+.tv-card:hover .tv-preview-btn,
+			.best-match-media:hover .tv-preview-btn {
+				opacity: 1;
+			}
+
+#imagePreviewOverlay {
+				position: fixed;
+				inset: 0;
+				z-index: 10000;
+				background: rgba(0, 0, 0, 0.72);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.25s ease;
+				backdrop-filter: blur(6px);
+				-webkit-backdrop-filter: blur(6px);
+			}
+
+.image-preview-dialog {
+				position: relative;
+				background: #fff;
+				border-radius: var(--radius-xl);
+				padding: 50px 28px 22px;
+				/* Fixed width (not max-width) so the dialog doesn't change size
+				   depending on each image's aspect ratio. */
+				width: min(580px, calc(100vw - 40px));
+				max-height: calc(100dvh - 60px);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 14px;
+				box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+				transform: scale(0.93) translateY(8px);
+				transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+
+.image-preview-close {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				width: 30px;
+				height: 30px;
+				border-radius: 50%;
+				border: none;
+				background: rgba(0, 0, 0, 0.07);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				color: var(--text-secondary);
+				transition: background 0.18s, color 0.18s;
+				padding: 0;
+				font-family: inherit;
+			}
+
+.image-preview-close:hover {
+				background: rgba(0, 0, 0, 0.14);
+				color: var(--text-primary);
+			}
+
+.image-preview-thumb.is-active,
+			.image-preview-thumb:hover { opacity: 1; border-color: #0954a3; }
+
+.tv-provider-row:hover {
+				border-color: rgba(9, 84, 163, 0.3);
+				background: var(--accent-soft);
+				transform: translateX(3px);
+				box-shadow: 0 2px 12px rgba(9, 84, 163, 0.1);
+			}
+
+@media (max-width: 900px) {
+.best-match-card {
+					animation: fadeUp 0.4s ease-out;
+				}
+
+
+/* mobile-order fix: moved out of shared css to restore correct cascade order */
+.tv-card {
+					animation: fadeUp 0.35s ease-out;
+				}
+}
+
+@media (max-width: 640px) {
+.provider-btn {
+					gap: 10px;
+					padding: 11px 14px;
+				}
+
+.provider-name {
+					min-width: 62px;
+					font-size: 13px;
+				}
+
+.provider-price {
+					min-width: 68px;
+					font-size: 15px;
+				}
+
+.provider-delivery {
+					font-size: 12px;
+				}
+
+.provider-shipping {
+					font-size: 11px;
+				}
+}
+
+@media (max-width: 420px) {
+.provider-meta {
+					display: none;
+				}
+}
+
+@media (hover: none), (max-width: 700px) {
+.tv-preview-btn {
+					opacity: 1;
+				}
+}
+
+@media (max-width: 1200px) {
+.title-bar {
+					padding: 16px 24px;
+				}
+}
+
+@media (max-width: 1050px) {
+.tv-card-image {
+					width: 155px;
+					min-width: 155px;
+					height: 122px;
+				}
+
+.tv-card-providers {
+					width: 270px;
+				}
+}
+
+@media (min-width: 900px) {
+.best-match-row {
+					flex-direction: row-reverse;
+					align-items: center;
+				}
+
+.best-match-media {
+					width: clamp(18rem, 44%, 28rem);
+				}
+
+.best-match-body {
+					justify-content: center;
+				}
+}
+
+@media (max-width: 700px) {
+.title-bar {
+					padding: 12px 16px;
+				}
+
+.mobile-actions {
+					display: flex;
+				}
+
+.title-left-wrap {
+					display: none;
+				}
+
+.info-card {
+					left: 12px;
+					right: 12px;
+					width: auto;
+					top: 120px;
+				}
+
+.results-section {
+					padding: 16px 16px var(--container-padding);
+				}
+
+.results-layout {
+					display: block;
+					gap: 0;
+				}
+
+.results-heading {
+					padding-bottom: 1rem;
+				}
+
+.result-title {
+					text-align: center;
+				}
+
+.filters-panel {
+					position: fixed;
+					top: var(--menu-height, 64px);
+					left: 0;
+					bottom: 0;
+					width: min(78vw, 280px);
+					background: var(--page-bg);
+					padding: 16px 14px 24px;
+					box-shadow: 10px 0 30px rgba(0, 0, 0, 0.12);
+					transform: translateX(-105%);
+					transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+					z-index: 900;
+					overflow-y: auto;
+					display: flex;
+					flex-direction: column;
+					gap: 14px;
+				}
+
+.filters-panel.is-open {
+					transform: translateX(0);
+				}
+
+.filter-drawer-close {
+					display: inline-flex;
+				}
+
+.filters-panel-header {
+					padding-bottom: 14px;
+					margin-bottom: 4px;
+				}
+
+.best-match-card {
+					padding: 1rem 1.1rem 1.5rem;
+					border-radius: var(--radius-xl);
+				}
+
+.best-match-card.is-best-match .best-match-label {
+					align-self: center;
+				}
+
+.best-match-row,
+				.best-match-body {
+					align-items: center;
+					text-align: center;
+				}
+
+.best-match-media {
+					width: clamp(11rem, 60vw, 16rem);
+					max-width: none;
+					margin-left: auto;
+					margin-right: auto;
+				}
+
+.best-match-name {
+					font-size: clamp(1rem, 4vw, 1.2rem);
+				}
+
+.best-match-price {
+					font-size: clamp(1.2rem, 4.5vw, 1.4rem);
+					text-align: center;
+				}
+
+.best-match-points {
+					display: grid;
+					grid-template-columns: 1fr 1fr;
+					gap: 0.5rem 0.75rem;
+					max-width: 480px;
+					text-align: left;
+					margin-left: auto;
+					margin-right: auto;
+				}
+
+.best-match-points li {
+					align-items: flex-start;
+				}
+
+.tv-providers-list {
+					grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+				}
+}
+
+/* Card layout switches to the stacked (mobile) design as soon as the results
+   column gets too narrow for the side-by-side desktop layout — this happens
+   well before the viewport itself is "mobile" width, because the filters
+   sidebar eats into the available space (tablets / small laptops). */
+@media (max-width: 1100px) {
+.tv-card {
+					display: grid;
+					grid-template-columns: auto 1fr;
+					grid-template-areas:
+						"badge badge"
+						"image name"
+						"points points"
+						"specs specs"
+						"providers providers";
+					column-gap: 14px;
+					row-gap: 10px;
+					padding: 16px;
+				}
+
+.tv-card-image {
+					grid-area: image;
+					width: 72px;
+					min-width: 72px;
+					height: 72px;
+					margin-right: 0;
+				}
+
+.tv-card-body {
+					display: contents;
+				}
+
+.tv-card-cheapest-badge {
+					grid-area: badge;
+				}
+
+.tv-card-name {
+					grid-area: name;
+					align-self: center;
+				}
+
+.tv-card-points {
+					grid-area: points;
+				}
+
+.tv-card-specs {
+					grid-area: specs;
+					padding-top: 10px;
+					border-top: 1px solid var(--line);
+				}
+
+.tv-card-price {
+					display: none;
+				}
+
+.tv-card-providers {
+					grid-area: providers;
+					width: auto;
+					border-left: none;
+					border-top: 1px solid var(--line);
+					padding-left: 0;
+					padding-top: 10px;
+				}
+}
+
+@media (max-width: 520px) {
+.best-match-points {
+					grid-template-columns: 1fr;
+					max-width: 300px;
+				}
+
+.sort-label {
+					display: none;
+				}
+
+.tv-card-image {
+					width: 90px;
+					min-width: 90px;
+					height: 72px;
+					margin-right: 12px;
+				}
+
+.tv-providers-list {
+					grid-template-columns: 1fr;
+				}
+}
+
+@media (max-width: 400px) {
+.title-bar {
+					padding: 10px 12px;
+				}
+
+.best-match-name {
+					font-size: 1rem;
+				}
+
+.best-match-price {
+					font-size: 1.25rem;
+				}
+
+.tv-card-name {
+					font-size: 13px;
+				}
+
+.tv-card-price {
+					font-size: 15px;
+				}
+}
+   </style>
+	</head>
+	<body>
+		<!-- ── Title Bar ── -->
+		<div class="title-bar">
+			<div class="mobile-actions" aria-label="Snelle acties">
+				<button class="icon-button filter-toggle" type="button" aria-label="Open filters" aria-expanded="false" aria-controls="filtersPanel">
+					<i data-lucide="sliders-horizontal"></i>
+				</button>
+				<div class="restart-toggle">
+					<button class="icon-button restart-trigger" type="button" aria-label="Begin opnieuw" aria-expanded="false" aria-controls="restartPopover">
+						<i data-lucide="rotate-ccw"></i>
+					</button>
+					<div id="restartPopover" class="restart-popover" role="dialog" aria-hidden="true">
+						<button class="restart-confirm" type="button">Begin opnieuw</button>
+					</div>
+				</div>
+				<!-- Info trigger — mobile only -->
+				<button class="icon-button" id="infoTriggerMobile" type="button" aria-label="Hoe werkt het?" aria-expanded="false" aria-controls="infoCard">
+					<i data-lucide="info"></i>
+				</button>
+			</div>
+
+			<!-- Desktop: restart + info buttons grouped left -->
+			<div class="title-left-wrap">
+				<a class="restart-link" href="keuzehulpen/tv/vragen">
+					<i data-lucide="arrow-left"></i>
+					<span>Opnieuw beginnen</span>
+				</a>
+				<button class="info-btn" id="infoTriggerDesktop" type="button" aria-label="Hoe werkt het?" aria-expanded="false" aria-controls="infoCard">
+					<i data-lucide="info"></i>
+				</button>
+			</div>
+
+			<div class="results-toolbar">
+				<div id="sortControl" class="sort-control">
+					<span class="sort-label">Sorteer:</span>
+					<div class="sort-select">
+						<button id="sortButton" class="sort-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+							<span id="sortButtonText">Prijs (laag-hoog)</span>
+							<i data-lucide="chevrons-up-down"></i>
+						</button>
+						<div id="sortMenu" class="sort-menu" role="listbox" aria-hidden="true">
+							<button class="sort-option is-selected" type="button" role="option" aria-selected="true" data-value="price-asc">Prijs (laag-hoog)</button>
+							<button class="sort-option" type="button" role="option" aria-selected="false" data-value="price-desc">Prijs (hoog-laag)</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- ── Main Results ── -->
+		<main class="results-section">
+			<div class="results-layout">
+				<!-- Filters Sidebar -->
+				<aside id="filtersPanel" class="filters-panel" aria-label="Filters">
+					<div class="filters-panel-header">
+						<span class="filters-panel-label">Filters</span>
+						<button id="clearFiltersBtn" class="clear-filters-btn" type="button" hidden>Wis filters</button>
+						<button class="filter-drawer-close" type="button" aria-label="Sluit filters">
+							<i data-lucide="chevron-left"></i>
+						</button>
+					</div>
+					<div class="filter-card" data-filter="size" hidden>
+						<h3 class="filter-title">TV Grootte</h3>
+						<div id="sizeFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="price">
+						<h3 class="filter-title">Prijscategorie</h3>
+						<div id="priceFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="brand">
+						<h3 class="filter-title">Merk</h3>
+						<div id="brandFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="type">
+						<h3 class="filter-title">Paneel type</h3>
+						<div id="typeFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="resolution">
+						<h3 class="filter-title">Resolutie</h3>
+						<div id="resolutionFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="hz">
+						<h3 class="filter-title">Verversingssnelheid</h3>
+						<div id="hzFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="hdmi">
+						<h3 class="filter-title">HDMI-poorten</h3>
+						<div id="hdmiFilterOptions" class="filter-options"></div>
+					</div>
+					<div class="filter-card" data-filter="aanbieder">
+						<h3 class="filter-title">Winkel</h3>
+						<div id="aanbiederFilterOptions" class="filter-options"></div>
+					</div>
+				</aside>
+
+				<!-- Results Heading -->
+				<div class="results-heading">
+					<p class="results-section-label">Jouw resultaten</p>
+					<h1 id="resultTitle" class="result-title">
+						<span id="resultTitleText">De tv die het beste bij je keuzes past!</span><span id="resultMatchCount" class="result-count-badge">0</span>
+					</h1>
+				</div>
+
+				<!-- Uitleg over de keuzes -->
+				<div class="results-explainer" id="resultsExplainer">
+					<h3 class="results-explainer-heading">Uitleg over de keuzes</h3>
+					<button class="results-explainer-btn" type="button" id="explainerToggleBtn" aria-expanded="false" aria-controls="explainerBody">
+						<i data-lucide="help-circle" aria-hidden="true"></i>
+						Uitleg over de keuzes
+						<i data-lucide="chevron-down" class="results-explainer-chevron" aria-hidden="true"></i>
+					</button>
+					<div class="results-explainer-body" id="explainerBody">
+						<p>
+							Hieronder vind je alle tv's die passen bij de keuzes die je hebt gemaakt en het beste aansluiten op jouw wensen.<span class="results-explainer-text-extra"> Staan er nog veel opties in de lijst? Gebruik de filters aan de linkerkant om verder te verfijnen op bijvoorbeeld schermgrootte, beeldtype of prijs.<br><br>We stelden vooraf bewust geen budgetvraag, zodat een prijsplafond niet de beste match voor je wegfiltert. Wil je toch alleen tv's binnen een bepaalde prijscategorie zien? Gebruik dan het filter "Prijscategorie" hiernaast.</span>
+							<button class="results-explainer-more-btn" type="button" id="explainerMoreBtn" aria-expanded="false">
+								<span>Meer</span>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+							</button>
+						</p>
+					</div>
+				</div>
+
+				<!-- Results Content -->
+				<div class="results-content">
+					<!-- Best Match Detail Card -->
+					<section id="bestMatchCard" class="best-match-card">
+						<div class="best-match-label" aria-label="Goedkoopste keuze">
+							<i data-lucide="tag"></i>
+							Goedkoopste keuze
+						</div>
+						<button class="best-match-close" type="button" aria-label="Sluit">
+							<i data-lucide="x"></i>
+						</button>
+						<div class="best-match-row">
+							<div class="best-match-media" aria-hidden="true">
+								<img id="bestMatchImage" src="keuzehulpen/tv/images/tv.png" alt="" role="presentation" />
+								<button class="tv-preview-btn" id="bestMatchPreviewBtn" type="button" aria-label="Afbeelding vergroten" data-preview-src="keuzehulpen/tv/images/tv.png" data-preview-name="">
+									<i data-lucide="eye"></i>
+								</button>
+							</div>
+							<div class="best-match-body">
+								<h2 id="bestMatchName" class="best-match-name"></h2>
+								<ul id="bestMatchPoints" class="best-match-points"></ul>
+								<div id="bestMatchSpecs" class="best-match-specs"></div>
+								<div id="bestMatchPrice" class="best-match-price"></div>
+							</div>
+						</div>
+						<div class="best-match-divider" aria-hidden="true"></div>
+						<div id="bestMatchProviders" class="best-match-footer best-match-providers"></div>
+					</section>
+
+					<!-- TV Grid -->
+					<section class="other-matches">
+						<div id="otherMatchesGrid" class="other-matches-grid"></div>
+					</section>
+				</div>
+			</div>
+		</main>
+
+		<script src="keuzehulpen/tv/js/result-ui.js" defer></script>
+		<script type="module" src="keuzehulpen/tv/js/result-filters.js"></script>
+		<script type="module" src="keuzehulpen/tv/js/main.js"></script>
+
+		<!-- ── Info card (fixed portal) ── -->
+		<div id="infoCard" class="info-card" role="dialog" aria-hidden="true" aria-label="Over deze keuzehulp">
+			<button class="info-card-close" id="infoCardClose" type="button" aria-label="Sluit">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+			</button>
+			<div class="info-card-body">
+				<p class="info-card-title">Over deze keuzehulp</p>
+				<p class="info-card-text">Deze tv is gebaseerd op je kijkafstand, budget en gebruik. Op basis daarvan berekenen we welk schermtype — LED, QLED, Mini LED of OLED — het beste bij je past, en filteren we verder op beeldkwaliteit, beeldverversing en resolutie. We nemen alleen tv's mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
+			</div>
+		</div>
+
+		<script>
+			// ── Info card toggle ──────────────────────────────────────────────────
+			(function () {
+				var card             = document.getElementById('infoCard');
+				var triggerDesktop   = document.getElementById('infoTriggerDesktop');
+				var triggerMobile    = document.getElementById('infoTriggerMobile');
+				var closeBtn         = document.getElementById('infoCardClose');
+
+				if (!card) return;
+
+				function positionCard(trigger) {
+					var rect = trigger.getBoundingClientRect();
+					var vw   = window.innerWidth;
+					var cardW = Math.min(310, vw - 24);
+
+					// Prefer aligning card's left edge with button left
+					var left = rect.left;
+					// If it would overflow viewport right, shift left
+					if (left + cardW > vw - 12) left = vw - cardW - 12;
+					if (left < 12) left = 12;
+
+					card.style.top    = (rect.bottom + 10) + 'px';
+					card.style.left   = left + 'px';
+					card.style.width  = cardW + 'px';
+					card.style.right  = 'auto';
+				}
+
+				function openCard(trigger) {
+					positionCard(trigger);
+					card.classList.add('is-open');
+					card.setAttribute('aria-hidden', 'false');
+					if (triggerDesktop) { triggerDesktop.setAttribute('aria-expanded', 'true');  triggerDesktop.classList.add('is-active'); }
+					if (triggerMobile)  { triggerMobile.setAttribute('aria-expanded', 'true');   triggerMobile.classList.add('is-active'); }
+				}
+
+				function closeCard() {
+					card.classList.remove('is-open');
+					card.setAttribute('aria-hidden', 'true');
+					if (triggerDesktop) { triggerDesktop.setAttribute('aria-expanded', 'false'); triggerDesktop.classList.remove('is-active'); }
+					if (triggerMobile)  { triggerMobile.setAttribute('aria-expanded', 'false');  triggerMobile.classList.remove('is-active'); }
+				}
+
+				function toggleCard(trigger) {
+					card.classList.contains('is-open') ? closeCard() : openCard(trigger);
+				}
+
+				if (triggerDesktop) triggerDesktop.addEventListener('click', function (e) { e.stopPropagation(); toggleCard(triggerDesktop); });
+				if (triggerMobile)  triggerMobile.addEventListener('click',  function (e) { e.stopPropagation(); toggleCard(triggerMobile); });
+				if (closeBtn)       closeBtn.addEventListener('click', closeCard);
+
+				// Close when clicking outside the card
+				document.addEventListener('click', function (e) {
+					if (!card.classList.contains('is-open')) return;
+					if (card.contains(e.target)) return;
+					var clickedTrigger =
+						(triggerDesktop && (e.target === triggerDesktop || triggerDesktop.contains(e.target))) ||
+						(triggerMobile  && (e.target === triggerMobile  || triggerMobile.contains(e.target)));
+					if (clickedTrigger) return;
+					closeCard();
+				});
+
+				// Close on Escape
+				document.addEventListener('keydown', function (e) {
+					if (e.key === 'Escape' && card.classList.contains('is-open')) closeCard();
+				});
+
+				// Reposition if window resizes while open
+				window.addEventListener('resize', function () {
+					if (!card.classList.contains('is-open')) return;
+					var activeTrigger = triggerDesktop && triggerDesktop.offsetParent ? triggerDesktop : triggerMobile;
+					if (activeTrigger) positionCard(activeTrigger);
+				});
+			})();
+		</script>
+
+		<!-- ── Image Preview Overlay (lightbox met carousel) ── -->
+		<div id="imagePreviewOverlay" role="dialog" aria-modal="true" aria-label="TV afbeelding vergroten" aria-hidden="true">
+			<div class="image-preview-dialog">
+				<button class="image-preview-close" id="imagePreviewClose" type="button" aria-label="Sluit afbeelding">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+				<div class="image-preview-media">
+					<button class="image-preview-nav" id="imagePreviewPrev" type="button" aria-label="Vorige afbeelding">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+					</button>
+					<img class="image-preview-img" id="imagePreviewImg" src="" alt="">
+					<button class="image-preview-nav" id="imagePreviewNext" type="button" aria-label="Volgende afbeelding">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+					</button>
+				</div>
+				<p class="image-preview-name" id="imagePreviewName"></p>
+				<div class="image-preview-thumbs" id="imagePreviewThumbs"></div>
+			</div>
+		</div>
+
+		<script>
+		(function () {
+			var overlay  = document.getElementById('imagePreviewOverlay');
+			var closeBtn = document.getElementById('imagePreviewClose');
+			var prevBtn  = document.getElementById('imagePreviewPrev');
+			var nextBtn  = document.getElementById('imagePreviewNext');
+			var previewImg  = document.getElementById('imagePreviewImg');
+			var previewName = document.getElementById('imagePreviewName');
+			var thumbsEl    = document.getElementById('imagePreviewThumbs');
+			var dialog      = document.querySelector('.image-preview-dialog');
+
+			if (!overlay) return;
+
+			var allImages    = [];
+			var currentIndex = 0;
+
+			function showImage(idx) {
+				currentIndex = idx;
+				previewImg.onerror = function () { this.onerror = null; this.src = window.IMG_FALLBACK; };
+				previewImg.src = allImages[idx];
+				thumbsEl.querySelectorAll('.image-preview-thumb').forEach(function (t, i) {
+					t.classList.toggle('is-active', i === idx);
+				});
+			}
+
+			function openPreview(src, name, extraImgs) {
+				allImages    = [src].concat(Array.isArray(extraImgs) ? extraImgs.filter(function(s){ return s !== src; }) : []);
+				currentIndex = 0;
+				var hasGallery = allImages.length > 1;
+				dialog.classList.toggle('image-preview-has-gallery', hasGallery);
+				previewImg.onerror = function () { this.onerror = null; this.src = window.IMG_FALLBACK; };
+				previewImg.src = src;
+				previewImg.alt = name || '';
+				previewName.textContent = name || '';
+				thumbsEl.innerHTML = hasGallery
+					? allImages.map(function (s, i) {
+							return '<img class="image-preview-thumb' + (i === 0 ? ' is-active' : '') + '" src="' + s + '" alt="" data-idx="' + i + '" loading="lazy" onerror="this.style.display=\'none\';">';
+						}).join('')
+					: '';
+				overlay.classList.add('is-open');
+				overlay.setAttribute('aria-hidden', 'false');
+				document.body.style.overflow = 'hidden';
+			}
+
+			function closePreview() {
+				overlay.classList.remove('is-open');
+				overlay.setAttribute('aria-hidden', 'true');
+				document.body.style.overflow = '';
+				dialog.classList.remove('image-preview-has-gallery');
+				setTimeout(function () {
+					previewImg.src = ''; previewImg.alt = '';
+					thumbsEl.innerHTML = '';
+					allImages = []; currentIndex = 0;
+				}, 280);
+			}
+
+			// Expose for legacy calls from result.js
+			window.openTvImagePreview = openPreview;
+
+			if (prevBtn) prevBtn.addEventListener('click', function () {
+				if (allImages.length > 1) showImage((currentIndex - 1 + allImages.length) % allImages.length);
+			});
+			if (nextBtn) nextBtn.addEventListener('click', function () {
+				if (allImages.length > 1) showImage((currentIndex + 1) % allImages.length);
+			});
+			thumbsEl.addEventListener('click', function (e) {
+				var t = e.target.closest('.image-preview-thumb');
+				if (t) showImage(parseInt(t.dataset.idx, 10));
+			});
+
+			if (closeBtn) closeBtn.addEventListener('click', closePreview);
+			overlay.addEventListener('click', function (e) { if (e.target === overlay) closePreview(); });
+			document.addEventListener('keydown', function (e) {
+				if (!overlay.classList.contains('is-open')) return;
+				if (e.key === 'Escape') { closePreview(); return; }
+				if (allImages.length > 1) {
+					if (e.key === 'ArrowLeft')  showImage((currentIndex - 1 + allImages.length) % allImages.length);
+					if (e.key === 'ArrowRight') showImage((currentIndex + 1) % allImages.length);
+				}
+			});
+
+			// Event delegation voor alle .tv-preview-btn knoppen (werkt met dynamisch gerenderde kaarten)
+			document.addEventListener('click', function (e) {
+				var btn = e.target.closest('.tv-preview-btn');
+				if (!btn) return;
+				e.stopPropagation();
+				var src  = btn.dataset.previewSrc  || '';
+				var name = btn.dataset.previewName || '';
+				var imgs = [];
+				try { imgs = JSON.parse(btn.dataset.previewImgs || '[]'); } catch (_) {}
+				if (src) openPreview(src, name, imgs);
+			});
+		})();
+		</script>
+
+		<!-- Scroll-to-top button -->
+		<button id="scroll-top-btn" aria-label="Terug naar boven" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="
+		  position: fixed;
+		  bottom: 28px;
+		  right: 28px;
+		  z-index: 9999;
+		  width: 44px;
+		  height: 44px;
+		  border-radius: 12px;
+		  background: #0954a3;
+		  border: none;
+		  cursor: pointer;
+		  display: grid;
+		  place-items: center;
+		  box-shadow: 0 4px 16px rgba(9,84,163,.35);
+		  opacity: 0;
+		  transform: translateY(10px);
+		  transition: opacity .25s ease, transform .25s ease;
+		  pointer-events: none;
+		">
+		  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+		</button>
+		<script>
+		(function(){
+		  var btn = document.getElementById('scroll-top-btn');
+		  window.addEventListener('scroll', function(){
+		    if (window.scrollY > 300) {
+		      btn.style.opacity = '1';
+		      btn.style.transform = 'translateY(0)';
+		      btn.style.pointerEvents = 'auto';
+		    } else {
+		      btn.style.opacity = '0';
+		      btn.style.transform = 'translateY(10px)';
+		      btn.style.pointerEvents = 'none';
+		    }
+		  }, {passive: true});
+		})();
+		</script>
+
+		<!-- Uitleg over de keuzes toggle -->
+		<script>
+		(function () {
+			var explainer = document.getElementById('resultsExplainer');
+			var toggleBtn = document.getElementById('explainerToggleBtn');
+			var body = document.getElementById('explainerBody');
+			var moreBtn = document.getElementById('explainerMoreBtn');
+			if (toggleBtn && body) {
+				toggleBtn.addEventListener('click', function () {
+					var open = body.classList.toggle('is-open');
+					toggleBtn.classList.toggle('is-open', open);
+					toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+				});
+			}
+			if (moreBtn && explainer) {
+				moreBtn.addEventListener('click', function () {
+					var expanded = explainer.classList.toggle('is-expanded');
+					moreBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+					moreBtn.querySelector('span').textContent = expanded ? 'Minder' : 'Meer';
+				});
+			}
+		})();
+		</script>
+	</body>
+</html>

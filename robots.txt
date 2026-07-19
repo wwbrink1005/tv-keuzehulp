@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /keuzehulpen/*/resultaat/
+Allow: /
+
+Sitemap: https://producthulp.nl/sitemap.xml

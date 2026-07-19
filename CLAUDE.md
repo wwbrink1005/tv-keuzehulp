@@ -1,4 +1,4 @@
-# producthulp.nl / tv-keuzehulp
+# producthulp.nl / tv
 
 Statische productvergelijkingswebsite met keuzehulpen (quiz-achtige productkeuze-tools):
 tv, laptop, monitor, desktop. Geen build-tool — kale HTML/CSS/JS, ES modules, gehost via
@@ -18,12 +18,12 @@ Supabase-migratie uitvoeren) versus wat zelfstandig te doen is.
   vragen-/resultaatpagina's; pagina-specifieke overrides staan in een inline
   `<style>`-blok dat NA de shared link geladen wordt.
 - `shared/zoekbalk.js` — homepage-zoekbalk, matcht op keywords + titel per keuzehulp.
-- Alle keuzehulpen staan onder `keuzehulpen/{categorie}-keuzehulp/` (bijv.
-  `keuzehulpen/tv-keuzehulp/`) — let op de extra nestingsdiepte in `<base href="../../../">`
+- Alle keuzehulpen staan onder `keuzehulpen/{categorie}/` (bijv.
+  `keuzehulpen/tv/`) — let op de extra nestingsdiepte in `<base href="../../../">`
   op de vragen-/resultaatpagina's (3x omhoog i.p.v. 2x).
 - De vaste pagina's (contact, disclaimer, hoe-werkt-het, over-ons, privacy) staan onder
   `overige-paginas/` met `<base href="../../">` (2x omhoog i.p.v. 1x).
-- Per keuzehulp (`keuzehulpen/{categorie}-keuzehulp/`): `js/data.js` (scoring/tiers), `js/supabase.js`
+- Per keuzehulp (`keuzehulpen/{categorie}/`): `js/data.js` (scoring/tiers), `js/supabase.js`
   (fetch + adaptRow), `js/utils.js` (normalizeProducts/prijsbuckets), `js/matching.js`
   (scoring + tier-cascade met verplichte eindfallback), `js/quiz.js`, `js/result.js`,
   `js/result-filters.js` (secundaire filters op de resultaatpagina).
