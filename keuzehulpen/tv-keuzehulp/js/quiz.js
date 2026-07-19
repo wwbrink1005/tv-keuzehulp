@@ -1,13 +1,11 @@
-import { distanceToSizeGroup, priceGroupsBySize, sizeGroupToAllowedSizes, tvDimensions } from "./data.js";
+import { distanceToSizeGroup, tvDimensions } from "./data.js";
 import { calculateScores, matchTVs } from "./matching.js";
-import { computeDynamicPriceGroups, getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
+import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 
 const quizState = {
   selectedDistance: null,
-  selectedSizeGroup: null,
-  selectedPriceGroup: null,
-  priceGroups: []
+  selectedSizeGroup: null
 };
 
 let productsFetchPromise = null;
@@ -103,7 +101,7 @@ function positionElements(questionNum) {
 }
 
 function resetQuestionsFrom(questionNumber) {
-  for (let i = questionNumber; i <= 8; i++) {
+  for (let i = questionNumber; i <= 7; i++) {
     const inputs = qsa(`#question-${i} input`);
     inputs.forEach(input => {
       input.checked = false;
@@ -117,8 +115,8 @@ function updateProgressBar(questionNum) {
 
   if (questionNum === "result") {
     progressBar.style.width = "100%";
-  } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 8) {
-    progressBar.style.width = `${(questionNum / 8) * 100}%`;
+  } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 7) {
+    progressBar.style.width = `${(questionNum / 7) * 100}%`;
   }
 }
 
@@ -188,7 +186,7 @@ function updateTVDisplay() {
 }
 
 function showQuestion(num) {
-  for (let i = 1; i <= 8; i++) {
+  for (let i = 1; i <= 7; i++) {
     const q = qs(`#question-${i}`);
     if (q) {
       q.classList.remove("is-active");
@@ -202,7 +200,7 @@ function showQuestion(num) {
   const tvDisplay = qs("#tv-display");
   if (num === 1 && tvDisplay) {
     tvDisplay.style.display = "none";
-  } else if (num >= 2 && num <= 8 && quizState.selectedSizeGroup) {
+  } else if (num >= 2 && num <= 7 && quizState.selectedSizeGroup) {
     updateTVDisplay();
   }
 
@@ -282,32 +280,6 @@ function renderSizeOptions(advisedSize) {
   ensureMobileToggle(qs("#question-2"));
 }
 
-function renderPriceOptions(groups) {
-  const container = qs("#price-options");
-  if (!container) return;
-  container.innerHTML = "";
-
-  groups.forEach(group => {
-    const label = document.createElement("label");
-    label.className = "answer-option";
-    label.innerHTML = `
-      <input type="radio" name="priceGroup" value="${group.label}">
-      <span>€ ${group.label}</span>
-    `;
-    container.appendChild(label);
-  });
-
-  const noPriceLabel = document.createElement("label");
-  noPriceLabel.className = "answer-option";
-  noPriceLabel.innerHTML = `
-    <input type="radio" name="priceGroup" value="geen-voorkeur">
-    <span>Geen voorkeur – toon alle prijzen</span>
-  `;
-  container.appendChild(noPriceLabel);
-
-  ensureMobileToggle(qs("#question-3"));
-}
-
 function setupUsageLimit() {
   qsa('input[name="usage"]').forEach(checkbox => {
     checkbox.addEventListener("change", function() {
@@ -368,7 +340,11 @@ function handleStartMatching() {
   prefetchProducts()
     .then(rawProducts => {
       const tvs = normalizeProducts(rawProducts ?? []);
-      const result = matchTVs(tvs, quizState.selectedSizeGroup, quizState.selectedPriceGroup, answers, scores);
+      // No price filter here anymore: the quiz no longer asks for a budget.
+      // matchTVs is called without a priceGroup so it returns the full set of
+      // TVs matching size/type/resolution/Hz; price is only ever applied as
+      // an optional narrowing filter on the results page.
+      const result = matchTVs(tvs, quizState.selectedSizeGroup, null, answers, scores);
 
       localStorage.setItem("bestMatch", JSON.stringify(result.bestMatch));
       localStorage.setItem("bestType", result.bestType ?? "");
@@ -376,8 +352,6 @@ function handleStartMatching() {
       localStorage.setItem("filteredMatchedTVs", JSON.stringify(result.filteredMatchedTVs));
       localStorage.setItem("answers", JSON.stringify(answers));
       localStorage.setItem("selectedSizeGroup", quizState.selectedSizeGroup ?? "");
-      localStorage.setItem("selectedPriceGroupLabel", quizState.selectedPriceGroup?.label ?? "");
-      localStorage.setItem("dynamicPriceGroups", JSON.stringify(quizState.priceGroups));
 
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
@@ -391,7 +365,7 @@ export function initQuizPage() {
   if (!qs("#question-1")) return;
 
   // Pre-fetch products in the background so data is ready by the time
-  // the user reaches the price question (question 3).
+  // the user reaches the results page.
   prefetchProducts();
 
   qs("#to-question-2")?.addEventListener("click", () => {
@@ -418,9 +392,8 @@ export function initQuizPage() {
   qs("#back-to-question-1")?.addEventListener("click", () => {
     quizState.selectedDistance = null;
     quizState.selectedSizeGroup = null;
-    quizState.selectedPriceGroup = null;
 
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 1; i <= 7; i++) {
       const inputs = qsa(`#question-${i} input`);
       inputs.forEach(input => {
         input.checked = false;
@@ -438,42 +411,16 @@ export function initQuizPage() {
     showQuestion(1);
   });
 
-  qs("#to-question-3")?.addEventListener("click", async () => {
+  qs("#to-question-3")?.addEventListener("click", () => {
     const checked = qs('input[name="sizeGroup"]:checked');
     if (!checked) return alert("Kies een grootte");
 
     quizState.selectedSizeGroup = checked.value;
-
-    const btn = qs("#to-question-3");
-    if (btn) btn.disabled = true;
-    try {
-      const rawProducts = await prefetchProducts();
-      const tvs = normalizeProducts(rawProducts ?? []);
-      const dynamic = computeDynamicPriceGroups(tvs, quizState.selectedSizeGroup, sizeGroupToAllowedSizes);
-      quizState.priceGroups = dynamic.length > 0 ? dynamic : (priceGroupsBySize[quizState.selectedSizeGroup] ?? []);
-    } catch {
-      quizState.priceGroups = priceGroupsBySize[quizState.selectedSizeGroup] ?? [];
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-
-    renderPriceOptions(quizState.priceGroups);
     showQuestion(3);
   });
 
   qs("#back-to-question-2")?.addEventListener("click", () => {
     showQuestion(2);
-  });
-
-  qs("#to-question-4")?.addEventListener("click", () => {
-    const checked = qs('input[name="priceGroup"]:checked');
-    if (!checked) return alert("Kies een budget");
-
-    quizState.selectedPriceGroup = checked.value === "geen-voorkeur"
-      ? null
-      : quizState.priceGroups.find(p => p.label === checked.value);
-
-    showQuestion(4);
   });
 
   setupUsageLimit();
@@ -483,10 +430,10 @@ export function initQuizPage() {
     showQuestion(3);
   });
 
-  qs("#to-question-5")?.addEventListener("click", () => {
+  qs("#to-question-4")?.addEventListener("click", () => {
     const checked = qsa('input[name="usage"]:checked');
     if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
-    showQuestion(5);
+    showQuestion(4);
   });
 
   qs("#back-to-question-4")?.addEventListener("click", () => {
@@ -494,10 +441,10 @@ export function initQuizPage() {
     showQuestion(4);
   });
 
-  qs("#to-question-6")?.addEventListener("click", () => {
+  qs("#to-question-5")?.addEventListener("click", () => {
     const checked = qs('input[name="quality"]:checked');
     if (!checked) return alert("Kies een antwoord");
-    showQuestion(6);
+    showQuestion(5);
   });
 
   qs("#back-to-question-5")?.addEventListener("click", () => {
@@ -505,10 +452,10 @@ export function initQuizPage() {
     showQuestion(5);
   });
 
-  qs("#to-question-7")?.addEventListener("click", () => {
+  qs("#to-question-6")?.addEventListener("click", () => {
     const checked = qs('input[name="timing"]:checked');
     if (!checked) return alert("Kies een antwoord");
-    showQuestion(7);
+    showQuestion(6);
   });
 
   qs("#back-to-question-6")?.addEventListener("click", () => {
@@ -516,18 +463,13 @@ export function initQuizPage() {
     showQuestion(6);
   });
 
-  qs("#to-question-8")?.addEventListener("click", () => {
+  qs("#to-question-7")?.addEventListener("click", () => {
     const checked = qs('input[name="viewing"]:checked');
     if (!checked) return alert("Kies een antwoord");
-    showQuestion(8);
+    showQuestion(7);
   });
 
   setupExtraLimit();
-
-  qs("#back-to-question-7")?.addEventListener("click", () => {
-    resetQuestionsFrom(8);
-    showQuestion(7);
-  });
 
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 

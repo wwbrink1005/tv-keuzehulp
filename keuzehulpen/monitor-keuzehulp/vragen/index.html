@@ -144,7 +144,7 @@ button.question-hint-btn-mobile {
 
 button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-active { background: rgba(235,244,255,.97); color: var(--c-accent); }
 
-#question-1, #question-2, #question-3, #question-4, #question-5 {
+#question-1, #question-2, #question-3, #question-4 {
       position: relative;
       opacity: 0;
       transform: translateY(6px);
@@ -153,7 +153,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
     }
 
 #question-1.is-active, #question-2.is-active, #question-3.is-active,
-    #question-4.is-active, #question-5.is-active {
+    #question-4.is-active {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
@@ -175,6 +175,18 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
       gap: calc(10px * var(--scale));
       transition: border-color .22s ease, box-shadow .22s ease, transform .18s ease, background .22s ease;
       box-shadow: 0 2px 10px rgba(0,0,0,.09), inset 0 1px 0 rgba(255,255,255,.85);
+    }
+
+.answer-option .price-indicator {
+      margin-left: auto;
+      padding-left: calc(8px * var(--scale));
+      font-size: calc(11.5px * var(--scale));
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--c-text-3);
+      opacity: .55;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
 .answer-option input[type="radio"],
@@ -202,22 +214,22 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 
 #question-1 input[type="checkbox"],
     #question-2 input[type="radio"],
-    #question-4 input[type="radio"],
-    #question-5 input[type="checkbox"] {
+    #question-3 input[type="radio"],
+    #question-4 input[type="checkbox"] {
       margin-right: calc(30px * var(--scale));
     }
 
 #question-1 .answer-info-icon,
     #question-2 .answer-info-icon,
-    #question-4 .answer-info-icon,
-    #question-5 .answer-info-icon {
+    #question-3 .answer-info-icon,
+    #question-4 .answer-info-icon {
       margin-left: calc(-20px * var(--scale));
       margin-right: calc(10px * var(--scale));
     }
 
 .button-container button:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
+#back-to-question-1, #back-to-question-2, #back-to-question-3 {
       background: rgba(255,255,255,.90);
       backdrop-filter: blur(12px) saturate(180%);
       -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -227,7 +239,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
       filter: none;
     }
 
-#back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover, #back-to-question-4:hover {
+#back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover {
       background: rgba(232,242,255,.97);
       border-color: rgba(9,84,163,.50);
       box-shadow: 0 4px 14px rgba(9,84,163,.14);
@@ -238,8 +250,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 #question-1 .button-container,
     #question-2 .button-container,
     #question-3 .button-container,
-    #question-4 .button-container,
-    #question-5 .button-container {
+    #question-4 .button-container {
       left: calc(26.2291px * var(--scale));
       width: calc(366.968px * var(--scale));
     }
@@ -302,10 +313,10 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 
 #question-1 .answer-info-icon,
       #question-2 .answer-info-icon,
-      #question-4 .answer-info-icon,
-      #question-5 .answer-info-icon { margin-left: 0; margin-right: 8px; }
+      #question-3 .answer-info-icon,
+      #question-4 .answer-info-icon { margin-left: 0; margin-right: 8px; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
+#back-to-question-1, #back-to-question-2, #back-to-question-3 {
         border-width: 1.5px;
         background: #fff;
         box-shadow: 0 1px 4px rgba(0,0,0,.06);
@@ -315,8 +326,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 #question-1 .button-container,
       #question-2 .button-container,
       #question-3 .button-container,
-      #question-4 .button-container,
-      #question-5 .button-container {
+      #question-4 .button-container {
         left: auto;
         width: 100%;
         max-width: 100%;
@@ -408,6 +418,7 @@ button.question-hint-btn-mobile { display: grid; }
     <div class="quiz-panel-content" id="uitleg-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
         <p>Deze monitor-keuzehulp kijkt naar je gebruik — thuiswerk, gaming, creatief werk of algemeen —, de gewenste schermgrootte en verversingssnelheid. Op basis daarvan bepalen we welk type monitor (Budget, Mid, Gaming of Premium) het beste bij je past, en filteren we verder op resolutie, paneeltype en extra's zoals HDR of een gebogen scherm. We nemen alleen monitoren mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
+        <p>De €-tekens naast sommige antwoorden geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) monitor leidt — puur ter indicatie, dit filtert niets weg. We vragen geen budget vooraf, zodat de monitoren die het best bij je passen niet per ongeluk buiten beeld vallen door een te streng gekozen prijsplafond. Na de quiz kun je op de resultatenpagina zelf nog filteren op prijscategorie.</p>
       </div>
     </div>
   </header>
@@ -473,21 +484,25 @@ button.question-hint-btn-mobile { display: grid; }
                 <input type="checkbox" name="gebruik" value="thuiswerk">
                 <svg class="answer-info-icon" data-icon="briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Thuiswerken of kantoorwerk</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="gaming">
                 <svg class="answer-info-icon" data-icon="gamepad-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Gamen</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="creatief">
                 <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Creatief werk, zoals foto- of videobewerking</span>
+                <span class="price-indicator">€€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="algemeen">
                 <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Algemeen gebruik, een beetje van alles</span>
+                <span class="price-indicator">€</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 15px) + 22px) * var(--scale));">
@@ -510,21 +525,25 @@ button.question-hint-btn-mobile { display: grid; }
                 <input type="radio" name="schermgrootte" value="compact">
                 <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Compact, 24 inch</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="schermgrootte" value="standaard">
                 <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Standaard, 27 inch</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="schermgrootte" value="groot">
                 <svg class="answer-info-icon" data-icon="tv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Groot, 32 inch</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="schermgrootte" value="ultrawide">
                 <svg class="answer-info-icon" data-icon="layout-panel-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Ultrawide, 34 inch of breder</span>
+                <span class="price-indicator">€€€</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 15px) + 22px) * var(--scale));">
@@ -533,27 +552,11 @@ button.question-hint-btn-mobile { display: grid; }
             </div>
           </div>
 
-          <!-- VRAAG 3: Budget (dynamisch) -->
+          <!-- VRAAG 3: Verversingssnelheid -->
           <div id="question-3" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Hoeveel wil je uitgeven aan de monitor?</h2>
-              <div class="question-popover" data-popover="3">
-                <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Je budget bepaalt in welke klasse we zoeken. Budgetmonitoren bieden prima beeldkwaliteit voor dagelijks gebruik. Duurdere modellen hebben betere panelen (IPS, OLED), hogere resolutie (QHD, 4K) of hogere verversingssnelheden voor gaming. In elke prijsklasse zijn goede opties te vinden.</p>
-              </div>
-            </div>
-            <div class="answers-container" id="price-options" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));"></div>
-            <div class="button-container" id="q3-buttons">
-              <button id="back-to-question-2">Terug</button>
-              <button id="to-question-4">Volgende</button>
-            </div>
-          </div>
-
-          <!-- VRAAG 4: Verversingssnelheid -->
-          <div id="question-4" class="question-block" style="display:none;">
-            <div class="question-container">
               <h2>Hoe snel moet het beeld vernieuwen?</h2>
-              <div class="question-popover" data-popover="4">
+              <div class="question-popover" data-popover="3">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
                 <p class="question-popover-text">De verversingssnelheid (Hz) bepaalt hoe vloeiend bewegend beeld eruitziet. Voor kantoorwerk en films is 60Hz prima. Gamers profiteren van 144Hz voor soepelere bewegingen en minder invoervertraging. Competitief gamers kiezen voor 240Hz of meer voor het scherpste reactievermogen.</p>
               </div>
@@ -563,31 +566,34 @@ button.question-hint-btn-mobile { display: grid; }
                 <input type="radio" name="hz" value="normaal">
                 <svg class="answer-info-icon" data-icon="coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Normaal, 60 tot 75Hz</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="hz" value="snel">
                 <svg class="answer-info-icon" data-icon="zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Snel, 144Hz</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="hz" value="ultra">
                 <svg class="answer-info-icon" data-icon="trending-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Ultra snel, 240Hz of hoger</span>
+                <span class="price-indicator">€€€</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 15px) + 22px) * var(--scale));">
-              <button id="back-to-question-3">Terug</button>
-              <button id="to-question-5">Volgende</button>
+              <button id="back-to-question-2">Terug</button>
+              <button id="to-question-4">Volgende</button>
             </div>
           </div>
 
-          <!-- VRAAG 5: Extra's (multi-select) -->
-          <div id="question-5" class="question-block" style="display:none;">
+          <!-- VRAAG 4: Extra's (multi-select) -->
+          <div id="question-4" class="question-block" style="display:none;">
             <div class="question-container">
               <div class="question-heading-wrap">
                 <h2>Wat is nog meer belangrijk voor jou?</h2>
               </div>
-              <div class="question-popover" data-popover="5">
+              <div class="question-popover" data-popover="4">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
                 <p class="question-popover-text">Hier geef je extra wensen aan. USB-C is handig voor laptops aansluiten én opladen met één kabel. Een gebogen scherm zorgt voor een meeslependere ervaring. Ingebouwde speakers betekenen geen extra apparatuur nodig. 4K resolutie geeft superscherpe tekst en beelden. HDR-ondersteuning verbetert de kleurweergave bij foto's en video. Je kunt meerdere opties aanvinken.</p>
               </div>
@@ -597,30 +603,35 @@ button.question-hint-btn-mobile { display: grid; }
                 <input type="checkbox" name="extra" value="usb-c">
                 <svg class="answer-info-icon" data-icon="plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>USB-C aansluiting</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="gebogen">
                 <svg class="answer-info-icon" data-icon="circle-dot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Gebogen scherm</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="speakers">
                 <svg class="answer-info-icon" data-icon="volume-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Ingebouwde speakers</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="4k">
                 <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>4K resolutie</span>
+                <span class="price-indicator">€€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="geen">
                 <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Geen extra wensen</span>
+                <span class="price-indicator">€</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 51.3935px) + (4 * 15px) + 22px) * var(--scale));">
-              <button id="back-to-question-4">Terug</button>
+              <button id="back-to-question-3">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>
           </div>

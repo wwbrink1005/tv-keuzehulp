@@ -1,4 +1,4 @@
-import { availableTypesBySize, ledSizeBonuses, priceGroupsBySize, scoringSystem, sizeGroupToAllowedSizes } from "./data.js";
+import { availableTypesBySize, ledSizeBonuses, scoringSystem, sizeGroupToAllowedSizes } from "./data.js";
 import {
   getResolutionCategory,
   getResolutionTier,
@@ -291,24 +291,6 @@ export function isPerfectMatch(tv, scores, answers, sizeGroup = "") {
   }
 
   return typeMatch && resolutionMatch && hzMatch;
-}
-
-export function findBetterPerfectMatchContext(tvs, selection, answers, scores) {
-  if (!selection?.sizeGroup || !selection?.priceLabel || !answers || !scores) return null;
-
-  const priceGroups = priceGroupsBySize[selection.sizeGroup] || [];
-  const currentIndex = priceGroups.findIndex(group => group.label === selection.priceLabel);
-  if (currentIndex < 0) return null;
-
-  for (let i = currentIndex + 1; i < priceGroups.length; i++) {
-    const priceGroup = priceGroups[i];
-    const matchResult = computeMatchForPriceGroup(tvs, selection.sizeGroup, priceGroup, answers, scores);
-    if (matchResult.bestMatch && isPerfectMatch(matchResult.bestMatch, scores, answers, selection.sizeGroup)) {
-      return { priceGroup, matchResult };
-    }
-  }
-
-  return null;
 }
 
 export function buildResultPoints(tv, answers, sizeGroup = "") {

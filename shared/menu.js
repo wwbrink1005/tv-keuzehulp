@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <li><a href="keuzehulpen/monitor-keuzehulp/vragen">Monitoren <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><span>Smartphones <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Tablets <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><a href="keuzehulpen/printer-keuzehulp/vragen">Printers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                 </ul>
               </div>
               <div class="menu-dropdown-col">
@@ -162,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <li><a href="keuzehulpen/monitor-keuzehulp/vragen">Monitor <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><span>Smartphone</span></li>
               <li><span>Tablets</span></li>
+              <li><a href="keuzehulpen/printer-keuzehulp/vragen">Printers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
             </ul>
           </div>
           <div class="mobile-cat-group">

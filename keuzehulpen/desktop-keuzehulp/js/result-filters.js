@@ -1,11 +1,11 @@
 import { priceGroupsByType } from "./data.js";
-import { computeMatchForPriceGroup, getIdealTierSet } from "./matching.js";
-import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, qs } from "./utils.js";
+import { computeMatchForPriceGroup } from "./matching.js";
+import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 
 const filterState = {
-  priceLabel:    "",
+  priceLabels:   new Set(),
   behuizingTypes: new Set(),
   brands:        new Set(),
   gpuTiers:      new Set(),
@@ -14,7 +14,7 @@ const filterState = {
   osOptions:     new Set(),
   processorFabrikanten: new Set(),
   aanbieder:     new Set(),
-  priceMatches:  new Map(),
+  baseMatches:   [],
   answers:       null,
   scores:        null,
   bestType:      "",
@@ -33,15 +33,27 @@ function getDynamicPriceGroups(behuizingType) {
   return priceGroupsByType[behuizingType] || priceGroupsByType["maakt-niet-uit"];
 }
 
+// Price is just another optional narrowing filter, not a hard upfront wall:
+// with no bucket selected, every desktop matching the quiz answers is shown.
+function getBaseMatches() {
+  return filterState.baseMatches;
+}
+
+function getPriceScopedMatches() {
+  const base = getBaseMatches();
+  if (filterState.priceLabels.size === 0) return base;
+  const groups = getDynamicPriceGroups(filterState.behuizingType).filter(g => filterState.priceLabels.has(g.label));
+  return base.filter(d => {
+    const price = parsePrice(d.prijs);
+    return groups.some(g => price >= g.min && price <= g.max);
+  });
+}
+
 function formatBrandLabel(brand) {
   const raw = String(brand ?? "").trim();
   if (!raw) return "";
   if (raw === raw.toUpperCase()) return raw;
   return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
-}
-
-function getActivePriceMatches() {
-  return filterState.priceMatches.get(filterState.priceLabel) || [];
 }
 
 function collectBehuizingOptions(matches) {
@@ -71,8 +83,7 @@ function collectRamOptions(matches) {
 function collectOpslagOptions(matches) {
   const set = new Set();
   matches.forEach(d => { if (d.opslag) set.add(d.opslag); });
-  const sorted = Array.from(set).sort((a, b) => a - b);
-  return sorted;
+  return Array.from(set).sort((a, b) => a - b);
 }
 
 function collectOsOptions(matches) {
@@ -144,23 +155,43 @@ function renderFilterOptions(container, card, items, filterName, labelFn) {
 function renderPriceOptions(container, card, behuizingType) {
   const groups = getDynamicPriceGroups(behuizingType);
   container.innerHTML = "";
+
   // Only show price buckets that actually contain a matching desktop for the
   // current quiz answers — otherwise users click a bucket that can never
-  // show a result.
-  const relevant = groups.filter(g => filterState.priceMatches.has(g.label));
-  if (relevant.length === 0) { card.hidden = true; return; }
+  // show a result. If there's only one (or zero) non-empty bucket there's
+  // nothing meaningful to narrow, so hide the whole filter card.
+  const base = getBaseMatches();
+  const relevant = groups.filter(g => base.some(d => {
+    const price = parsePrice(d.prijs);
+    return price >= g.min && price <= g.max;
+  }));
+
+  if (relevant.length <= 1) { card.hidden = true; return; }
   card.hidden = false;
+
+  const isAllSelected = filterState.priceLabels.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = "priceFilter";
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle prijzen";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
 
   relevant.forEach(group => {
     const label = document.createElement("label");
     label.className = "filter-option";
     const input = document.createElement("input");
-    input.type = "radio";
+    input.type = "checkbox";
     input.name = "priceFilter";
     input.value = group.label;
-    input.checked = group.label === filterState.priceLabel;
+    input.checked = filterState.priceLabels.has(group.label);
     const text = document.createElement("span");
-    text.textContent = `\u20ac ${group.label}`;
+    text.textContent = `€ ${group.label}`;
     label.append(input, text);
     container.appendChild(label);
   });
@@ -250,55 +281,20 @@ function updateClearFiltersBtn() {
   const btn = qs("#clearFiltersBtn");
   if (!btn) return;
   const hasActive =
-    filterState.behuizingTypes.size > 0 ||
-    filterState.brands.size > 0         ||
-    filterState.gpuTiers.size > 0       ||
-    filterState.ramOptions.size > 0     ||
-    filterState.opslagOptions.size > 0  ||
-    filterState.osOptions.size > 0      ||
+    filterState.priceLabels.size > 0     ||
+    filterState.behuizingTypes.size > 0  ||
+    filterState.brands.size > 0          ||
+    filterState.gpuTiers.size > 0        ||
+    filterState.ramOptions.size > 0      ||
+    filterState.opslagOptions.size > 0   ||
+    filterState.osOptions.size > 0       ||
     filterState.processorFabrikanten.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
-function buildPriceMatches(desktops, behuizingType) {
-  const groups = getDynamicPriceGroups(behuizingType);
-  const map = new Map();
-  const answersForFilter = { ...filterState.answers };
-
-  // Every price bucket that has at least one matching desktop stays in the
-  // menu, regardless of GPU tier — users should always get the full set of
-  // price options to pick from themselves.
-  groups.forEach(group => {
-    const result = computeMatchForPriceGroup(
-      desktops, behuizingType, group, answersForFilter, filterState.scores
-    );
-    const matches = result.filteredMatchedDesktops || [];
-    if (matches.length > 0) map.set(group.label, matches);
-  });
-
-  return map;
-}
-
-/**
- * Picks which price bucket should be selected by default when the user
- * didn't pick a budget in the quiz ("geen voorkeur"): the cheapest bucket
- * that still contains a desktop of the highest-scoring GPU tier, ignoring
- * price entirely when judging "best match". Falls back to the cheapest
- * bucket with any match at all if no bucket has the ideal tier.
- */
-function pickDefaultPriceLabel(priceMatches, scores) {
-  const idealTiers = getIdealTierSet(scores);
-  if (idealTiers.size > 0) {
-    for (const [label, matches] of priceMatches) {
-      if (matches.some(d => idealTiers.has(d.gpuTier))) return label;
-    }
-  }
-  return priceMatches.keys().next().value ?? "";
-}
-
 function applyFilters() {
-  let filtered = getActivePriceMatches();
+  let filtered = getPriceScopedMatches();
 
   if (filterState.behuizingTypes.size > 0) {
     filtered = filtered.filter(d => filterState.behuizingTypes.has(d.behuizing));
@@ -348,45 +344,45 @@ function applyFilters() {
   updateResultMatches(filtered, filterState.answers, filterState.bestType);
 }
 
-function renderAllSecondary(behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, aanbiederContainer) {
-  const matches = getActivePriceMatches();
-  const behuizingCard   = qs(".filter-card[data-filter='behuizing']");
-  const brandCard       = qs(".filter-card[data-filter='brand']");
-  const gpuTierCard     = qs(".filter-card[data-filter='gpu-tier']");
-  const ramCard         = qs(".filter-card[data-filter='ram']");
-  const opslagCard      = qs(".filter-card[data-filter='opslag']");
-  const osCard          = qs(".filter-card[data-filter='os']");
-  const processorFabrikantCard = qs(".filter-card[data-filter='processor-fabrikant']");
-  const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
-
-  renderBehuizingOptions(behuizingContainer, behuizingCard, matches);
-  renderBrandOptions(brandContainer, brandCard, matches);
-  renderGpuTierOptions(gpuTierContainer, gpuTierCard, matches);
-  renderRamOptions(ramContainer, ramCard, matches);
-  renderOpslagOptions(opslagContainer, opslagCard, matches);
-  renderOsOptions(osContainer, osCard, matches);
-  renderProcessorFabrikantOptions(processorFabrikantContainer, processorFabrikantCard, matches);
-  renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
-}
-
 function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, aanbiederContainer) {
-  function renderAll() {
-    renderAllSecondary(behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, aanbiederContainer);
+  function renderAllSecondary() {
+    const matches = getPriceScopedMatches();
+    renderBehuizingOptions(behuizingContainer, qs(".filter-card[data-filter='behuizing']"), matches);
+    renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), matches);
+    renderGpuTierOptions(gpuTierContainer, qs(".filter-card[data-filter='gpu-tier']"), matches);
+    renderRamOptions(ramContainer, qs(".filter-card[data-filter='ram']"), matches);
+    renderOpslagOptions(opslagContainer, qs(".filter-card[data-filter='opslag']"), matches);
+    renderOsOptions(osContainer, qs(".filter-card[data-filter='os']"), matches);
+    renderProcessorFabrikantOptions(processorFabrikantContainer, qs(".filter-card[data-filter='processor-fabrikant']"), matches);
+    renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), matches);
   }
 
   priceContainer.addEventListener("change", event => {
-    const input = event.target.closest("input[type=radio]");
+    const input = event.target.closest("input[type=checkbox]");
     if (!input) return;
-    filterState.priceLabel = input.value;
-    filterState.behuizingTypes.clear();
-    filterState.brands.clear();
-    filterState.gpuTiers.clear();
-    filterState.ramOptions.clear();
-    filterState.opslagOptions.clear();
-    filterState.osOptions.clear();
-    filterState.processorFabrikanten.clear();
-    filterState.aanbieder.clear();
-    renderAll();
+
+    if (input.value === "all") {
+      if (input.checked) {
+        filterState.priceLabels.clear();
+        renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.behuizingType);
+      } else if (filterState.priceLabels.size === 0) {
+        input.checked = true;
+      }
+    } else {
+      if (input.checked) {
+        filterState.priceLabels.add(input.value);
+      } else {
+        filterState.priceLabels.delete(input.value);
+      }
+      if (filterState.priceLabels.size === 0) {
+        renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.behuizingType);
+      } else {
+        const allInput = priceContainer.querySelector('input[value="all"]');
+        if (allInput) allInput.checked = false;
+      }
+    }
+
+    renderAllSecondary();
     applyFilters();
   });
 
@@ -395,13 +391,13 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
       const input = event.target.closest("input[type=checkbox]");
       if (!input) return;
       if (input.value === "all") {
-        if (input.checked) { stateSet.clear(); renderFn(container, card, getActivePriceMatches()); }
+        if (input.checked) { stateSet.clear(); renderFn(container, card, getPriceScopedMatches()); }
         else if (stateSet.size === 0) { input.checked = true; }
       } else {
         const val = valueFn(input.value);
         if (input.checked) stateSet.add(val);
         else stateSet.delete(val);
-        if (stateSet.size === 0) renderFn(container, card, getActivePriceMatches());
+        if (stateSet.size === 0) renderFn(container, card, getPriceScopedMatches());
         else {
           const allInput = container.querySelector('input[value="all"]');
           if (allInput) allInput.checked = false;
@@ -432,6 +428,7 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
   const clearBtn = qs("#clearFiltersBtn");
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
+      filterState.priceLabels.clear();
       filterState.behuizingTypes.clear();
       filterState.brands.clear();
       filterState.gpuTiers.clear();
@@ -440,7 +437,8 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
       filterState.osOptions.clear();
       filterState.processorFabrikanten.clear();
       filterState.aanbieder.clear();
-      renderAll();
+      renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.behuizingType);
+      renderAllSecondary();
       applyFilters();
     });
   }
@@ -484,35 +482,37 @@ function initResultFilters() {
   filterState.bestType      = localStorage.getItem("desktop_bestType") || "";
   filterState.behuizingType = stored.behuizingType || "maakt-niet-uit";
 
-  const selectedPriceLabel = stored.priceLabel || "";
-
   fetchProducts()
     .then(rawProducts => {
       const desktops = normalizeProducts(rawProducts);
       filterState.priceGroups = computeDynamicPriceGroups(desktops, filterState.behuizingType);
-      filterState.priceMatches = buildPriceMatches(desktops, filterState.behuizingType);
 
-      // Seed from stored results if computed map is empty for selected label
-      if (!filterState.priceMatches.has(selectedPriceLabel) && selectedPriceLabel) {
+      const result = computeMatchForPriceGroup(desktops, filterState.behuizingType, null, filterState.answers, filterState.scores);
+      filterState.baseMatches = Array.isArray(result.filteredMatchedDesktops) ? result.filteredMatchedDesktops : [];
+
+      // Fallback: if the live computation yields nothing, seed the pool with
+      // the desktops that were already matched during the quiz. This ensures
+      // the filter panel always shows options regardless of whether the
+      // dynamic computation succeeds.
+      if (filterState.baseMatches.length === 0) {
         const storedData = localStorage.getItem("desktop_filteredMatchedDesktops");
         if (storedData) {
           try {
             const storedDesktops = JSON.parse(storedData);
             if (Array.isArray(storedDesktops) && storedDesktops.length > 0) {
-              filterState.priceMatches.set(selectedPriceLabel, storedDesktops);
+              filterState.baseMatches = storedDesktops;
             }
           } catch { /* ignore */ }
         }
       }
 
-      const availableLabels = Array.from(filterState.priceMatches.keys());
-      if (availableLabels.length === 0) return;
+      if (filterState.baseMatches.length === 0) return;
 
-      filterState.priceLabel = filterState.priceMatches.has(selectedPriceLabel)
-        ? selectedPriceLabel
-        : pickDefaultPriceLabel(filterState.priceMatches, filterState.scores);
+      // No price bucket selected by default: show every matching desktop,
+      // and let the user optionally narrow by budget.
+      filterState.priceLabels = new Set();
 
-      const matches = getActivePriceMatches();
+      const matches = getPriceScopedMatches();
       renderPriceOptions(priceContainer, priceCard, filterState.behuizingType);
       renderBehuizingOptions(behuizingContainer, behuizingCard, matches);
       renderBrandOptions(brandContainer, brandCard, matches);

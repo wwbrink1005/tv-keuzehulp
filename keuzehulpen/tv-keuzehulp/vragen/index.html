@@ -236,7 +236,7 @@ button.question-hint-btn-mobile:hover,
    }
 
 #question-1, #question-2, #question-3, #question-4,
-   #question-5, #question-6, #question-7, #question-8, #question-9 {
+   #question-5, #question-6, #question-7 {
      position: relative;
      opacity: 0;
      transform: translateY(6px);
@@ -246,7 +246,7 @@ button.question-hint-btn-mobile:hover,
 
 #question-1.is-active, #question-2.is-active, #question-3.is-active,
    #question-4.is-active, #question-5.is-active, #question-6.is-active,
-   #question-7.is-active, #question-8.is-active, #question-9.is-active {
+   #question-7.is-active {
      opacity: 1;
      transform: translateY(0);
      pointer-events: auto;
@@ -314,6 +314,18 @@ button.question-hint-btn-mobile:hover,
                  inset 0 1px 0 rgba(255,255,255,.85);
    }
 
+.answer-option .price-indicator {
+     margin-left: auto;
+     padding-left: calc(8px * var(--scale));
+     font-size: calc(11.5px * var(--scale));
+     font-weight: 700;
+     letter-spacing: 0.5px;
+     color: var(--c-text-3);
+     opacity: .55;
+     white-space: nowrap;
+     flex-shrink: 0;
+   }
+
 .answer-option input[type="radio"],
    .answer-option input[type="checkbox"] {
      width: calc(21.08px * var(--scale));
@@ -359,30 +371,26 @@ button.question-hint-btn-mobile:hover,
      transform: rotate(180deg);
    }
 
-#question-4 input[type="checkbox"],
+#question-3 input[type="checkbox"],
    #question-4 input[type="radio"],
    #question-5 input[type="radio"],
    #question-6 input[type="radio"],
-   #question-7 input[type="radio"],
-   #question-8 input[type="checkbox"],
-   #question-9 input[type="radio"] {
+   #question-7 input[type="checkbox"] {
      margin-right: calc(30px * var(--scale));
    }
 
-#question-4 .answer-info-icon,
+#question-3 .answer-info-icon,
+   #question-4 .answer-info-icon,
    #question-5 .answer-info-icon,
    #question-6 .answer-info-icon,
-   #question-7 .answer-info-icon,
-   #question-8 .answer-info-icon,
-   #question-9 .answer-info-icon {
+   #question-7 .answer-info-icon {
      margin-left: calc(-20px * var(--scale));
      margin-right: calc(10px * var(--scale));
    }
 
 #restart-q1,
    #back-to-question-1, #back-to-question-2, #back-to-question-3,
-   #back-to-question-4, #back-to-question-5, #back-to-question-6,
-   #back-to-question-7, #back-to-question-8 {
+   #back-to-question-4, #back-to-question-5, #back-to-question-6 {
      background: rgba(255,255,255,.90);
      backdrop-filter: blur(12px) saturate(180%);
      -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -394,8 +402,7 @@ button.question-hint-btn-mobile:hover,
 
 #restart-q1:hover,
    #back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover,
-   #back-to-question-4:hover, #back-to-question-5:hover, #back-to-question-6:hover,
-   #back-to-question-7:hover, #back-to-question-8:hover {
+   #back-to-question-4:hover, #back-to-question-5:hover, #back-to-question-6:hover {
      background: rgba(232,242,255,.97);
      border-color: rgba(9,84,163,.50);
      box-shadow: 0 4px 14px rgba(9,84,163,.14);
@@ -417,9 +424,7 @@ button.question-hint-btn-mobile:hover,
    #question-4 .button-container,
    #question-5 .button-container,
    #question-6 .button-container,
-   #question-7 .button-container,
-   #question-8 .button-container,
-   #question-9 .button-container {
+   #question-7 .button-container {
      left: calc(26.2291px * var(--scale));
      width: calc(366.968px * var(--scale));
    }
@@ -533,20 +538,19 @@ button.question-hint-btn-mobile:hover,
        width: 100%;
      }
 
-#question-4 input[type="checkbox"],
+#question-3 input[type="checkbox"],
      #question-4 input[type="radio"],
      #question-5 input[type="radio"],
      #question-6 input[type="radio"],
-     #question-7 input[type="radio"],
-     #question-8 input[type="checkbox"] {
+     #question-7 input[type="checkbox"] {
        margin-right: 10px;
      }
 
-#question-4 .answer-info-icon,
+#question-3 .answer-info-icon,
+     #question-4 .answer-info-icon,
      #question-5 .answer-info-icon,
      #question-6 .answer-info-icon,
-     #question-7 .answer-info-icon,
-     #question-8 .answer-info-icon {
+     #question-7 .answer-info-icon {
        margin-left: 0;
        margin-right: 8px;
      }
@@ -560,8 +564,7 @@ button.question-hint-btn-mobile:hover,
 
 #restart-q1,
      #back-to-question-1, #back-to-question-2, #back-to-question-3,
-     #back-to-question-4, #back-to-question-5, #back-to-question-6,
-     #back-to-question-7, #back-to-question-8 {
+     #back-to-question-4, #back-to-question-5, #back-to-question-6 {
        border-width: 1.5px;
        background: #fff;
        box-shadow: 0 1px 4px rgba(0,0,0,.06);
@@ -574,8 +577,7 @@ button.question-hint-btn-mobile:hover,
      #question-4 .button-container,
      #question-5 .button-container,
      #question-6 .button-container,
-     #question-7 .button-container,
-     #question-8 .button-container {
+     #question-7 .button-container {
        left: auto;
        width: 100%;
        max-width: 100%;
@@ -753,7 +755,8 @@ button.question-hint-btn-mobile { display: grid; }
    <!-- Uitleg panel -->
    <div class="quiz-panel-content" id="uitleg-content">
      <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-       <p>Deze tv-keuzehulp is gebaseerd op je kijkafstand, budget en gebruik. Op basis daarvan berekenen we welk schermtype — LED, QLED, Mini LED of OLED — het beste bij je past, en filteren we verder op beeldkwaliteit, beeldverversing en resolutie. We nemen alleen tv's mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
+       <p>Deze tv-keuzehulp is gebaseerd op je kijkafstand, formaat en gebruik. Op basis daarvan berekenen we welk schermtype — LED, QLED, Mini LED of OLED — het beste bij je past, en filteren we verder op beeldkwaliteit, beeldverversing en resolutie. We nemen alleen tv's mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
+       <p>De €-tekens naast sommige antwoorden geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) tv leidt — puur ter indicatie, dit filtert niets weg. We vragen geen budget vooraf, zodat de tv's die het best bij je passen niet per ongeluk buiten beeld vallen door een te streng gekozen prijsplafond. Na de quiz kun je op de resultatenpagina zelf nog filteren op prijscategorie.</p>
      </div>
    </div>
 
@@ -888,24 +891,8 @@ button.question-hint-btn-mobile { display: grid; }
        <!-- VRAAG 3 -->
        <div id="question-3" class="question-block" style="display:none;">
          <div class="question-container">
-           <h2>Hoeveel geld ben je bereid uit te geven voor je tv?</h2>
-           <div class="question-popover" data-popover="3">
-             <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Het budget bepaalt in welke prijscategorie we zoeken. Als algemene lijn geldt: meer budget staat gelijk aan betere beeldtechnologie, snellere verwerking en meer functies. Budgettelevisies bieden prima kwaliteit voor dagelijks gebruik, terwijl duurdere modellen uitblinken in beeldkwaliteit, piekhelderheid en geavanceerde mogelijkheden zoals een betere beeldprocessor of nauwkeurige dimmingzones. Kies het bedrag dat voor jou realistisch is – ook in de lagere categorieën zijn uitstekende opties te vinden.</p>
-           </div>
-         </div>
-         <div class="answers-container" id="price-options"></div>
-         <div class="button-container" id="q3-buttons">
-           <button id="back-to-question-2">Terug</button>
-           <button id="to-question-4">Volgende</button>
-         </div>
-       </div>
-
-       <!-- VRAAG 4 -->
-       <div id="question-4" class="question-block" style="display:none;">
-         <div class="question-container">
            <div class="question-heading-wrap"><h2>Waar ga je de tv voornamelijk voor gebruiken?</h2></div>
-           <div class="question-popover" data-popover="4">
+           <div class="question-popover" data-popover="3">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">Het gebruik heeft grote invloed op welk type tv het beste bij je past. Voor films en series is een hoge contrastratio cruciaal zodat donkere scènes er diep en gedetailleerd uitzien. Sportkijkers profiteren van een hoge beeldverversing (120 Hz of hoger) om bewegingsonscherpte te vermijden. Gamers hebben baat bij lage invoervertraging (input lag) en ondersteuning voor VRR of G-Sync. Je kunt meerdere opties aanvinken als je de tv voor een combinatie van doeleinden gebruikt.</p>
            </div>
@@ -915,34 +902,38 @@ button.question-hint-btn-mobile { display: grid; }
              <input type="checkbox" name="usage" value="films">
              <svg class="answer-info-icon" data-icon="popcorn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Films en series kijken</span>
+             <span class="price-indicator">€€€</span>
            </label>
            <label class="answer-option">
              <input type="checkbox" name="usage" value="sport">
              <svg class="answer-info-icon" data-icon="volleyball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Sport kijken</span>
+             <span class="price-indicator">€€</span>
            </label>
            <label class="answer-option">
              <input type="checkbox" name="usage" value="gamen">
              <svg class="answer-info-icon" data-icon="gamepad-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Gamen</span>
+             <span class="price-indicator">€€</span>
            </label>
            <label class="answer-option">
              <input type="checkbox" name="usage" value="normaal">
              <svg class="answer-info-icon" data-icon="tv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Normale televisie kijken</span>
+             <span class="price-indicator">€</span>
            </label>
          </div>
          <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
-           <button id="back-to-question-3">Terug</button>
-           <button id="to-question-5">Volgende</button>
+           <button id="back-to-question-2">Terug</button>
+           <button id="to-question-4">Volgende</button>
          </div>
        </div>
 
-       <!-- VRAAG 5 -->
-       <div id="question-5" class="question-block" style="display:none;">
+       <!-- VRAAG 4 -->
+       <div id="question-4" class="question-block" style="display:none;">
          <div class="question-container">
            <h2>Hoe belangrijk vind je de beeldkwaliteit?</h2>
-           <div class="question-popover" data-popover="5">
+           <div class="question-popover" data-popover="4">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">Beeldkwaliteit is een breed begrip: het omvat scherpte, kleurnauwkeurigheid, contrastratio en helderheid. Wie absoluut het beste wil, kiest doorgaans voor een OLED- of high-end Mini-LED-tv met uitstekende HDR-prestaties. Wie een goede maar betaalbare keuze maakt, heeft genoeg aan een moderne LCD met degelijk lokaal dimmen. Voor casual gebruik zijn er aangenamere opties met een uitstekende prijs-kwaliteitverhouding. Hoe ambitieuzer je beeldwens, hoe geavanceerder en duurder het geadviseerde model wordt.</p>
            </div>
@@ -952,29 +943,32 @@ button.question-hint-btn-mobile { display: grid; }
              <input type="radio" name="quality" value="best">
              <svg class="answer-info-icon" data-icon="trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Ik wil de best mogelijke beeldkwaliteit</span>
+             <span class="price-indicator">€€€</span>
            </label>
            <label class="answer-option">
              <input type="radio" name="quality" value="belangrijk">
              <svg class="answer-info-icon" data-icon="star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Belangrijk, maar ik hoef niet het beste</span>
+             <span class="price-indicator">€€</span>
            </label>
            <label class="answer-option">
              <input type="radio" name="quality" value="prima">
              <svg class="answer-info-icon" data-icon="thumbs-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Als het gewoon prima is ben ik tevreden</span>
+             <span class="price-indicator">€</span>
            </label>
          </div>
          <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
-           <button id="back-to-question-4">Terug</button>
-           <button id="to-question-6">Volgende</button>
+           <button id="back-to-question-3">Terug</button>
+           <button id="to-question-5">Volgende</button>
          </div>
        </div>
 
-       <!-- VRAAG 6 -->
-       <div id="question-6" class="question-block" style="display:none;">
+       <!-- VRAAG 5 -->
+       <div id="question-5" class="question-block" style="display:none;">
          <div class="question-container">
            <h2>Wanneer kijk je meestal tv?</h2>
-           <div class="question-popover" data-popover="6">
+           <div class="question-popover" data-popover="5">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">Het moment waarop je kijkt, bepaalt welk type tv het meest geschikt is. In een donkere kamer kunnen OLED-tv's prachtig diepe zwarttinten tonen doordat elk pixel afzonderlijk wordt uitgeschakeld. Overdag zijn heldere LCD- of QLED-tv's beter bestand tegen invallend omgevingslicht en spiegelende reflecties op het scherm. Kijk je zowel overdag als 's avonds, dan zoeken we een model dat in beide situaties goed presteert — een goede balans tussen helderheid en contrast.</p>
            </div>
@@ -984,34 +978,38 @@ button.question-hint-btn-mobile { display: grid; }
              <input type="radio" name="timing" value="avonds">
              <svg class="answer-info-icon" data-icon="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>In de avond als het donker is</span>
+             <span class="price-indicator">€€€</span>
            </label>
            <label class="answer-option">
              <input type="radio" name="timing" value="overdag">
              <svg class="answer-info-icon" data-icon="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Overdag als het licht is</span>
+             <span class="price-indicator">€€</span>
            </label>
            <label class="answer-option">
              <input type="radio" name="timing" value="beide">
              <svg class="answer-info-icon" data-icon="sun-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Beide</span>
+             <span class="price-indicator">€€</span>
            </label>
            <label class="answer-option">
              <input type="radio" name="timing" value="nvt">
              <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Dit is voor mij niet belangrijk</span>
+             <span class="price-indicator">€</span>
            </label>
          </div>
          <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
-           <button id="back-to-question-5">Terug</button>
-           <button id="to-question-7">Volgende</button>
+           <button id="back-to-question-4">Terug</button>
+           <button id="to-question-6">Volgende</button>
          </div>
        </div>
 
-       <!-- VRAAG 7 -->
-       <div id="question-7" class="question-block" style="display:none;">
+       <!-- VRAAG 6 -->
+       <div id="question-6" class="question-block" style="display:none;">
          <div class="question-container">
            <h2>Hoe kijk je meestal tv?</h2>
-           <div class="question-popover" data-popover="7">
+           <div class="question-popover" data-popover="6">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">De kijkhoek bepaalt hoeveel de beeldkwaliteit afneemt naarmate je verder opzij kijkt. OLED- en IPS/QLED-panelen zijn daarin het sterkst: kleuren en contrast blijven vrijwel ongewijzigd, zelfs bij ruime kijkhoeken. Standaard VA-LCD-panelen vertonen bij een schuine kijkhoek kleurvervaging en een duidelijk lager contrast. Kijk je altijd recht voor het scherm, dan is dit minder relevant en kun je budget besparen op dit onderdeel van de tv.</p>
            </div>
@@ -1021,29 +1019,32 @@ button.question-hint-btn-mobile { display: grid; }
              <input type="radio" name="viewing" value="recht">
              <svg class="answer-info-icon" data-icon="sofa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Met 1 of 2 mensen recht voor de tv</span>
+             <span class="price-indicator">€€</span>
            </label>
            <label class="answer-option">
              <input type="radio" name="viewing" value="meerdere">
              <svg class="answer-info-icon" data-icon="users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Met meerdere mensen die niet recht voor de tv zitten</span>
+             <span class="price-indicator">€€€</span>
            </label>
            <label class="answer-option">
              <input type="radio" name="viewing" value="nvt">
              <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Dit is voor mij niet belangrijk</span>
+             <span class="price-indicator">€</span>
            </label>
          </div>
          <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
-           <button id="back-to-question-6">Terug</button>
-           <button id="to-question-8">Volgende</button>
+           <button id="back-to-question-5">Terug</button>
+           <button id="to-question-7">Volgende</button>
          </div>
        </div>
 
-       <!-- VRAAG 8 -->
-       <div id="question-8" class="question-block" style="display:none;">
+       <!-- VRAAG 7 -->
+       <div id="question-7" class="question-block" style="display:none;">
          <div class="question-container">
            <div class="question-heading-wrap"><h2>Welke van de volgende dingen is extra belangrijk voor je tv?</h2></div>
-           <div class="question-popover" data-popover="8">
+           <div class="question-popover" data-popover="7">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
              <p class="question-popover-text">Hier geef je aan welke extra eigenschappen zwaarder mogen meewegen. Perfecte zwarttinten zijn het specialisme van OLED: elk pixel kan afzonderlijk worden uitgeschakeld voor oneindig contrast. Extreme helderheid is het domein van Mini-LED/QLED-tv's met krachtige achtergrondverlichting. Je kunt meerdere opties aanvinken.</p>
            </div>
@@ -1053,25 +1054,29 @@ button.question-hint-btn-mobile { display: grid; }
              <input type="checkbox" name="extra" value="zwart">
              <svg class="answer-info-icon" data-icon="cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Zwarttinten; donkere beelden zijn extra mooi</span>
+             <span class="price-indicator">€€€</span>
            </label>
            <label class="answer-option">
              <input type="checkbox" name="extra" value="helderheid">
              <svg class="answer-info-icon" data-icon="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Helderheid; de tv moet heel helder kunnen zijn</span>
+             <span class="price-indicator">€€</span>
            </label>
            <label class="answer-option">
              <input type="checkbox" name="extra" value="kleur">
              <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Kleur; de mooiste kleuren moeten naar voor komen</span>
+             <span class="price-indicator">€€</span>
            </label>
            <label class="answer-option">
              <input type="checkbox" name="extra" value="niks">
              <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
              <span>Ik heb niks wat ik extra belangrijk vindt</span>
+             <span class="price-indicator">€</span>
            </label>
          </div>
          <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
-           <button id="back-to-question-7">Terug</button>
+           <button id="back-to-question-6">Terug</button>
            <button id="start-matching">Resultaat</button>
          </div>
        </div>

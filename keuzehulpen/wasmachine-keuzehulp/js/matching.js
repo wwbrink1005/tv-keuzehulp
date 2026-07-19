@@ -135,19 +135,6 @@ export function matchWasmachines(wasmachines, capaciteitGroup, priceGroup, answe
   return { bestMatch, bestType, filteredMatchedWasmachines: matchedWasmachines };
 }
 
-export function computeMatchForPriceGroup(wasmachines, capaciteitGroup, priceGroup, answers, scores) {
-  return matchWasmachines(wasmachines, capaciteitGroup, priceGroup, answers, scores);
-}
-
-export function getIdealTierSet(scores) {
-  if (!scores || typeof scores !== "object") return new Set();
-  const entries = Object.entries(scores);
-  if (entries.length === 0) return new Set();
-
-  const maxScore = Math.max(...entries.map(([, v]) => Number(v)));
-  return new Set(entries.filter(([, v]) => Number(v) === maxScore).map(([t]) => t));
-}
-
 export function buildResultPoints(wasmachine, answers) {
   const points = [];
   const gebruik = answers?.gebruik ?? "";

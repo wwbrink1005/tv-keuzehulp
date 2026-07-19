@@ -72,8 +72,7 @@ export function formatScherpte(value) {
 
 export function getStoredSelection() {
   return {
-    sizeGroup: localStorage.getItem("selectedSizeGroup") || "",
-    priceLabel: localStorage.getItem("selectedPriceGroupLabel") || ""
+    sizeGroup: localStorage.getItem("selectedSizeGroup") || ""
   };
 }
 

@@ -1,11 +1,11 @@
-import { priceGroupsBySize, getMonitorTier, sizeGroupToAllowedSizes } from "./data.js";
-import { computeMatchForPriceGroup, getIdealTierSet } from "./matching.js";
-import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
+import { priceGroupsBySize, sizeGroupToAllowedSizes } from "./data.js";
+import { matchMonitors } from "./matching.js";
+import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 
 const filterState = {
-  priceLabel:   "",
+  priceLabels:  new Set(),
   sizes:        new Set(),
   brands:       new Set(),
   panelTypes:   new Set(),
@@ -16,7 +16,7 @@ const filterState = {
   speakers:     new Set(),
   hdmiOptions:  new Set(),
   aanbieder:    new Set(),
-  priceMatches: new Map(),
+  baseMatches:  [],
   answers:      null,
   scores:       null,
   bestType:     "",
@@ -42,8 +42,20 @@ function formatBrandLabel(brand) {
   return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
 }
 
-function getActivePriceMatches() {
-  return filterState.priceMatches.get(filterState.priceLabel) || [];
+function getBaseMatches() {
+  return filterState.baseMatches;
+}
+
+function getPriceScopedMatches() {
+  const base = getBaseMatches();
+  if (filterState.priceLabels.size === 0) return base;
+  const groups = getDynamicPriceGroups(filterState.sizeGroup)
+    .filter(g => filterState.priceLabels.has(g.label));
+  if (groups.length === 0) return base;
+  return base.filter(m => {
+    const price = parsePrice(m.prijs);
+    return groups.some(g => price >= g.min && price <= g.max);
+  });
 }
 
 function collectSizeOptions(matches) {
@@ -122,38 +134,34 @@ function collectAanbiederOptions(matches) {
   return Array.from(set).sort();
 }
 
-function renderFilterOptions(container, card, items, filterName, labelFn, isRadio = false) {
+function renderFilterOptions(container, card, items, filterName, labelFn) {
   container.innerHTML = "";
   if (items.length === 0) { card.hidden = true; return; }
   card.hidden = false;
 
   const stateSet = filterState[filterName];
 
-  if (!isRadio) {
-    const isAllSelected = !stateSet || stateSet.size === 0;
-    const allLabel = document.createElement("label");
-    allLabel.className = "filter-option";
-    const allInput = document.createElement("input");
-    allInput.type = "checkbox";
-    allInput.name = filterName;
-    allInput.value = "all";
-    allInput.checked = isAllSelected;
-    const allText = document.createElement("span");
-    allText.textContent = "Alle";
-    allLabel.append(allInput, allText);
-    container.appendChild(allLabel);
-  }
+  const isAllSelected = !stateSet || stateSet.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = filterName;
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
 
   items.forEach(item => {
     const label = document.createElement("label");
     label.className = "filter-option";
     const input = document.createElement("input");
-    input.type = isRadio ? "radio" : "checkbox";
+    input.type = "checkbox";
     input.name = filterName;
     input.value = String(item);
-    input.checked = isRadio
-      ? String(item) === filterState.priceLabel
-      : (stateSet?.has(item) ?? false);
+    input.checked = stateSet?.has(item) ?? false;
     const text = document.createElement("span");
     text.textContent = labelFn ? labelFn(item) : String(item);
     label.append(input, text);
@@ -161,43 +169,8 @@ function renderFilterOptions(container, card, items, filterName, labelFn, isRadi
   });
 }
 
-function buildPriceMatches(monitors, sizeGroup) {
-  const groups = getDynamicPriceGroups(sizeGroup);
-  const map = new Map();
-
-  // Every price bucket that has at least one matching monitor stays in the
-  // menu, regardless of tier — users should always get the full set of
-  // price options to pick from themselves.
-  groups.forEach(group => {
-    const result = computeMatchForPriceGroup(
-      monitors, sizeGroup, group, filterState.answers, filterState.scores
-    );
-    const matches = Array.isArray(result.filteredMatchedMonitors) ? result.filteredMatchedMonitors : [];
-    if (matches.length > 0) map.set(group.label, matches);
-  });
-
-  return map;
-}
-
-/**
- * Picks which price bucket should be selected by default when the user
- * didn't pick a budget in the quiz ("geen voorkeur"): the cheapest bucket
- * that still contains a monitor of the highest-scoring tier, ignoring
- * price entirely when judging "best match". Falls back to the cheapest
- * bucket with any match at all if no bucket has the ideal tier.
- */
-function pickDefaultPriceLabel(priceMatches, scores) {
-  const idealTiers = getIdealTierSet(scores);
-  if (idealTiers.size > 0) {
-    for (const [label, matches] of priceMatches) {
-      if (matches.some(m => idealTiers.has(getMonitorTier(m)))) return label;
-    }
-  }
-  return priceMatches.keys().next().value ?? "";
-}
-
 function applyFilters() {
-  let filtered = getActivePriceMatches();
+  let filtered = getPriceScopedMatches();
 
   if (filterState.sizes.size > 0) {
     filtered = filtered.filter(m => filterState.sizes.has(m.schermdiagonaal));
@@ -258,7 +231,7 @@ function applyFilters() {
 function updateClearFiltersBtn() {
   const btn = qs("#clearFiltersBtn");
   if (!btn) return;
-  const hasActive = filterState.sizes.size > 0 || filterState.brands.size > 0 ||
+  const hasActive = filterState.priceLabels.size > 0 || filterState.sizes.size > 0 || filterState.brands.size > 0 ||
     filterState.panelTypes.size > 0 || filterState.resolutions.size > 0 ||
     filterState.hzOptions.size > 0 || filterState.aspectRatios.size > 0 ||
     filterState.curved.size > 0 || filterState.speakers.size > 0 ||
@@ -267,7 +240,7 @@ function updateClearFiltersBtn() {
 }
 
 function renderAllFilters(monitors) {
-  const matches = getActivePriceMatches();
+  const matches = getPriceScopedMatches();
 
   const priceContainer    = qs("[data-filter-container='price']");
   const sizeContainer     = qs("[data-filter-container='size']");
@@ -294,29 +267,19 @@ function renderAllFilters(monitors) {
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
-    const groups = getDynamicPriceGroups(filterState.sizeGroup);
-    // Only show price buckets that actually contain a matching monitor for
-    // the current quiz answers — otherwise users click a bucket that can
-    // never show a result.
-    const labels = groups.filter(g => filterState.priceMatches.has(g.label));
-    priceContainer.innerHTML = "";
-    if (labels.length === 0) { priceCard.hidden = true; }
-    else {
-      priceCard.hidden = false;
-      labels.forEach(group => {
-        const label = document.createElement("label");
-        label.className = "filter-option";
-        const input = document.createElement("input");
-        input.type = "radio";
-        input.name = "priceFilter";
-        input.value = group.label;
-        input.checked = group.label === filterState.priceLabel;
-        const text = document.createElement("span");
-        text.textContent = `€ ${group.label}`;
-        label.append(input, text);
-        priceContainer.appendChild(label);
+    const base = getBaseMatches();
+    const groups = getDynamicPriceGroups(filterState.sizeGroup).filter(group => {
+      return base.some(m => {
+        const price = parsePrice(m.prijs);
+        return price >= group.min && price <= group.max;
       });
-    }
+    });
+    renderFilterOptions(priceContainer, priceCard, groups.map(g => g.label), "priceLabels", label => `€ ${label}`, false);
+    priceContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      if (input.value === "all") input.checked = filterState.priceLabels.size === 0;
+      else input.checked = filterState.priceLabels.has(input.value);
+    });
+    if (groups.length <= 1) priceCard.hidden = true;
   }
 
   if (sizeContainer && sizeCard) {
@@ -419,24 +382,8 @@ function handleFilterChange(event) {
   const name  = input.name;
   const value = input.value;
 
-  if (name === "priceFilter") {
-    filterState.priceLabel = value;
-    filterState.sizes.clear();
-    filterState.brands.clear();
-    filterState.panelTypes.clear();
-    filterState.resolutions.clear();
-    filterState.hzOptions.clear();
-    filterState.aspectRatios.clear();
-    filterState.curved.clear();
-    filterState.speakers.clear();
-    filterState.hdmiOptions.clear();
-    filterState.aanbieder.clear();
-    renderAllFilters();
-    applyFilters();
-    return;
-  }
-
   const setMap = {
+    priceLabels: { set: filterState.priceLabels, parse: v => v },
     sizes:       { set: filterState.sizes,      parse: v => parseFloat(v) },
     brands:      { set: filterState.brands,      parse: v => v },
     panelTypes:  { set: filterState.panelTypes,  parse: v => v },
@@ -476,13 +423,12 @@ export async function initFilters() {
   const answersData     = localStorage.getItem("monitor_answers");
   const scoresData      = localStorage.getItem("monitor_scores");
   const sizeGroupData   = localStorage.getItem("monitor_selectedSizeGroup");
-  const priceLabelData  = localStorage.getItem("monitor_selectedPriceGroupLabel");
   const bestTypeData    = localStorage.getItem("monitor_bestType");
 
   filterState.answers   = answersData  ? JSON.parse(answersData)  : null;
   filterState.scores    = scoresData   ? JSON.parse(scoresData)   : null;
   filterState.sizeGroup = sizeGroupData ?? "";
-  filterState.priceLabel = priceLabelData ?? "";
+  filterState.priceLabels = new Set();
   filterState.bestType  = bestTypeData ?? "";
 
   // Fetch & normalize all monitors
@@ -494,39 +440,26 @@ export async function initFilters() {
     allMonitors = [];
   }
 
-  // Build price match map
+  // Full, non-price-filtered matchset (priceGroup = null → no restriction).
   filterState.priceGroups = computeDynamicPriceGroups(allMonitors, filterState.sizeGroup, sizeGroupToAllowedSizes);
-  filterState.priceMatches = buildPriceMatches(allMonitors, filterState.sizeGroup);
+  const liveResult = matchMonitors(allMonitors, filterState.sizeGroup, null, filterState.answers, filterState.scores);
+  let baseMatches = Array.isArray(liveResult.filteredMatchedMonitors) ? liveResult.filteredMatchedMonitors : [];
 
-  // Safety net: if the freshly-recomputed map doesn't have the price bucket
-  // the user actually picked in the quiz (e.g. a transient fetch hiccup, or
-  // scores/answers not reproducing identically), fall back to the matches
-  // that were already computed and stored at quiz-submit time, instead of
-  // showing "no results" for a bucket that demonstrably had results.
-  if (!filterState.priceMatches.has(filterState.priceLabel) && filterState.priceLabel) {
+  // Fallback: if the live fetch yields nothing, fall back to the matches
+  // that were already computed and stored at quiz-submit time.
+  if (baseMatches.length === 0) {
     const storedData = localStorage.getItem("monitor_filteredMatchedMonitors");
     if (storedData) {
       try {
         const storedMonitors = JSON.parse(storedData);
         if (Array.isArray(storedMonitors) && storedMonitors.length > 0) {
-          filterState.priceMatches.set(filterState.priceLabel, storedMonitors);
+          baseMatches = storedMonitors;
         }
       } catch { /* ignore */ }
     }
   }
 
-  // Reset the stored label if it doesn't correspond to a real price bucket
-  // for this size at all (e.g. stale data, or no price was picked during the
-  // quiz) — fall back to the best-matching bucket computed from the quiz
-  // answers instead. A bucket that's valid but currently has 0 tier-matches
-  // should stay selected, not silently reset — resetting it makes the
-  // user's quiz answer disappear with no explanation.
-  const validLabels = new Set(getDynamicPriceGroups(filterState.sizeGroup).map(g => g.label));
-  if (!filterState.priceLabel || !validLabels.has(filterState.priceLabel)) {
-    filterState.priceLabel = filterState.priceMatches.has(filterState.priceLabel)
-      ? filterState.priceLabel
-      : pickDefaultPriceLabel(filterState.priceMatches, filterState.scores);
-  }
+  filterState.baseMatches = baseMatches;
 
   renderAllFilters(allMonitors);
 
@@ -537,6 +470,7 @@ export async function initFilters() {
   const clearBtn = qs("#clearFiltersBtn");
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
+      filterState.priceLabels.clear();
       filterState.sizes.clear();
       filterState.brands.clear();
       filterState.panelTypes.clear();

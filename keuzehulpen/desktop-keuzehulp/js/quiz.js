@@ -1,12 +1,9 @@
-import { priceGroupsByType } from "./data.js";
 import { calculateScores, matchDesktops } from "./matching.js";
-import { computeDynamicPriceGroups, getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
+import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 
 const quizState = {
-  selectedBehuizingType: null,
-  selectedPriceGroup:    null,
-  priceGroups:           []
+  selectedBehuizingType: null
 };
 
 let productsFetchPromise = null;
@@ -131,7 +128,7 @@ function hidePcTypeDisplay() {
 }
 
 function showQuestion(num) {
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 5; i++) {
     const q = qs(`#question-${i}`);
     if (q) { q.classList.remove("is-active"); q.style.display = "none"; }
   }
@@ -177,8 +174,8 @@ function updateProgressBar(questionNum) {
   if (!progressBar) return;
   if (questionNum === "result") {
     progressBar.style.width = "100%";
-  } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 6) {
-    progressBar.style.width = `${(questionNum / 6) * 100}%`;
+  } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 5) {
+    progressBar.style.width = `${(questionNum / 5) * 100}%`;
   }
 }
 
@@ -204,32 +201,8 @@ function positionElements(questionNum) {
   }
 }
 
-function renderPriceOptions(groups) {
-  const container = qs("#price-options");
-  if (!container) return;
-  container.innerHTML = "";
-
-  groups.forEach(group => {
-    const label = document.createElement("label");
-    label.className = "answer-option";
-    label.innerHTML = `
-      <input type="radio" name="priceGroup" value="${group.label}">
-      <span>€ ${group.label}</span>
-    `;
-    container.appendChild(label);
-  });
-
-  const noPriceLabel = document.createElement("label");
-  noPriceLabel.className = "answer-option";
-  noPriceLabel.innerHTML = `
-    <input type="radio" name="priceGroup" value="geen-voorkeur">
-    <span>Geen voorkeur – toon alle prijzen</span>
-  `;
-  container.appendChild(noPriceLabel);
-}
-
 function resetQuestionsFrom(questionNumber) {
-  for (let i = questionNumber; i <= 6; i++) {
+  for (let i = questionNumber; i <= 5; i++) {
     qsa(`#question-${i} input`).forEach(input => { input.checked = false; });
   }
 }
@@ -282,7 +255,7 @@ function handleStartMatching() {
       const result = matchDesktops(
         desktops,
         quizState.selectedBehuizingType,
-        quizState.selectedPriceGroup,
+        null,
         answers,
         scores
       );
@@ -293,8 +266,6 @@ function handleStartMatching() {
       localStorage.setItem("desktop_filteredMatchedDesktops", JSON.stringify(result.filteredMatchedDesktops));
       localStorage.setItem("desktop_answers",                 JSON.stringify(answers));
       localStorage.setItem("desktop_selectedBehuizingType",   quizState.selectedBehuizingType ?? "");
-      localStorage.setItem("desktop_selectedPriceGroupLabel", quizState.selectedPriceGroup?.label ?? "");
-      localStorage.setItem("desktop_dynamicPriceGroups",      JSON.stringify(quizState.priceGroups));
 
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
@@ -323,40 +294,24 @@ export function initQuizPage() {
     showQuestion(1);
   });
 
-  // Q2 → Q3 (fetch dynamic price groups based on behuizing)
-  qs("#to-question-3")?.addEventListener("click", async () => {
+  // Q2 → Q3 (intensiteit)
+  qs("#to-question-3")?.addEventListener("click", () => {
     const checked = qs('input[name="behuizing"]:checked');
     if (!checked) return alert("Kies een behuizing");
-
     quizState.selectedBehuizingType = checked.value;
-
-    const btn = qs("#to-question-3");
-    if (btn) btn.disabled = true;
-    try {
-      const rawProducts = await prefetchProducts();
-      const desktops = normalizeProducts(rawProducts ?? []);
-      const dynamic = computeDynamicPriceGroups(desktops, quizState.selectedBehuizingType);
-      quizState.priceGroups = dynamic.length > 0 ? dynamic : (priceGroupsByType[quizState.selectedBehuizingType] ?? []);
-    } catch {
-      quizState.priceGroups = priceGroupsByType[quizState.selectedBehuizingType] ?? [];
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-
-    renderPriceOptions(quizState.priceGroups);
     showQuestion(3);
   });
 
   // Q3 → Q2
-  qs("#back-to-question-2")?.addEventListener("click", () => showQuestion(2));
+  qs("#back-to-question-2")?.addEventListener("click", () => {
+    resetQuestionsFrom(3);
+    showQuestion(2);
+  });
 
-  // Q3 → Q4
+  // Q3 → Q4 (opslag)
   qs("#to-question-4")?.addEventListener("click", () => {
-    const checked = qs('input[name="priceGroup"]:checked');
-    if (!checked) return alert("Kies een budget");
-    quizState.selectedPriceGroup = checked.value === "geen-voorkeur"
-      ? null
-      : quizState.priceGroups.find(p => p.label === checked.value);
+    const checked = qs('input[name="intensiteit"]:checked');
+    if (!checked) return alert("Kies een antwoord");
     showQuestion(4);
   });
 
@@ -366,9 +321,9 @@ export function initQuizPage() {
     showQuestion(3);
   });
 
-  // Q4 → Q5
+  // Q4 → Q5 (extra's)
   qs("#to-question-5")?.addEventListener("click", () => {
-    const checked = qs('input[name="intensiteit"]:checked');
+    const checked = qs('input[name="opslag"]:checked');
     if (!checked) return alert("Kies een antwoord");
     showQuestion(5);
   });
@@ -377,19 +332,6 @@ export function initQuizPage() {
   qs("#back-to-question-4")?.addEventListener("click", () => {
     resetQuestionsFrom(5);
     showQuestion(4);
-  });
-
-  // Q5 → Q6
-  qs("#to-question-6")?.addEventListener("click", () => {
-    const checked = qs('input[name="opslag"]:checked');
-    if (!checked) return alert("Kies een antwoord");
-    showQuestion(6);
-  });
-
-  // Q6 → Q5
-  qs("#back-to-question-5")?.addEventListener("click", () => {
-    resetQuestionsFrom(6);
-    showQuestion(5);
   });
 
   setupGebruikLimit();
@@ -405,7 +347,7 @@ export function initQuizPage() {
 
   // Re-position on resize
   window.addEventListener("resize", () => {
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 5; i++) {
       const q = qs(`#question-${i}`);
       if (q && q.classList.contains("is-active")) {
         if (!mobileQuery.matches) positionElements(i);

@@ -148,16 +148,6 @@ export function computeMatchForPriceGroup(desktops, behuizingType, priceGroup, a
   return matchDesktops(desktops, behuizingType, priceGroup, answers, scores);
 }
 
-export function getIdealTierSet(scores) {
-  if (!scores || typeof scores !== "object") return new Set();
-  const entries = Object.entries(scores);
-  if (entries.length === 0) return new Set();
-  const maxScore = Math.max(...entries.map(([, s]) => Number(s)));
-  return new Set(
-    entries.filter(([, s]) => Number(s) === maxScore).map(([t]) => t)
-  );
-}
-
 // ─── Result points ────────────────────────────────────────────────────────────
 
 export function buildResultPoints(desktop, answers) {

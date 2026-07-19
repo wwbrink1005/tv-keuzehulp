@@ -1,12 +1,9 @@
-import { priceGroupsBySize, sizeGroupToAllowedSizes } from "./data.js";
 import { calculateScores, matchLaptops } from "./matching.js";
-import { computeDynamicPriceGroups, getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
+import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 
 const quizState = {
-  selectedSizeGroup:  null,
-  selectedPriceGroup: null,
-  priceGroups:        []
+  selectedSizeGroup: null
 };
 
 let productsFetchPromise = null;
@@ -106,7 +103,7 @@ function hideLaptopDisplay() {
 }
 
 function showQuestion(num) {
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 5; i++) {
     const q = qs(`#question-${i}`);
     if (q) {
       q.classList.remove("is-active");
@@ -114,7 +111,7 @@ function showQuestion(num) {
     }
   }
 
-  const totalQuestions = 6;
+  const totalQuestions = 5;
 
   if (num === "result") {
     hideLaptopDisplay();
@@ -161,8 +158,8 @@ function updateProgressBar(questionNum) {
   if (!progressBar) return;
   if (questionNum === "result") {
     progressBar.style.width = "100%";
-  } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 6) {
-    progressBar.style.width = `${(questionNum / 6) * 100}%`;
+  } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 5) {
+    progressBar.style.width = `${(questionNum / 5) * 100}%`;
   }
 }
 
@@ -192,32 +189,8 @@ function renderSizeOptions() {
   // Size options are static in the HTML for laptop (Q2)
 }
 
-function renderPriceOptions(groups) {
-  const container = qs("#price-options");
-  if (!container) return;
-  container.innerHTML = "";
-
-  groups.forEach(group => {
-    const label = document.createElement("label");
-    label.className = "answer-option";
-    label.innerHTML = `
-      <input type="radio" name="priceGroup" value="${group.label}">
-      <span>€ ${group.label}</span>
-    `;
-    container.appendChild(label);
-  });
-
-  const noPriceLabel = document.createElement("label");
-  noPriceLabel.className = "answer-option";
-  noPriceLabel.innerHTML = `
-    <input type="radio" name="priceGroup" value="geen-voorkeur">
-    <span>Geen voorkeur – toon alle prijzen</span>
-  `;
-  container.appendChild(noPriceLabel);
-}
-
 function resetQuestionsFrom(questionNumber) {
-  for (let i = questionNumber; i <= 6; i++) {
+  for (let i = questionNumber; i <= 5; i++) {
     const inputs = qsa(`#question-${i} input`);
     inputs.forEach(input => { input.checked = false; });
   }
@@ -276,10 +249,14 @@ function handleStartMatching() {
   prefetchProducts()
     .then(rawProducts => {
       const laptops = normalizeProducts(rawProducts ?? []);
+      // No price filter here anymore: the quiz no longer asks for a budget.
+      // matchLaptops is called without a priceGroup so it returns the full
+      // set of laptops matching size/tier/opslag/extra; price is only ever
+      // applied as an optional narrowing filter on the results page.
       const result = matchLaptops(
         laptops,
         quizState.selectedSizeGroup,
-        quizState.selectedPriceGroup,
+        null,
         answers,
         scores
       );
@@ -290,8 +267,6 @@ function handleStartMatching() {
       localStorage.setItem("laptop_filteredMatchedLaptops",  JSON.stringify(result.filteredMatchedLaptops));
       localStorage.setItem("laptop_answers",                 JSON.stringify(answers));
       localStorage.setItem("laptop_selectedSizeGroup",       quizState.selectedSizeGroup ?? "");
-      localStorage.setItem("laptop_selectedPriceGroupLabel", quizState.selectedPriceGroup?.label ?? "");
-      localStorage.setItem("laptop_dynamicPriceGroups",      JSON.stringify(quizState.priceGroups));
 
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
@@ -320,42 +295,25 @@ export function initQuizPage() {
     showQuestion(1);
   });
 
-  // Q2 → Q3 (fetch dynamic price groups based on selected formaat)
-  qs("#to-question-3")?.addEventListener("click", async () => {
+  // Q2 → Q3
+  qs("#to-question-3")?.addEventListener("click", () => {
     const checked = qs('input[name="formaat"]:checked');
     if (!checked) return alert("Kies een formaat");
 
     quizState.selectedSizeGroup = checked.value;
-
-    const btn = qs("#to-question-3");
-    if (btn) btn.disabled = true;
-    try {
-      const rawProducts = await prefetchProducts();
-      const laptops = normalizeProducts(rawProducts ?? []);
-      const dynamic = computeDynamicPriceGroups(laptops, quizState.selectedSizeGroup, sizeGroupToAllowedSizes);
-      quizState.priceGroups = dynamic.length > 0 ? dynamic : (priceGroupsBySize[quizState.selectedSizeGroup] ?? []);
-    } catch {
-      quizState.priceGroups = priceGroupsBySize[quizState.selectedSizeGroup] ?? [];
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-
-    renderPriceOptions(quizState.priceGroups);
     showQuestion(3);
   });
 
   // Q3 → Q2
   qs("#back-to-question-2")?.addEventListener("click", () => {
+    resetQuestionsFrom(3);
     showQuestion(2);
   });
 
   // Q3 → Q4
   qs("#to-question-4")?.addEventListener("click", () => {
-    const checked = qs('input[name="priceGroup"]:checked');
-    if (!checked) return alert("Kies een budget");
-    quizState.selectedPriceGroup = checked.value === "geen-voorkeur"
-      ? null
-      : quizState.priceGroups.find(p => p.label === checked.value);
+    const checked = qs('input[name="intensiteit"]:checked');
+    if (!checked) return alert("Kies een antwoord");
     showQuestion(4);
   });
 
@@ -367,7 +325,7 @@ export function initQuizPage() {
 
   // Q4 → Q5
   qs("#to-question-5")?.addEventListener("click", () => {
-    const checked = qs('input[name="intensiteit"]:checked');
+    const checked = qs('input[name="opslag"]:checked');
     if (!checked) return alert("Kies een antwoord");
     showQuestion(5);
   });
@@ -378,19 +336,6 @@ export function initQuizPage() {
     showQuestion(4);
   });
 
-  // Q5 → Q6
-  qs("#to-question-6")?.addEventListener("click", () => {
-    const checked = qs('input[name="opslag"]:checked');
-    if (!checked) return alert("Kies een antwoord");
-    showQuestion(6);
-  });
-
-  // Q6 → Q5
-  qs("#back-to-question-5")?.addEventListener("click", () => {
-    resetQuestionsFrom(6);
-    showQuestion(5);
-  });
-
   // Listen for formaat (Q2) changes → update laptop visualisation
   qsa('input[name="formaat"]').forEach(radio => {
     radio.addEventListener("change", updateLaptopDisplay);
@@ -399,7 +344,7 @@ export function initQuizPage() {
   setupGebruikLimit();
   setupExtraLimit();
 
-  // Q6 → Result
+  // Q5 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
   // Toggle panels
@@ -427,7 +372,7 @@ export function initQuizPage() {
       updateLaptopDisplay();
     }
     if (mobileQuery.matches) return;
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 5; i++) {
       const q = qs(`#question-${i}`);
       if (q && q.classList.contains("is-active")) {
         positionElements(i);

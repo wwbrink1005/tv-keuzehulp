@@ -5,7 +5,7 @@
   <base href="../../../">
   <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wasmachine Keuzehulp – Vind jouw perfecte wasmachine</title>
+  <title>Printer Keuzehulp – Vind jouw perfecte printer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -73,10 +73,12 @@
   --base-width: 1242.21;
   --base-height: 630.138;
   --scale: 1;
+  /* Positie/grootte van elke printer staat NIET hier, maar per type in
+     PRINTER_LAYOUT (js/quiz.js). */
   width: 100%;
   max-width: calc(var(--base-width) * 1px);
   aspect-ratio: 1242.21 / 630.138;
-  background-image: url('keuzehulpen/wasmachine-keuzehulp/images/washok4.png');
+  background-image: url('keuzehulpen/printer-keuzehulp/images/printer achtergrond.png');
   background-size: cover;
   background-position: center;
   border-radius: var(--r-lg);
@@ -85,6 +87,18 @@
   z-index: 1;
   box-shadow: 0 8px 40px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.04);
   overflow: hidden;
+}
+
+.printer-layer {
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  opacity: 0;
+  display: none;
+  transition: opacity .28s ease;
+  pointer-events: none;
+  z-index: 2;
 }
 
 button.question-hint-btn {
@@ -136,7 +150,7 @@ button.question-hint-btn-mobile {
 
 button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-active { background: rgba(235,244,255,.97); color: var(--c-accent); }
 
-#question-1, #question-2, #question-3, #question-4 {
+#question-1, #question-2, #question-3, #question-4, #question-5 {
   position: relative;
   opacity: 0;
   transform: translateY(6px);
@@ -145,7 +159,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 #question-1.is-active, #question-2.is-active, #question-3.is-active,
-#question-4.is-active {
+#question-4.is-active, #question-5.is-active {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -167,6 +181,18 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
   gap: calc(10px * var(--scale));
   transition: border-color .22s ease, box-shadow .22s ease, transform .18s ease, background .22s ease;
   box-shadow: 0 2px 10px rgba(0,0,0,.09), inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+.answer-option .price-indicator {
+  margin-left: auto;
+  padding-left: calc(8px * var(--scale));
+  font-size: calc(11.5px * var(--scale));
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--c-text-3);
+  opacity: .55;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .answer-option input[type="radio"],
@@ -195,21 +221,23 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 #question-1 input[type="radio"],
 #question-2 input[type="radio"],
 #question-3 input[type="radio"],
-#question-4 input[type="checkbox"] {
+#question-4 input[type="radio"],
+#question-5 input[type="radio"] {
   margin-right: calc(30px * var(--scale));
 }
 
 #question-1 .answer-info-icon,
 #question-2 .answer-info-icon,
 #question-3 .answer-info-icon,
-#question-4 .answer-info-icon {
+#question-4 .answer-info-icon,
+#question-5 .answer-info-icon {
   margin-left: calc(-20px * var(--scale));
   margin-right: calc(10px * var(--scale));
 }
 
 .button-container button:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3 {
+#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
   background: rgba(255,255,255,.90);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -219,7 +247,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
   filter: none;
 }
 
-#back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover {
+#back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover, #back-to-question-4:hover {
   background: rgba(232,242,255,.97);
   border-color: rgba(9,84,163,.50);
   box-shadow: 0 4px 14px rgba(9,84,163,.14);
@@ -230,46 +258,11 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 #question-1 .button-container,
 #question-2 .button-container,
 #question-3 .button-container,
-#question-4 .button-container {
+#question-4 .button-container,
+#question-5 .button-container {
   left: calc(26.2291px * var(--scale));
   width: calc(366.968px * var(--scale));
 }
-
-.answer-option .price-indicator {
-  font-size: 12px;
-  font-weight: 600;
-  opacity: .55;
-  margin-left: auto;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* ─── Capaciteit-visualisatie (wasmachine-foto o.b.v. gezinsgrootte) ────── */
-:root {
-  --wasmachine-right-offset: 575;  /* ← pas dit aan op basis van de achtergrond */
-  --wasmachine-bottom-offset: 60;  /* ← pas dit aan op basis van de achtergrond */
-  --wasmachine-drum-right-offset: 575;  /* ← trommel-positie, los van de machine */
-  --wasmachine-drum-bottom-offset: 130;  /* ← trommel-positie, los van de machine */
-}
-
-/* Basismachine (geen trommel) — staat altijd vast; de trommel-laag zit er
-   als aparte, exact even grote/gepositioneerde laag bovenop en crossfadet
-   tussen leeg/normaal/vol zodat de machine nooit zonder trommel te zien is. */
-#wasmachine-base,
-#wasmachine-drum-a,
-#wasmachine-drum-b {
-  position: absolute;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center bottom;
-  transition: opacity .3s ease, width .3s ease, height .3s ease, right .3s ease, bottom .3s ease;
-  display: none;
-  pointer-events: none;
-}
-
-#wasmachine-base { z-index: 3; opacity: 0; }
-#wasmachine-drum-a, #wasmachine-drum-b { z-index: 4; opacity: 0; }
 
 .info-panel-icon-wrap { display: none; }
 
@@ -292,12 +285,11 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 @media (max-width: 900px) {
 .background-container {
   --base-width: 605.5;
-  --base-height: 595;
-  --wasmachine-right-offset: 280;  /* ← pas dit aan op basis van de achtergrond */
-  --wasmachine-bottom-offset: 30;  /* ← pas dit aan op basis van de achtergrond */
-  --wasmachine-drum-right-offset: 280;  /* ← trommel-positie, los van de machine */
-  --wasmachine-drum-bottom-offset: 100;  /* ← trommel-positie, los van de machine */
-  background-image: url('keuzehulpen/wasmachine-keuzehulp/images/washok4 telefoon.png');
+  /* Zelfde hoogte als desktop: de mobiele foto is dezelfde compositie, alleen
+     aan de zijkanten afgeknipt — zo blijven de printer-posities uit
+     PRINTER_LAYOUT (js/quiz.js) 1-op-1 herbruikbaar. */
+  --base-height: 630.138;
+  background-image: url('keuzehulpen/printer-keuzehulp/images/printer achtergrond telefoon.png');
   aspect-ratio: 1 / 1;
   width: min(92vw, 560px);
   max-width: min(92vw, 560px);
@@ -315,9 +307,10 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 #question-1 .answer-info-icon, #question-2 .answer-info-icon,
-#question-3 .answer-info-icon, #question-4 .answer-info-icon { margin-left: 0; margin-right: 8px; }
+#question-3 .answer-info-icon, #question-4 .answer-info-icon,
+#question-5 .answer-info-icon { margin-left: 0; margin-right: 8px; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3 {
+#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
   border-width: 1.5px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
@@ -325,7 +318,8 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 #question-1 .button-container, #question-2 .button-container,
-#question-3 .button-container, #question-4 .button-container {
+#question-3 .button-container, #question-4 .button-container,
+#question-5 .button-container {
   left: auto;
   width: 100%;
   max-width: 100%;
@@ -352,7 +346,6 @@ button.question-hint-btn-mobile { display: grid; }
 }
 
 .answers-toggle { display: none; }
-
 }
 
 @media (max-width: 480px) {
@@ -366,7 +359,7 @@ button.question-hint-btn-mobile { display: grid; }
 
   <header class="quiz-page-header">
     <div class="quiz-header-inner">
-      <h1 class="quiz-header-title">Wasmachine Keuzehulp</h1>
+      <h1 class="quiz-header-title">Printer Keuzehulp</h1>
       <div class="quiz-toggle-row">
         <button class="quiz-toggle-btn" id="how-toggle" data-toggle-target="how-content" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/></svg>
@@ -382,7 +375,7 @@ button.question-hint-btn-mobile { display: grid; }
     </div>
     <div class="quiz-panel-content" id="how-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>We stellen vijf korte vragen over je gezinsgrootte, budget, wensen rond geluid en gebruik. Op basis van je antwoorden berekenen we welke wasmachine het beste bij je past. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+        <p>We stellen vijf korte vragen over je gebruiksdoel, printvolume en wensen rond functies en kleur. Op basis van je antwoorden berekenen we welke printer het beste bij je past. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
         <div class="quiz-how-steps">
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">1</span>
@@ -395,14 +388,14 @@ button.question-hint-btn-mobile { display: grid; }
             <span class="quiz-how-step-num">2</span>
             <div>
               <div class="quiz-how-step-label">Wij analyseren</div>
-              <div class="quiz-how-step-desc">We matchen je antwoorden met alle wasmachines</div>
+              <div class="quiz-how-step-desc">We matchen je antwoorden met alle printers</div>
             </div>
           </div>
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">3</span>
             <div>
               <div class="quiz-how-step-label">Ontvang advies</div>
-              <div class="quiz-how-step-desc">Bekijk welke wasmachines het beste bij je passen</div>
+              <div class="quiz-how-step-desc">Bekijk welke printers het beste bij je passen</div>
             </div>
           </div>
         </div>
@@ -410,8 +403,8 @@ button.question-hint-btn-mobile { display: grid; }
     </div>
     <div class="quiz-panel-content" id="uitleg-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>Deze wasmachine-keuzehulp kijkt naar je gezinsgrootte om de juiste capaciteit te bepalen, hoe belangrijk geluid tijdens centrifugeren is en waar je verder waarde aan hecht — energiezuinigheid of gebruiksgemak. Op basis daarvan bepalen we welk type wasmachine (Budget, Mid of Premium) het beste bij je past, en filteren we verder op geluidsniveau en extra's zoals uitgestelde start of AquaStop. We nemen alleen wasmachines mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
-        <p>De €-tekens naast sommige antwoorden geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) wasmachine leidt — puur ter indicatie, dit filtert niets weg. We vragen geen budget vooraf, zodat de wasmachines die het best bij je passen niet per ongeluk buiten beeld vallen door een te streng gekozen prijsplafond. Na de quiz kun je op de resultatenpagina zelf nog filteren op prijscategorie.</p>
+        <p>Deze printer-keuzehulp kijkt eerst naar je hoofdgebruik — vooral tekst, een mix met af en toe een foto, vooral foto's, of zakelijk gebruik — want dat bepaalt fundamenteel welk type printer (inkjet, laser of fotoprinter) geschikt is. Daarna kijken we naar hoeveel je gemiddeld per maand print, of je scannen en kopiëren wilt (all-in-one), of kleur belangrijk is, en of je vanaf je telefoon of tablet print. We nemen alleen printers mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
+        <p>De €-tekens naast sommige antwoorden geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) printer leidt — puur ter indicatie, dit filtert niets weg. We vragen geen budget vooraf, zodat de printers die het best bij je passen niet per ongeluk buiten beeld vallen door een te streng gekozen prijsplafond. Na de quiz kun je op de resultatenpagina zelf nog filteren op prijscategorie.</p>
       </div>
     </div>
   </header>
@@ -423,10 +416,8 @@ button.question-hint-btn-mobile { display: grid; }
           <div class="top-bar">
             <div class="progress-bar" id="progress-bar"></div>
           </div>
-          <!-- Capaciteit-visualisatie: vaste wasmachine + crossfadende trommel-vulling o.b.v. gezinsgrootte -->
-          <div id="wasmachine-base"></div>
-          <div id="wasmachine-drum-a"></div>
-          <div id="wasmachine-drum-b"></div>
+          <div id="printer-display-a" class="printer-layer"></div>
+          <div id="printer-display-b" class="printer-layer"></div>
           <button id="question-hint-btn-mobile" class="question-hint-btn-mobile" type="button" aria-label="Waarom deze vraag?">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>
@@ -463,68 +454,74 @@ button.question-hint-btn-mobile { display: grid; }
             Waarom deze vraag?
           </button>
 
-          <!-- VRAAG 1: Gezinsgrootte → capaciteit -->
+          <!-- VRAAG 1: Gebruiksdoel → printertype -->
           <div id="question-1" class="question-block">
             <div class="question-container">
-              <h2>Voor hoeveel personen was je?</h2>
+              <h2>Waarvoor ga je de printer vooral gebruiken?</h2>
               <div class="question-popover" data-popover="1">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">De grootte van je huishouden bepaalt hoeveel capaciteit (kg) je nodig hebt. Voor 1-2 personen is 6-7 kg ruim voldoende. Bij 3-4 personen past 8-9 kg beter bij de hoeveelheid was per week. Bij 5 of meer personen (of veel was, bijv. door kinderen of sport) is 10 kg of meer aan te raden — zo hoef je minder vaak te wassen.</p>
+                <p class="question-popover-text">Dit is de belangrijkste vraag: puur tekst en documenten vraagt om een compacte, betaalbare inkjetprinter. Print je ook af en toe een foto, dan kijken we net iets breder naar kleurkwaliteit. Vooral foto's afdrukken vraagt om een fotoprinter met meer kleuren en hogere afdrukkwaliteit. Zakelijk gebruik vraagt om een snellere, robuustere printer (vaak laser) met functies als automatische documentinvoer en dubbelzijdig printen.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
-                <input type="radio" name="capaciteitGroup" value="klein">
-                <svg class="answer-info-icon" data-icon="user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>1-2 personen</span>
+                <input type="radio" name="gebruik" value="tekst">
+                <svg class="answer-info-icon" data-icon="file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Vooral tekst en documenten</span>
                 <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
-                <input type="radio" name="capaciteitGroup" value="gemiddeld">
-                <svg class="answer-info-icon" data-icon="users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>3-4 personen</span>
+                <input type="radio" name="gebruik" value="gemengd">
+                <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Van alles een beetje, ook af en toe een foto</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
-                <input type="radio" name="capaciteitGroup" value="groot">
-                <svg class="answer-info-icon" data-icon="users-round" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>5 of meer personen, of veel was per week</span>
+                <input type="radio" name="gebruik" value="foto">
+                <svg class="answer-info-icon" data-icon="image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Vooral foto's en kleurrijk werk</span>
+                <span class="price-indicator">€€€</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="gebruik" value="zakelijk">
+                <svg class="answer-info-icon" data-icon="briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Zakelijk of thuiskantoor</span>
                 <span class="price-indicator">€€€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 15px) + 22px) * var(--scale));">
               <button id="back-to-start" style="background:rgba(255,255,255,.90);border:1.5px solid rgba(9,84,163,.30);color:var(--c-accent);box-shadow:0 2px 8px rgba(0,0,0,.08);filter:none;" onclick="window.location.href='./'">Terug</button>
               <button id="to-question-2">Volgende</button>
             </div>
           </div>
 
-          <!-- VRAAG 2: Geluid -->
+          <!-- VRAAG 2: Printvolume -->
           <div id="question-2" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Hoe belangrijk is een stille wasmachine?</h2>
+              <h2>Hoeveel print je gemiddeld per maand?</h2>
               <div class="question-popover" data-popover="2">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Het geluidsniveau tijdens centrifugeren varieert flink tussen wasmachines. Woon je in een appartement, heeft de wasmachine een plek dicht bij de woonkamer/slaapkamer, of vind je het gewoon belangrijk? Dan zoeken we gericht naar stillere modellen (lager dB-niveau).</p>
+                <p class="question-popover-text">Hoe meer je print, hoe zwaarder de kosten per pagina en de duurzaamheid van de printer gaan wegen. Bij weinig gebruik is een instapmodel ruim voldoende. Print je dagelijks of in grote oplages, dan zoeken we een robuustere printer die daarop berekend is.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
-                <input type="radio" name="geluid" value="belangrijk">
-                <svg class="answer-info-icon" data-icon="volume-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Erg belangrijk, moet stil zijn</span>
-                <span class="price-indicator">€€€</span>
+                <input type="radio" name="volume" value="weinig">
+                <svg class="answer-info-icon" data-icon="file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Weinig, tot ongeveer 30 pagina's</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
-                <input type="radio" name="geluid" value="gemiddeld">
-                <svg class="answer-info-icon" data-icon="volume-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Een beetje belangrijk</span>
+                <input type="radio" name="volume" value="gemiddeld">
+                <svg class="answer-info-icon" data-icon="files" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Gemiddeld, 30 tot 150 pagina's</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
-                <input type="radio" name="geluid" value="niet">
-                <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Niet belangrijk</span>
-                <span class="price-indicator">€</span>
+                <input type="radio" name="volume" value="veel">
+                <svg class="answer-info-icon" data-icon="printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Veel, 150+ pagina's of dagelijks gebruik</span>
+                <span class="price-indicator">€€€</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 15px) + 22px) * var(--scale));">
@@ -533,80 +530,87 @@ button.question-hint-btn-mobile { display: grid; }
             </div>
           </div>
 
-          <!-- VRAAG 3: Gebruik -->
+          <!-- VRAAG 3: All-in-one -->
           <div id="question-3" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Waar hecht je de meeste waarde aan?</h2>
+              <h2>Wil je naast printen ook scannen en/of kopiëren?</h2>
               <div class="question-popover" data-popover="3">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Sommige mensen wassen gewoon zonder speciale wensen. Anderen vinden een laag energie- en waterverbruik het belangrijkst. Weer anderen hechten vooral waarde aan gebruiksgemak, zoals een display en slimme functies. Dit bepaalt welk type wasmachine we aanbevelen.</p>
+                <p class="question-popover-text">Een all-in-one printer kan naast printen ook scannen en kopiëren — handig als je van één apparaat alles wilt kunnen. Heb je daar geen behoefte aan, dan houden we ook printer-only modellen in beeld.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
-                <input type="radio" name="gebruik" value="gewoon">
-                <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gewoon goed wassen, geen speciale wensen</span>
-                <span class="price-indicator">€</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="gebruik" value="energiezuinig">
-                <svg class="answer-info-icon" data-icon="leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Energie- en waterverbruik belangrijk</span>
+                <input type="radio" name="aio" value="ja">
+                <svg class="answer-info-icon" data-icon="copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Ja, graag een all-in-one</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
-                <input type="radio" name="gebruik" value="gemak">
-                <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gebruiksgemak en slimme functies belangrijk</span>
-                <span class="price-indicator">€€€</span>
+                <input type="radio" name="aio" value="nee">
+                <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Nee, alleen printen is genoeg</span>
+                <span class="price-indicator">€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 51.3935px) + (1 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-2">Terug</button>
               <button id="to-question-4">Volgende</button>
             </div>
           </div>
 
-          <!-- VRAAG 4: Extra's (multi-select) -->
+          <!-- VRAAG 4: Kleur -->
           <div id="question-4" class="question-block" style="display:none;">
             <div class="question-container">
-              <div class="question-heading-wrap">
-                <h2>Nog specifieke extra's gewenst?</h2>
-              </div>
+              <h2>Print je weleens in kleur, of is zwart-wit genoeg?</h2>
               <div class="question-popover" data-popover="4">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Een uitgestelde start laat je de wasmachine op een later tijdstip laten starten, bijvoorbeeld 's nachts voor een lagere stroomprijs. Een kinderslot voorkomt dat kinderen de instellingen wijzigen. AquaStop beschermt tegen waterschade bij een lekkage. Je kunt meerdere opties aanvinken.</p>
+                <p class="question-popover-text">Print je vooral tekstdocumenten, dan is zwart-wit vaak voldoende en goedkoper in gebruik. Wil je ook foto's, kleurendocumenten of presentaties printen, dan zoeken we gericht naar printers die in kleur kunnen printen.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
-                <input type="checkbox" name="extra" value="uitgestelde-start">
-                <svg class="answer-info-icon" data-icon="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Uitgestelde start</span>
-                <span class="price-indicator">€€</span>
-              </label>
-              <label class="answer-option">
-                <input type="checkbox" name="extra" value="kinderslot">
-                <svg class="answer-info-icon" data-icon="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Kinderslot</span>
-                <span class="price-indicator">€€</span>
-              </label>
-              <label class="answer-option">
-                <input type="checkbox" name="extra" value="aquastop">
-                <svg class="answer-info-icon" data-icon="droplet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>AquaStop (lekkagebeveiliging)</span>
-                <span class="price-indicator">€€</span>
-              </label>
-              <label class="answer-option">
-                <input type="checkbox" name="extra" value="geen">
+                <input type="radio" name="kleur" value="nee">
                 <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Geen extra wensen</span>
+                <span>Alleen zwart-wit</span>
                 <span class="price-indicator">€</span>
               </label>
+              <label class="answer-option">
+                <input type="radio" name="kleur" value="ja">
+                <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Ook in kleur</span>
+                <span class="price-indicator">€€</span>
+              </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 51.3935px) + (1 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-3">Terug</button>
+              <button id="to-question-5">Volgende</button>
+            </div>
+          </div>
+
+          <!-- VRAAG 5: Mobiel printen -->
+          <div id="question-5" class="question-block" style="display:none;">
+            <div class="question-container">
+              <h2>Print je vanaf een smartphone of tablet?</h2>
+              <div class="question-popover" data-popover="5">
+                <h3 class="question-popover-title">Waarom deze vraag?</h3>
+                <p class="question-popover-text">Bijna elke moderne printer met wifi ondersteunt draadloos printen vanaf mobiel (bijvoorbeeld via AirPrint of Mopria). Dit heeft geen invloed op welke printers we tonen, maar bepalen we alleen of we dit specifiek benoemen in het advies.</p>
+              </div>
+            </div>
+            <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
+              <label class="answer-option">
+                <input type="radio" name="mobielPrinten" value="ja">
+                <svg class="answer-info-icon" data-icon="smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Ja, regelmatig</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="mobielPrinten" value="nee">
+                <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Nee, meestal vanaf een computer</span>
+              </label>
+            </div>
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 51.3935px) + (1 * 15px) + 22px) * var(--scale));">
+              <button id="back-to-question-4">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>
           </div>
@@ -616,7 +620,7 @@ button.question-hint-btn-mobile { display: grid; }
     </div>
   </main>
 
-  <script type="module" src="keuzehulpen/wasmachine-keuzehulp/js/main.js"></script>
+  <script type="module" src="keuzehulpen/printer-keuzehulp/js/main.js"></script>
 
   <script>
   (function () {

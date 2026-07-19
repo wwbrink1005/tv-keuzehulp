@@ -29,6 +29,11 @@ const keuzehulpen = [
     keywords: ["wasmachine", "wasmachines", "wasautomaat", "wasautomaten", "wasgoed"],
     url: "keuzehulpen/wasmachine-keuzehulp/vragen",
   },
+  {
+    title: "Printer keuzehulp",
+    keywords: ["printer", "printers", "all-in-one printer", "multifunctional", "fotoprinter"],
+    url: "keuzehulpen/printer-keuzehulp/vragen",
+  },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();

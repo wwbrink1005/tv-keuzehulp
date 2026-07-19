@@ -5,13 +5,13 @@
     <base href="../../../">
     <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Resultaat - Laptop Keuzehulp</title>
+    <title>Resultaat - Printer Keuzehulp</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="shared/menu.css" />
     <link rel="stylesheet" href="shared/footer.css" />
- <link rel="stylesheet" href="shared/resultaat.css">
+    <link rel="stylesheet" href="shared/resultaat.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="shared/menu.js" defer></script>
     <script src="shared/footer.js" defer></script>
@@ -23,193 +23,95 @@
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
 .restart-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 9px 18px;
-        border-radius: 999px;
-        background: var(--card-bg);
-        border: 1px solid var(--line);
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text-secondary);
-        text-decoration: none;
-        transition: all var(--transition);
-      }
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all var(--transition);
+}
 
 .restart-link:hover { background: var(--accent-soft); border-color: rgba(9,84,163,0.22); color: var(--accent); }
 
 .result-count-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-size: 13px;
-        font-weight: 600;
-        padding: 3px 10px;
-        border-radius: 999px;
-        flex-shrink: 0;
-        font-family: inherit;
-        min-width: 28px;
-        margin-left: 8px;
-        vertical-align: middle;
-      }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  font-family: inherit;
+  min-width: 28px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
 
 .sort-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        height: 34px;
-        padding: 0 14px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        background: var(--card-bg);
-        color: var(--text-secondary);
-        font-size: 13px;
-        font-weight: 500;
-        font-family: "Inter", sans-serif;
-        cursor: pointer;
-        transition: all var(--transition);
-      }
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: "Inter", sans-serif;
+  cursor: pointer;
+  transition: all var(--transition);
+}
 
 .sort-button:hover { background: var(--accent-soft); border-color: rgba(9,84,163,0.22); color: var(--accent); }
 
 .filter-option input[type="radio"],
-      .filter-option input[type="checkbox"] {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-        pointer-events: none;
-      }
+.filter-option input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
 
-.icon-button {
-        width: 36px;
-        height: 36px;
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--line);
-        background: var(--card-bg);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all var(--transition);
-      }
+.icon-button { width: 36px; height: 36px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--card-bg); display: inline-flex; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); }
 
 .icon-button:hover, .icon-button.is-active { background: var(--accent-soft); border-color: rgba(9,84,163,0.22); color: var(--accent); }
 
-.clear-filters-btn {
-        display: inline-flex;
-        align-items: center;
-        height: 26px;
-        padding: 0 11px;
-        border: 1.5px solid rgba(9,84,163,0.28);
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-size: 12px;
-        font-weight: 600;
-        font-family: inherit;
-        cursor: pointer;
-        transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-        white-space: nowrap;
-      }
+.clear-filters-btn { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border: 1.5px solid rgba(9,84,163,0.28); border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease; white-space: nowrap; }
 
 .tv-card {
-        width: 100%;
-        background: var(--card-bg);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--line);
-        padding: 20px 26px;
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 22px;
-        box-shadow: var(--shadow-card);
-        transition: all var(--transition);
-        position: relative;
-        overflow: hidden;
-        animation: fadeUp 0.4s ease-out backwards;
-      }
+  width: 100%;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  padding: 20px 26px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 22px;
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.4s ease-out backwards;
+}
 
 .tv-card:hover { border-color: rgba(9,84,163,0.15); box-shadow: var(--shadow-card-hover); transform: translateY(-2px); }
 
-.tv-preview-btn {
-        position: absolute;
-        bottom: 7px;
-        right: 7px;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        border: 1px solid rgba(0,0,0,0.1);
-        background: rgba(255,255,255,0.92);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: var(--text-secondary);
-        opacity: 0;
-        transition: opacity 0.2s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
-        z-index: 1;
-        padding: 0;
-        font-family: inherit;
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-      }
+.tv-preview-btn { position: absolute; bottom: 7px; right: 7px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); opacity: 0; transition: opacity 0.2s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease; z-index: 1; padding: 0; font-family: inherit; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 
 .tv-card:hover .tv-preview-btn { opacity: 1; }
 
-#imagePreviewOverlay {
-        position: fixed;
-        inset: 0;
-        z-index: 10000;
-        background: rgba(0,0,0,0.72);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.25s ease;
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-      }
+#imagePreviewOverlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 
-.image-preview-dialog {
-        position: relative;
-        background: #fff;
-        border-radius: var(--radius-xl);
-        padding: 50px 28px 22px;
-        width: min(580px, calc(100vw - 40px));
-        max-height: calc(100dvh - 60px);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
-        box-shadow: 0 24px 64px rgba(0,0,0,0.3);
-        transform: scale(0.93) translateY(8px);
-        transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
-      }
+.image-preview-dialog { position: relative; background: #fff; border-radius: var(--radius-xl); padding: 50px 28px 22px; width: min(580px, calc(100vw - 40px)); max-height: calc(100dvh - 60px); display: flex; flex-direction: column; align-items: center; gap: 14px; box-shadow: 0 24px 64px rgba(0,0,0,0.3); transform: scale(0.93) translateY(8px); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); }
 
-.image-preview-close {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        border: none;
-        background: rgba(0,0,0,0.07);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: var(--text-secondary);
-        transition: background 0.18s, color 0.18s;
-        padding: 0;
-        font-family: inherit;
-      }
+.image-preview-close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(0,0,0,0.07); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); transition: background 0.18s, color 0.18s; padding: 0; font-family: inherit; }
 
 .image-preview-close:hover { background: rgba(0,0,0,0.14); color: var(--text-primary); }
 
@@ -246,23 +148,7 @@
 
 .result-title { text-align: center; }
 
-.filters-panel {
-          position: fixed;
-          top: var(--menu-height, 64px);
-          left: 0;
-          bottom: 0;
-          width: min(78vw, 280px);
-          background: var(--page-bg);
-          padding: 16px 14px 24px;
-          box-shadow: 10px 0 30px rgba(0,0,0,0.12);
-          transform: translateX(-105%);
-          transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-          z-index: 900;
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
+.filters-panel { position: fixed; top: var(--menu-height, 64px); left: 0; bottom: 0; width: min(78vw, 280px); background: var(--page-bg); padding: 16px 14px 24px; box-shadow: 10px 0 30px rgba(0,0,0,0.12); transform: translateX(-105%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); z-index: 900; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
 
 .filters-panel.is-open { transform: translateX(0); }
 
@@ -273,10 +159,6 @@
 .tv-providers-list { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 }
 
-/* Card layout switches to the stacked (mobile) design as soon as the results
-   column gets too narrow for the side-by-side desktop layout — this happens
-   well before the viewport itself is "mobile" width, because the filters
-   sidebar eats into the available space (tablets / small laptops). */
 @media (max-width: 1100px) {
 .tv-card {
 	display: grid;
@@ -324,15 +206,11 @@
 
 .tv-card-price { font-size: 15px; }
 }
-   
 
 @media (max-width: 900px) {
-/* mobile-order fix: moved out of shared css to restore correct cascade order */
-.tv-card {
-					animation: fadeUp 0.35s ease-out;
-				}
+.tv-card { animation: fadeUp 0.35s ease-out; }
 }
-</style>
+    </style>
   </head>
   <body>
 
@@ -350,15 +228,13 @@
             <button class="restart-confirm" type="button">Begin opnieuw</button>
           </div>
         </div>
-        <!-- Info trigger — mobile only -->
         <button class="icon-button" id="infoTriggerMobile" type="button" aria-label="Hoe werkt het?" aria-expanded="false" aria-controls="infoCard">
           <i data-lucide="info"></i>
         </button>
       </div>
 
-      <!-- Desktop: restart + info buttons grouped left -->
       <div class="title-left-wrap">
-        <a class="restart-link" href="keuzehulpen/laptop-keuzehulp/vragen">
+        <a class="restart-link" href="keuzehulpen/printer-keuzehulp/vragen">
           <i data-lucide="arrow-left"></i>
           <span>Opnieuw beginnen</span>
         </a>
@@ -400,52 +276,32 @@
 
           <div class="filter-card" data-filter="price">
             <h3 class="filter-title">Prijscategorie</h3>
-            <div id="priceFilterOptions" class="filter-options"></div>
-          </div>
-
-          <div class="filter-card" data-filter="size" hidden>
-            <h3 class="filter-title">Schermgrootte</h3>
-            <div id="sizeFilterOptions" class="filter-options"></div>
+            <div id="priceFilterOptions" class="filter-options" data-filter-container="price"></div>
           </div>
 
           <div class="filter-card" data-filter="brand" hidden>
             <h3 class="filter-title">Merk</h3>
-            <div id="brandFilterOptions" class="filter-options"></div>
+            <div id="brandFilterOptions" class="filter-options" data-filter-container="brand"></div>
           </div>
 
-          <div class="filter-card" data-filter="tier" hidden>
-            <h3 class="filter-title">Processor</h3>
-            <div id="tierFilterOptions" class="filter-options"></div>
+          <div class="filter-card" data-filter="printtechnologie" hidden>
+            <h3 class="filter-title">Printtechnologie</h3>
+            <div id="printtechnologieFilterOptions" class="filter-options" data-filter-container="printtechnologie"></div>
           </div>
 
-          <div class="filter-card" data-filter="panel" hidden>
-            <h3 class="filter-title">Schermtype</h3>
-            <div id="panelFilterOptions" class="filter-options"></div>
+          <div class="filter-card" data-filter="kleur" hidden>
+            <h3 class="filter-title">Kleur</h3>
+            <div id="kleurFilterOptions" class="filter-options" data-filter-container="kleur"></div>
           </div>
 
-          <div class="filter-card" data-filter="ram" hidden>
-            <h3 class="filter-title">Werkgeheugen</h3>
-            <div id="ramFilterOptions" class="filter-options"></div>
-          </div>
-
-          <div class="filter-card" data-filter="resolution" hidden>
-            <h3 class="filter-title">Schermresolutie</h3>
-            <div id="resolutionFilterOptions" class="filter-options"></div>
-          </div>
-
-          <div class="filter-card" data-filter="touchscreen" hidden>
-            <h3 class="filter-title">Touchscreen</h3>
-            <div id="touchscreenFilterOptions" class="filter-options"></div>
-          </div>
-
-          <div class="filter-card" data-filter="os" hidden>
-            <h3 class="filter-title">Besturingssysteem</h3>
-            <div id="osFilterOptions" class="filter-options"></div>
+          <div class="filter-card" data-filter="functies" hidden>
+            <h3 class="filter-title">Functies</h3>
+            <div id="functiesFilterOptions" class="filter-options" data-filter-container="functies"></div>
           </div>
 
           <div class="filter-card" data-filter="aanbieder" hidden>
             <h3 class="filter-title">Winkel</h3>
-            <div id="aanbiederFilterOptions" class="filter-options"></div>
+            <div id="aanbiederFilterOptions" class="filter-options" data-filter-container="aanbieder"></div>
           </div>
         </aside>
 
@@ -453,7 +309,7 @@
         <div class="results-heading">
           <p class="results-section-label">Jouw resultaten</p>
           <h1 id="resultTitle" class="result-title">
-            <span id="resultTitleText">De laptop die het beste bij je past!</span><span id="resultMatchCount" class="result-count-badge">0</span>
+            <span id="resultTitleText">De printer die het beste bij je past!</span><span id="resultMatchCount" class="result-count-badge">0</span>
           </h1>
         </div>
 
@@ -467,7 +323,7 @@
           </button>
           <div class="results-explainer-body" id="explainerBody">
             <p>
-              Hieronder vind je alle laptops die passen bij de keuzes die je hebt gemaakt. We raden aan om voor een van deze opties te kiezen, omdat deze laptops het beste aansluiten op jouw wensen.<span class="results-explainer-text-extra"> Staan er nog veel opties in de lijst? Gebruik de filters aan de linkerkant om verder te verfijnen op bijvoorbeeld formaat, processor of prijs, zodat je nog sneller bij de perfecte laptop voor jou uitkomt.<br><br>We stelden vooraf bewust geen budgetvraag, zodat een prijsplafond niet de beste match voor je wegfiltert. Wil je toch alleen laptops binnen een bepaalde prijscategorie zien? Gebruik dan het filter "Prijscategorie" hiernaast.</span>
+              Hieronder vind je alle printers die passen bij de keuzes die je hebt gemaakt. We raden aan om voor een van deze opties te kiezen, omdat deze printers het beste aansluiten op jouw wensen.<span class="results-explainer-text-extra"> Staan er nog veel opties in de lijst? Gebruik de filters aan de linkerkant om verder te verfijnen op bijvoorbeeld printtechnologie, kleur of prijs, zodat je nog sneller bij de perfecte printer voor jou uitkomt.<br><br>We stelden vooraf bewust geen budgetvraag, zodat een prijsplafond niet de beste match voor je wegfiltert. Wil je toch alleen printers binnen een bepaalde prijscategorie zien? Gebruik dan het filter "Prijscategorie" hiernaast.</span>
               <button class="results-explainer-more-btn" type="button" id="explainerMoreBtn" aria-expanded="false">
                 <span>Meer</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -479,10 +335,10 @@
         <!-- Results Content -->
         <div class="results-content">
 
-          <!-- Best Match placeholder (hidden) -->
+          <!-- Best Match placeholder -->
           <section id="bestMatchCard" class="best-match-card is-hidden"></section>
 
-          <!-- Laptop Cards Grid -->
+          <!-- Printer Cards Grid -->
           <section class="other-matches">
             <div id="otherMatchesGrid" class="other-matches-grid"></div>
           </section>
@@ -491,12 +347,12 @@
       </div>
     </main>
 
-    <script src="keuzehulpen/laptop-keuzehulp/js/result-ui.js" defer></script>
-    <script type="module" src="keuzehulpen/laptop-keuzehulp/js/result-filters.js"></script>
-    <script type="module" src="keuzehulpen/laptop-keuzehulp/js/main.js"></script>
+    <script src="keuzehulpen/printer-keuzehulp/js/result-ui.js" defer></script>
+    <script type="module" src="keuzehulpen/printer-keuzehulp/js/result-filters.js"></script>
+    <script type="module" src="keuzehulpen/printer-keuzehulp/js/main.js"></script>
 
     <!-- ── Image Preview Overlay ── -->
-    <div id="imagePreviewOverlay" role="dialog" aria-modal="true" aria-label="Laptop afbeelding vergroten" aria-hidden="true">
+    <div id="imagePreviewOverlay" role="dialog" aria-modal="true" aria-label="Printer afbeelding vergroten" aria-hidden="true">
       <div class="image-preview-dialog">
         <button class="image-preview-close" id="imagePreviewClose" type="button" aria-label="Sluit afbeelding">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -631,17 +487,13 @@
     <script>
     (function(){
       var btn = document.getElementById('scroll-top-btn');
-      window.addEventListener('scroll', function(){
-        if (window.scrollY > 300) {
-          btn.style.opacity = '1';
-          btn.style.transform = 'translateY(0)';
-          btn.style.pointerEvents = 'auto';
-        } else {
-          btn.style.opacity = '0';
-          btn.style.transform = 'translateY(10px)';
-          btn.style.pointerEvents = 'none';
-        }
-      }, {passive: true});
+      if (!btn) return;
+      window.addEventListener('scroll', function () {
+        var show = window.scrollY > 300;
+        btn.style.opacity = show ? '1' : '0';
+        btn.style.transform = show ? 'translateY(0)' : 'translateY(10px)';
+        btn.style.pointerEvents = show ? 'auto' : 'none';
+      }, { passive: true });
     })();
     </script>
 
@@ -676,7 +528,7 @@
       </button>
       <div class="info-card-body">
         <p class="info-card-title">Over deze keuzehulp</p>
-        <p class="info-card-text">Deze laptop-keuzehulp kijkt naar waar je de laptop voor gebruikt, hoe intensief dat gebruik is en welk formaat je wilt. Op basis daarvan bepalen we welke processorklasse en specificaties passend zijn, en filteren we het aanbod verder op werkgeheugen, opslag en grafische kaart. We nemen alleen laptops mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
+        <p class="info-card-text">Deze printer-keuzehulp kijkt eerst naar je hoofdgebruik — thuis, zakelijk of vooral foto's afdrukken — om het juiste printertype te bepalen, daarna naar je budget, of kleur belangrijk is, en welke extra functies je wilt zoals dubbelzijdig printen, scannen/kopiëren, wifi of een display. We nemen alleen printers mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
       </div>
     </div>
 

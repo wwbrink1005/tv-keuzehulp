@@ -186,7 +186,7 @@ button.question-hint-btn-mobile:hover,
     }
 
 #question-1, #question-2, #question-3, #question-4,
-    #question-5, #question-6 {
+    #question-5 {
       position: relative;
       opacity: 0;
       transform: translateY(6px);
@@ -195,7 +195,7 @@ button.question-hint-btn-mobile:hover,
     }
 
 #question-1.is-active, #question-2.is-active, #question-3.is-active,
-    #question-4.is-active, #question-5.is-active, #question-6.is-active {
+    #question-4.is-active, #question-5.is-active {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
@@ -244,25 +244,35 @@ button.question-hint-btn-mobile:hover,
 
 .answers-toggle { display: none; }
 
+.answer-option .price-indicator {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      opacity: .55;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
 #question-1 input[type="checkbox"],
     #question-2 input[type="radio"],
+    #question-3 input[type="radio"],
     #question-4 input[type="radio"],
-    #question-5 input[type="radio"],
-    #question-6 input[type="checkbox"] {
+    #question-5 input[type="checkbox"] {
       margin-right: calc(30px * var(--scale));
     }
 
 #question-1 .answer-info-icon,
     #question-2 .answer-info-icon,
+    #question-3 .answer-info-icon,
     #question-4 .answer-info-icon,
-    #question-5 .answer-info-icon,
-    #question-6 .answer-info-icon {
+    #question-5 .answer-info-icon {
       margin-left: calc(-20px * var(--scale));
       margin-right: calc(10px * var(--scale));
     }
 
 #back-to-question-1, #back-to-question-2, #back-to-question-3,
-    #back-to-question-4, #back-to-question-5 {
+    #back-to-question-4 {
       background: rgba(255,255,255,.90);
       backdrop-filter: blur(12px) saturate(180%);
       -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -273,7 +283,7 @@ button.question-hint-btn-mobile:hover,
     }
 
 #back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover,
-    #back-to-question-4:hover, #back-to-question-5:hover {
+    #back-to-question-4:hover {
       background: rgba(232,242,255,.97);
       border-color: rgba(9,84,163,.50);
       box-shadow: 0 4px 14px rgba(9,84,163,.14);
@@ -285,8 +295,7 @@ button.question-hint-btn-mobile:hover,
     #question-2 .button-container,
     #question-3 .button-container,
     #question-4 .button-container,
-    #question-5 .button-container,
-    #question-6 .button-container {
+    #question-5 .button-container {
       left: calc(26.2291px * var(--scale));
       width: calc(366.968px * var(--scale));
     }
@@ -352,15 +361,15 @@ button.question-hint-btn-mobile:hover,
 
 #question-1 .answer-info-icon,
       #question-2 .answer-info-icon,
+      #question-3 .answer-info-icon,
       #question-4 .answer-info-icon,
-      #question-5 .answer-info-icon,
-      #question-6 .answer-info-icon {
+      #question-5 .answer-info-icon {
         margin-left: 0;
         margin-right: 8px;
       }
 
 #back-to-question-1, #back-to-question-2, #back-to-question-3,
-      #back-to-question-4, #back-to-question-5 {
+      #back-to-question-4 {
         border-width: 1.5px;
         background: #fff;
         box-shadow: 0 1px 4px rgba(0,0,0,.06);
@@ -371,8 +380,7 @@ button.question-hint-btn-mobile:hover,
       #question-2 .button-container,
       #question-3 .button-container,
       #question-4 .button-container,
-      #question-5 .button-container,
-      #question-6 .button-container {
+      #question-5 .button-container {
         left: auto;
         width: 100%;
         max-width: 100%;
@@ -483,6 +491,7 @@ button.question-hint-btn-mobile { display: grid; }
     <div class="quiz-panel-content" id="uitleg-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
         <p>Deze laptop-keuzehulp kijkt naar waar je de laptop voor gebruikt, hoe intensief dat gebruik is en welk formaat je wilt. Op basis daarvan bepalen we welke processorklasse en specificaties passend zijn, en filteren we het aanbod verder op werkgeheugen, opslag en grafische kaart. We nemen alleen laptops mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
+        <p>De €-tekens naast sommige antwoorden geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) laptop leidt — puur ter indicatie, dit filtert niets weg. We vragen geen budget vooraf, zodat de laptops die het best bij je passen niet per ongeluk buiten beeld vallen door een te streng gekozen prijsplafond. Na de quiz kun je op de resultatenpagina zelf nog filteren op prijscategorie.</p>
       </div>
     </div>
   </header>
@@ -555,21 +564,25 @@ button.question-hint-btn-mobile { display: grid; }
                 <input type="checkbox" name="gebruik" value="dagelijks">
                 <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Dagelijks gebruik, zoals surfen en Netflix</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="werk">
                 <svg class="answer-info-icon" data-icon="briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Studie of werk</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="creatief">
                 <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Creatief werk, zoals foto's en video's bewerken</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="gaming">
                 <svg class="answer-info-icon" data-icon="gamepad-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Gamen</span>
+                <span class="price-indicator">€€€</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 43.3935px) + 8px + (2 * 43.3935px) + 8px + 22px) * var(--scale));">
@@ -592,16 +605,19 @@ button.question-hint-btn-mobile { display: grid; }
                 <input type="radio" name="formaat" value="licht-compact">
                 <svg class="answer-info-icon" data-icon="laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Licht en compact, 13 tot 14 inch</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="formaat" value="middenweg">
                 <svg class="answer-info-icon" data-icon="laptop-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Middenweg, 15 tot 16 inch</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="formaat" value="groot-krachtig">
                 <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Groot en krachtig, 17 inch</span>
+                <span class="price-indicator">€€€</span>
               </label>
             </div>
             <div class="button-container" id="q2-buttons" style="top: calc((70.11px + 37.77px + 44px + 8px + 22px) * var(--scale));">
@@ -610,27 +626,11 @@ button.question-hint-btn-mobile { display: grid; }
             </div>
           </div>
 
-          <!-- VRAAG 3: Budget -->
+          <!-- VRAAG 3: Intensiteit -->
           <div id="question-3" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Hoeveel wil je uitgeven aan je laptop?</h2>
-              <div class="question-popover" data-popover="3">
-                <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Je budget bepaalt in welke klasse we zoeken. Goedkopere laptops zijn prima voor dagelijks gebruik, terwijl duurdere modellen snellere processors, betere schermen en meer opslag bieden. Kies het bedrag dat voor jou realistisch is – in elke categorie zijn goede opties te vinden.</p>
-              </div>
-            </div>
-            <div class="answers-container" id="price-options" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));"></div>
-            <div class="button-container" id="q3-buttons">
-              <button id="back-to-question-2">Terug</button>
-              <button id="to-question-4">Volgende</button>
-            </div>
-          </div>
-
-          <!-- VRAAG 4: Intensiteit -->
-          <div id="question-4" class="question-block" style="display:none;">
-            <div class="question-container">
               <h2>Hoe zwaar ga je de laptop gebruiken?</h2>
-              <div class="question-popover" data-popover="4">
+              <div class="question-popover" data-popover="3">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
                 <p class="question-popover-text">Licht gebruik zoals surfen en e-mailen vraagt weinig rekenkracht. Intensief gebruik zoals videobewerking, 3D-rendering of gamen vereist een krachtigere processor en meer werkgeheugen. Hoe zwaarder je de laptop gebruikt, hoe belangrijker snelle hardware is.</p>
               </div>
@@ -640,29 +640,32 @@ button.question-hint-btn-mobile { display: grid; }
                 <input type="radio" name="intensiteit" value="licht">
                 <svg class="answer-info-icon" data-icon="coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Licht gebruik</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="intensiteit" value="gemiddeld">
                 <svg class="answer-info-icon" data-icon="layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Gemiddeld gebruik</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="intensiteit" value="intensief">
                 <svg class="answer-info-icon" data-icon="zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Intensief gebruik</span>
+                <span class="price-indicator">€€€</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
-              <button id="back-to-question-3">Terug</button>
-              <button id="to-question-5">Volgende</button>
+              <button id="back-to-question-2">Terug</button>
+              <button id="to-question-4">Volgende</button>
             </div>
           </div>
 
-          <!-- VRAAG 5: Opslag -->
-          <div id="question-5" class="question-block" style="display:none;">
+          <!-- VRAAG 4: Opslag -->
+          <div id="question-4" class="question-block" style="display:none;">
             <div class="question-container">
               <h2>Hoeveel opslagruimte heb je nodig?</h2>
-              <div class="question-popover" data-popover="5">
+              <div class="question-popover" data-popover="4">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
                 <p class="question-popover-text">Opslag bepaalt hoeveel bestanden, programma's en media je lokaal kunt bewaren. Sla je alles op in de cloud? Dan is 256 GB voldoende. Heb je veel foto's, programma's of video's? Kies dan voor 512 GB of meer. Professionele gebruikers met grote projecten zijn het best geholpen met 1 TB of meer.</p>
               </div>
@@ -672,29 +675,32 @@ button.question-hint-btn-mobile { display: grid; }
                 <input type="radio" name="opslag" value="weinig">
                 <svg class="answer-info-icon" data-icon="cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Weinig, 256 GB</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="opslag" value="gemiddeld">
                 <svg class="answer-info-icon" data-icon="hard-drive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Gemiddeld, 512 GB</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="opslag" value="veel">
                 <svg class="answer-info-icon" data-icon="server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Veel, 1 TB of meer</span>
+                <span class="price-indicator">€€€</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
-              <button id="back-to-question-4">Terug</button>
-              <button id="to-question-6">Volgende</button>
+              <button id="back-to-question-3">Terug</button>
+              <button id="to-question-5">Volgende</button>
             </div>
           </div>
 
-          <!-- VRAAG 6: Extra's -->
-          <div id="question-6" class="question-block" style="display:none;">
+          <!-- VRAAG 5: Extra's -->
+          <div id="question-5" class="question-block" style="display:none;">
             <div class="question-container">
               <div class="question-heading-wrap"><h2>Wat is nog meer belangrijk voor jou?</h2></div>
-              <div class="question-popover" data-popover="6">
+              <div class="question-popover" data-popover="5">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
                 <p class="question-popover-text">Hier kun je extra wensen aangeven. Een touchscreen maakt bediening intuïtiever. USB-C is handig voor modern opladen en accessoires. Meerdere schermen aansluiten kan met extra HDMI-poorten. Een scherp beeldscherm (OLED of hoge resolutie) is prettig voor foto's, video en lang werken. Je kunt meerdere opties aanvinken.</p>
               </div>
@@ -704,30 +710,35 @@ button.question-hint-btn-mobile { display: grid; }
                 <input type="checkbox" name="extra" value="touchscreen">
                 <svg class="answer-info-icon" data-icon="tablet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Touchscreen</span>
+                <span class="price-indicator">€€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="usb-c">
                 <svg class="answer-info-icon" data-icon="plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>USB-C aansluiting</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="meerdere-schermen">
                 <svg class="answer-info-icon" data-icon="layout-panel-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Meerdere schermen aansluiten</span>
+                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="scherp-beeldscherm">
                 <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Scherp beeldscherm</span>
+                <span class="price-indicator">€€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="geen">
                 <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Geen extra wensen</span>
+                <span class="price-indicator">€</span>
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 51.3935px) + (4 * 8px) + 22px) * var(--scale));">
-              <button id="back-to-question-5">Terug</button>
+              <button id="back-to-question-4">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>
           </div>

@@ -1,12 +1,9 @@
-import { priceGroupsByCapaciteit, capaciteitGroupToAllowedCapaciteit } from "./data.js";
 import { calculateScores, matchWasmachines } from "./matching.js";
-import { computeDynamicPriceGroups, getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
+import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 
 const quizState = {
-  selectedCapaciteitGroup: null,
-  selectedPriceGroup:      null,
-  priceGroups:             []
+  selectedCapaciteitGroup: null
 };
 
 let productsFetchPromise = null;
@@ -41,7 +38,7 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
-const TOTAL_QUESTIONS = 5;
+const TOTAL_QUESTIONS = 4;
 
 // Capaciteit-visualisatie: vaste wasmachine + trommel-vulling (leeg/normaal/vol)
 // o.b.v. gezinsgrootte. De basismachine (zonder trommel) staat altijd vast;
@@ -234,30 +231,6 @@ function positionElements(questionNum) {
   }
 }
 
-function renderPriceOptions(groups) {
-  const container = qs("#price-options");
-  if (!container) return;
-  container.innerHTML = "";
-
-  groups.forEach(group => {
-    const label = document.createElement("label");
-    label.className = "answer-option";
-    label.innerHTML = `
-      <input type="radio" name="priceGroup" value="${group.label}">
-      <span>€ ${group.label}</span>
-    `;
-    container.appendChild(label);
-  });
-
-  const noPriceLabel = document.createElement("label");
-  noPriceLabel.className = "answer-option";
-  noPriceLabel.innerHTML = `
-    <input type="radio" name="priceGroup" value="geen-voorkeur">
-    <span>Geen voorkeur – toon alle prijzen</span>
-  `;
-  container.appendChild(noPriceLabel);
-}
-
 function resetQuestionsFrom(questionNumber) {
   for (let i = questionNumber; i <= TOTAL_QUESTIONS; i++) {
     const inputs = qsa(`#question-${i} input`);
@@ -309,7 +282,7 @@ function handleStartMatching() {
       const result = matchWasmachines(
         wasmachines,
         quizState.selectedCapaciteitGroup,
-        quizState.selectedPriceGroup,
+        null,
         answers,
         scores
       );
@@ -320,8 +293,6 @@ function handleStartMatching() {
       localStorage.setItem("wasmachine_filteredMatchedWasmachines",  JSON.stringify(result.filteredMatchedWasmachines));
       localStorage.setItem("wasmachine_answers",                     JSON.stringify(answers));
       localStorage.setItem("wasmachine_selectedCapaciteitGroup",     quizState.selectedCapaciteitGroup ?? "");
-      localStorage.setItem("wasmachine_selectedPriceGroupLabel",     quizState.selectedPriceGroup?.label ?? "");
-      localStorage.setItem("wasmachine_dynamicPriceGroups",          JSON.stringify(quizState.priceGroups));
 
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
@@ -341,27 +312,13 @@ export function initQuizPage() {
   // Pre-fetch products in the background
   prefetchProducts();
 
-  // Q1 → Q2 (fetch dynamic price groups based on selected capaciteitGroup)
-  qs("#to-question-2")?.addEventListener("click", async () => {
+  // Q1 → Q2
+  qs("#to-question-2")?.addEventListener("click", () => {
     const checked = qs('input[name="capaciteitGroup"]:checked');
     if (!checked) return alert("Kies een gezinsgrootte");
 
     quizState.selectedCapaciteitGroup = checked.value;
 
-    const btn = qs("#to-question-2");
-    if (btn) btn.disabled = true;
-    try {
-      const rawProducts = await prefetchProducts();
-      const wasmachines = normalizeProducts(rawProducts ?? []);
-      const dynamic = computeDynamicPriceGroups(wasmachines, quizState.selectedCapaciteitGroup, capaciteitGroupToAllowedCapaciteit);
-      quizState.priceGroups = dynamic.length > 0 ? dynamic : (priceGroupsByCapaciteit[quizState.selectedCapaciteitGroup] ?? []);
-    } catch {
-      quizState.priceGroups = priceGroupsByCapaciteit[quizState.selectedCapaciteitGroup] ?? [];
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-
-    renderPriceOptions(quizState.priceGroups);
     showQuestion(2);
   });
 
@@ -373,11 +330,8 @@ export function initQuizPage() {
 
   // Q2 → Q3
   qs("#to-question-3")?.addEventListener("click", () => {
-    const checked = qs('input[name="priceGroup"]:checked');
-    if (!checked) return alert("Kies een budget");
-    quizState.selectedPriceGroup = checked.value === "geen-voorkeur"
-      ? null
-      : quizState.priceGroups.find(p => p.label === checked.value);
+    const checked = qs('input[name="geluid"]:checked');
+    if (!checked) return alert("Kies een antwoord");
     showQuestion(3);
   });
 
@@ -389,7 +343,7 @@ export function initQuizPage() {
 
   // Q3 → Q4
   qs("#to-question-4")?.addEventListener("click", () => {
-    const checked = qs('input[name="geluid"]:checked');
+    const checked = qs('input[name="gebruik"]:checked');
     if (!checked) return alert("Kies een antwoord");
     showQuestion(4);
   });
@@ -400,22 +354,9 @@ export function initQuizPage() {
     showQuestion(3);
   });
 
-  // Q4 → Q5
-  qs("#to-question-5")?.addEventListener("click", () => {
-    const checked = qs('input[name="gebruik"]:checked');
-    if (!checked) return alert("Kies een antwoord");
-    showQuestion(5);
-  });
-
-  // Q5 → Q4
-  qs("#back-to-question-4")?.addEventListener("click", () => {
-    resetQuestionsFrom(5);
-    showQuestion(4);
-  });
-
   setupExtraLimit();
 
-  // Q5 → Result
+  // Q4 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
   // Live-visualisatie bij het kiezen van een gezinsgrootte (Q1)

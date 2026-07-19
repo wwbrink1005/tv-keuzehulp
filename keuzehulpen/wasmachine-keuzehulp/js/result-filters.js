@@ -1,18 +1,19 @@
-import { priceGroupsByCapaciteit, getWasmachineTier, capaciteitGroupToAllowedCapaciteit } from "./data.js";
-import { computeMatchForPriceGroup, getIdealTierSet } from "./matching.js";
-import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
+import { priceGroupsByCapaciteit, capaciteitGroupToAllowedCapaciteit } from "./data.js";
+import { matchWasmachines } from "./matching.js";
+import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 
 const filterState = {
-  priceLabel:     "",
+  priceLabels:    new Set(),
   capaciteiten:   new Set(),
   brands:         new Set(),
   typeLaders:     new Set(),
   energieLabels:  new Set(),
   centrifugeRpms: new Set(),
+  kleuren:        new Set(),
   aanbieder:      new Set(),
-  priceMatches:   new Map(),
+  baseMatches:    [],
   answers:        null,
   scores:         null,
   bestType:       "",
@@ -31,15 +32,27 @@ function getDynamicPriceGroups(capaciteitGroup) {
   return priceGroupsByCapaciteit[capaciteitGroup] || [];
 }
 
+// Price is just another optional narrowing filter, not a hard upfront wall:
+// with no bucket selected, every wasmachine matching the quiz answers is shown.
+function getBaseMatches() {
+  return filterState.baseMatches;
+}
+
+function getPriceScopedMatches() {
+  const base = getBaseMatches();
+  if (filterState.priceLabels.size === 0) return base;
+  const groups = getDynamicPriceGroups(filterState.capaciteitGroup).filter(g => filterState.priceLabels.has(g.label));
+  return base.filter(w => {
+    const price = parsePrice(w.prijs);
+    return groups.some(g => price >= g.min && price <= g.max);
+  });
+}
+
 function formatBrandLabel(brand) {
   const raw = String(brand ?? "").trim();
   if (!raw) return "";
   if (raw === raw.toUpperCase()) return raw;
   return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
-}
-
-function getActivePriceMatches() {
-  return filterState.priceMatches.get(filterState.priceLabel) || [];
 }
 
 function collectCapaciteitOptions(matches) {
@@ -74,6 +87,23 @@ function collectCentrifugeRpmOptions(matches) {
   const set = new Set();
   matches.forEach(w => { if (w.centrifugeRpm) set.add(w.centrifugeRpm); });
   return Array.from(set).sort((a, b) => a - b);
+}
+
+// Normaliseert combinaties als "Wit, Zwart" en "Zwart, Wit" naar dezelfde
+// canonieke waarde, zodat ze niet als 2 losse filteropties verschijnen.
+function normalizeKleur(kleur) {
+  const raw = String(kleur ?? "").trim();
+  if (!raw) return "";
+  return raw.split(",").map(s => s.trim()).filter(Boolean).sort().join(", ");
+}
+
+function collectKleurOptions(matches) {
+  const set = new Set();
+  matches.forEach(w => { const k = normalizeKleur(w.kleur); if (k) set.add(k); });
+  const order = ["Wit", "Zwart", "Zwart, Wit", "Antraciet", "Grijs", "Zilver"];
+  const inOrder = order.filter(t => set.has(t));
+  set.forEach(t => { if (!order.includes(t)) inOrder.push(t); });
+  return inOrder;
 }
 
 function collectAanbiederOptions(matches) {
@@ -124,43 +154,8 @@ function renderFilterOptions(container, card, items, filterName, labelFn) {
   });
 }
 
-function buildPriceMatches(wasmachines, capaciteitGroup) {
-  const groups = getDynamicPriceGroups(capaciteitGroup);
-  const map = new Map();
-
-  // Every price bucket that has at least one matching wasmachine stays in
-  // the menu, regardless of tier — users should always get the full set of
-  // price options to pick from themselves.
-  groups.forEach(group => {
-    const result = computeMatchForPriceGroup(
-      wasmachines, capaciteitGroup, group, filterState.answers, filterState.scores
-    );
-    const matches = Array.isArray(result.filteredMatchedWasmachines) ? result.filteredMatchedWasmachines : [];
-    if (matches.length > 0) map.set(group.label, matches);
-  });
-
-  return map;
-}
-
-/**
- * Picks which price bucket should be selected by default when the user
- * didn't pick a budget in the quiz ("geen voorkeur"): the cheapest bucket
- * that still contains a wasmachine of the highest-scoring tier, ignoring
- * price entirely when judging "best match". Falls back to the cheapest
- * bucket with any match at all if no bucket has the ideal tier.
- */
-function pickDefaultPriceLabel(priceMatches, scores) {
-  const idealTiers = getIdealTierSet(scores);
-  if (idealTiers.size > 0) {
-    for (const [label, matches] of priceMatches) {
-      if (matches.some(w => idealTiers.has(getWasmachineTier(w)))) return label;
-    }
-  }
-  return priceMatches.keys().next().value ?? "";
-}
-
 function applyFilters() {
-  let filtered = getActivePriceMatches();
+  let filtered = getPriceScopedMatches();
 
   if (filterState.capaciteiten.size > 0) {
     filtered = filtered.filter(w => filterState.capaciteiten.has(w.capaciteit));
@@ -180,6 +175,10 @@ function applyFilters() {
 
   if (filterState.centrifugeRpms.size > 0) {
     filtered = filtered.filter(w => filterState.centrifugeRpms.has(w.centrifugeRpm));
+  }
+
+  if (filterState.kleuren.size > 0) {
+    filtered = filtered.filter(w => filterState.kleuren.has(normalizeKleur(w.kleur)));
   }
 
   if (filterState.aanbieder.size > 0) {
@@ -205,14 +204,15 @@ function applyFilters() {
 function updateClearFiltersBtn() {
   const btn = qs("#clearFiltersBtn");
   if (!btn) return;
-  const hasActive = filterState.capaciteiten.size > 0 || filterState.brands.size > 0 ||
+  const hasActive = filterState.priceLabels.size > 0 || filterState.capaciteiten.size > 0 || filterState.brands.size > 0 ||
     filterState.typeLaders.size > 0 || filterState.energieLabels.size > 0 ||
-    filterState.centrifugeRpms.size > 0 || filterState.aanbieder.size > 0;
+    filterState.centrifugeRpms.size > 0 || filterState.kleuren.size > 0 ||
+    filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
 function renderAllFilters() {
-  const matches = getActivePriceMatches();
+  const matches = getPriceScopedMatches();
 
   const priceContainer      = qs("[data-filter-container='price']");
   const capaciteitContainer = qs("[data-filter-container='capaciteit']");
@@ -220,6 +220,7 @@ function renderAllFilters() {
   const typeLaderContainer  = qs("[data-filter-container='type-lader']");
   const energieContainer    = qs("[data-filter-container='energie-label']");
   const rpmContainer        = qs("[data-filter-container='centrifuge-rpm']");
+  const kleurContainer      = qs("[data-filter-container='kleur']");
   const aanbiederContainer  = qs("[data-filter-container='aanbieder']");
 
   const priceCard      = qs(".filter-card[data-filter='price']");
@@ -228,26 +229,47 @@ function renderAllFilters() {
   const typeLaderCard   = qs(".filter-card[data-filter='type-lader']");
   const energieCard     = qs(".filter-card[data-filter='energie-label']");
   const rpmCard         = qs(".filter-card[data-filter='centrifuge-rpm']");
+  const kleurCard       = qs(".filter-card[data-filter='kleur']");
   const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
     const groups = getDynamicPriceGroups(filterState.capaciteitGroup);
     // Only show price buckets that actually contain a matching wasmachine
     // for the current quiz answers — otherwise users click a bucket that
-    // can never show a result.
-    const labels = groups.filter(g => filterState.priceMatches.has(g.label));
+    // can never show a result. If there's only one (or zero) non-empty
+    // bucket there's nothing meaningful to narrow, so hide the whole card.
+    const base = getBaseMatches();
+    const labels = groups.filter(g => base.some(w => {
+      const price = parsePrice(w.prijs);
+      return price >= g.min && price <= g.max;
+    }));
+
     priceContainer.innerHTML = "";
-    if (labels.length === 0) { priceCard.hidden = true; }
+    if (labels.length <= 1) { priceCard.hidden = true; }
     else {
       priceCard.hidden = false;
+
+      const isAllSelected = filterState.priceLabels.size === 0;
+      const allLabel = document.createElement("label");
+      allLabel.className = "filter-option";
+      const allInput = document.createElement("input");
+      allInput.type = "checkbox";
+      allInput.name = "priceFilter";
+      allInput.value = "all";
+      allInput.checked = isAllSelected;
+      const allText = document.createElement("span");
+      allText.textContent = "Alle prijzen";
+      allLabel.append(allInput, allText);
+      priceContainer.appendChild(allLabel);
+
       labels.forEach(group => {
         const label = document.createElement("label");
         label.className = "filter-option";
         const input = document.createElement("input");
-        input.type = "radio";
+        input.type = "checkbox";
         input.name = "priceFilter";
         input.value = group.label;
-        input.checked = group.label === filterState.priceLabel;
+        input.checked = filterState.priceLabels.has(group.label);
         const text = document.createElement("span");
         text.textContent = `€ ${group.label}`;
         label.append(input, text);
@@ -301,6 +323,15 @@ function renderAllFilters() {
     });
   }
 
+  if (kleurContainer && kleurCard) {
+    const kleuren = collectKleurOptions(matches);
+    renderFilterOptions(kleurContainer, kleurCard, kleuren, "kleuren", null);
+    kleurContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      if (input.value === "all") input.checked = filterState.kleuren.size === 0;
+      else input.checked = filterState.kleuren.has(input.value);
+    });
+  }
+
   if (aanbiederContainer && aanbiederCard) {
     const aanbieders = collectAanbiederOptions(matches);
     renderFilterOptions(aanbiederContainer, aanbiederCard, aanbieders, "aanbieder", null);
@@ -320,25 +351,14 @@ function handleFilterChange(event) {
   const name  = input.name;
   const value = input.value;
 
-  if (name === "priceFilter") {
-    filterState.priceLabel = value;
-    filterState.capaciteiten.clear();
-    filterState.brands.clear();
-    filterState.typeLaders.clear();
-    filterState.energieLabels.clear();
-    filterState.centrifugeRpms.clear();
-    filterState.aanbieder.clear();
-    renderAllFilters();
-    applyFilters();
-    return;
-  }
-
   const setMap = {
+    priceFilter:    { set: filterState.priceLabels,    parse: v => v },
     capaciteiten:   { set: filterState.capaciteiten,   parse: v => parseFloat(v) },
     brands:         { set: filterState.brands,         parse: v => v },
     typeLaders:     { set: filterState.typeLaders,     parse: v => v },
     energieLabels:  { set: filterState.energieLabels,  parse: v => v },
     centrifugeRpms: { set: filterState.centrifugeRpms, parse: v => parseInt(v, 10) },
+    kleuren:        { set: filterState.kleuren,        parse: v => v },
     aanbieder:      { set: filterState.aanbieder,      parse: v => v }
   };
 
@@ -369,13 +389,11 @@ export async function initFilters() {
   const answersData          = localStorage.getItem("wasmachine_answers");
   const scoresData           = localStorage.getItem("wasmachine_scores");
   const capaciteitGroupData  = localStorage.getItem("wasmachine_selectedCapaciteitGroup");
-  const priceLabelData       = localStorage.getItem("wasmachine_selectedPriceGroupLabel");
   const bestTypeData         = localStorage.getItem("wasmachine_bestType");
 
   filterState.answers         = answersData ? JSON.parse(answersData) : null;
   filterState.scores          = scoresData  ? JSON.parse(scoresData)  : null;
   filterState.capaciteitGroup = capaciteitGroupData ?? "";
-  filterState.priceLabel      = priceLabelData ?? "";
   filterState.bestType        = bestTypeData ?? "";
 
   // Fetch & normalize all wasmachines
@@ -387,39 +405,30 @@ export async function initFilters() {
     allWasmachines = [];
   }
 
-  // Build price match map
   filterState.priceGroups = computeDynamicPriceGroups(allWasmachines, filterState.capaciteitGroup, capaciteitGroupToAllowedCapaciteit);
-  filterState.priceMatches = buildPriceMatches(allWasmachines, filterState.capaciteitGroup);
 
-  // Safety net: if the freshly-recomputed map doesn't have the price bucket
-  // the user actually picked in the quiz (e.g. a transient fetch hiccup, or
-  // scores/answers not reproducing identically), fall back to the matches
-  // that were already computed and stored at quiz-submit time, instead of
-  // showing "no results" for a bucket that demonstrably had results.
-  if (!filterState.priceMatches.has(filterState.priceLabel) && filterState.priceLabel) {
+  // No budget question was asked during the quiz, so the base match set is
+  // computed with priceGroup = null (the full, price-unrestricted result).
+  const result = matchWasmachines(allWasmachines, filterState.capaciteitGroup, null, filterState.answers, filterState.scores);
+  filterState.baseMatches = Array.isArray(result.filteredMatchedWasmachines) ? result.filteredMatchedWasmachines : [];
+
+  // Fallback: if the live fetch/computation yields nothing, seed the pool
+  // with the wasmachines that were already matched during the quiz.
+  if (filterState.baseMatches.length === 0) {
     const storedData = localStorage.getItem("wasmachine_filteredMatchedWasmachines");
     if (storedData) {
       try {
         const storedWasmachines = JSON.parse(storedData);
         if (Array.isArray(storedWasmachines) && storedWasmachines.length > 0) {
-          filterState.priceMatches.set(filterState.priceLabel, storedWasmachines);
+          filterState.baseMatches = storedWasmachines;
         }
       } catch { /* ignore */ }
     }
   }
 
-  // Reset the stored label if it doesn't correspond to a real price bucket
-  // for this capaciteit at all (e.g. stale data, or no price was picked
-  // during the quiz) — fall back to the best-matching bucket computed from
-  // the quiz answers instead. A bucket that's valid but currently has 0
-  // tier-matches should stay selected, not silently reset — resetting it
-  // makes the user's quiz answer disappear with no explanation.
-  const validLabels = new Set(getDynamicPriceGroups(filterState.capaciteitGroup).map(g => g.label));
-  if (!filterState.priceLabel || !validLabels.has(filterState.priceLabel)) {
-    filterState.priceLabel = filterState.priceMatches.has(filterState.priceLabel)
-      ? filterState.priceLabel
-      : pickDefaultPriceLabel(filterState.priceMatches, filterState.scores);
-  }
+  // No price bucket selected by default: show every matching wasmachine and
+  // let the user optionally narrow by budget via the "Prijscategorie" filter.
+  filterState.priceLabels = new Set();
 
   renderAllFilters();
 
@@ -430,11 +439,13 @@ export async function initFilters() {
   const clearBtn = qs("#clearFiltersBtn");
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
+      filterState.priceLabels.clear();
       filterState.capaciteiten.clear();
       filterState.brands.clear();
       filterState.typeLaders.clear();
       filterState.energieLabels.clear();
       filterState.centrifugeRpms.clear();
+      filterState.kleuren.clear();
       filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();

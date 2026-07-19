@@ -1,12 +1,10 @@
-import { priceGroupsBySize, scoringSystem, sizeGroupToAllowedSizes } from "./data.js";
+import { scoringSystem, sizeGroupToAllowedSizes } from "./data.js";
 import { calculateScores, matchMonitors } from "./matching.js";
-import { computeDynamicPriceGroups, getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
+import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 
 const quizState = {
-  selectedSizeGroup:  null,
-  selectedPriceGroup: null,
-  priceGroups:        []
+  selectedSizeGroup: null
 };
 
 let productsFetchPromise = null;
@@ -41,7 +39,7 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
-const TOTAL_QUESTIONS = 5;
+const TOTAL_QUESTIONS = 4;
 
 // Dimensions (px in 1242.21-wide coordinate space) per size group
 const monitorDimensions = {
@@ -215,30 +213,6 @@ function positionElements(questionNum) {
   }
 }
 
-function renderPriceOptions(groups) {
-  const container = qs("#price-options");
-  if (!container) return;
-  container.innerHTML = "";
-
-  groups.forEach(group => {
-    const label = document.createElement("label");
-    label.className = "answer-option";
-    label.innerHTML = `
-      <input type="radio" name="priceGroup" value="${group.label}">
-      <span>€ ${group.label}</span>
-    `;
-    container.appendChild(label);
-  });
-
-  const noPriceLabel = document.createElement("label");
-  noPriceLabel.className = "answer-option";
-  noPriceLabel.innerHTML = `
-    <input type="radio" name="priceGroup" value="geen-voorkeur">
-    <span>Geen voorkeur – toon alle prijzen</span>
-  `;
-  container.appendChild(noPriceLabel);
-}
-
 function resetQuestionsFrom(questionNumber) {
   for (let i = questionNumber; i <= TOTAL_QUESTIONS; i++) {
     const inputs = qsa(`#question-${i} input`);
@@ -303,7 +277,7 @@ function handleStartMatching() {
       const result = matchMonitors(
         monitors,
         quizState.selectedSizeGroup,
-        quizState.selectedPriceGroup,
+        null,
         answers,
         scores
       );
@@ -314,8 +288,6 @@ function handleStartMatching() {
       localStorage.setItem("monitor_filteredMatchedMonitors", JSON.stringify(result.filteredMatchedMonitors));
       localStorage.setItem("monitor_answers",                 JSON.stringify(answers));
       localStorage.setItem("monitor_selectedSizeGroup",       quizState.selectedSizeGroup ?? "");
-      localStorage.setItem("monitor_selectedPriceGroupLabel", quizState.selectedPriceGroup?.label ?? "");
-      localStorage.setItem("monitor_dynamicPriceGroups",      JSON.stringify(quizState.priceGroups));
 
       const wrapper = qs(".container-wrapper");
       if (wrapper) wrapper.classList.add("is-exiting");
@@ -348,42 +320,26 @@ export function initQuizPage() {
     showQuestion(1);
   });
 
-  // Q2 → Q3 (fetch dynamic price groups based on selected schermgrootte)
-  qs("#to-question-3")?.addEventListener("click", async () => {
+  // Q2 → Q3
+  qs("#to-question-3")?.addEventListener("click", () => {
     const checked = qs('input[name="schermgrootte"]:checked');
     if (!checked) return alert("Kies een schermgrootte");
 
     quizState.selectedSizeGroup = checked.value;
 
-    const btn = qs("#to-question-3");
-    if (btn) btn.disabled = true;
-    try {
-      const rawProducts = await prefetchProducts();
-      const monitors = normalizeProducts(rawProducts ?? []);
-      const dynamic = computeDynamicPriceGroups(monitors, quizState.selectedSizeGroup, sizeGroupToAllowedSizes);
-      quizState.priceGroups = dynamic.length > 0 ? dynamic : (priceGroupsBySize[quizState.selectedSizeGroup] ?? []);
-    } catch {
-      quizState.priceGroups = priceGroupsBySize[quizState.selectedSizeGroup] ?? [];
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-
-    renderPriceOptions(quizState.priceGroups);
     showQuestion(3);
   });
 
   // Q3 → Q2
   qs("#back-to-question-2")?.addEventListener("click", () => {
+    resetQuestionsFrom(3);
     showQuestion(2);
   });
 
   // Q3 → Q4
   qs("#to-question-4")?.addEventListener("click", () => {
-    const checked = qs('input[name="priceGroup"]:checked');
-    if (!checked) return alert("Kies een budget");
-    quizState.selectedPriceGroup = checked.value === "geen-voorkeur"
-      ? null
-      : quizState.priceGroups.find(p => p.label === checked.value);
+    const checked = qs('input[name="hz"]:checked');
+    if (!checked) return alert("Kies een antwoord");
     showQuestion(4);
   });
 
@@ -393,23 +349,10 @@ export function initQuizPage() {
     showQuestion(3);
   });
 
-  // Q4 → Q5
-  qs("#to-question-5")?.addEventListener("click", () => {
-    const checked = qs('input[name="hz"]:checked');
-    if (!checked) return alert("Kies een antwoord");
-    showQuestion(5);
-  });
-
-  // Q5 → Q4
-  qs("#back-to-question-4")?.addEventListener("click", () => {
-    resetQuestionsFrom(5);
-    showQuestion(4);
-  });
-
   setupGebruikLimit();
   setupExtraLimit();
 
-  // Q5 → Result
+  // Q4 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
   // Listen for schermgrootte (Q2) changes → update monitor visualisation

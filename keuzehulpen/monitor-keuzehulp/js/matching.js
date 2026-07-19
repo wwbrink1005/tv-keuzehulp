@@ -157,19 +157,6 @@ export function matchMonitors(monitors, sizeGroup, priceGroup, answers, scores) 
   return { bestMatch, bestType, filteredMatchedMonitors: matchedMonitors };
 }
 
-export function computeMatchForPriceGroup(monitors, sizeGroup, priceGroup, answers, scores) {
-  return matchMonitors(monitors, sizeGroup, priceGroup, answers, scores);
-}
-
-export function getIdealTierSet(scores) {
-  if (!scores || typeof scores !== "object") return new Set();
-  const entries = Object.entries(scores);
-  if (entries.length === 0) return new Set();
-
-  const maxScore = Math.max(...entries.map(([, v]) => Number(v)));
-  return new Set(entries.filter(([, v]) => Number(v) === maxScore).map(([t]) => t));
-}
-
 export function buildResultPoints(monitor, answers) {
   const points = [];
   const gebruik = Array.isArray(answers?.gebruik) ? answers.gebruik : [];

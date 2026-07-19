@@ -1,11 +1,11 @@
 import { priceGroupsBySize, sizeGroupToAllowedSizes } from "./data.js";
-import { computeMatchForPriceGroup, getIdealTypeSet } from "./matching.js";
-import { computeDynamicPriceGroups, getResolutionTier, getStoredSelection, normalizeProducts, normalizeTypeLabel, qs } from "./utils.js";
+import { computeMatchForPriceGroup } from "./matching.js";
+import { computeDynamicPriceGroups, getResolutionTier, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 
 const filterState = {
-  priceLabel: "",
+  priceLabels: new Set(),
   sizes: new Set(),
   brands: new Set(),
   types: new Set(),
@@ -13,7 +13,7 @@ const filterState = {
   hzOptions: new Set(),
   hdmiOptions: new Set(),
   aanbieder: new Set(),
-  priceMatches: new Map(),
+  baseMatches: [],
   answers: null,
   scores: null,
   bestType: "",
@@ -30,6 +30,22 @@ function getDynamicPriceGroups(sizeGroup) {
     return filterState.priceGroups;
   }
   return priceGroupsBySize[sizeGroup] || [];
+}
+
+// Price is just another optional narrowing filter, not a hard upfront wall:
+// with no bucket selected, every TV matching the quiz answers is shown.
+function getBaseMatches() {
+  return filterState.baseMatches;
+}
+
+function getPriceScopedMatches() {
+  const base = getBaseMatches();
+  if (filterState.priceLabels.size === 0) return base;
+  const groups = getDynamicPriceGroups(filterState.sizeGroup).filter(g => filterState.priceLabels.has(g.label));
+  return base.filter(tv => {
+    const price = parsePrice(tv.prijs);
+    return groups.some(g => price >= g.min && price <= g.max);
+  });
 }
 
 function formatBrandLabel(brand) {
@@ -130,77 +146,49 @@ function collectAanbiederOptions(matches) {
   return Array.from(set).sort();
 }
 
-function buildPriceMatches(tvs, sizeGroup) {
-  const groups = getDynamicPriceGroups(sizeGroup);
-  const map = new Map();
-
-  // Ignore the ambilight preference when building filter menu options.
-  // The ambilight notice on the result page already informs the user;
-  // restricting the filter pool here can cause all price groups to come
-  // back empty when ambilight TVs don't satisfy the Hz/resolution filters.
-  const answersForFilter = { ...filterState.answers, ambilight: "" };
-
-  // Every price bucket that has at least one matching TV stays in the menu,
-  // regardless of type/tier — users should always get the full set of price
-  // options to pick from themselves.
-  groups.forEach(group => {
-    const result = computeMatchForPriceGroup(
-      tvs,
-      sizeGroup,
-      group,
-      answersForFilter,
-      filterState.scores
-    );
-    const matches = Array.isArray(result.filteredMatchedTVs) ? result.filteredMatchedTVs : [];
-    if (matches.length > 0) {
-      map.set(group.label, matches);
-    }
-  });
-
-  return map;
-}
-
-/**
- * Picks which price bucket should be selected by default when the user
- * didn't pick a budget in the quiz ("geen voorkeur"): the cheapest bucket
- * that still contains a TV of the highest-scoring type, ignoring price
- * entirely when judging "best match". Falls back to the cheapest bucket
- * with any match at all if no bucket has the ideal type.
- */
-function pickDefaultPriceLabel(priceMatches, scores) {
-  const idealTypes = getIdealTypeSet(scores);
-  if (idealTypes.size > 0) {
-    for (const [label, matches] of priceMatches) {
-      if (matches.some(tv => idealTypes.has(normalizeTypeLabel(tv.type)))) return label;
-    }
-  }
-  return priceMatches.keys().next().value ?? "";
-}
-
 function renderPriceOptions(container, priceCard, sizeGroup) {
   const groups = getDynamicPriceGroups(sizeGroup);
   container.innerHTML = "";
 
   // Only show price buckets that actually contain a matching TV for the
   // current quiz answers — otherwise users click a bucket that can never
-  // show a result.
-  const labels = groups.filter(g => filterState.priceMatches.has(g.label));
-  if (labels.length === 0) {
+  // show a result. If there's only one (or zero) non-empty bucket there's
+  // nothing meaningful to narrow, so hide the whole filter card.
+  const base = getBaseMatches();
+  const labels = groups.filter(g => base.some(tv => {
+    const price = parsePrice(tv.prijs);
+    return price >= g.min && price <= g.max;
+  }));
+
+  if (labels.length <= 1) {
     priceCard.hidden = true;
     return;
   }
 
   priceCard.hidden = false;
 
+  const isAllSelected = filterState.priceLabels.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = "priceFilter";
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle prijzen";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
+
   labels.forEach(group => {
     const label = document.createElement("label");
     label.className = "filter-option";
 
     const input = document.createElement("input");
-    input.type = "radio";
+    input.type = "checkbox";
     input.name = "priceFilter";
     input.value = group.label;
-    input.checked = group.label === filterState.priceLabel;
+    input.checked = filterState.priceLabels.has(group.label);
 
     const text = document.createElement("span");
     text.textContent = `€ ${group.label}`;
@@ -429,18 +417,14 @@ function renderAanbiederOptions(container, aanbiederCard, matches) {
 function updateClearFiltersBtn() {
   const btn = qs("#clearFiltersBtn");
   if (!btn) return;
-  const hasActive = filterState.sizes.size > 0 || filterState.brands.size > 0 || filterState.types.size > 0 ||
+  const hasActive = filterState.priceLabels.size > 0 || filterState.sizes.size > 0 || filterState.brands.size > 0 || filterState.types.size > 0 ||
     filterState.resolutions.size > 0 || filterState.hzOptions.size > 0 || filterState.hdmiOptions.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
-function getActivePriceMatches() {
-  return filterState.priceMatches.get(filterState.priceLabel) || [];
-}
-
 function applyFilters() {
-  let filtered = getActivePriceMatches();
+  let filtered = getPriceScopedMatches();
 
   if (filterState.sizes.size > 0) {
     filtered = filtered.filter(tv => filterState.sizes.has(tv.grootte));
@@ -483,7 +467,7 @@ function applyFilters() {
 
 function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, hdmiContainer, aanbiederContainer) {
   function renderAllSecondary() {
-    const matches = getActivePriceMatches();
+    const matches = getPriceScopedMatches();
     renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), matches);
     renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), matches);
     renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), matches);
@@ -494,17 +478,29 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
   }
 
   priceContainer.addEventListener("change", event => {
-    const input = event.target.closest("input[type=radio]");
+    const input = event.target.closest("input[type=checkbox]");
     if (!input) return;
 
-    filterState.priceLabel = input.value;
-    filterState.sizes.clear();
-    filterState.brands.clear();
-    filterState.types.clear();
-    filterState.resolutions.clear();
-    filterState.hzOptions.clear();
-    filterState.hdmiOptions.clear();
-    filterState.aanbieder.clear();
+    if (input.value === "all") {
+      if (input.checked) {
+        filterState.priceLabels.clear();
+        renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.sizeGroup);
+      } else if (filterState.priceLabels.size === 0) {
+        input.checked = true;
+      }
+    } else {
+      if (input.checked) {
+        filterState.priceLabels.add(input.value);
+      } else {
+        filterState.priceLabels.delete(input.value);
+      }
+      if (filterState.priceLabels.size === 0) {
+        renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.sizeGroup);
+      } else {
+        const allInput = priceContainer.querySelector('input[value="all"]');
+        if (allInput) allInput.checked = false;
+      }
+    }
 
     renderAllSecondary();
     applyFilters();
@@ -517,7 +513,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     if (input.value === "all") {
       if (input.checked) {
         filterState.sizes.clear();
-        renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), getActivePriceMatches());
+        renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), getPriceScopedMatches());
       } else if (filterState.sizes.size === 0) {
         input.checked = true;
       }
@@ -529,7 +525,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
         filterState.sizes.delete(sz);
       }
       if (filterState.sizes.size === 0) {
-        renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), getActivePriceMatches());
+        renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), getPriceScopedMatches());
       } else {
         const allInput = sizeContainer.querySelector('input[value="all"]');
         if (allInput) allInput.checked = false;
@@ -545,7 +541,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     if (input.value === "all") {
       if (input.checked) {
         filterState.brands.clear();
-        renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), getActivePriceMatches());
+        renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), getPriceScopedMatches());
       } else if (filterState.brands.size === 0) {
         input.checked = true;
       }
@@ -556,7 +552,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
         filterState.brands.delete(input.value);
       }
       if (filterState.brands.size === 0) {
-        renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), getActivePriceMatches());
+        renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), getPriceScopedMatches());
       } else {
         const allInput = brandContainer.querySelector('input[value="all"]');
         if (allInput) allInput.checked = false;
@@ -572,7 +568,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     if (input.value === "all") {
       if (input.checked) {
         filterState.types.clear();
-        renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), getActivePriceMatches());
+        renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), getPriceScopedMatches());
       } else if (filterState.types.size === 0) {
         input.checked = true;
       }
@@ -583,7 +579,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
         filterState.types.delete(input.value);
       }
       if (filterState.types.size === 0) {
-        renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), getActivePriceMatches());
+        renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), getPriceScopedMatches());
       } else {
         const allInput = typeContainer.querySelector('input[value="all"]');
         if (allInput) allInput.checked = false;
@@ -599,7 +595,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     if (input.value === "all") {
       if (input.checked) {
         filterState.resolutions.clear();
-        renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), getActivePriceMatches());
+        renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), getPriceScopedMatches());
       } else if (filterState.resolutions.size === 0) {
         input.checked = true;
       }
@@ -610,7 +606,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
         filterState.resolutions.delete(input.value);
       }
       if (filterState.resolutions.size === 0) {
-        renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), getActivePriceMatches());
+        renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), getPriceScopedMatches());
       } else {
         const allInput = resolutionContainer.querySelector('input[value="all"]');
         if (allInput) allInput.checked = false;
@@ -626,7 +622,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     if (input.value === "all") {
       if (input.checked) {
         filterState.hzOptions.clear();
-        renderHzOptions(hzContainer, qs(".filter-card[data-filter='hz']"), getActivePriceMatches());
+        renderHzOptions(hzContainer, qs(".filter-card[data-filter='hz']"), getPriceScopedMatches());
       } else if (filterState.hzOptions.size === 0) {
         input.checked = true;
       }
@@ -638,7 +634,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
         filterState.hzOptions.delete(hz);
       }
       if (filterState.hzOptions.size === 0) {
-        renderHzOptions(hzContainer, qs(".filter-card[data-filter='hz']"), getActivePriceMatches());
+        renderHzOptions(hzContainer, qs(".filter-card[data-filter='hz']"), getPriceScopedMatches());
       } else {
         const allInput = hzContainer.querySelector('input[value="all"]');
         if (allInput) allInput.checked = false;
@@ -654,7 +650,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     if (input.value === "all") {
       if (input.checked) {
         filterState.hdmiOptions.clear();
-        renderHdmiOptions(hdmiContainer, qs(".filter-card[data-filter='hdmi']"), getActivePriceMatches());
+        renderHdmiOptions(hdmiContainer, qs(".filter-card[data-filter='hdmi']"), getPriceScopedMatches());
       } else if (filterState.hdmiOptions.size === 0) {
         input.checked = true;
       }
@@ -666,7 +662,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
         filterState.hdmiOptions.delete(count);
       }
       if (filterState.hdmiOptions.size === 0) {
-        renderHdmiOptions(hdmiContainer, qs(".filter-card[data-filter='hdmi']"), getActivePriceMatches());
+        renderHdmiOptions(hdmiContainer, qs(".filter-card[data-filter='hdmi']"), getPriceScopedMatches());
       } else {
         const allInput = hdmiContainer.querySelector('input[value="all"]');
         if (allInput) allInput.checked = false;
@@ -682,7 +678,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     if (input.value === "all") {
       if (input.checked) {
         filterState.aanbieder.clear();
-        renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), getActivePriceMatches());
+        renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), getPriceScopedMatches());
       } else if (filterState.aanbieder.size === 0) {
         input.checked = true;
       }
@@ -693,7 +689,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
         filterState.aanbieder.delete(input.value);
       }
       if (filterState.aanbieder.size === 0) {
-        renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), getActivePriceMatches());
+        renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), getPriceScopedMatches());
       } else {
         const allInput = aanbiederContainer.querySelector('input[value="all"]');
         if (allInput) allInput.checked = false;
@@ -705,6 +701,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
   const clearBtn = qs("#clearFiltersBtn");
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
+      filterState.priceLabels.clear();
       filterState.sizes.clear();
       filterState.brands.clear();
       filterState.types.clear();
@@ -712,6 +709,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
       filterState.hzOptions.clear();
       filterState.hdmiOptions.clear();
       filterState.aanbieder.clear();
+      renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.sizeGroup);
       renderAllSecondary();
       applyFilters();
     });
@@ -751,26 +749,30 @@ function initResultFilters() {
   filterState.bestType = localStorage.getItem("bestType") || "";
   filterState.sizeGroup = stored.sizeGroup || "";
 
-  const selectedPriceLabel = stored.priceLabel || "";
-
   fetchProducts()
     .then(rawProducts => {
       const tvs = normalizeProducts(rawProducts);
       filterState.priceGroups = computeDynamicPriceGroups(tvs, stored.sizeGroup, sizeGroupToAllowedSizes);
-      filterState.priceMatches = buildPriceMatches(tvs, stored.sizeGroup);
 
-      // Fallback: if the selected price group has no computed matches, seed it
-      // with the TVs that were already matched during the quiz. This ensures
-      // the filter panel always shows options regardless of whether the dynamic
-      // computation succeeds (e.g. when ambilight or other strict filters would
-      // otherwise produce an empty pool).
-      if (!filterState.priceMatches.has(selectedPriceLabel) && selectedPriceLabel) {
+      // Ignore the ambilight preference when computing the base match pool.
+      // The ambilight notice on the result page already informs the user;
+      // restricting the pool here can wipe out all results when ambilight
+      // TVs don't satisfy the Hz/resolution filters.
+      const answersForFilter = { ...filterState.answers, ambilight: "" };
+      const result = computeMatchForPriceGroup(tvs, stored.sizeGroup, null, answersForFilter, filterState.scores);
+      filterState.baseMatches = Array.isArray(result.filteredMatchedTVs) ? result.filteredMatchedTVs : [];
+
+      // Fallback: if the live computation yields nothing, seed the pool with
+      // the TVs that were already matched during the quiz. This ensures the
+      // filter panel always shows options regardless of whether the dynamic
+      // computation succeeds.
+      if (filterState.baseMatches.length === 0) {
         const storedTVsData = localStorage.getItem("filteredMatchedTVs");
         if (storedTVsData) {
           try {
             const storedTVs = JSON.parse(storedTVsData);
             if (Array.isArray(storedTVs) && storedTVs.length > 0) {
-              filterState.priceMatches.set(selectedPriceLabel, storedTVs);
+              filterState.baseMatches = storedTVs;
             }
           } catch {
             // ignore parse errors
@@ -778,14 +780,13 @@ function initResultFilters() {
         }
       }
 
-      const availableLabels = Array.from(filterState.priceMatches.keys());
-      if (availableLabels.length === 0) return;
+      if (filterState.baseMatches.length === 0) return;
 
-      filterState.priceLabel = filterState.priceMatches.has(selectedPriceLabel)
-        ? selectedPriceLabel
-        : pickDefaultPriceLabel(filterState.priceMatches, filterState.scores);
+      // No price bucket selected by default: show every matching TV, sorted
+      // by relevance/price, and let the user optionally narrow by budget.
+      filterState.priceLabels = new Set();
 
-      const matches = getActivePriceMatches();
+      const matches = getPriceScopedMatches();
       renderPriceOptions(priceContainer, priceCard, stored.sizeGroup);
       renderSizeOptions(sizeContainer, sizeCard, matches);
       renderBrandOptions(brandContainer, brandCard, matches);

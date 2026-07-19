@@ -30,8 +30,7 @@ export function formatPriceLabel(priceValue) {
 
 export function getStoredSelection() {
   return {
-    sizeGroup:  localStorage.getItem("monitor_selectedSizeGroup")  || "",
-    priceLabel: localStorage.getItem("monitor_selectedPriceGroupLabel") || ""
+    sizeGroup: localStorage.getItem("monitor_selectedSizeGroup") || ""
   };
 }
 

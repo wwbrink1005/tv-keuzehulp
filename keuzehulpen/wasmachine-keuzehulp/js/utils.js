@@ -30,8 +30,7 @@ export function formatPriceLabel(priceValue) {
 
 export function getStoredSelection() {
   return {
-    capaciteitGroup: localStorage.getItem("wasmachine_selectedCapaciteitGroup") || "",
-    priceLabel:      localStorage.getItem("wasmachine_selectedPriceGroupLabel") || ""
+    capaciteitGroup: localStorage.getItem("wasmachine_selectedCapaciteitGroup") || ""
   };
 }
 

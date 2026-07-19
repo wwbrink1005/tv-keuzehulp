@@ -1,11 +1,11 @@
 import { priceGroupsBySize, getProcessorTier, sizeGroupToAllowedSizes } from "./data.js";
-import { computeMatchForPriceGroup, getIdealTierSet } from "./matching.js";
-import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, qs } from "./utils.js";
+import { computeMatchForPriceGroup } from "./matching.js";
+import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 
 const filterState = {
-  priceLabel:   "",
+  priceLabels:  new Set(),
   sizes:        new Set(),
   brands:       new Set(),
   tiers:        new Set(),
@@ -15,7 +15,7 @@ const filterState = {
   touchscreens: new Set(),
   osOptions:    new Set(),
   aanbieder:    new Set(),
-  priceMatches: new Map(),
+  baseMatches:  [],
   answers:      null,
   scores:       null,
   bestType:     "",
@@ -34,15 +34,27 @@ function getDynamicPriceGroups(sizeGroup) {
   return priceGroupsBySize[sizeGroup] || [];
 }
 
+// Price is just another optional narrowing filter, not a hard upfront wall:
+// with no bucket selected, every laptop matching the quiz answers is shown.
+function getBaseMatches() {
+  return filterState.baseMatches;
+}
+
+function getPriceScopedMatches() {
+  const base = getBaseMatches();
+  if (filterState.priceLabels.size === 0) return base;
+  const groups = getDynamicPriceGroups(filterState.sizeGroup).filter(g => filterState.priceLabels.has(g.label));
+  return base.filter(l => {
+    const price = parsePrice(l.prijs);
+    return groups.some(g => price >= g.min && price <= g.max);
+  });
+}
+
 function formatBrandLabel(brand) {
   const raw = String(brand ?? "").trim();
   if (!raw) return "";
   if (raw === raw.toUpperCase()) return raw;
   return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
-}
-
-function getActivePriceMatches() {
-  return filterState.priceMatches.get(filterState.priceLabel) || [];
 }
 
 function collectSizeOptions(matches) {
@@ -58,15 +70,9 @@ function collectBrandOptions(matches) {
 }
 
 function collectTierOptions(matches) {
-  const { getProcessorTier } = window.__laptopData || {};
-  if (!getProcessorTier) {
-    const set = new Set();
-    matches.forEach(l => { if (l.processor) set.add(l.processor); });
-    return Array.from(set);
-  }
+  const order = ["Budget", "Mid", "Krachtig", "Topklasse"];
   const set = new Set();
   matches.forEach(l => set.add(getProcessorTier(l.processor)));
-  const order = ["Budget", "Mid", "Krachtig", "Topklasse"];
   return order.filter(t => set.has(t));
 }
 
@@ -119,36 +125,34 @@ function collectAanbiederOptions(matches) {
   return Array.from(set).sort();
 }
 
-function renderFilterOptions(container, card, items, filterName, labelFn, isRadio = false) {
+function renderCheckboxFilter(container, card, items, filterName, allLabelText, labelFn, valueFn = v => v) {
   container.innerHTML = "";
   if (items.length === 0) { card.hidden = true; return; }
   card.hidden = false;
 
   const stateSet = filterState[filterName];
+  const isAllSelected = stateSet.size === 0;
 
-  if (!isRadio) {
-    const isAllSelected = !stateSet || stateSet.size === 0;
-    const allLabel = document.createElement("label");
-    allLabel.className = "filter-option";
-    const allInput = document.createElement("input");
-    allInput.type = "checkbox";
-    allInput.name = filterName;
-    allInput.value = "all";
-    allInput.checked = isAllSelected;
-    const allText = document.createElement("span");
-    allText.textContent = "Alle";
-    allLabel.append(allInput, allText);
-    container.appendChild(allLabel);
-  }
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = `${filterName}Filter`;
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = allLabelText;
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
 
   items.forEach(item => {
     const label = document.createElement("label");
     label.className = "filter-option";
     const input = document.createElement("input");
-    input.type = isRadio ? "radio" : "checkbox";
-    input.name = filterName;
+    input.type = "checkbox";
+    input.name = `${filterName}Filter`;
     input.value = String(item);
-    input.checked = isRadio ? String(item) === filterState.priceLabel : (stateSet?.has(item) ?? false);
+    input.checked = stateSet.has(valueFn(String(item)));
     const text = document.createElement("span");
     text.textContent = labelFn ? labelFn(item) : String(item);
     label.append(input, text);
@@ -156,128 +160,98 @@ function renderFilterOptions(container, card, items, filterName, labelFn, isRadi
   });
 }
 
-function renderSizeOptions(container, card, matches) {
-  const sizes = collectSizeOptions(matches);
-  renderFilterOptions(container, card, sizes, "sizes",
-    s => `${s}"`,
-    false
-  );
-  // Override checked state manually since sizes uses floats
-  container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-    if (input.value === "all") {
-      input.checked = filterState.sizes.size === 0;
-    } else {
-      input.checked = filterState.sizes.has(parseFloat(input.value));
-    }
-  });
-}
-
-function renderPriceOptions(container, card, sizeGroup) {
+function renderPriceOptions(container, priceCard, sizeGroup) {
   const groups = getDynamicPriceGroups(sizeGroup);
   container.innerHTML = "";
+
   // Only show price buckets that actually contain a matching laptop for the
   // current quiz answers — otherwise users click a bucket that can never
-  // show a result.
-  const labels = groups.filter(g => filterState.priceMatches.has(g.label));
-  if (labels.length === 0) { card.hidden = true; return; }
-  card.hidden = false;
+  // show a result. If there's only one (or zero) non-empty bucket there's
+  // nothing meaningful to narrow, so hide the whole filter card.
+  const base = getBaseMatches();
+  const labels = groups.filter(g => base.some(l => {
+    const price = parsePrice(l.prijs);
+    return price >= g.min && price <= g.max;
+  }));
+
+  if (labels.length <= 1) {
+    priceCard.hidden = true;
+    return;
+  }
+
+  priceCard.hidden = false;
+
+  const isAllSelected = filterState.priceLabels.size === 0;
+  const allLabel = document.createElement("label");
+  allLabel.className = "filter-option";
+  const allInput = document.createElement("input");
+  allInput.type = "checkbox";
+  allInput.name = "priceFilter";
+  allInput.value = "all";
+  allInput.checked = isAllSelected;
+  const allText = document.createElement("span");
+  allText.textContent = "Alle prijzen";
+  allLabel.append(allInput, allText);
+  container.appendChild(allLabel);
 
   labels.forEach(group => {
     const label = document.createElement("label");
     label.className = "filter-option";
+
     const input = document.createElement("input");
-    input.type = "radio";
+    input.type = "checkbox";
     input.name = "priceFilter";
     input.value = group.label;
-    input.checked = group.label === filterState.priceLabel;
+    input.checked = filterState.priceLabels.has(group.label);
+
     const text = document.createElement("span");
     text.textContent = `€ ${group.label}`;
+
     label.append(input, text);
     container.appendChild(label);
   });
 }
 
+function renderSizeOptions(container, card, matches) {
+  renderCheckboxFilter(container, card, collectSizeOptions(matches), "sizes", "Alle maten", s => `${s}"`, v => parseFloat(v));
+}
+
 function renderBrandOptions(container, card, matches) {
-  const brands = collectBrandOptions(matches);
-  renderFilterOptions(container, card, brands, "brands", null, false);
-  container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-    if (input.value === "all") input.checked = filterState.brands.size === 0;
-    else input.checked = filterState.brands.has(input.value);
-  });
+  renderCheckboxFilter(container, card, collectBrandOptions(matches), "brands", "Alle merken");
 }
 
 function renderTierOptions(container, card, matches) {
-  const tiers = ["Budget", "Mid", "Krachtig", "Topklasse"].filter(t =>
-    matches.some(l => {
-      const { getProcessorTier } = window.__laptopData || {};
-      return getProcessorTier ? getProcessorTier(l.processor) === t : true;
-    })
-  );
-  renderFilterOptions(container, card, tiers, "tiers", null, false);
-  container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-    if (input.value === "all") input.checked = filterState.tiers.size === 0;
-    else input.checked = filterState.tiers.has(input.value);
-  });
+  renderCheckboxFilter(container, card, collectTierOptions(matches), "tiers", "Alle");
 }
 
 function renderPanelTypeOptions(container, card, matches) {
-  const types = collectPanelTypeOptions(matches);
-  renderFilterOptions(container, card, types, "panelTypes", null, false);
-  container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-    if (input.value === "all") input.checked = filterState.panelTypes.size === 0;
-    else input.checked = filterState.panelTypes.has(input.value);
-  });
+  renderCheckboxFilter(container, card, collectPanelTypeOptions(matches), "panelTypes", "Alle");
 }
 
 function renderRamOptions(container, card, matches) {
-  const rams = collectRamOptions(matches);
-  renderFilterOptions(container, card, rams, "ramOptions", r => `${r} GB`, false);
-  container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-    if (input.value === "all") input.checked = filterState.ramOptions.size === 0;
-    else input.checked = filterState.ramOptions.has(parseInt(input.value, 10));
-  });
+  renderCheckboxFilter(container, card, collectRamOptions(matches), "ramOptions", "Alle", r => `${r} GB`, v => parseInt(v, 10));
 }
 
 function renderResolutionOptions(container, card, matches) {
-  const resolutions = collectResolutionOptions(matches);
-  renderFilterOptions(container, card, resolutions, "resolutions", null, false);
-  container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-    if (input.value === "all") input.checked = filterState.resolutions.size === 0;
-    else input.checked = filterState.resolutions.has(input.value);
-  });
+  renderCheckboxFilter(container, card, collectResolutionOptions(matches), "resolutions", "Alle");
 }
 
 function renderTouchscreenOptions(container, card, matches) {
-  const touchscreens = collectTouchscreenOptions(matches);
-  renderFilterOptions(container, card, touchscreens, "touchscreens", null, false);
-  container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-    if (input.value === "all") input.checked = filterState.touchscreens.size === 0;
-    else input.checked = filterState.touchscreens.has(input.value);
-  });
+  renderCheckboxFilter(container, card, collectTouchscreenOptions(matches), "touchscreens", "Alle");
 }
 
 function renderOsOptions(container, card, matches) {
-  const osOptions = collectOsOptions(matches);
-  renderFilterOptions(container, card, osOptions, "osOptions", null, false);
-  container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-    if (input.value === "all") input.checked = filterState.osOptions.size === 0;
-    else input.checked = filterState.osOptions.has(input.value);
-  });
+  renderCheckboxFilter(container, card, collectOsOptions(matches), "osOptions", "Alle");
 }
 
 function renderAanbiederOptions(container, card, matches) {
-  const aanbieders = collectAanbiederOptions(matches);
-  renderFilterOptions(container, card, aanbieders, "aanbieder", null, false);
-  container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-    if (input.value === "all") input.checked = filterState.aanbieder.size === 0;
-    else input.checked = filterState.aanbieder.has(input.value);
-  });
+  renderCheckboxFilter(container, card, collectAanbiederOptions(matches), "aanbieder", "Alle");
 }
 
 function updateClearFiltersBtn() {
   const btn = qs("#clearFiltersBtn");
   if (!btn) return;
-  const hasActive = filterState.sizes.size > 0 || filterState.brands.size > 0 ||
+  const hasActive = filterState.priceLabels.size > 0 || filterState.sizes.size > 0 || filterState.brands.size > 0 ||
     filterState.tiers.size > 0 || filterState.panelTypes.size > 0 ||
     filterState.ramOptions.size > 0 || filterState.resolutions.size > 0 ||
     filterState.touchscreens.size > 0 || filterState.osOptions.size > 0 ||
@@ -285,47 +259,8 @@ function updateClearFiltersBtn() {
   btn.hidden = !hasActive;
 }
 
-function buildPriceMatches(laptops, sizeGroup) {
-  const groups = getDynamicPriceGroups(sizeGroup);
-  const map = new Map();
-
-  const answersForFilter = { ...filterState.answers };
-
-  // Every price bucket that has at least one matching laptop stays in the
-  // menu, regardless of tier — users should always get the full set of
-  // price options to pick from themselves.
-  groups.forEach(group => {
-    const result = computeMatchForPriceGroup(
-      laptops, sizeGroup, group, answersForFilter, filterState.scores
-    );
-    const matches = Array.isArray(result.filteredMatchedLaptops) ? result.filteredMatchedLaptops : [];
-    if (matches.length > 0) {
-      map.set(group.label, matches);
-    }
-  });
-
-  return map;
-}
-
-/**
- * Picks which price bucket should be selected by default when the user
- * didn't pick a budget in the quiz ("geen voorkeur"): the cheapest bucket
- * that still contains a laptop of the highest-scoring processor tier,
- * ignoring price entirely when judging "best match". Falls back to the
- * cheapest bucket with any match at all if no bucket has the ideal tier.
- */
-function pickDefaultPriceLabel(priceMatches, scores) {
-  const idealTiers = getIdealTierSet(scores);
-  if (idealTiers.size > 0) {
-    for (const [label, matches] of priceMatches) {
-      if (matches.some(l => idealTiers.has(getProcessorTier(l.processor)))) return label;
-    }
-  }
-  return priceMatches.keys().next().value ?? "";
-}
-
 function applyFilters() {
-  let filtered = getActivePriceMatches();
+  let filtered = getPriceScopedMatches();
 
   if (filterState.sizes.size > 0) {
     filtered = filtered.filter(l => filterState.sizes.has(l.schermdiagonaal));
@@ -336,10 +271,7 @@ function applyFilters() {
   }
 
   if (filterState.tiers.size > 0) {
-    const { getProcessorTier } = window.__laptopData || {};
-    if (getProcessorTier) {
-      filtered = filtered.filter(l => filterState.tiers.has(getProcessorTier(l.processor)));
-    }
+    filtered = filtered.filter(l => filterState.tiers.has(getProcessorTier(l.processor)));
   }
 
   if (filterState.panelTypes.size > 0) {
@@ -382,44 +314,55 @@ function applyFilters() {
   updateResultMatches(filtered, filterState.answers, filterState.bestType);
 }
 
-function renderAllSecondary(priceContainer, sizeContainer, brandContainer, tierContainer, panelContainer, ramContainer, resolutionContainer, touchscreenContainer, osContainer, aanbiederContainer) {
-  const matches = getActivePriceMatches();
-  const sizeCard       = qs(".filter-card[data-filter='size']");
-  const brandCard      = qs(".filter-card[data-filter='brand']");
-  const tierCard       = qs(".filter-card[data-filter='tier']");
-  const panelCard      = qs(".filter-card[data-filter='panel']");
-  const ramCard        = qs(".filter-card[data-filter='ram']");
-  const resolutionCard = qs(".filter-card[data-filter='resolution']");
-  const touchscreenCard = qs(".filter-card[data-filter='touchscreen']");
-  const osCard         = qs(".filter-card[data-filter='os']");
-  const aanbiederCard  = qs(".filter-card[data-filter='aanbieder']");
-
-  renderSizeOptions(sizeContainer, sizeCard, matches);
-  renderBrandOptions(brandContainer, brandCard, matches);
-  renderTierOptions(tierContainer, tierCard, matches);
-  renderPanelTypeOptions(panelContainer, panelCard, matches);
-  renderRamOptions(ramContainer, ramCard, matches);
-  renderResolutionOptions(resolutionContainer, resolutionCard, matches);
-  renderTouchscreenOptions(touchscreenContainer, touchscreenCard, matches);
-  renderOsOptions(osContainer, osCard, matches);
-  renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
-}
-
 function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierContainer, panelContainer, ramContainer, resolutionContainer, touchscreenContainer, osContainer, aanbiederContainer) {
-  function renderAll() {
-    renderAllSecondary(priceContainer, sizeContainer, brandContainer, tierContainer, panelContainer, ramContainer, resolutionContainer, touchscreenContainer, osContainer, aanbiederContainer);
+  const priceCard       = qs(".filter-card[data-filter='price']");
+  const sizeCard        = qs(".filter-card[data-filter='size']");
+  const brandCard       = qs(".filter-card[data-filter='brand']");
+  const tierCard        = qs(".filter-card[data-filter='tier']");
+  const panelCard       = qs(".filter-card[data-filter='panel']");
+  const ramCard         = qs(".filter-card[data-filter='ram']");
+  const resolutionCard  = qs(".filter-card[data-filter='resolution']");
+  const touchscreenCard = qs(".filter-card[data-filter='touchscreen']");
+  const osCard          = qs(".filter-card[data-filter='os']");
+  const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
+
+  function renderAllSecondary() {
+    const matches = getPriceScopedMatches();
+    renderSizeOptions(sizeContainer, sizeCard, matches);
+    renderBrandOptions(brandContainer, brandCard, matches);
+    renderTierOptions(tierContainer, tierCard, matches);
+    renderPanelTypeOptions(panelContainer, panelCard, matches);
+    renderRamOptions(ramContainer, ramCard, matches);
+    renderResolutionOptions(resolutionContainer, resolutionCard, matches);
+    renderTouchscreenOptions(touchscreenContainer, touchscreenCard, matches);
+    renderOsOptions(osContainer, osCard, matches);
+    renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
   }
 
   priceContainer.addEventListener("change", event => {
-    const input = event.target.closest("input[type=radio]");
+    const input = event.target.closest("input[type=checkbox]");
     if (!input) return;
-    filterState.priceLabel = input.value;
-    filterState.sizes.clear(); filterState.brands.clear();
-    filterState.tiers.clear(); filterState.panelTypes.clear();
-    filterState.ramOptions.clear(); filterState.resolutions.clear();
-    filterState.touchscreens.clear(); filterState.osOptions.clear();
-    filterState.aanbieder.clear();
-    renderAll();
+
+    if (input.value === "all") {
+      if (input.checked) {
+        filterState.priceLabels.clear();
+        renderPriceOptions(priceContainer, priceCard, filterState.sizeGroup);
+      } else if (filterState.priceLabels.size === 0) {
+        input.checked = true;
+      }
+    } else {
+      if (input.checked) filterState.priceLabels.add(input.value);
+      else filterState.priceLabels.delete(input.value);
+
+      if (filterState.priceLabels.size === 0) {
+        renderPriceOptions(priceContainer, priceCard, filterState.sizeGroup);
+      } else {
+        const allInput = priceContainer.querySelector('input[value="all"]');
+        if (allInput) allInput.checked = false;
+      }
+    }
+
+    renderAllSecondary();
     applyFilters();
   });
 
@@ -428,48 +371,40 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
       const input = event.target.closest("input[type=checkbox]");
       if (!input) return;
       if (input.value === "all") {
-        if (input.checked) { stateSet.clear(); renderFn(container, card, getActivePriceMatches()); }
+        if (input.checked) { stateSet.clear(); renderFn(container, card, getPriceScopedMatches()); }
         else if (stateSet.size === 0) { input.checked = true; }
       } else {
         const val = valueFn(input.value);
         if (input.checked) stateSet.add(val);
         else stateSet.delete(val);
-        if (stateSet.size === 0) renderFn(container, card, getActivePriceMatches());
+        if (stateSet.size === 0) renderFn(container, card, getPriceScopedMatches());
         else { const allInput = container.querySelector('input[value="all"]'); if (allInput) allInput.checked = false; }
       }
       applyFilters();
     });
   }
 
-  const sizeCard       = qs(".filter-card[data-filter='size']");
-  const brandCard      = qs(".filter-card[data-filter='brand']");
-  const tierCard       = qs(".filter-card[data-filter='tier']");
-  const panelCard      = qs(".filter-card[data-filter='panel']");
-  const ramCard        = qs(".filter-card[data-filter='ram']");
-  const resolutionCard = qs(".filter-card[data-filter='resolution']");
-  const touchscreenCard = qs(".filter-card[data-filter='touchscreen']");
-  const osCard         = qs(".filter-card[data-filter='os']");
-  const aanbiederCard  = qs(".filter-card[data-filter='aanbieder']");
-
-  handleCheckboxSet(sizeContainer,      filterState.sizes,      sizeCard,      renderSizeOptions,      v => parseFloat(v));
-  handleCheckboxSet(brandContainer,     filterState.brands,     brandCard,     renderBrandOptions);
-  handleCheckboxSet(tierContainer,      filterState.tiers,      tierCard,      renderTierOptions);
-  handleCheckboxSet(panelContainer,     filterState.panelTypes, panelCard,     renderPanelTypeOptions);
-  handleCheckboxSet(ramContainer,       filterState.ramOptions, ramCard,       renderRamOptions,       v => parseInt(v, 10));
-  handleCheckboxSet(resolutionContainer, filterState.resolutions,  resolutionCard,  renderResolutionOptions);
+  handleCheckboxSet(sizeContainer,        filterState.sizes,        sizeCard,        renderSizeOptions,        v => parseFloat(v));
+  handleCheckboxSet(brandContainer,       filterState.brands,       brandCard,       renderBrandOptions);
+  handleCheckboxSet(tierContainer,        filterState.tiers,        tierCard,        renderTierOptions);
+  handleCheckboxSet(panelContainer,       filterState.panelTypes,   panelCard,       renderPanelTypeOptions);
+  handleCheckboxSet(ramContainer,         filterState.ramOptions,   ramCard,         renderRamOptions,        v => parseInt(v, 10));
+  handleCheckboxSet(resolutionContainer,  filterState.resolutions,  resolutionCard,  renderResolutionOptions);
   handleCheckboxSet(touchscreenContainer, filterState.touchscreens, touchscreenCard, renderTouchscreenOptions);
-  handleCheckboxSet(osContainer,         filterState.osOptions,    osCard,          renderOsOptions);
-  handleCheckboxSet(aanbiederContainer, filterState.aanbieder,  aanbiederCard, renderAanbiederOptions);
+  handleCheckboxSet(osContainer,          filterState.osOptions,    osCard,          renderOsOptions);
+  handleCheckboxSet(aanbiederContainer,   filterState.aanbieder,    aanbiederCard,   renderAanbiederOptions);
 
   const clearBtn = qs("#clearFiltersBtn");
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
+      filterState.priceLabels.clear();
       filterState.sizes.clear(); filterState.brands.clear();
       filterState.tiers.clear(); filterState.panelTypes.clear();
       filterState.ramOptions.clear(); filterState.resolutions.clear();
       filterState.touchscreens.clear(); filterState.osOptions.clear();
       filterState.aanbieder.clear();
-      renderAll();
+      renderPriceOptions(priceContainer, priceCard, filterState.sizeGroup);
+      renderAllSecondary();
       applyFilters();
     });
   }
@@ -516,35 +451,37 @@ function initResultFilters() {
   filterState.bestType  = localStorage.getItem("laptop_bestType") || "";
   filterState.sizeGroup = stored.sizeGroup;
 
-  const selectedPriceLabel = stored.priceLabel || "";
-
   fetchProducts()
     .then(rawProducts => {
       const laptops = normalizeProducts(rawProducts);
       filterState.priceGroups = computeDynamicPriceGroups(laptops, stored.sizeGroup, sizeGroupToAllowedSizes);
-      filterState.priceMatches = buildPriceMatches(laptops, stored.sizeGroup);
 
-      // Fallback: seed from stored results if computed map is empty
-      if (!filterState.priceMatches.has(selectedPriceLabel) && selectedPriceLabel) {
+      const result = computeMatchForPriceGroup(laptops, stored.sizeGroup, null, filterState.answers, filterState.scores);
+      filterState.baseMatches = Array.isArray(result.filteredMatchedLaptops) ? result.filteredMatchedLaptops : [];
+
+      // Fallback: if the live computation yields nothing, seed the pool with
+      // the laptops that were already matched during the quiz. This ensures
+      // the filter panel always shows options regardless of whether the
+      // dynamic computation succeeds.
+      if (filterState.baseMatches.length === 0) {
         const storedData = localStorage.getItem("laptop_filteredMatchedLaptops");
         if (storedData) {
           try {
             const storedLaptops = JSON.parse(storedData);
             if (Array.isArray(storedLaptops) && storedLaptops.length > 0) {
-              filterState.priceMatches.set(selectedPriceLabel, storedLaptops);
+              filterState.baseMatches = storedLaptops;
             }
-          } catch { /* ignore */ }
+          } catch { /* ignore parse errors */ }
         }
       }
 
-      const availableLabels = Array.from(filterState.priceMatches.keys());
-      if (availableLabels.length === 0) return;
+      if (filterState.baseMatches.length === 0) return;
 
-      filterState.priceLabel = filterState.priceMatches.has(selectedPriceLabel)
-        ? selectedPriceLabel
-        : pickDefaultPriceLabel(filterState.priceMatches, filterState.scores);
+      // No price bucket selected by default: show every matching laptop and
+      // let the user optionally narrow by budget.
+      filterState.priceLabels = new Set();
 
-      const matches = getActivePriceMatches();
+      const matches = getPriceScopedMatches();
       renderPriceOptions(priceContainer, priceCard, stored.sizeGroup);
       renderSizeOptions(sizeContainer, sizeCard, matches);
       renderBrandOptions(brandContainer, brandCard, matches);
