@@ -135,15 +135,17 @@ Volg dezelfde cyclus als bij de bestaande 4:
   `localStorage`-snapshot van het quiz-moment — die kan te smal zijn geweest door een
   trage/gedeeltelijke fetch tijdens de quiz.
 
-## 7. Homepage-integratie (`index.html`)
+## 7. Homepage-integratie (`index.html`, `shared/menu.js`, `shared/footer.js`)
 
 Voeg de nieuwe categorie toe op **alle** onderstaande plekken (grep op een bestaande
-categorienaam zoals "desktop" om ze allemaal te vinden):
+categorienaam zoals "desktop" om ze allemaal te vinden — dit raakt zowel `index.html` als
+de gedeelde `shared/menu.js` en `shared/footer.js`):
 - mobiele categorie-chips (`.mobile-cat-chip`)
 - hero-categorieënlijst (`.hero-cat-item`)
 - populaire-keuzehulpen kaarten (`.pop-card`)
 - collage-tooltips (`.collage-tooltip-link`)
-- categorieën-dropdown in de header
+- categorieën-dropdown in de header (`shared/menu.js`)
+- footer-link (`shared/footer.js`)
 - kies een passend Lucide-icoon
 
 ## 8. Zoekbalk (`shared/zoekbalk.js`)
@@ -170,4 +172,26 @@ doen.
 - Test minstens één "geen voorkeur"-scenario voor prijs: klopt de default-selectie?
 - Test de zoekbalk met een paar synoniemen.
 - Check mobiele weergave van de (mogelijk lange) filter-sidebar.
+
+## 10. SEO-checklist (verplicht bij elke nieuwe categorie)
+
+Elke nieuwe keuzehulp moet vanaf dag 1 dezelfde SEO-basis hebben als de bestaande zes —
+dit hoort er standaard bij, niet als los, later toe te voegen werk:
+
+- **`<title>`** op `vragen/index.html`: uniek, patroon `"{Categorie} Keuzehulp – Vind jouw
+  perfecte {product}"`.
+- **`<meta name="description">`**: op zoekintentie geschreven, vraag-vorm zoals mensen
+  echt zoeken (bijv. "Welke wasmachine moet ik kopen?"), niet alleen merknamen. Circa
+  150-160 tekens.
+- **`sitemap.xml`**: nieuwe `<url>`-entry voor `https://producthulp.nl/keuzehulpen/{categorie}/vragen/`
+  toevoegen (met `<lastmod>` op de dag van livegang). De `resultaat/`-pagina hoort **niet**
+  in de sitemap (client-side gerenderd, geen indexeringsdoel — zie
+  hieronder).
+- **`robots.txt`**: geen wijziging nodig — de bestaande regel
+  `Disallow: /keuzehulpen/*/resultaat/` dekt automatisch elke nieuwe categorie.
+- **`BreadcrumbList` JSON-LD** op `vragen/index.html` (zie een bestaande keuzehulp als
+  voorbeeld): `Home → {Categorie} Keuzehulp`, met de juiste `item`-URL.
+- Na livegang: URL indienen via **Google Search Console** → URL-inspectie →
+  "Indexering aanvragen", zodat de nieuwe pagina niet hoeft te wachten tot een crawler
+  hem toevallig tegenkomt.
 
