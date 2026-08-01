@@ -3,6 +3,10 @@
 (function () {
   const CONSENT_KEY = "ph_cookie_consent"; // "granted" | "denied"
   const GA_ID = "G-8YMXDZXWV9";
+  // Op localhost (Live Server e.d.) onthouden we de keuze alleen voor het huidige tabblad
+  // (sessionStorage i.p.v. localStorage), zodat de banner niet bij elke paginanavigatie
+  // terugkomt tijdens het testen, maar wel weer verschijnt in een nieuw tabblad/browser.
+  const IS_LOCAL_DEV = ["localhost", "127.0.0.1"].includes(window.location.hostname);
 
   function loadGA() {
     if (window.__gaLoaded) return;
@@ -20,10 +24,15 @@
   }
 
   function getConsent() {
+    if (IS_LOCAL_DEV) return sessionStorage.getItem(CONSENT_KEY);
     return localStorage.getItem(CONSENT_KEY);
   }
 
   function setConsent(value) {
+    if (IS_LOCAL_DEV) {
+      sessionStorage.setItem(CONSENT_KEY, value);
+      return;
+    }
     localStorage.setItem(CONSENT_KEY, value);
   }
 
@@ -44,8 +53,20 @@
         border: none; border-radius: 999px; padding: 10px 18px;
         font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
       }
-      #ph-cookie-banner .ph-accept { background: #0954a3; color: #fff; }
+      #ph-cookie-banner .ph-accept { background: #10b981; color: #fff; }
       #ph-cookie-banner .ph-decline { background: #f5f5f7; color: #1d1d1f; }
+
+      @media (max-width: 640px) {
+        #ph-cookie-banner {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          padding: 18px 20px 20px;
+        }
+        #ph-cookie-banner p { flex: 1 1 auto; }
+        #ph-cookie-banner .ph-cookie-actions { width: 100%; justify-content: center; }
+        #ph-cookie-banner .ph-cookie-actions button { flex: 1 1 0; }
+      }
     `;
     document.head.appendChild(style);
 
@@ -54,7 +75,7 @@
     banner.setAttribute("role", "dialog");
     banner.setAttribute("aria-label", "Cookiemelding");
     banner.innerHTML = `
-      <p>We gebruiken analytische cookies om te begrijpen hoe bezoekers onze keuzehulpen gebruiken, zodat we ze kunnen verbeteren. Lees ons <a href="overige-paginas/privacy">privacybeleid</a>.</p>
+      <p>We gebruiken cookies om te begrijpen hoe bezoekers onze keuzehulpen gebruiken, zodat we ze kunnen verbeteren. Lees ons <a href="overige-paginas/privacy">privacybeleid</a>.</p>
       <div class="ph-cookie-actions">
         <button type="button" class="ph-decline">Weigeren</button>
         <button type="button" class="ph-accept">Accepteren</button>
