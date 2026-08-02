@@ -91,7 +91,8 @@
 
       /* ── Hero ── */
       .blog-hero {
-        padding: 32px 0 28px;
+        padding-top: 32px;
+        padding-bottom: 28px;
         text-align: center;
       }
       .blog-hero h1 {
@@ -148,7 +149,8 @@
         flex-wrap: wrap;
         justify-content: center;
         gap: 10px;
-        padding: 28px 0 8px;
+        padding-top: 28px;
+        padding-bottom: 8px;
       }
       .blog-filter-chip {
         display: inline-flex;
@@ -183,7 +185,7 @@
       }
 
       /* ── Grid ── */
-      .blog-section { padding: 24px 0 72px; }
+      .blog-section { padding-top: 24px; padding-bottom: 72px; }
       .blog-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -260,7 +262,14 @@
       }
       @media (max-width: 620px) {
         .blog-grid { grid-template-columns: 1fr; }
-        .blog-filters { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-left: 4px; padding-right: 4px; }
+        .blog-filters {
+          justify-content: flex-start;
+          overflow-x: auto;
+          flex-wrap: nowrap;
+          padding-left: clamp(20px, 5vw, 32px);
+          padding-right: clamp(20px, 5vw, 32px);
+          scroll-padding-left: clamp(20px, 5vw, 32px);
+        }
       }
     </style>
   </head>
