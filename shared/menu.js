@@ -67,6 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
         </div>
+        <a class="menu-link" href="blog/">Blogs</a>
         <a class="menu-link" href="overige-paginas/over-ons">Over ons</a>
       </div>
 
@@ -175,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
 
+        <a class="mobile-nav-link" href="blog/">Blogs</a>
         <a class="mobile-nav-link" href="overige-paginas/hoe-werkt-het">Hoe werkt het?</a>
         <a class="mobile-nav-link" href="overige-paginas/over-ons">Over ons</a>
       </div>
