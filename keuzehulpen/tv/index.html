@@ -100,12 +100,12 @@
       .wrap {
         max-width: var(--max-width);
         margin: 0 auto;
-        padding: 0 clamp(20px, 4vw, 32px);
+        padding: 0 clamp(24px, 5vw, 32px);
       }
 
       /* ── Breadcrumb ── */
       .breadcrumb {
-        padding: 18px 0 0;
+        padding-top: 18px;
       }
       .breadcrumb ol {
         list-style: none;
@@ -123,7 +123,8 @@
 
       /* ── Hero ── */
       .tv-hero {
-        padding: 28px 0 8px;
+        padding-top: 28px;
+        padding-bottom: 8px;
       }
       .tv-hero-card {
         background: #f5f3f0;
@@ -203,10 +204,15 @@
 
       @media (max-width: 860px) {
         .tv-hero-card { grid-template-columns: 1fr; }
-        .tv-hero-left { padding: 32px 24px 12px; text-align: center; }
+        .tv-hero-left { padding: 10px 24px 28px; text-align: center; }
         .tv-hero h1 { margin-left: auto; margin-right: auto; }
-        .tv-hero-right { order: -1; min-height: 200px; padding: 24px; }
+        .tv-hero-right { order: -1; min-height: 0; padding: 24px 24px 0; }
+        .tv-hero-right img { max-width: 100%; max-height: 190px; }
         .tv-hero-usps { gap: 18px 24px; }
+      }
+
+      @media (max-width: 420px) {
+        .tv-hero-right img { max-height: 150px; }
       }
 
       /* ── Section shell ── */
