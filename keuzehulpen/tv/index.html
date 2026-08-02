@@ -170,21 +170,43 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 100%;
-        padding: 24px 24px 24px 0;
+        padding: 0 32px 0 0;
       }
       .tv-hero-right img {
-        width: 100%;
-        max-width: 420px;
+        width: auto;
+        height: auto;
+        max-width: 460px;
+        max-height: 330px;
         object-fit: contain;
+        filter: drop-shadow(0 16px 28px rgba(0,0,0,0.14));
       }
+
+      /* ── USP row (below hero card) ── */
+      .tv-hero-usps {
+        list-style: none;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 32px;
+        margin: 22px 0 0;
+        padding: 0;
+      }
+      .tv-hero-usps li {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 14px;
+        color: var(--color-text);
+      }
+      .tv-hero-usps strong { color: var(--color-primary); font-weight: 700; }
+      .tv-hero-usps svg { width: 16px; height: 16px; color: var(--color-accent); flex-shrink: 0; }
 
       @media (max-width: 860px) {
         .tv-hero-card { grid-template-columns: 1fr; }
         .tv-hero-left { padding: 32px 24px 12px; text-align: center; }
         .tv-hero h1 { margin-left: auto; margin-right: auto; }
-        .tv-hero-right { padding: 0 24px 28px; order: -1; }
-        .tv-hero-right img { max-width: 260px; }
+        .tv-hero-right { order: -1; min-height: 200px; padding: 24px; }
+        .tv-hero-usps { gap: 18px 24px; }
       }
 
       /* ── Section shell ── */
@@ -347,12 +369,12 @@
       .final-cta-btn {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 15px 34px;
+        gap: 10px;
+        padding: 20px 42px;
         border-radius: var(--radius-md);
         background: var(--color-primary);
         color: #fff;
-        font-size: 15px;
+        font-size: 18px;
         font-weight: 700;
         text-decoration: none;
         box-shadow: 0 8px 24px rgba(9, 84, 163, 0.22);
@@ -363,7 +385,7 @@
         transform: translateY(-2px);
         box-shadow: 0 12px 32px rgba(9, 84, 163, 0.3);
       }
-      .final-cta-btn svg { width: 16px; height: 16px; }
+      .final-cta-btn svg { width: 19px; height: 19px; }
     </style>
   </head>
   <body>
@@ -384,15 +406,20 @@
         <div class="tv-hero-card">
           <div class="tv-hero-left">
             <h1>Welke tv moet je kopen? Vind in 1 minuut de televisie die bij jou past</h1>
-            <a class="tv-hero-cta" href="keuzehulpen/tv/vragen">
+            <a class="tv-hero-cta guide-cta" href="keuzehulpen/tv/vragen">
               Start de keuzehulp
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </a>
           </div>
           <div class="tv-hero-right">
-            <img src="images/header/televisie header.png" alt="Televisie" loading="eager" />
+            <img src="keuzehulpen/tv/images/tv's tussenpagina.png" alt="Televisies" loading="eager" />
           </div>
         </div>
+        <ul class="tv-hero-usps">
+          <li><i data-lucide="check" aria-hidden="true"></i><span><strong>Actuele</strong> prijzen</span></li>
+          <li><i data-lucide="check" aria-hidden="true"></i><span><strong>100%</strong> onafhankelijk</span></li>
+          <li><i data-lucide="check" aria-hidden="true"></i><span>Kies uit <strong>350+</strong> tv's</span></li>
+        </ul>
       </section>
 
       <!-- ════════════════════════════════════════════
@@ -487,7 +514,7 @@
            ════════════════════════════════════════════ -->
       <section class="final-cta section-alt">
         <div class="wrap">
-          <a class="final-cta-btn" href="keuzehulpen/tv/vragen">
+          <a class="final-cta-btn guide-cta" href="keuzehulpen/tv/vragen">
             Start de keuzehulp
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </a>

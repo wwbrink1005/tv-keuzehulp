@@ -8,6 +8,13 @@
     return { category: match[1], stage: match[2] };
   }
 
+  // SEO-tussenpagina van een categorie: /keuzehulpen/{categorie}/ zonder vragen/resultaat erachter.
+  function getGuideCategory() {
+    const match = window.location.pathname.match(/\/keuzehulpen\/([^/]+)\/?$/);
+    if (!match) return null;
+    return match[1];
+  }
+
   function trackPageStage() {
     const info = getCategoryAndStage();
     if (!info) return;
@@ -40,9 +47,20 @@
     }, true);
   }
 
+  function trackGuideCtaClicks() {
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest("a.guide-cta");
+      if (!link) return;
+
+      const category = getGuideCategory();
+      window.phTrackEvent?.("gids_cta_klik", { categorie: category ?? "onbekend" });
+    }, true);
+  }
+
   function init() {
     trackPageStage();
     trackAffiliateClicks();
+    trackGuideCtaClicks();
   }
 
   if (document.readyState === "loading") {
