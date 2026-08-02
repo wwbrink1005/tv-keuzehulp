@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../">
+    <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blogs – Alles over productkeuzes | producthulp.nl</title>
+    <meta name="description" content="Alle koopgidsen en uitleg-artikelen van producthulp.nl op één plek. Zoek en filter op categorie en vind snel het antwoord op jouw vraag." />
+    <link rel="canonical" href="https://producthulp.nl/blog/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Blogs – Alles over productkeuzes" />
+    <meta property="og:description" content="Alle koopgidsen en uitleg-artikelen van producthulp.nl op één plek." />
+    <meta property="og:url" content="https://producthulp.nl/blog/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="stylesheet" href="shared/menu.css" />
+    <link rel="stylesheet" href="shared/footer.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="shared/menu.js" defer></script>
+    <script src="shared/footer.js" defer></script>
+    <script src="shared/consent.js" defer></script>
+    <script src="shared/analytics.js" defer></script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://producthulp.nl/" },
+        { "@type": "ListItem", "position": 2, "name": "Blogs", "item": "https://producthulp.nl/blog/" }
+      ]
+    }
+    </script>
+
+    <style>
+      :root {
+        --color-primary: #0954a3;
+        --color-primary-light: #e8f0fe;
+        --color-primary-dark: #073d7a;
+        --color-accent: #10b981;
+        --color-text: #1d1d1f;
+        --color-text-secondary: #64748b;
+        --color-bg: #f5f5f7;
+        --color-white: #ffffff;
+        --color-border: #e8eaed;
+        --radius-sm: 10px;
+        --radius-md: 14px;
+        --radius-lg: 20px;
+        --radius-full: 999px;
+        --font-body: "Inter", sans-serif;
+        --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --max-width: 1200px;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        font-family: var(--font-body);
+        background: #ffffff;
+        color: var(--color-text);
+        margin: 0;
+      }
+
+      img { display: block; max-width: 100%; height: auto; }
+      a { color: inherit; }
+
+      .wrap {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 clamp(24px, 5vw, 32px);
+      }
+
+      /* ── Breadcrumb ── */
+      .breadcrumb { padding-top: 18px; }
+      .breadcrumb ol {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        padding: 0;
+        font-size: 13px;
+        color: var(--color-text-secondary);
+      }
+      .breadcrumb a { text-decoration: none; color: inherit; }
+      .breadcrumb a:hover { color: var(--color-primary); }
+      .breadcrumb li[aria-current] { color: var(--color-text); font-weight: 600; }
+
+      /* ── Hero ── */
+      .blog-hero {
+        padding: 32px 0 28px;
+        text-align: center;
+      }
+      .blog-hero h1 {
+        font-size: clamp(28px, 4vw, 40px);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0 0 12px;
+      }
+      .blog-hero p {
+        font-size: 16px;
+        color: var(--color-text-secondary);
+        max-width: 520px;
+        margin: 0 auto 28px;
+        line-height: 1.6;
+      }
+
+      .blog-search {
+        position: relative;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      .blog-search-icon {
+        position: absolute;
+        top: 50%;
+        left: 18px;
+        transform: translateY(-50%);
+        width: 18px;
+        height: 18px;
+        color: #8a93a2;
+        pointer-events: none;
+      }
+      .blog-search input {
+        width: 100%;
+        height: 50px;
+        padding: 0 20px 0 48px;
+        border-radius: 999px;
+        border: 1.5px solid #d8dde6;
+        font-size: 15px;
+        font-family: var(--font-body);
+        outline: none;
+        background: #fff;
+        color: var(--color-text);
+        transition: border-color var(--transition), box-shadow var(--transition);
+      }
+      .blog-search input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(9, 84, 163, 0.1);
+      }
+      .blog-search input::placeholder { color: #9da5b2; }
+
+      /* ── Filter chips ── */
+      .blog-filters {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        padding: 28px 0 8px;
+      }
+      .blog-filter-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 9px 20px;
+        border-radius: var(--radius-full);
+        border: 1.5px solid var(--color-border);
+        background: #fff;
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+      }
+      .blog-filter-chip:hover {
+        border-color: rgba(9, 84, 163, 0.4);
+        color: var(--color-primary);
+      }
+      .blog-filter-chip.is-active {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: #fff;
+      }
+
+      /* ── Results status ── */
+      .blog-results-status {
+        text-align: center;
+        font-size: 13.5px;
+        color: var(--color-text-secondary);
+        padding: 16px 0 4px;
+      }
+
+      /* ── Grid ── */
+      .blog-section { padding: 24px 0 72px; }
+      .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+      .blog-card {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        text-decoration: none;
+        transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+      }
+      .blog-card:hover {
+        border-color: rgba(9, 84, 163, 0.35);
+        box-shadow: 0 12px 32px rgba(9, 84, 163, 0.10);
+        transform: translateY(-3px);
+      }
+      .blog-card-img {
+        height: 160px;
+        background: var(--color-bg);
+      }
+      .blog-card-img img { width: 100%; height: 100%; object-fit: cover; }
+      .blog-card-body { padding: 20px 22px 22px; display: flex; flex-direction: column; flex: 1; }
+      .blog-card-tag {
+        display: inline-block;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--color-primary);
+        margin-bottom: 8px;
+      }
+      .blog-card h3 {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.35;
+        margin: 0 0 10px;
+        letter-spacing: -0.01em;
+      }
+      .blog-card p {
+        font-size: 13.5px;
+        line-height: 1.6;
+        color: var(--color-text-secondary);
+        margin: 0 0 16px;
+      }
+      .blog-card-link {
+        margin-top: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-primary);
+      }
+      .blog-card-link svg { width: 13px; height: 13px; transition: transform 0.2s ease; }
+      .blog-card:hover .blog-card-link svg { transform: translateX(3px); }
+
+      /* ── Empty state ── */
+      .blog-empty {
+        display: none;
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--color-text-secondary);
+      }
+      .blog-empty.is-visible { display: block; }
+      .blog-empty svg { width: 40px; height: 40px; opacity: 0.35; margin: 0 auto 16px; }
+      .blog-empty p { margin: 0; font-size: 15px; }
+
+      @media (max-width: 900px) {
+        .blog-grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (max-width: 620px) {
+        .blog-grid { grid-template-columns: 1fr; }
+        .blog-filters { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-left: 4px; padding-right: 4px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+
+      <nav class="breadcrumb wrap" aria-label="Kruimelpad">
+        <ol>
+          <li><a href="./">Home</a></li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page">Blogs</li>
+        </ol>
+      </nav>
+
+      <section class="blog-hero wrap">
+        <h1>Blogs</h1>
+        <p>Uitleg en koopgidsen om je te helpen bij het kiezen van je volgende product.</p>
+        <div class="blog-search">
+          <svg class="blog-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="blogSearchInput" placeholder="Zoek in blogs…" aria-label="Zoek in blogs" />
+        </div>
+      </section>
+
+      <div class="blog-filters wrap" id="blogFilters" role="tablist" aria-label="Filter op categorie">
+        <button class="blog-filter-chip is-active" type="button" data-category="alle" role="tab" aria-selected="true">Alle</button>
+        <button class="blog-filter-chip" type="button" data-category="tv" role="tab" aria-selected="false">Tv</button>
+        <button class="blog-filter-chip" type="button" data-category="laptop" role="tab" aria-selected="false">Laptop</button>
+        <button class="blog-filter-chip" type="button" data-category="monitor" role="tab" aria-selected="false">Monitor</button>
+        <button class="blog-filter-chip" type="button" data-category="desktop" role="tab" aria-selected="false">Desktop</button>
+        <button class="blog-filter-chip" type="button" data-category="printer" role="tab" aria-selected="false">Printer</button>
+        <button class="blog-filter-chip" type="button" data-category="wasmachine" role="tab" aria-selected="false">Wasmachine</button>
+      </div>
+
+      <p class="blog-results-status" id="blogResultsStatus"></p>
+
+      <section class="blog-section wrap">
+        <div class="blog-grid" id="blogGrid"></div>
+        <div class="blog-empty" id="blogEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <p>Geen artikelen gevonden. Probeer een andere zoekterm of categorie.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <script>
+      // ── Artikel-index ────────────────────────────────────────────────
+      // Handmatig bijgehouden lijst van alle gepubliceerde blogartikelen.
+      // Voeg hier een entry toe bij elk nieuw artikel dat wordt gepubliceerd
+      // onder keuzehulpen/{categorie}/blog/{slug}/.
+      const BLOG_ARTICLES = [
+        {
+          title: "OLED vs. QLED: welke past bij jouw kijkgedrag?",
+          excerpt: "Een dieper duik in de verschillen tussen de paneeltypes — en in welke situatie welke technologie écht het verschil maakt.",
+          url: "keuzehulpen/tv/blog/oled-vs-qled/",
+          image: "keuzehulpen/tv/blog/oled-vs-qled/images/oled-vs-qled.png",
+          category: "tv",
+          categoryLabel: "Tv",
+        },
+      ];
+
+      const FALLBACK_IMG = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect width=%22400%22 height=%22300%22 fill=%22%23f5f5f7%22/%3E%3Cg transform=%22translate(183,133)%22%3E%3Cpath d=%22m17 2-5 5-5-5%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3Crect width=%2220%22 height=%2215%22 x=%222%22 y=%227%22 rx=%222%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3C/g%3E%3C/svg%3E";
+
+      function escapeHtml(str) {
+        return str.replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        })[c]);
+      }
+
+      function renderCard(article) {
+        return `
+          <a class="blog-card" href="${article.url}">
+            <div class="blog-card-img">
+              <img src="${article.image}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'" />
+            </div>
+            <div class="blog-card-body">
+              <span class="blog-card-tag">${escapeHtml(article.categoryLabel)}</span>
+              <h3>${escapeHtml(article.title)}</h3>
+              <p>${escapeHtml(article.excerpt)}</p>
+              <span class="blog-card-link">Lees meer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </div>
+          </a>
+        `;
+      }
+
+      function init() {
+        const grid = document.getElementById("blogGrid");
+        const empty = document.getElementById("blogEmpty");
+        const status = document.getElementById("blogResultsStatus");
+        const searchInput = document.getElementById("blogSearchInput");
+        const filterChips = Array.from(document.querySelectorAll(".blog-filter-chip"));
+
+        let activeCategory = "alle";
+
+        function applyFilters() {
+          const query = searchInput.value.trim().toLowerCase();
+          const results = BLOG_ARTICLES.filter((article) => {
+            const matchesCategory = activeCategory === "alle" || article.category === activeCategory;
+            const matchesQuery =
+              !query ||
+              article.title.toLowerCase().includes(query) ||
+              article.excerpt.toLowerCase().includes(query);
+            return matchesCategory && matchesQuery;
+          });
+
+          grid.innerHTML = results.map(renderCard).join("");
+          empty.classList.toggle("is-visible", results.length === 0);
+          status.textContent = results.length === 1
+            ? "1 artikel gevonden"
+            : `${results.length} artikelen gevonden`;
+        }
+
+        filterChips.forEach((chip) => {
+          chip.addEventListener("click", () => {
+            filterChips.forEach((c) => {
+              c.classList.remove("is-active");
+              c.setAttribute("aria-selected", "false");
+            });
+            chip.classList.add("is-active");
+            chip.setAttribute("aria-selected", "true");
+            activeCategory = chip.dataset.category;
+            applyFilters();
+          });
+        });
+
+        searchInput.addEventListener("input", applyFilters);
+
+        applyFilters();
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    </script>
+  </body>
+</html>
