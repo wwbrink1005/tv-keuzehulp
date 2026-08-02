@@ -12,7 +12,7 @@
   --info-text-secondary: #64748b;
   --info-border: #e8eaed;
   --info-radius: 16px;
-  --info-font-heading: "Space Grotesk", sans-serif;
+  --info-font-heading: "Inter", sans-serif;
   --info-font-body: "Inter", sans-serif;
   --info-transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }

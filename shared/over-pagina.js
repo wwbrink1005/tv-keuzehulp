@@ -26,9 +26,9 @@ const infoPages = [
         </ul>
       </div>
 
-      <h2>Binnenkort beschikbaar</h2>
+      <h2>Onze keuzehulpen</h2>
       <p>
-        Momenteel is de televisie-keuzehulp live. We werken actief aan keuzehulpen voor soundbars, laptops, koffiemachines en wasmachines. Houd de website in de gaten voor updates.
+        Op dit moment zijn onze keuzehulpen voor televisies, laptops, monitoren, desktops, printers en wasmachines live. We blijven nieuwe categorieën toevoegen — houd de website in de gaten voor updates.
       </p>
     `,
   },
@@ -38,7 +38,7 @@ const infoPages = [
     file: "hoe-werkt-het",
     html: `
       <p class="info-lead">
-        In een paar minuten weet jij welke televisie het beste bij jou past. Hier leggen we stap voor stap uit hoe onze keuzehulp werkt.
+        In een paar minuten weet jij welk product het beste bij jou past. Hier leggen we stap voor stap uit hoe onze keuzehulpen werken.
       </p>
 
       <ol class="info-steps">
@@ -166,12 +166,12 @@ const infoPages = [
 
       <h2>Cookies</h2>
       <p>
-        producthulp.nl gebruikt geen tracking cookies of advertentiecookies van derden. We gebruiken uitsluitend functionele cookies die noodzakelijk zijn voor een goede werking van de website, zoals het onthouden van jouw antwoorden tijdens de keuzehulp.
+        We gebruiken functionele cookies die noodzakelijk zijn voor een goede werking van de website, zoals het onthouden van jouw antwoorden tijdens de keuzehulp. Daarnaast gebruiken we, alleen met jouw toestemming via de cookiemelding, Google Analytics om anoniem bij te houden hoe bezoekers de website gebruiken (bijvoorbeeld welke pagina's populair zijn), zodat we de keuzehulpen kunnen verbeteren. We gebruiken geen advertentiecookies.
       </p>
 
       <h2>Delen met derden</h2>
       <p>
-        Wij verkopen of delen jouw gegevens niet met derden voor commerciële doeleinden. Gegevens worden uitsluitend gedeeld als dit wettelijk verplicht is.
+        Wij verkopen jouw gegevens nooit. Als je toestemming geeft voor Google Analytics, deelt de website geanonimiseerde gebruiksstatistieken met Google — uitsluitend om te begrijpen hoe de keuzehulpen gebruikt worden. Verder delen we gegevens alleen als dit wettelijk verplicht is.
       </p>
 
       <h2>Beveiliging</h2>
@@ -186,7 +186,7 @@ const infoPages = [
 
       <h2>Wijzigingen</h2>
       <p>
-        Dit privacybeleid kan worden aangepast. De meest actuele versie is altijd beschikbaar op deze pagina. Laatste update: maart 2026.
+        Dit privacybeleid kan worden aangepast. De meest actuele versie is altijd beschikbaar op deze pagina. Laatste update: augustus 2026.
       </p>
 
       <div class="info-highlight">
@@ -218,7 +218,7 @@ if (navList) {
     const link = document.createElement("a");
     const icon = document.createElement("i");
 
-    link.href = page.file;
+    link.href = "overige-paginas/" + page.file;
     link.className = "info-nav-link";
     link.textContent = page.title;
 
