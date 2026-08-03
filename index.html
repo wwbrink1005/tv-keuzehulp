@@ -1895,23 +1895,41 @@
       }
 
       @media (max-width: 880px) {
-        .about-grid {
-          grid-template-columns: 1fr;
-          gap: 16px;
-        }
         .about-section {
-          padding: 56px 24px 64px;
+          padding: 56px 0 64px;
+        }
+        .about-header {
+          padding: 0 24px;
+        }
+        .about-grid {
+          display: flex;
+          gap: 16px;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          padding: 0 24px 4px;
+        }
+        .about-grid::-webkit-scrollbar { display: none; }
+        .about-item {
+          flex: 0 0 82%;
+          scroll-snap-align: start;
         }
       }
 
       @media (max-width: 480px) {
         .about-section {
-          padding: 40px 16px 48px;
+          padding: 40px 0 48px;
         }
         .about-header {
           margin-bottom: 32px;
+          padding: 0 16px;
+        }
+        .about-grid {
+          padding: 0 16px 4px;
         }
         .about-item {
+          flex: 0 0 86%;
           padding: 24px 20px;
         }
       }

@@ -49,6 +49,7 @@
         --radius-sm: 10px;
         --radius-md: 14px;
         --radius-lg: 20px;
+        --radius-xl: 24px;
         --radius-full: 999px;
         --font-body: "Inter", sans-serif;
         --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -91,8 +92,13 @@
 
       /* ── Hero ── */
       .blog-hero {
-        padding-top: 32px;
-        padding-bottom: 28px;
+        padding-top: 28px;
+        padding-bottom: 8px;
+      }
+      .blog-hero-card {
+        background: #f5f3f0;
+        border-radius: var(--radius-xl, 24px);
+        padding: 40px 32px 44px;
         text-align: center;
       }
       .blog-hero h1 {
@@ -285,11 +291,13 @@
       </nav>
 
       <section class="blog-hero wrap">
-        <h1>Blogs</h1>
-        <p>Uitleg en koopgidsen om je te helpen bij het kiezen van je volgende product.</p>
-        <div class="blog-search">
-          <svg class="blog-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="blogSearchInput" placeholder="Zoek in blogs…" aria-label="Zoek in blogs" />
+        <div class="blog-hero-card">
+          <h1>Blogs</h1>
+          <p>Uitleg en koopgidsen om je te helpen bij het kiezen van je volgende product.</p>
+          <div class="blog-search">
+            <svg class="blog-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="blogSearchInput" placeholder="Zoek in blogs…" aria-label="Zoek in blogs" />
+          </div>
         </div>
       </section>
 

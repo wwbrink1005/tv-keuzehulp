@@ -430,6 +430,7 @@
 
       function openPreview(src, name, extraImgs) {
         allImages    = [src].concat(Array.isArray(extraImgs) ? extraImgs.filter(function(s){ return s !== src; }) : []);
+        allImages    = allImages.slice(0, 10); // max 10 afbeeldingen in de galerij
         currentIndex = 0;
         var hasGallery = allImages.length > 1;
         dialog.classList.toggle('image-preview-has-gallery', hasGallery);
