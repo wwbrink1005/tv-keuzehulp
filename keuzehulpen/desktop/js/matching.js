@@ -96,33 +96,41 @@ export function matchDesktops(desktops, behuizingType, priceGroup, answers, scor
     return { bestMatch: null, bestType: null, filteredMatchedDesktops: [] };
   }
 
-  // 2. Pick best GPU tier by total score
+  // 2. Pick best-scoring GPU tier(s) by total score. Rather than stopping at
+  // the first tier (or tied tiers) that has ANY stock, we widen to the next
+  // best-scoring tier(s) until we hit a reasonable result count. This
+  // matters for behuizing types where discrete GPUs are rare (all-in-one,
+  // mini-pc): almost all stock sits in "Budget", so stopping at the first
+  // nonempty tier could strand someone on a tiny niche tier (e.g. 2 gaming
+  // all-in-ones) while ignoring 35 perfectly fine Budget ones with a lower
+  // (but still relevant) score.
+  const MIN_RESULTS = 5;
   const sortedTiers = Object.entries(scores)
     .sort((a, b) => Number(b[1]) - Number(a[1]));
 
   let matchedDesktops = [];
   let bestType = null;
+  const tiersSoFar = [];
 
   for (let i = 0; i < sortedTiers.length; i++) {
-    const [, topScore] = sortedTiers[i];
-    const tiersWithTopScore = sortedTiers
-      .filter(([, s]) => Number(s) === Number(topScore))
-      .map(([t]) => t);
+    const [tier] = sortedTiers[i];
+    tiersSoFar.push(tier);
 
-    let candidates = filtered.filter(d => tiersWithTopScore.includes(d.gpuTier));
+    let candidates = filtered.filter(d => tiersSoFar.includes(d.gpuTier));
     if (candidates.length === 0) continue;
 
     // 3. Apply opslag filter
     candidates = applyOpslagFilter(candidates, answers.opslag ?? "");
-    if (candidates.length === 0) continue;
 
     // 4. Apply extra preferences
     candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
+
     if (candidates.length === 0) continue;
 
-    matchedDesktops = [...candidates];
-    bestType = tiersWithTopScore.join(" / ");
-    break;
+    matchedDesktops = candidates;
+    bestType = tiersSoFar.join(" / ");
+
+    if (matchedDesktops.length >= MIN_RESULTS) break;
   }
 
   // Fallback: if tier matching yielded nothing, use all behuizing+price
