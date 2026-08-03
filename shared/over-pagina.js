@@ -5,12 +5,12 @@ const infoPages = [
     file: "over-ons",
     html: `
       <p class="info-lead">
-        producthulp.nl helpt consumenten het juiste product te vinden — zonder reclame, zonder verborgen agenda. Wij zijn een onafhankelijk platform dat eerlijk en gratis advies biedt via slimme keuzehulpen.
+        producthulp.nl helpt consumenten het juiste product te vinden, zonder reclame en zonder verborgen agenda. Wij zijn een onafhankelijk platform dat eerlijk en gratis advies biedt via slimme keuzehulpen.
       </p>
 
       <h2>Onze missie</h2>
       <p>
-        De markt zit vol met keuzemogelijkheden. Of het nu gaat om een televisie, een laptop of een wasmachine — het aanbod is overweldigend en productspecificaties zijn vaak moeilijk te vergelijken. producthulp.nl bestaat om dat eenvoudiger te maken. Wij stellen je de juiste vragen, zodat jij het product krijgt dat écht bij je past.
+        De markt zit vol met keuzemogelijkheden. Of het nu gaat om een televisie, een laptop of een wasmachine: het aanbod is overweldigend en productspecificaties zijn vaak moeilijk te vergelijken. producthulp.nl bestaat om dat eenvoudiger te maken. Wij stellen je de juiste vragen, zodat jij het product krijgt dat écht bij je past.
       </p>
 
       <div class="info-highlight">
@@ -20,15 +20,15 @@ const infoPages = [
       <h2>Wat bieden wij?</h2>
       <div class="info-card">
         <ul>
-          <li><strong>Keuzehulpen</strong> — interactieve vragenlijsten die jouw wensen vertalen naar een persoonlijk productadvies.</li>
-          <li><strong>Productinformatie</strong> — heldere uitleg over specificaties en wat ze betekenen in de praktijk.</li>
-          <li><strong>Vergelijkingen</strong> — een overzicht van aanbevolen producten gefilterd op jouw voorkeuren en budget.</li>
+          <li><strong>Keuzehulpen</strong>: interactieve vragenlijsten die jouw wensen vertalen naar een persoonlijk productadvies.</li>
+          <li><strong>Productinformatie</strong>: heldere uitleg over specificaties en wat ze betekenen in de praktijk.</li>
+          <li><strong>Vergelijkingen</strong>: een overzicht van aanbevolen producten gefilterd op jouw voorkeuren en budget.</li>
         </ul>
       </div>
 
       <h2>Onze keuzehulpen</h2>
       <p>
-        Op dit moment zijn onze keuzehulpen voor televisies, laptops, monitoren, desktops, printers en wasmachines live. We blijven nieuwe categorieën toevoegen — houd de website in de gaten voor updates.
+        Op dit moment zijn onze keuzehulpen voor televisies, laptops, monitoren, desktops, printers en wasmachines live. We blijven nieuwe categorieën toevoegen. Houd de website in de gaten voor updates.
       </p>
     `,
   },
@@ -67,7 +67,7 @@ const infoPages = [
           <div class="info-step-number">4</div>
           <div class="info-step-body">
             <span class="info-step-title">Kies en koop waar jij dat wil</span>
-            <span class="info-step-desc">Wij sturen je door naar bekende webshops waar je het product kunt bekijken en bestellen. Jij bepaalt zelf waar je koopt — wij verdienen niets aan jouw keuze.</span>
+            <span class="info-step-desc">Wij sturen je door naar bekende webshops waar je het product kunt bekijken en bestellen. Jij bepaalt zelf waar je koopt, wij verdienen niets aan jouw keuze.</span>
           </div>
         </li>
       </ol>
@@ -158,9 +158,9 @@ const infoPages = [
       <h2>Welke gegevens verzamelen wij?</h2>
       <div class="info-card">
         <ul>
-          <li><strong>Geen persoonsgegevens</strong> — je hoeft geen naam, e-mailadres of account aan te maken om gebruik te maken van de keuzehulp.</li>
-          <li><strong>Anonieme gebruiksdata</strong> — we kunnen anonieme statistieken bijhouden (zoals welke vragen populair zijn) om de keuzehulp te verbeteren. Deze data is niet herleidbaar naar een individu.</li>
-          <li><strong>Contactformulier</strong> — als je contact met ons opneemt via e-mail, bewaren we je bericht en e-mailadres alleen om je vraag te beantwoorden.</li>
+          <li><strong>Geen persoonsgegevens</strong>: je hoeft geen naam, e-mailadres of account aan te maken om gebruik te maken van de keuzehulp.</li>
+          <li><strong>Anonieme gebruiksdata</strong>: we kunnen anonieme statistieken bijhouden (zoals welke vragen populair zijn) om de keuzehulp te verbeteren. Deze data is niet herleidbaar naar een individu.</li>
+          <li><strong>Contactformulier</strong>: als je contact met ons opneemt via e-mail, bewaren we je bericht en e-mailadres alleen om je vraag te beantwoorden.</li>
         </ul>
       </div>
 
@@ -171,7 +171,7 @@ const infoPages = [
 
       <h2>Delen met derden</h2>
       <p>
-        Wij verkopen jouw gegevens nooit. Als je toestemming geeft voor Google Analytics, deelt de website geanonimiseerde gebruiksstatistieken met Google — uitsluitend om te begrijpen hoe de keuzehulpen gebruikt worden. Verder delen we gegevens alleen als dit wettelijk verplicht is.
+        Wij verkopen jouw gegevens nooit. Als je toestemming geeft voor Google Analytics, deelt de website geanonimiseerde gebruiksstatistieken met Google, uitsluitend om te begrijpen hoe de keuzehulpen gebruikt worden. Verder delen we gegevens alleen als dit wettelijk verplicht is.
       </p>
 
       <h2>Beveiliging</h2>

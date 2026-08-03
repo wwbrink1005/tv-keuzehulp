@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <!-- Brand -->
       <div class="menu-brand">
-        <a href="./" aria-label="producthulp.nl — home">
+        <a href="./" aria-label="producthulp.nl homepage">
           <img
             src="logo's/logo.svg"
             alt="producthulp.nl"

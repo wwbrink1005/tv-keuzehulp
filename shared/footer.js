@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <a class="footer-logo" href="./">
             <img src="logo's/logo.svg" alt="producthulp.nl" class="footer-logo-img" />
           </a>
-          <p class="footer-tagline">Onafhankelijk productadvies — altijd gratis, altijd eerlijk.</p>
+          <p class="footer-tagline">Onafhankelijk productadvies, altijd gratis en altijd eerlijk.</p>
           <span class="footer-badge">
             <span class="footer-badge-dot"></span>
             100% onafhankelijk
