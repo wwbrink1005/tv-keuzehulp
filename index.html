@@ -1050,15 +1050,22 @@
         cursor: pointer;
       }
 
-      .category-col li a:hover,
-      .category-col li span:hover {
+      .category-col li a:hover {
         color: var(--color-primary-dark);
       }
 
-      .category-col li a:hover .cat-chevron,
-      .category-col li span:hover .cat-chevron {
+      .category-col li a:hover .cat-chevron {
         transform: translateX(3px);
         color: var(--color-primary-dark);
+      }
+
+      .category-col li span {
+        color: #adb5bd;
+        cursor: default;
+      }
+
+      .category-col li span .cat-chevron {
+        color: #c4c7cc;
       }
 
       .cat-chevron {

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <base href="../../">
+  <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>TEST — Nieuwe stijl TV Keuzehulp</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+  <link rel="stylesheet" href="shared/menu.css">
+  <link rel="stylesheet" href="shared/footer.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="shared/menu.js" defer></script>
+  <script src="shared/footer.js" defer></script>
+  <script src="shared/consent.js" defer></script>
+
+  <style>
+    :root {
+      --tq-accent: #0954a3;
+      --tq-accent-soft: #eaf2fc;
+      --tq-text: #14181f;
+      --tq-text-2: #5b6472;
+      --tq-text-3: #8992a1;
+      --tq-line: #e6e9ee;
+      --tq-bg: #f4f5f7;
+      --tq-card: #ffffff;
+      --tq-radius-lg: 22px;
+      --tq-radius-md: 16px;
+      --tq-radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { background: var(--tq-bg); }
+
+    .test-ribbon {
+      background: linear-gradient(90deg, #0954a3, #1670d6);
+      color: #fff;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .02em;
+      padding: 8px 16px;
+    }
+
+    .tq-page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: clamp(24px, 5vw, 48px) 20px 80px;
+    }
+
+    .tq-intro {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .tq-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--tq-accent-soft);
+      color: var(--tq-accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    .tq-intro h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(24px, 3.4vw, 32px);
+      font-weight: 800;
+      color: var(--tq-text);
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .tq-intro p {
+      font-size: 15px;
+      color: var(--tq-text-2);
+      margin: 0;
+      max-width: 480px;
+      margin-inline: auto;
+    }
+
+    /* ── Shell: split into a white form pane and a persistent room pane ── */
+    #quiz-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      background: var(--tq-card);
+      border: 1px solid var(--tq-line);
+      border-radius: var(--tq-radius-lg);
+      box-shadow: 0 10px 40px rgba(20, 24, 31, .06), 0 2px 8px rgba(20,24,31,.04);
+      overflow: hidden;
+      min-height: 620px;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    #quiz-shell.is-exiting {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .tq-pane--form {
+      display: flex;
+      flex-direction: column;
+      padding: clamp(24px, 4vw, 40px);
+    }
+
+    .tq-pane--room {
+      position: relative;
+      background: #e9e2d6;
+    }
+
+    .room-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 100% 50%;
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      #quiz-shell {
+        grid-template-columns: 1fr;
+        min-height: 0;
+      }
+      .tq-pane--room {
+        order: -1;
+        height: 220px;
+      }
+    }
+
+    /* ── Top row: progress + live counter ────────────────────────────── */
+    .tq-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .tq-progress-wrap {
+      flex: 1 1 220px;
+      min-width: 180px;
+    }
+
+    .tq-progress-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--tq-text-3);
+      margin-bottom: 8px;
+      letter-spacing: .01em;
+    }
+
+    .tq-progress-track {
+      height: 6px;
+      background: #eef0f3;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .tq-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0954a3, #2f8ef0);
+      border-radius: 999px;
+      transition: width .4s cubic-bezier(.4,0,.2,1);
+    }
+
+    .tq-dots {
+      display: flex;
+      gap: 5px;
+      margin-top: 9px;
+    }
+
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #dde1e7;
+      transition: background .25s, transform .25s;
+    }
+
+    .dot.is-done { background: var(--tq-accent); }
+    .dot.is-current { background: var(--tq-accent); transform: scale(1.5); }
+
+    .tq-live-count {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+      background: var(--tq-accent-soft);
+      border: 1px solid rgba(9,84,163,.14);
+      color: var(--tq-accent);
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tq-live-count strong { font-size: 16px; font-weight: 800; }
+    .tq-live-count.is-loading { color: var(--tq-text-3); background: #f1f2f4; border-color: var(--tq-line); }
+    .tq-live-count.pulse { animation: tq-pulse .45s ease; }
+
+    @keyframes tq-pulse {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.06); box-shadow: 0 0 0 6px rgba(9,84,163,.10); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(9,84,163,0); }
+    }
+
+    /* ── Question ─────────────────────────────────────────────────────── */
+    #question-root {
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    #question-root.slide-out-left { opacity: 0; transform: translateX(-16px); }
+    #question-root.slide-out-right { opacity: 0; transform: translateX(16px); }
+    #question-root.slide-in-right { animation: tq-in-right .32s ease both; }
+    #question-root.slide-in-left { animation: tq-in-left .32s ease both; }
+
+    @keyframes tq-in-right {
+      from { opacity: 0; transform: translateX(16px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes tq-in-left {
+      from { opacity: 0; transform: translateX(-16px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .q-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .q-title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(19px, 2.6vw, 23px);
+      font-weight: 700;
+      color: var(--tq-text);
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .q-why-btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: 1px solid var(--tq-line);
+      color: var(--tq-text-2);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s;
+      white-space: nowrap;
+    }
+
+    .q-why-btn svg { width: 14px; height: 14px; }
+
+    .q-why-btn:hover, .q-why-btn.is-open {
+      background: var(--tq-accent-soft);
+      border-color: rgba(9,84,163,.24);
+      color: var(--tq-accent);
+    }
+
+    .q-why-panel {
+      display: none;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--tq-text-2);
+      background: var(--tq-bg);
+      border-radius: var(--tq-radius-sm);
+      padding: 14px 16px;
+      margin: 10px 0 4px;
+    }
+
+    .q-why-panel.is-open { display: block; animation: tq-fade-down .2s ease; }
+
+    @keyframes tq-fade-down {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .q-hint {
+      font-size: 12.5px;
+      color: var(--tq-text-3);
+      margin: 10px 0 0;
+    }
+
+    /* ── Live TV overlay on the room pane (visible from the size step on) ── */
+    .tv-stage__hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(20,24,31,.30);
+      backdrop-filter: blur(2px);
+      transition: opacity .3s ease;
+    }
+
+    .tv-stage__hint.is-hidden { opacity: 0; pointer-events: none; }
+
+    .tv-live-wrap {
+      position: absolute;
+      opacity: 0;
+      transition: width .35s cubic-bezier(.4,0,.2,1), height .35s cubic-bezier(.4,0,.2,1),
+                  right .35s cubic-bezier(.4,0,.2,1), bottom .35s cubic-bezier(.4,0,.2,1),
+                  opacity .3s ease;
+    }
+
+    .tv-live-wrap.is-visible { opacity: 1; }
+
+    .tv-live {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(165deg, #23272f, #06070a);
+      border-radius: 5px;
+      box-shadow: 0 16px 34px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.07);
+    }
+
+    .tv-live__screen {
+      position: absolute;
+      inset: 3.4%;
+      border-radius: 2px;
+      overflow: hidden;
+      background: #05060a;
+    }
+
+    .tv-live__glow {
+      position: absolute;
+      inset: -25%;
+      background:
+        radial-gradient(circle at 28% 32%, rgba(70,150,255,.38), transparent 58%),
+        radial-gradient(circle at 76% 68%, rgba(160,90,255,.24), transparent 55%);
+      filter: blur(18px);
+      animation: tv-glow-shift 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes tv-glow-shift {
+      from { transform: scale(1) translate(0, 0); }
+      to   { transform: scale(1.1) translate(3%, -3%); }
+    }
+
+    .tv-live__label {
+      position: absolute;
+      top: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.96);
+      color: var(--tq-text);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.16);
+      white-space: nowrap;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tv-live__glow { animation: none; }
+    }
+
+    /* ── Answer cards ─────────────────────────────────────────────────── */
+    .q-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .q-options--sizes { grid-template-columns: repeat(2, 1fr); }
+
+    .opt-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--tq-card);
+      border: 1.5px solid var(--tq-line);
+      border-radius: var(--tq-radius-sm);
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: border-color .18s ease, box-shadow .18s ease, transform .12s ease, background .18s ease;
+      animation: tq-card-in .32s ease both;
+      animation-delay: calc(var(--i, 0) * 35ms);
+    }
+
+    @keyframes tq-card-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .opt-card:hover {
+      border-color: rgba(9,84,163,.35);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(20,24,31,.06);
+    }
+
+    .opt-card.is-selected {
+      border-color: var(--tq-accent);
+      background: var(--tq-accent-soft);
+      box-shadow: 0 0 0 3px rgba(9,84,163,.10);
+    }
+
+    .opt-card input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+
+    .opt-icon {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: var(--tq-bg);
+      display: grid;
+      place-items: center;
+      color: var(--tq-text-2);
+      transition: background .18s, color .18s;
+    }
+
+    .opt-icon svg { width: 17px; height: 17px; }
+
+    .opt-card.is-selected .opt-icon {
+      background: #fff;
+      color: var(--tq-accent);
+    }
+
+    .opt-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--tq-text);
+      line-height: 1.35;
+      flex: 1;
+    }
+
+    .opt-card.is-selected .opt-label { color: var(--tq-accent); font-weight: 600; }
+
+    .opt-price {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--tq-text-3);
+      opacity: .6;
+      flex-shrink: 0;
+    }
+
+    .opt-badge {
+      position: absolute;
+      top: -9px;
+      left: 12px;
+      background: var(--tq-accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .opt-check {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--tq-accent);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transform: scale(.5);
+      transition: opacity .16s ease, transform .16s ease;
+    }
+
+    .opt-check svg { width: 11px; height: 11px; }
+
+    .opt-card.is-selected .opt-check { opacity: 1; transform: scale(1); }
+
+    /* ── Nav buttons ──────────────────────────────────────────────────── */
+    .tq-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--tq-line);
+    }
+
+    .tq-btn {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 22px;
+      border-radius: 999px;
+      cursor: pointer;
+      border: none;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+    }
+
+    .tq-btn-secondary {
+      background: transparent;
+      color: var(--tq-text-2);
+      border: 1.5px solid var(--tq-line);
+    }
+
+    .tq-btn-secondary:hover { background: var(--tq-bg); }
+
+    .tq-btn-primary {
+      background: var(--tq-accent);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(9,84,163,.28);
+    }
+
+    .tq-btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(9,84,163,.34); }
+
+    .tq-btn-primary:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+
+    @media (max-width: 640px) {
+      .q-options { grid-template-columns: 1fr; }
+      .q-options--sizes { grid-template-columns: repeat(2, 1fr); }
+      .tq-top-row { flex-direction: column; align-items: stretch; }
+      .tq-live-count { justify-content: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #question-root, .opt-card, .tq-live-count.pulse { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="test-ribbon">🧪 Testomgeving — nieuwe presentatiestijl voor de keuzehulpen, niet gelinkt vanaf de site</div>
+
+  <main class="tq-page">
+    <div class="tq-intro">
+      <span class="tq-eyebrow">Test — nieuwe stijl</span>
+      <h1>Welke tv past bij jou?</h1>
+      <p>Zelfde vragen als de echte tv-keuzehulp, nu met interactieve kaarten, live matchteller en vloeiende overgangen in plaats van een vaste achtergrondafbeelding.</p>
+    </div>
+
+    <div id="quiz-shell">
+      <div class="tq-pane tq-pane--form">
+        <div class="tq-top-row">
+          <div class="tq-progress-wrap">
+            <div class="tq-progress-label" id="progress-label">Stap 1 van 7</div>
+            <div class="tq-progress-track"><div class="tq-progress-fill" id="progress-fill"></div></div>
+            <div class="tq-dots" id="step-dots"></div>
+          </div>
+          <div class="tq-live-count is-loading" id="live-count">Producten laden…</div>
+        </div>
+
+        <div id="question-root"></div>
+
+        <div class="tq-nav">
+          <button type="button" class="tq-btn tq-btn-secondary" id="back-btn">Terug</button>
+          <button type="button" class="tq-btn tq-btn-primary" id="next-btn" disabled>Volgende</button>
+        </div>
+      </div>
+
+      <div class="tq-pane tq-pane--room" id="room-pane">
+        <img class="room-photo" id="room-photo" src="keuzehulpen/tv/images/tv achtergrond nieuw design.png" alt="">
+        <div class="tv-live-wrap" id="tv-live-wrap">
+          <div class="tv-live" id="tv-live">
+            <div class="tv-live__screen"><div class="tv-live__glow"></div></div>
+          </div>
+          <div class="tv-live__label" id="tv-live-label"></div>
+        </div>
+        <div class="tv-stage__hint" id="tv-stage-hint">Kies een formaat om 'm op ware grootte te zien</div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="test/tv/js/app.js"></script>
+
+</body>
+</html>

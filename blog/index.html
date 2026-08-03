@@ -515,7 +515,9 @@
             const matchesQuery =
               !query ||
               article.title.toLowerCase().includes(query) ||
-              article.excerpt.toLowerCase().includes(query);
+              article.excerpt.toLowerCase().includes(query) ||
+              article.categoryLabel.toLowerCase().includes(query) ||
+              article.category.toLowerCase().includes(query);
             return matchesCategory && matchesQuery;
           });
 

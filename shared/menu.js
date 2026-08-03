@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h4>Computer &amp; Telefonie</h4>
                 <ul>
                   <li><a href="keuzehulpen/laptop/vragen">Laptops <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  <li><a href="keuzehulpen/desktop/vragen">Desktops <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><a href="keuzehulpen/monitor/vragen">Monitoren <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><span>Smartphones <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Tablets <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
@@ -161,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <h4>Computer &amp; Telefonie</h4>
             <ul>
               <li><a href="keuzehulpen/laptop/vragen">Laptop <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="keuzehulpen/desktop/vragen">Desktop <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><a href="keuzehulpen/monitor/vragen">Monitor <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><span>Smartphone</span></li>
               <li><span>Tablets</span></li>

@@ -28,12 +28,20 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3 class="footer-col-title">Keuzehulpen</h3>
           <ul>
             <li>
-              <a href="keuzehulpen/tv/vragen" class="footer-link-active">Televisies</a>
+              <a href="keuzehulpen/tv/vragen">Televisies</a>
             </li>
-            <li><span class="footer-soon">Soundbars <span class="footer-soon-tag">binnenkort</span></span></li>
-            <li><span class="footer-soon">Laptops <span class="footer-soon-tag">binnenkort</span></span></li>
-            <li><span class="footer-soon">Koffiemachines <span class="footer-soon-tag">binnenkort</span></span></li>
-            <li><span class="footer-soon">Wasmachines <span class="footer-soon-tag">binnenkort</span></span></li>
+            <li>
+              <a href="keuzehulpen/laptop/vragen">Laptops</a>
+            </li>
+            <li>
+              <a href="keuzehulpen/monitor/vragen">Monitoren</a>
+            </li>
+            <li>
+              <a href="keuzehulpen/desktop/vragen">Desktops</a>
+            </li>
+            <li>
+              <a href="keuzehulpen/wasmachine/vragen">Wasmachines</a>
+            </li>
           </ul>
         </div>
 
