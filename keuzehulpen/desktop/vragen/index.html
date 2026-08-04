@@ -418,28 +418,17 @@ button.question-hint-btn-mobile { display: grid; }
           Hoe werkt het?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
-        <button class="quiz-toggle-btn" id="uitleg-toggle" data-toggle-target="uitleg-content" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Keuzehulp uitleg
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
       </div>
     </div>
 
     <div class="quiz-panel-content" id="how-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>We stellen zes korte vragen over jouw gebruik, behuizing, budget en voorkeuren. Op basis van je antwoorden berekenen we welke desktop het beste bij je past. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+        <p>We stellen zes korte vragen over jouw gebruik, behuizing, budget en voorkeuren. Op basis van je antwoorden berekenen we welke desktop het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) desktop leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
         <div class="quiz-how-steps">
           <div class="quiz-how-step"><span class="quiz-how-step-num">1</span><div><div class="quiz-how-step-label">Beantwoord vragen</div><div class="quiz-how-step-desc">Vertel ons over je wensen en voorkeuren</div></div></div>
           <div class="quiz-how-step"><span class="quiz-how-step-num">2</span><div><div class="quiz-how-step-label">Wij analyseren</div><div class="quiz-how-step-desc">We matchen je antwoorden met alle desktops</div></div></div>
           <div class="quiz-how-step"><span class="quiz-how-step-num">3</span><div><div class="quiz-how-step-label">Ontvang advies</div><div class="quiz-how-step-desc">Bekijk welke desktops het beste bij je passen</div></div></div>
         </div>
-      </div>
-    </div>
-    <div class="quiz-panel-content" id="uitleg-content">
-      <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>Deze desktop kijkt naar waar je de desktop voor gebruikt, hoe intensief dat is en welk soort behuizing je wilt (tower, mini-pc of all-in-one). Op basis daarvan bepalen we welke GPU-klasse passend is, en filteren we het aanbod verder op werkgeheugen, opslag en extra's. We nemen alleen desktops mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
-        <p>De €-tekens naast sommige antwoorden geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) desktop leidt. Dit is puur ter indicatie, het filtert niets weg. We vragen geen budget vooraf, zodat de desktops die het best bij je passen niet per ongeluk buiten beeld vallen door een te streng gekozen prijsplafond. Na de quiz kun je op de resultatenpagina zelf nog filteren op prijscategorie.</p>
       </div>
     </div>
   </header>
@@ -553,7 +542,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="radio" name="behuizing" value="tower">
                 <svg class="answer-info-icon" data-icon="server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Tower</span>
+                <span>Grote, uitbreidbare behuizing (tower)</span>
                 <span class="price-indicator">€€€</span>
               </label>
               <label class="answer-option">
@@ -565,7 +554,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="radio" name="behuizing" value="all-in-one">
                 <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>All-in-one</span>
+                <span>Beeldscherm en computer in één</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
@@ -666,7 +655,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="rgb">
                 <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>RGB-verlichting</span>
+                <span>Verlichting in de behuizing (RGB)</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
@@ -678,7 +667,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="veel-aansluitingen">
                 <svg class="answer-info-icon" data-icon="layout-panel-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Veel aansluitingen</span>
+                <span>Meerdere schermen of apparaten tegelijk aansluiten</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
@@ -723,7 +712,6 @@ button.question-hint-btn-mobile { display: grid; }
       });
     }
     initToggle('how-content');
-    initToggle('uitleg-content');
   })();
   </script>
 

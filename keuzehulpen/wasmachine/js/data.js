@@ -47,8 +47,7 @@ export function getWasmachineTier(w) {
 // harde (gracieus degraderende) filters, zie matching.js.
 export const scoringSystem = {
   gebruik: {
-    gewoon:        { Budget: 9, Mid: 8,  Premium: 4  },
-    energiezuinig: { Budget: 3, Mid: 8,  Premium: 10 },
-    gemak:         { Budget: 2, Mid: 6,  Premium: 10 }
+    gewoon: { Budget: 9, Mid: 8, Premium: 4  },
+    gemak:  { Budget: 2, Mid: 6, Premium: 10 }
   }
 };

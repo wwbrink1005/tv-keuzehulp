@@ -256,7 +256,7 @@ export function buildResultPoints(laptop, answers) {
   // Portability / formaat
   if (formaat === "licht-compact") {
     if (laptop.gewicht !== null && laptop.gewicht <= 1.5) {
-      addPoint("Extreem licht — ideaal voor onderweg");
+      addPoint("Extreem licht, ideaal voor onderweg");
     } else if (laptop.gewicht !== null && laptop.gewicht <= 1.9) {
       addPoint("Lichtgewicht ontwerp voor extra portabiliteit");
     }
@@ -277,7 +277,7 @@ export function buildResultPoints(laptop, answers) {
   if (opslag === "veel" && laptop.opslag >= 1000) {
     addPoint(`${laptop.opslag >= 1024 ? laptop.opslag / 1024 + " TB" : laptop.opslag + " GB"} opslag voor grote projecten`);
   } else if (opslag === "gemiddeld" && laptop.opslag >= 512) {
-    addPoint(`${laptop.opslag} GB opslag — ruim voor foto's en programma's`);
+    addPoint(`${laptop.opslag} GB opslag, ruim voor foto's en programma's`);
   }
 
   // Fill remaining slots with generic spec points

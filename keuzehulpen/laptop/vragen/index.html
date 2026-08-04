@@ -468,18 +468,13 @@ button.question-hint-btn-mobile { display: grid; }
           Hoe werkt het?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
-        <button class="quiz-toggle-btn" id="uitleg-toggle" data-toggle-target="uitleg-content" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Keuzehulp uitleg
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
       </div>
     </div>
 
     <!-- How it works panel -->
     <div class="quiz-panel-content" id="how-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>We stellen zes korte vragen over jouw gebruik, formaat, budget en voorkeuren. Op basis van je antwoorden berekenen we welke laptop het beste bij je past. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+        <p>We stellen zes korte vragen over jouw gebruik, formaat, budget en voorkeuren. Op basis van je antwoorden berekenen we welke laptop het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) laptop leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
         <div class="quiz-how-steps">
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">1</span>
@@ -503,12 +498,6 @@ button.question-hint-btn-mobile { display: grid; }
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="quiz-panel-content" id="uitleg-content">
-      <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>Deze laptop kijkt naar waar je de laptop voor gebruikt, hoe intensief dat gebruik is en welk formaat je wilt. Op basis daarvan bepalen we welke processorklasse en specificaties passend zijn, en filteren we het aanbod verder op werkgeheugen, opslag en grafische kaart. We nemen alleen laptops mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
-        <p>De €-tekens naast sommige antwoorden geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) laptop leidt. Dit is puur ter indicatie, het filtert niets weg. We vragen geen budget vooraf, zodat de laptops die het best bij je passen niet per ongeluk buiten beeld vallen door een te streng gekozen prijsplafond. Na de quiz kun je op de resultatenpagina zelf nog filteren op prijscategorie.</p>
       </div>
     </div>
   </header>
@@ -732,7 +721,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="usb-c">
                 <svg class="answer-info-icon" data-icon="plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>USB-C aansluiting</span>
+                <span>Eén kabel voor data en opladen (USB-C)</span>
                 <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
@@ -744,7 +733,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="scherp-beeldscherm">
                 <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Scherp beeldscherm</span>
+                <span>Extra scherp beeld (hoge resolutie)</span>
                 <span class="price-indicator">€€€</span>
               </label>
               <label class="answer-option">
@@ -790,7 +779,6 @@ button.question-hint-btn-mobile { display: grid; }
       });
     }
     initToggle('how-content');
-    initToggle('uitleg-content');
   })();
   </script>
 

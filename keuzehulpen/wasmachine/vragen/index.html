@@ -262,6 +262,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
   flex-shrink: 0;
 }
 
+
 /* ─── Capaciteit-visualisatie (wasmachine-foto o.b.v. gezinsgrootte) ────── */
 :root {
   --wasmachine-right-offset: 575;  /* ← pas dit aan op basis van de achtergrond */
@@ -390,16 +391,11 @@ button.question-hint-btn-mobile { display: grid; }
           Hoe werkt het?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
-        <button class="quiz-toggle-btn" id="uitleg-toggle" data-toggle-target="uitleg-content" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Keuzehulp uitleg
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
       </div>
     </div>
     <div class="quiz-panel-content" id="how-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>We stellen vijf korte vragen over je gezinsgrootte, budget, wensen rond geluid en gebruik. Op basis van je antwoorden berekenen we welke wasmachine het beste bij je past. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+        <p>We stellen vijf korte vragen over je gezinsgrootte, budget, wensen rond geluid en gebruik. Op basis van je antwoorden berekenen we welke wasmachine het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) wasmachine leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
         <div class="quiz-how-steps">
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">1</span>
@@ -423,12 +419,6 @@ button.question-hint-btn-mobile { display: grid; }
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="quiz-panel-content" id="uitleg-content">
-      <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>Deze wasmachine kijkt naar je gezinsgrootte om de juiste capaciteit te bepalen, hoe belangrijk geluid tijdens centrifugeren is en waar je verder waarde aan hecht: energiezuinigheid of gebruiksgemak. Op basis daarvan bepalen we welk type wasmachine (Budget, Mid of Premium) het beste bij je past, en filteren we verder op geluidsniveau en extra's zoals uitgestelde start of AquaStop. We nemen alleen wasmachines mee die op dat moment daadwerkelijk leverbaar zijn bij een van onze aanbieders, met actuele prijzen.</p>
-        <p>De €-tekens naast sommige antwoorden geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) wasmachine leidt. Dit is puur ter indicatie, het filtert niets weg. We vragen geen budget vooraf, zodat de wasmachines die het best bij je passen niet per ongeluk buiten beeld vallen door een te streng gekozen prijsplafond. Na de quiz kun je op de resultatenpagina zelf nog filteren op prijscategorie.</p>
       </div>
     </div>
   </header>
@@ -556,30 +546,24 @@ button.question-hint-btn-mobile { display: grid; }
               <h2>Waar hecht je de meeste waarde aan?</h2>
               <div class="question-popover" data-popover="3">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Sommige mensen wassen gewoon zonder speciale wensen. Anderen vinden een laag energie- en waterverbruik het belangrijkst. Weer anderen hechten vooral waarde aan gebruiksgemak, zoals een display en slimme functies. Dit bepaalt welk type wasmachine we aanbevelen.</p>
+                <p class="question-popover-text">Sommige mensen willen gewoon een wasmachine die het simpel goed doet. Anderen hechten meer waarde aan gebruiksgemak, zoals een display, extra programma's en app-bediening. Dit bepaalt welk type wasmachine we aanbevelen.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
                 <input type="radio" name="gebruik" value="gewoon">
                 <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gewoon goed wassen, geen speciale wensen</span>
+                <span>Een simpele, betrouwbare wasmachine</span>
                 <span class="price-indicator">€</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="gebruik" value="energiezuinig">
-                <svg class="answer-info-icon" data-icon="leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Energie- en waterverbruik belangrijk</span>
-                <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="gebruik" value="gemak">
                 <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gebruiksgemak en slimme functies belangrijk</span>
+                <span>Display, app-bediening en extra programma's</span>
                 <span class="price-indicator">€€€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 58px) + (1 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-2">Terug</button>
               <button id="to-question-4">Volgende</button>
             </div>
@@ -593,26 +577,32 @@ button.question-hint-btn-mobile { display: grid; }
               </div>
               <div class="question-popover" data-popover="4">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Een uitgestelde start laat je de wasmachine op een later tijdstip laten starten, bijvoorbeeld 's nachts voor een lagere stroomprijs. Een kinderslot voorkomt dat kinderen de instellingen wijzigen. AquaStop beschermt tegen waterschade bij een lekkage. Je kunt meerdere opties aanvinken.</p>
+                <p class="question-popover-text">Energiezuinig betekent een lager verbruik op je energierekening. Een uitgestelde start laat je de wasmachine op een later tijdstip laten starten, bijvoorbeeld 's nachts voor een lagere stroomprijs. Een kinderslot voorkomt dat kinderen de instellingen wijzigen. AquaStop beschermt tegen waterschade bij een lekkage. Je kunt meerdere opties aanvinken.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
+                <input type="checkbox" name="extra" value="energiezuinig">
+                <svg class="answer-info-icon" data-icon="leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Energiezuinig</span>
+                <span class="price-indicator">€€</span>
+              </label>
+              <label class="answer-option">
                 <input type="checkbox" name="extra" value="uitgestelde-start">
                 <svg class="answer-info-icon" data-icon="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Uitgestelde start</span>
+                <span>Op een later moment starten (uitgestelde start)</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="kinderslot">
                 <svg class="answer-info-icon" data-icon="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Kinderslot</span>
+                <span>Knoppen vergrendelen (kinderslot)</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="aquastop">
                 <svg class="answer-info-icon" data-icon="droplet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>AquaStop (lekkagebeveiliging)</span>
+                <span>Bescherming tegen lekkage (AquaStop)</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
@@ -622,7 +612,7 @@ button.question-hint-btn-mobile { display: grid; }
                 <span class="price-indicator">€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 58px) + (4 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-3">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>
@@ -655,7 +645,6 @@ button.question-hint-btn-mobile { display: grid; }
       });
     }
     initToggle('how-content');
-    initToggle('uitleg-content');
   })();
   </script>
 

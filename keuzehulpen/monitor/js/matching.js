@@ -170,7 +170,7 @@ export function buildResultPoints(monitor, answers) {
   if (monitor.resolutie === "4K") {
     points.push("4K resolutie voor superscherp beeld");
   } else if (monitor.resolutie === "QHD" || monitor.resolutie === "UWQHD") {
-    points.push("QHD resolutie — meer werkruimte en scherpte");
+    points.push("QHD resolutie voor meer werkruimte en scherpte");
   }
 
   if (monitor.paneeltype === "OLED") {
@@ -194,7 +194,7 @@ export function buildResultPoints(monitor, answers) {
   }
 
   if (monitor.speakers === "Ja") {
-    points.push("Ingebouwde luidsprekers — geen externe speakers nodig");
+    points.push("Ingebouwde luidsprekers, geen externe speakers nodig");
   }
 
   return points.slice(0, 4);

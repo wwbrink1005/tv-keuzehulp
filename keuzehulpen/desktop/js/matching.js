@@ -215,7 +215,7 @@ export function buildResultPoints(desktop, answers) {
   if (opslag === "veel" && desktop.opslag >= 2000) {
     addPoint(`${desktop.opslag / 1024} TB opslag voor grote projecten`);
   } else if (opslag === "gemiddeld" && desktop.opslag >= 1000) {
-    addPoint("1 TB SSD — ruim voor programma's en bestanden");
+    addPoint("1 TB SSD, ruim voor programma's en bestanden");
   }
 
   // RAM fallback

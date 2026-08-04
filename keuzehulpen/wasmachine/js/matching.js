@@ -46,6 +46,11 @@ export function applyExtraFilter(wasmachines, extraAnswers) {
 
   let filtered = [...wasmachines];
 
+  if (extraAnswers.includes("energiezuinig")) {
+    const zuinig = filtered.filter(w => w.energieLabel === "A" || w.energieLabel === "B");
+    if (zuinig.length > 0) filtered = zuinig;
+  }
+
   if (extraAnswers.includes("uitgestelde-start")) {
     const us = filtered.filter(w => w.uitgesteldeStart === "Ja");
     if (us.length > 0) filtered = us;
@@ -141,17 +146,17 @@ export function buildResultPoints(wasmachine, answers) {
   const geluid = answers?.geluid ?? "";
 
   if (wasmachine.energieLabel === "A" || wasmachine.energieLabel === "B") {
-    points.push(`Energielabel ${wasmachine.energieLabel} — laag energieverbruik`);
+    points.push(`Laag energieverbruik dankzij energielabel ${wasmachine.energieLabel}`);
   }
 
   if (geluid === "belangrijk" && wasmachine.geluidDb) {
-    points.push(`Slechts ${wasmachine.geluidDb} dB bij centrifugeren — erg stil`);
+    points.push(`Extra stil centrifugeren (${wasmachine.geluidDb} dB)`);
   } else if (wasmachine.geluidDb && wasmachine.geluidDb <= 65) {
-    points.push(`${wasmachine.geluidDb} dB bij centrifugeren — stil in gebruik`);
+    points.push(`Stil centrifugeren (${wasmachine.geluidDb} dB)`);
   }
 
   if (wasmachine.centrifugeRpm >= 1400) {
-    points.push(`${wasmachine.centrifugeRpm} toeren — droogt wasgoed sneller voor`);
+    points.push(`Droogt wasgoed sneller voor dankzij ${wasmachine.centrifugeRpm} toeren`);
   }
 
   if (gebruik === "gemak" && wasmachine.display === "Ja") {
@@ -159,7 +164,7 @@ export function buildResultPoints(wasmachine, answers) {
   }
 
   if (wasmachine.inverter === "Ja") {
-    points.push("Inverter-motor — stiller en duurzamer");
+    points.push("Stille en duurzame invertermotor");
   }
 
   if (wasmachine.aquastop === "Ja") {
