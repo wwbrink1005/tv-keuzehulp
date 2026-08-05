@@ -90,12 +90,14 @@
   --base-width: 1242.21;
   --base-height: 630.138;
   --scale: 1;
+  --wasmachine-bg-position: center;
+  --wasmachine-bg-size: cover;
   width: 100%;
   max-width: calc(var(--base-width) * 1px);
   aspect-ratio: 1242.21 / 630.138;
-  background-image: url('keuzehulpen/wasmachine/images/washok4.png');
-  background-size: cover;
-  background-position: center;
+  background-image: url('keuzehulpen/wasmachine/images/wasmachine achtergrond3.png');
+  background-size: var(--wasmachine-bg-size);
+  background-position: var(--wasmachine-bg-position);
   border-radius: var(--r-lg);
   position: relative;
   margin-bottom: clamp(28px, 5vh, 56px);
@@ -263,31 +265,80 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 
-/* ─── Capaciteit-visualisatie (wasmachine-foto o.b.v. gezinsgrootte) ────── */
-:root {
-  --wasmachine-right-offset: 575;  /* ← pas dit aan op basis van de achtergrond */
-  --wasmachine-bottom-offset: 60;  /* ← pas dit aan op basis van de achtergrond */
-  --wasmachine-drum-right-offset: 575;  /* ← trommel-positie, los van de machine */
-  --wasmachine-drum-bottom-offset: 130;  /* ← trommel-positie, los van de machine */
+/* ─── Capaciteit-visualisatie (3 volledige achtergrond-varianten die
+   crossfaden o.b.v. gezinsgrootte, zelfde patroon als de koelkast-keuzehulp) ── */
+.background-layer {
+  position: absolute;
+  inset: 0;
+  background-size: var(--wasmachine-bg-size);
+  background-position: var(--wasmachine-bg-position);
+  opacity: 0;
+  transition: opacity .9s ease;
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Basismachine (geen trommel) — staat altijd vast; de trommel-laag zit er
-   als aparte, exact even grote/gepositioneerde laag bovenop en crossfadet
-   tussen leeg/normaal/vol zodat de machine nooit zonder trommel te zien is. */
-#wasmachine-base,
-#wasmachine-drum-a,
-#wasmachine-drum-b {
+.background-layer.is-visible { opacity: 1; }
+
+.wasmachine-dim-badge {
   position: absolute;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center bottom;
-  transition: opacity .3s ease, width .3s ease, height .3s ease, right .3s ease, bottom .3s ease;
-  display: none;
+  left: 50%;
+  top: 49%;
+  transform: translate(-50%, -100%) translateY(2px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(6px * var(--scale, 1));
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(16px) saturate(200%);
+  -webkit-backdrop-filter: blur(16px) saturate(200%);
+  border: 1px solid rgba(9,84,163,.18);
+  color: #0954a3;
+  font-family: 'Inter', sans-serif;
+  font-size: calc(12.5px * var(--scale, 1));
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: calc(6px * var(--scale, 1)) calc(13px * var(--scale, 1)) calc(6px * var(--scale, 1)) calc(10px * var(--scale, 1));
+  border-radius: 999px;
+  box-shadow: 0 2px 12px rgba(9,84,163,.13), 0 1px 3px rgba(0,0,0,.07);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .3s ease, transform .3s ease;
   pointer-events: none;
 }
 
-#wasmachine-base { z-index: 3; opacity: 0; }
-#wasmachine-drum-a, #wasmachine-drum-b { z-index: 4; opacity: 0; }
+.wasmachine-dim-badge.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -100%) translateY(-4px);
+}
+
+.wasmachine-dim-badge svg {
+  width: calc(14px * var(--scale, 1));
+  height: calc(14px * var(--scale, 1));
+  flex-shrink: 0;
+  stroke-width: 2;
+}
+
+@media (max-width: 900px) {
+  .wasmachine-dim-badge {
+    font-size: 14px;
+    padding: 8px 16px 8px 12px;
+    gap: 7px;
+  }
+  .wasmachine-dim-badge svg { width: 16px; height: 16px; }
+}
+
+.background-layer--klein {
+  background-image: url('keuzehulpen/wasmachine/images/wasmachine achtergrond klein.png');
+}
+
+.background-layer--gemiddeld {
+  background-image: url('keuzehulpen/wasmachine/images/wasmachine achtergrond gemiddeld.png');
+}
+
+.background-layer--groot {
+  background-image: url('keuzehulpen/wasmachine/images/wasmachine achtergrond groot.png');
+}
 
 .info-panel-icon-wrap { display: none; }
 
@@ -310,12 +361,10 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 @media (max-width: 900px) {
 .background-container {
   --base-width: 605.5;
-  --base-height: 595;
-  --wasmachine-right-offset: 280;  /* ← pas dit aan op basis van de achtergrond */
-  --wasmachine-bottom-offset: 30;  /* ← pas dit aan op basis van de achtergrond */
-  --wasmachine-drum-right-offset: 280;  /* ← trommel-positie, los van de machine */
-  --wasmachine-drum-bottom-offset: 100;  /* ← trommel-positie, los van de machine */
-  background-image: url('keuzehulpen/wasmachine/images/washok4 telefoon.png');
+  --base-height: 495;
+  --wasmachine-bg-position: 58% 55%;
+  --wasmachine-bg-size: 220%;
+  background-image: url('keuzehulpen/wasmachine/images/wasmachine achtergrond3.png');
   aspect-ratio: 1 / 1;
   width: min(92vw, 560px);
   max-width: min(92vw, 560px);
@@ -427,13 +476,16 @@ button.question-hint-btn-mobile { display: grid; }
     <div class="container-wrapper">
       <div class="quiz-hero">
         <div class="background-container">
+          <!-- Capaciteit-visualisatie: 3 volledige achtergrond-varianten (zelfde
+               kamer/machine, oplopende hoeveelheid was) die crossfaden o.b.v.
+               gezinsgrootte — zelfde patroon als de koelkast-keuzehulp. -->
+          <div class="background-layer background-layer--klein" id="bg-layer-klein" aria-hidden="true"></div>
+          <div class="background-layer background-layer--gemiddeld" id="bg-layer-gemiddeld" aria-hidden="true"></div>
+          <div class="background-layer background-layer--groot" id="bg-layer-groot" aria-hidden="true"></div>
+          <div class="wasmachine-dim-badge" id="wasmachine-dim-badge" aria-hidden="true"></div>
           <div class="top-bar">
             <div class="progress-bar" id="progress-bar"></div>
           </div>
-          <!-- Capaciteit-visualisatie: vaste wasmachine + crossfadende trommel-vulling o.b.v. gezinsgrootte -->
-          <div id="wasmachine-base"></div>
-          <div id="wasmachine-drum-a"></div>
-          <div id="wasmachine-drum-b"></div>
           <button id="question-hint-btn-mobile" class="question-hint-btn-mobile" type="button" aria-label="Waarom deze vraag?">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>

@@ -1,6 +1,18 @@
 import { calculateScores, matchWasmachines } from "./matching.js";
 import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
+import { capaciteitGroupToAllowedCapaciteit } from "./data.js";
+
+// Labels voor het capaciteits-badge op de achtergrondfoto, afgeleid van
+// dezelfde ranges die de matching-logica gebruikt (data.js) — geen losse
+// verzonnen getallen.
+const CAPACITEIT_BADGE_LABELS = Object.fromEntries(
+  Object.entries(capaciteitGroupToAllowedCapaciteit).map(([group, kgs]) => {
+    const min = Math.min(...kgs);
+    const max = Math.max(...kgs);
+    return [group, min === max ? `${min} kg` : `${min}-${max} kg`];
+  })
+);
 
 const quizState = {
   selectedCapaciteitGroup: null
@@ -40,118 +52,40 @@ function setQuestionExpanded(question, expanded) {
 
 const TOTAL_QUESTIONS = 4;
 
-// Capaciteit-visualisatie: vaste wasmachine + trommel-vulling (leeg/normaal/vol)
-// o.b.v. gezinsgrootte. De basismachine (zonder trommel) staat altijd vast;
-// alleen de trommel-laag wisselt, via crossfade tussen 2 lagen zodat er nooit
-// een moment is waarop de machine zonder trommel te zien is.
-const WASMACHINE_BASE_IMAGE = "keuzehulpen/wasmachine/images/wasmachine zonder trommel.png";
-
-const DRUM_IMAGES = {
-  klein:     "keuzehulpen/wasmachine/images/trommel leeg.png",
-  gemiddeld: "keuzehulpen/wasmachine/images/trommel normaal.png",
-  groot:     "keuzehulpen/wasmachine/images/trommel vol.png"
-};
-
-// Afmetingen (px in de 1242.21-brede coördinatenruimte). Basismachine en
-// trommel-laag hebben elk hun EIGEN grootte/positie — pas WASMACHINE_DIMENSIONS
-// aan om de machine te schalen, DRUM_DIMENSIONS om alleen de trommel-foto
-// groter/kleiner te maken of preciezer over het trommelgat heen te leggen.
-const WASMACHINE_DIMENSIONS = { width: 275, height: 325 };
-const DRUM_DIMENSIONS       = { width: 201.633, height: 238.326 };
-
-let currentDrumGroup = null;
-// Welke van de 2 trommel-lagen momenteel "actief" (zichtbaar) is — de andere
-// is de laag die we voorladen en naar toe crossfaden bij de volgende wissel.
-let activeDrumLayer = "a";
-
-function positionWasmachineLayer(el, container, dims, rightOffsetVar, bottomOffsetVar) {
-  const style = getComputedStyle(container);
-  const originalWidth  = parseFloat(style.getPropertyValue("--base-width"))  || 1242.21;
-  const originalHeight = parseFloat(style.getPropertyValue("--base-height")) || 630.138;
-  const scaleFactor    = container.offsetWidth / originalWidth;
-
-  const rightOffset  = parseFloat(style.getPropertyValue(rightOffsetVar))  || 300;
-  const bottomOffset = parseFloat(style.getPropertyValue(bottomOffsetVar)) || 40;
-
-  const rightPct  = ((rightOffset - dims.width / 2) / originalWidth) * 100;
-  const bottomPct = (bottomOffset / originalHeight) * 100;
-
-  el.style.width  = `${dims.width  * scaleFactor}px`;
-  el.style.height = `${dims.height * scaleFactor}px`;
-  el.style.right  = `${rightPct}%`;
-  el.style.bottom = `${bottomPct}%`;
-  el.style.left   = "auto";
-}
-
-function positionBaseLayer(el, container) {
-  positionWasmachineLayer(el, container, WASMACHINE_DIMENSIONS, "--wasmachine-right-offset", "--wasmachine-bottom-offset");
-}
-
-function positionDrumLayer(el, container) {
-  positionWasmachineLayer(el, container, DRUM_DIMENSIONS, "--wasmachine-drum-right-offset", "--wasmachine-drum-bottom-offset");
-}
-
+// Capaciteit-visualisatie: 3 volledige achtergrond-varianten (zelfde kamer +
+// machine, oplopende hoeveelheid was) die crossfaden o.b.v. gezinsgrootte —
+// zelfde laag-crossfade-patroon als de koelkast-keuzehulp.
 function updateWasmachineDisplay() {
   const checked = qs('input[name="capaciteitGroup"]:checked');
-  const base   = qs("#wasmachine-base");
-  const drumA  = qs("#wasmachine-drum-a");
-  const drumB  = qs("#wasmachine-drum-b");
-  const container = qs(".background-container");
+  const layers = {
+    klein:     qs("#bg-layer-klein"),
+    gemiddeld: qs("#bg-layer-gemiddeld"),
+    groot:     qs("#bg-layer-groot"),
+  };
 
-  if (!base || !drumA || !drumB || !container) return;
+  const active = checked?.value ?? null;
 
-  if (!checked || !DRUM_IMAGES[checked.value]) {
-    [base, drumA, drumB].forEach(el => {
-      el.style.opacity = "0";
-      window.setTimeout(() => { el.style.display = "none"; }, 300);
-    });
-    currentDrumGroup = null;
-    return;
+  Object.entries(layers).forEach(([key, layer]) => {
+    if (layer) layer.classList.toggle("is-visible", key === active);
+  });
+
+  const badge = qs("#wasmachine-dim-badge");
+  if (badge) {
+    const label = active ? CAPACITEIT_BADGE_LABELS[active] : null;
+    if (label) {
+      badge.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="5.5"/>
+          <path d="M12 9.2v2.8l1.8 1.8"/>
+        </svg>
+        <span>Trommelcapaciteit ${label}</span>
+      `;
+      badge.classList.add("is-visible");
+    } else {
+      badge.classList.remove("is-visible");
+    }
   }
-
-  // Basismachine: éénmalig tonen, blijft daarna altijd staan.
-  if (base.style.display !== "block") {
-    base.style.backgroundImage = `url('${WASMACHINE_BASE_IMAGE}')`;
-    positionBaseLayer(base, container);
-    base.style.display = "block";
-    requestAnimationFrame(() => { base.style.opacity = "1"; });
-  } else {
-    positionBaseLayer(base, container);
-  }
-
-  // Al de juiste trommel-vulling in beeld — niets te doen (voorkomt opnieuw
-  // crossfaden bij elke vraagwissel).
-  if (currentDrumGroup === checked.value) {
-    const active = activeDrumLayer === "a" ? drumA : drumB;
-    positionDrumLayer(active, container);
-    return;
-  }
-  currentDrumGroup = checked.value;
-
-  const activeEl   = activeDrumLayer === "a" ? drumA : drumB;
-  const inactiveEl = activeDrumLayer === "a" ? drumB : drumA;
-  const nextLayer  = activeDrumLayer === "a" ? "b" : "a";
-
-  inactiveEl.style.backgroundImage = `url('${DRUM_IMAGES[checked.value]}')`;
-  positionDrumLayer(inactiveEl, container);
-  positionDrumLayer(activeEl, container);
-  inactiveEl.style.display = "block";
-
-  const isFirstShow = activeEl.style.display !== "block";
-
-  if (isFirstShow) {
-    // Nog geen trommel getoond: alleen de nieuwe laag hoeft in te faden.
-    requestAnimationFrame(() => { inactiveEl.style.opacity = "1"; });
-  } else {
-    // Crossfade: oude laag uit, nieuwe laag in — tegelijk, dus altijd
-    // minstens 1 laag volledig zichtbaar (nooit een "lege" tussenstap).
-    requestAnimationFrame(() => {
-      activeEl.style.opacity   = "0";
-      inactiveEl.style.opacity = "1";
-    });
-  }
-
-  activeDrumLayer = nextLayer;
 }
 
 function showQuestion(num) {
