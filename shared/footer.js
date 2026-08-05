@@ -42,6 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <li>
               <a href="keuzehulpen/wasmachine/vragen">Wasmachines</a>
             </li>
+            <li>
+              <a href="keuzehulpen/koelkast/vragen">Koelkasten</a>
+            </li>
           </ul>
         </div>
 

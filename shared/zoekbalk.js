@@ -34,6 +34,18 @@ const keuzehulpen = [
     keywords: ["printer", "printers", "all-in-one printer", "multifunctional", "fotoprinter"],
     url: "keuzehulpen/printer/vragen",
   },
+  {
+    title: "Koelkast keuzehulp",
+    keywords: [
+      "koelkast", "koelkasten", "koeling", "koeler",
+      "inbouwkoelkast", "inbouw koelkast",
+      "vrijstaande koelkast", "vrijstaand",
+      "amerikaanse koelkast", "amerikaanse koelkast side-by-side", "side-by-side",
+      "koel-vriescombinatie", "koelvriescombinatie", "koel vries combinatie",
+      "tafelmodel koelkast", "tafelmodel",
+    ],
+    url: "keuzehulpen/koelkast/vragen",
+  },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();

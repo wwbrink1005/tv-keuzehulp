@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="menu-dropdown-col">
                 <h4>Huishoudelijke Apparaten</h4>
                 <ul>
-                  <li><span>Koelkasten <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><a href="keuzehulpen/koelkast/vragen">Koelkasten <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><a href="keuzehulpen/wasmachine/vragen">Wasmachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><span>Koffiemachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                   <li><span>Vaatwassers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="mobile-cat-group">
             <h4>Huishoudelijke Apparaten</h4>
             <ul>
-              <li><span>Koelkasten</span></li>
+              <li><a href="keuzehulpen/koelkast/vragen">Koelkasten <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><a href="keuzehulpen/wasmachine/vragen">Wasmachines <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><span>Koffiemachines</span></li>
               <li><span>Vaatwassers</span></li>
