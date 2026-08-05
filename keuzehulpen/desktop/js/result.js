@@ -134,7 +134,7 @@ function displayOtherMatchesRedesign(filteredMatchedDesktops) {
       return `
         <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
           <div class="tv-card-image" aria-hidden="true">
-            <img src="${desktop.afbeelding || ""}" alt="" role="presentation" onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
+            <img src="${desktop.afbeelding || ""}" alt="" role="presentation" ${index < 4 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"'} onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
             <button class="tv-preview-btn" type="button"
                     aria-label="Afbeelding vergroten"
                     data-preview-src="${desktop.afbeelding || ""}"

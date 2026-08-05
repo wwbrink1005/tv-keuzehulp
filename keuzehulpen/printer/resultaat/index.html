@@ -8,6 +8,7 @@
     <title>Resultaat - Printer Keuzehulp</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.icecat.biz" />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="shared/menu.css" />
@@ -402,6 +403,10 @@
       function openPreview(src, name, extraImgs) {
         allImages    = [src].concat(Array.isArray(extraImgs) ? extraImgs.filter(function(s){ return s !== src; }) : []);
         allImages    = allImages.slice(0, 10); // max 10 afbeeldingen in de galerij
+        // Preload de rest van deze galerij op de achtergrond zodra de modal
+        // opent, zodat doorklikken met de pijltjes niet meer wacht op elke
+        // losse download (alleen deze ene productgalerij, niet alle kaarten).
+        allImages.slice(1).forEach(function (url) { var pre = new Image(); pre.src = url; });
         currentIndex = 0;
         var hasGallery = allImages.length > 1;
         dialog.classList.toggle('image-preview-has-gallery', hasGallery);

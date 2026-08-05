@@ -134,7 +134,7 @@ function displayOtherMatchesRedesign(filteredMatchedWasmachines) {
       return `
         <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
           <div class="tv-card-image" aria-hidden="true">
-            <img src="${wasmachine.afbeelding || ''}" alt="" role="presentation" onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
+            <img src="${wasmachine.afbeelding || ''}" alt="" role="presentation" ${index < 4 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"'} onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
             <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${wasmachine.afbeelding || ''}" data-preview-name="${wasmachine.naam}" data-preview-imgs="${JSON.stringify(wasmachine.afbeeldingen || []).replace(/"/g, '&quot;')}">
               <i data-lucide="eye"></i>
             </button>
