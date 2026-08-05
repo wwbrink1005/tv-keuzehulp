@@ -78,9 +78,21 @@ body {
      margin: 0;
    }
 
-/* Mobiel: geen aanpassing, de H1 blijft exact zoals origineel (gewoon
-   zichtbaar). Alleen op desktop (901px+) hieronder wordt hij onzichtbaar
-   gemaakt, met behoud van zijn ruimte (geen herschikking van de rest). */
+/* Mobiel: titel uit de flow (geen gereserveerde ruimte, content schuift
+   vanzelf omhoog), maar nog aanwezig voor Google/schermlezers. Op desktop
+   (901px+) hieronder alsnog zichtbaar qua ruimte maar onzichtbaar qua
+   opacity, zodat daar niets verschuift. */
+.quiz-header-title-hidden-desktop {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  margin: -1px;
+  padding: 0;
+}
 
 @media (min-width: 901px) {
   .quiz-page-header {
