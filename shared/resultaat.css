@@ -460,8 +460,9 @@ body.filter-drawer-open {
 			}
 
 .image-preview-img {
-				width: 100%;
-				height: 100%;
+				width: 92%;
+				height: 92%;
+				margin: auto;
 				object-fit: contain;
 				display: block;
 				border-radius: var(--radius-sm);

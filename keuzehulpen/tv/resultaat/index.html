@@ -691,6 +691,8 @@
 				/* Fixed width (not max-width) so the dialog doesn't change size
 				   depending on each image's aspect ratio. */
 				width: min(580px, calc(100vw - 40px));
+				box-sizing: border-box;
+				overflow: hidden;
 				max-height: calc(100dvh - 60px);
 				display: flex;
 				flex-direction: column;

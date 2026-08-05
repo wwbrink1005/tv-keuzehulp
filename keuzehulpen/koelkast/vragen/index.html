@@ -81,6 +81,30 @@
     bottom: 0;
     justify-content: flex-start;
   }
+
+  /* Q2 (inbouw) heeft 6 antwoordopties — te veel om zonder scroll prettig
+     op de achtergrondfoto te laten passen. Begrens de hoogte en maak het
+     lijstje zelf scrollbaar i.p.v. de opties dichter op elkaar te proppen. */
+  #question-2 .answers-container {
+    max-height: calc(330px * var(--scale));
+    overflow-y: auto;
+    padding-right: calc(8px * var(--scale));
+    scrollbar-width: thin;
+    scrollbar-color: rgba(9,84,163,.35) transparent;
+  }
+
+  #question-2 .answers-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #question-2 .answers-container::-webkit-scrollbar-thumb {
+    background: rgba(9,84,163,.35);
+    border-radius: 100px;
+  }
+
+  #question-2 .answers-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 
