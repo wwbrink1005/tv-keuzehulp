@@ -78,21 +78,9 @@ body {
      margin: 0;
    }
 
-/* Mobiel-only visueel verbergen van de H1: uit de flow (geen gereserveerde
-   ruimte, content schuift vanzelf omhoog), maar nog aanwezig voor Google en
-   schermlezers. Op desktop (901px+) hieronder weer volledig teruggezet naar
-   de normale, zichtbare positionering — daar verandert dus niets. */
-.quiz-header-title-sr-mobile {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-  margin: -1px;
-  padding: 0;
-}
+/* Mobiel: geen aanpassing, de H1 blijft exact zoals origineel (gewoon
+   zichtbaar). Alleen op desktop (901px+) hieronder wordt hij onzichtbaar
+   gemaakt, met behoud van zijn ruimte (geen herschikking van de rest). */
 
 @media (min-width: 901px) {
   .quiz-page-header {
@@ -114,7 +102,9 @@ body {
     padding-top: 0;
   }
 
-  .quiz-header-title-sr-mobile {
+  /* Desktop: niet uit de flow halen (geen herschikking), alleen onzichtbaar
+     maken. De ruimte blijft precies gereserveerd zoals hij al was. */
+  .quiz-header-title-hidden-desktop {
     position: static;
     width: auto;
     height: auto;
@@ -122,6 +112,8 @@ body {
     clip: auto;
     white-space: normal;
     margin: 0;
+    opacity: 0;
+    pointer-events: none;
   }
 }
 
