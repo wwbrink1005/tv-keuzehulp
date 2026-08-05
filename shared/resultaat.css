@@ -512,6 +512,7 @@ body.filter-drawer-open {
 				z-index: 2;
 				transition: background 0.15s;
 				padding: 0;
+				touch-action: manipulation;
 			}
 
 .image-preview-nav:hover { background: rgba(0,0,0,0.62); }
@@ -542,6 +543,7 @@ body.filter-drawer-open {
 				opacity: 0.5;
 				transition: opacity 0.15s, border-color 0.15s;
 				background: #f0f0f0;
+				touch-action: manipulation;
 			}
 
 .tv-card-body {
