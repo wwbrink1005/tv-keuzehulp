@@ -252,6 +252,10 @@ button.question-hint-btn-mobile:hover,
      transform: none;
    }
 
+.how-toggle-link-mobile {
+     display: none;
+   }
+
 #question-1, #question-2, #question-3, #question-4,
    #question-5, #question-6, #question-7 {
      position: relative;
@@ -508,6 +512,63 @@ button.question-hint-btn-mobile:hover,
    }
 
 @media (max-width: 900px) {
+/* Test: titel volledig weg op mobiel (uit de flow, niet display:none),
+   header dicht tegen het menu aan, "Hoe werkt het?" wordt een klein
+   rond icoon linksboven op de kaart in plaats van in de header. */
+.quiz-header-title-hidden-desktop {
+       position: absolute;
+       width: 1px;
+       height: 1px;
+       overflow: hidden;
+       clip: rect(0, 0, 0, 0);
+       white-space: nowrap;
+       border: 0;
+       margin: -1px;
+       padding: 0;
+       opacity: 1;
+     }
+
+.quiz-page-header {
+       padding-top: 16px;
+     }
+
+.quiz-toggle-row {
+       display: none;
+     }
+
+.how-toggle-link-mobile {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       gap: 6px;
+       width: 100%;
+       margin-top: 16px;
+       background: none;
+       border: none;
+       font-family: inherit;
+       font-size: 13.5px;
+       font-weight: 600;
+       color: var(--c-text-2);
+       cursor: pointer;
+       padding: 8px;
+     }
+
+.how-toggle-link-mobile svg {
+       width: 13px;
+       height: 13px;
+       opacity: .7;
+       transition: transform .2s ease;
+     }
+
+.how-toggle-link-mobile:hover,
+   .how-toggle-link-mobile.is-open {
+       color: var(--c-accent);
+     }
+
+.how-toggle-link-mobile.is-open svg {
+       transform: rotate(180deg);
+     }
+
 .info-panel::before {
        border-radius: var(--r-lg) var(--r-lg) 0 0;
      }
@@ -628,6 +689,10 @@ button.question-hint-btn-mobile { display: grid; }
 }
 
 @media (min-width: 901px) {
+.how-content-mobile-only {
+       display: none;
+     }
+
 #question-2 .answer-option {
        height: calc(44px * var(--scale));
        padding-left: calc(14px * var(--scale));
@@ -1085,6 +1150,41 @@ button.question-hint-btn-mobile { display: grid; }
        </div>
 
        </div>
+
+       <!-- Mobiel-only: "Hoe werkt het?" als tekstlinkje onder de vraag/knoppen,
+            met een eigen paneel zodat de uitleg hier verschijnt, niet bovenin -->
+       <button class="how-toggle-link-mobile" id="how-toggle-mobile" data-toggle-target="how-content-mobile" type="button">
+         Hoe werkt het?
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+       </button>
+       <div class="quiz-panel-content how-content-mobile-only" id="how-content-mobile">
+         <div class="quiz-panel-inner">
+           <p>We stellen zeven korte vragen over je kijkafstand, budget, gebruik en voorkeuren. Op basis van je antwoorden berekenen we welke tv het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) tv leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+           <div class="quiz-how-steps">
+             <div class="quiz-how-step">
+               <span class="quiz-how-step-num">1</span>
+               <div>
+                 <div class="quiz-how-step-label">Beantwoord vragen</div>
+                 <div class="quiz-how-step-desc">Vertel ons over je wensen en voorkeuren</div>
+               </div>
+             </div>
+             <div class="quiz-how-step">
+               <span class="quiz-how-step-num">2</span>
+               <div>
+                 <div class="quiz-how-step-label">Wij analyseren</div>
+                 <div class="quiz-how-step-desc">We matchen je antwoorden met alle tv's</div>
+               </div>
+             </div>
+             <div class="quiz-how-step">
+               <span class="quiz-how-step-num">3</span>
+               <div>
+                 <div class="quiz-how-step-label">Ontvang advies</div>
+                 <div class="quiz-how-step-desc">Bekijk welke tv's het beste bij je passen</div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
      </div>
    </div>
 
@@ -1115,6 +1215,7 @@ button.question-hint-btn-mobile { display: grid; }
     });
   }
   initToggle('how-content');
+  initToggle('how-content-mobile');
 })();
 </script>
 
