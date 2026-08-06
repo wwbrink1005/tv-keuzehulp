@@ -15,10 +15,10 @@ const filterState = {
   kinderslot:     new Set(),
   aquastop:       new Set(),
   uitgesteldeStart: new Set(),
+  inverter:       new Set(),
   aanbieder:      new Set(),
   baseMatches:    [],
   answers:        null,
-  scores:         null,
   bestType:       "",
   capaciteitGroup: ""
 };
@@ -130,6 +130,13 @@ function collectUitgesteldeStartOptions(matches) {
   return order.filter(t => set.has(t));
 }
 
+function collectInverterOptions(matches) {
+  const set = new Set();
+  matches.forEach(w => { if (w.inverter) set.add(w.inverter); });
+  const order = ["Ja", "Nee"];
+  return order.filter(t => set.has(t));
+}
+
 function collectAanbiederOptions(matches) {
   const set = new Set();
   matches.forEach(w => {
@@ -217,6 +224,10 @@ function applyFilters() {
     filtered = filtered.filter(w => filterState.uitgesteldeStart.has(w.uitgesteldeStart));
   }
 
+  if (filterState.inverter.size > 0) {
+    filtered = filtered.filter(w => filterState.inverter.has(w.inverter));
+  }
+
   if (filterState.aanbieder.size > 0) {
     filtered = filtered.filter(w => {
       const a = w.aanbieder;
@@ -245,6 +256,7 @@ function updateClearFiltersBtn() {
     filterState.centrifugeRpms.size > 0 || filterState.kleuren.size > 0 ||
     filterState.kinderslot.size > 0 || filterState.aquastop.size > 0 ||
     filterState.uitgesteldeStart.size > 0 ||
+    filterState.inverter.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
@@ -262,6 +274,7 @@ function renderAllFilters() {
   const kinderslotContainer = qs("[data-filter-container='kinderslot']");
   const aquastopContainer   = qs("[data-filter-container='aquastop']");
   const uitgesteldeStartContainer = qs("[data-filter-container='uitgestelde-start']");
+  const inverterContainer  = qs("[data-filter-container='inverter']");
   const aanbiederContainer  = qs("[data-filter-container='aanbieder']");
 
   const priceCard      = qs(".filter-card[data-filter='price']");
@@ -274,6 +287,7 @@ function renderAllFilters() {
   const kinderslotCard  = qs(".filter-card[data-filter='kinderslot']");
   const aquastopCard    = qs(".filter-card[data-filter='aquastop']");
   const uitgesteldeStartCard = qs(".filter-card[data-filter='uitgestelde-start']");
+  const inverterCard    = qs(".filter-card[data-filter='inverter']");
   const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
@@ -403,6 +417,15 @@ function renderAllFilters() {
     });
   }
 
+  if (inverterContainer && inverterCard) {
+    const opts = collectInverterOptions(matches);
+    renderFilterOptions(inverterContainer, inverterCard, opts, "inverter", null);
+    inverterContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      if (input.value === "all") input.checked = filterState.inverter.size === 0;
+      else input.checked = filterState.inverter.has(input.value);
+    });
+  }
+
   if (aanbiederContainer && aanbiederCard) {
     const aanbieders = collectAanbiederOptions(matches);
     renderFilterOptions(aanbiederContainer, aanbiederCard, aanbieders, "aanbieder", null);
@@ -433,6 +456,7 @@ function handleFilterChange(event) {
     kinderslot:     { set: filterState.kinderslot,     parse: v => v, exclusive: true },
     aquastop:       { set: filterState.aquastop,       parse: v => v, exclusive: true },
     uitgesteldeStart: { set: filterState.uitgesteldeStart, parse: v => v, exclusive: true },
+    inverter:       { set: filterState.inverter,       parse: v => v, exclusive: true },
     aanbieder:      { set: filterState.aanbieder,      parse: v => v }
   };
 
@@ -465,12 +489,10 @@ export async function initFilters() {
 
   // Load state from localStorage
   const answersData          = localStorage.getItem("wasmachine_answers");
-  const scoresData           = localStorage.getItem("wasmachine_scores");
   const capaciteitGroupData  = localStorage.getItem("wasmachine_selectedCapaciteitGroup");
   const bestTypeData         = localStorage.getItem("wasmachine_bestType");
 
   filterState.answers         = answersData ? JSON.parse(answersData) : null;
-  filterState.scores          = scoresData  ? JSON.parse(scoresData)  : null;
   filterState.capaciteitGroup = capaciteitGroupData ?? "";
   filterState.bestType        = bestTypeData ?? "";
 
@@ -487,7 +509,7 @@ export async function initFilters() {
 
   // No budget question was asked during the quiz, so the base match set is
   // computed with priceGroup = null (the full, price-unrestricted result).
-  const result = matchWasmachines(allWasmachines, filterState.capaciteitGroup, null, filterState.answers, filterState.scores);
+  const result = matchWasmachines(allWasmachines, filterState.capaciteitGroup, null, filterState.answers);
   filterState.baseMatches = Array.isArray(result.filteredMatchedWasmachines) ? result.filteredMatchedWasmachines : [];
 
   // Fallback: if the live fetch/computation yields nothing, seed the pool
@@ -527,6 +549,7 @@ export async function initFilters() {
       filterState.kinderslot.clear();
       filterState.aquastop.clear();
       filterState.uitgesteldeStart.clear();
+      filterState.inverter.clear();
       filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();

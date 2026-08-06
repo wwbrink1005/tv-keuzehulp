@@ -26,7 +26,9 @@ export const priceGroupsByGebruik = {
  * Classificeert een printer op basis van specs naar gebruikstype
  * (thuis/zakelijk/foto). Retourneert null als het niet te bepalen is
  * (onvoldoende Icecat-data) — zo'n printer komt dan bij geen enkel
- * gebruikstype in de resultaten terecht.
+ * gebruikstype in de resultaten terecht. 1-op-1 met vraag 1's antwoorden
+ * (thuis/foto/zakelijk) — geen aparte "gemengd"-tussenvorm meer, zie
+ * matching.js voor waarom.
  */
 export function classifyGebruik(printtechnologie, marktPositionering, printkleuren) {
   const tech = String(printtechnologie ?? "").toLowerCase();
@@ -39,50 +41,13 @@ export function classifyGebruik(printtechnologie, marktPositionering, printkleur
   return null;
 }
 
-// ─── Kwaliteits-tier binnen een gebruikstype ──────────────────────────────────
-// Net als gpuTier bij desktop: een tweede, zachte as bovenop het gebruikstype,
-// gebaseerd op printsnelheid en functierijkdom.
-export const TIER_ORDER = ["Budget", "Mid", "Premium"];
-
-export function getPrinterTier(p) {
-  const speed = parseInt(p.printsnelheidZwart, 10) || 0;
-  const featureCount = ["duplex", "display", "wifi", "adf"]
-    .filter(key => p[key] === "Ja").length;
-
-  if (speed >= 30 || featureCount >= 3) return "Premium";
-  if (speed >= 20 || featureCount >= 1) return "Mid";
-  return "Budget";
-}
-
-// ─── Vertaling quizantwoord (vraag 1) → harde gebruikType-partitie ────────────
-// Vraag 1 heeft 4 antwoorden (rijker dan de 3 gebruikTypes) zodat "thuis" kan
-// worden opgesplitst in een tekst-only en een gemengd profiel, die allebei in
-// dezelfde harde partitie vallen maar wel anders scoren op kwaliteits-tier.
-export const GEBRUIK_ANTWOORD_TO_TYPE = {
-  tekst:    "thuis",
-  gemengd:  "thuis",
-  foto:     "foto",
-  zakelijk: "zakelijk"
-};
-
-// ─── Scoringsysteem ────────────────────────────────────────────────────────────
-// Elke vraag hieronder is single-select en scoort de kwaliteits-tier direct.
-// Kleur is een harde (gracieus degraderende) filter, all-in-one een zachte
-// voorkeur — zie matching.js.
-export const scoringSystem = {
-  gebruik: {
-    tekst:    { Budget: 8, Mid: 5, Premium: 2  },
-    gemengd:  { Budget: 4, Mid: 8, Premium: 5  },
-    foto:     { Budget: 2, Mid: 6, Premium: 9  },
-    zakelijk: { Budget: 2, Mid: 6, Premium: 10 }
-  },
-  volume: {
-    weinig:    { Budget: 9, Mid: 6, Premium: 3  },
-    gemiddeld: { Budget: 4, Mid: 9, Premium: 6  },
-    veel:      { Budget: 1, Mid: 6, Premium: 10 }
-  },
-  aio: {
-    ja:  { Budget: 3, Mid: 7, Premium: 9 },
-    nee: { Budget: 7, Mid: 6, Premium: 4 }
-  }
-};
+// Geen Budget/Mid/Premium-tier-classificatie (meer) — die correleerde niet
+// betrouwbaar met prijs (bij "thuis" printers viel 94% van de catalogus in
+// "Premium", puur op specs, inclusief zowel de goedkoopste als de duurste
+// printer). Dat kon een "goedkope" voorkeur een duurder resultaat opleveren
+// dan een "uitgebreide" voorkeur. "volume" is nu een directe, gracieus
+// degraderende voorkeur i.p.v. een scoring-as — zie matching.js.
+// Printers met minstens deze snelheid (pagina's/minuut, zwart-wit) tellen
+// als "snel" voor de "veel printen"-voorkeur — gebaseerd op de echte
+// spreiding in de catalogus (duidelijke cluster vanaf ~26 ppm).
+export const VEEL_VOLUME_MIN_SNELHEID = 26;

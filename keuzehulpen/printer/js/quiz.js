@@ -1,5 +1,4 @@
-import { calculateScores, matchPrinters } from "./matching.js";
-import { GEBRUIK_ANTWOORD_TO_TYPE } from "./data.js";
+import { matchPrinters } from "./matching.js";
 import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 
@@ -38,8 +37,7 @@ const TOTAL_QUESTIONS = 4;
 // als de wasmachine-trommel) o.b.v. vraag 1.
 
 const PRINTER_IMAGES = {
-  tekst:    "keuzehulpen/printer/images/Tekst.png",
-  gemengd:  "keuzehulpen/printer/images/Gemengd.png",
+  thuis:    "keuzehulpen/printer/images/Gemengd.png",
   foto:     "keuzehulpen/printer/images/Foto.png",
   zakelijk: "keuzehulpen/printer/images/Zakelijk.png"
 };
@@ -48,8 +46,7 @@ const PRINTER_IMAGES = {
 // om per type dezelfde hoogte op het kastblad te behouden terwijl de breedte
 // vanzelf meeschaalt, zodat geen enkele foto vervormd of uitgerekt wordt.
 const PRINTER_IMAGE_SIZES = {
-  tekst:    { width: 531, height: 263 },
-  gemengd:  { width: 542, height: 460 },
+  thuis:    { width: 542, height: 460 },
   foto:     { width: 620, height: 403 },
   zakelijk: { width: 542, height: 460 }
 };
@@ -65,8 +62,7 @@ const PRINTER_IMAGE_SIZES = {
 // dezelfde compositie, alleen aan de zijkanten afgeknipt met een gelijke
 // hoogte, dus de positie (afstand vanaf rechts/onder) blijft identiek.
 const PRINTER_LAYOUT = {
-  tekst:    { height: 100, rightOffset: 430, bottomOffset: 240 },
-  gemengd:  { height: 200, rightOffset: 430, bottomOffset: 207 },
+  thuis:    { height: 200, rightOffset: 430, bottomOffset: 207 },
   foto:     { height: 130, rightOffset: 430, bottomOffset: 242 },
   zakelijk: { height: 200, rightOffset: 430, bottomOffset: 240 }
 };
@@ -271,7 +267,6 @@ function handleStartMatching() {
   if (!checked) return alert("Kies een antwoord");
 
   const answers = buildAnswers();
-  const scores = calculateScores(answers);
 
   const btn = qs("#start-matching");
   if (btn) { btn.disabled = true; btn.textContent = "Bezig…"; }
@@ -283,13 +278,11 @@ function handleStartMatching() {
         printers,
         quizState.selectedGebruikType,
         null,
-        answers,
-        scores
+        answers
       );
 
       localStorage.setItem("printer_bestMatch",                 JSON.stringify(result.bestMatch));
       localStorage.setItem("printer_bestType",                  result.bestType ?? "");
-      localStorage.setItem("printer_scores",                    JSON.stringify(scores));
       localStorage.setItem("printer_filteredMatchedPrinters",   JSON.stringify(result.filteredMatchedPrinters));
       localStorage.setItem("printer_answers",                   JSON.stringify(answers));
       localStorage.setItem("printer_selectedGebruik",           quizState.selectedGebruikType ?? "");
@@ -323,7 +316,7 @@ export function initQuizPage() {
     const checked = qs('input[name="gebruik"]:checked');
     if (!checked) return alert("Kies een gebruiksdoel");
 
-    quizState.selectedGebruikType = GEBRUIK_ANTWOORD_TO_TYPE[checked.value] ?? null;
+    quizState.selectedGebruikType = checked.value;
     showQuestion(2);
   });
 

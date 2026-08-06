@@ -1,20 +1,22 @@
-import { getPrinterTier, scoringSystem, TIER_ORDER } from "./data.js";
+import { VEEL_VOLUME_MIN_SNELHEID } from "./data.js";
 import { parsePrice } from "./utils.js";
 
-// ─── Score computation ────────────────────────────────────────────────────────
+// Geen scoring-as meer (zie data.js) — behouden als no-op zodat de
+// call-sites/localStorage-vorm elders niet hoeven te wijzigen.
+export function calculateScores() {
+  return {};
+}
 
-export function calculateScores(answers) {
-  const scores = { Budget: 0, Mid: 0, Premium: 0 };
+// ─── Volume (printvolume) voorkeur ─────────────────────────────────────────────
 
-  for (const dimensie of ["gebruik", "volume", "aio"]) {
-    const weights = scoringSystem[dimensie]?.[answers[dimensie]];
-    if (!weights) continue;
-    for (const tier of TIER_ORDER) {
-      scores[tier] += weights[tier] ?? 0;
-    }
+export function applyVolumeFilter(printers, volume) {
+  if (volume === "veel") {
+    const snel = printers.filter(p => (parseInt(p.printsnelheidZwart, 10) || 0) >= VEEL_VOLUME_MIN_SNELHEID);
+    if (snel.length > 0) return snel;
   }
-
-  return scores;
+  // "gemiddeld"/onbeantwoord → geen filter nodig: dat vraagt niet om een
+  // specifieke printer, de goedkoopste uit het aanbod is prima.
+  return printers;
 }
 
 // ─── Kleur filter ──────────────────────────────────────────────────────────────
@@ -43,13 +45,13 @@ export function applyAioFilter(printers, aio) {
 
 // ─── Main matching function ───────────────────────────────────────────────────
 
-export function matchPrinters(printers, gebruik, priceGroup, answers, scores) {
+export function matchPrinters(printers, gebruik, priceGroup, answers) {
   if (!Array.isArray(printers) || !gebruik) {
     return { bestMatch: null, bestType: null, filteredMatchedPrinters: [] };
   }
 
   // 1. Filter by gebruikstype + price
-  let filtered = printers.filter(p => {
+  const filtered = printers.filter(p => {
     const price = parsePrice(p.prijs);
     return (
       p.gebruikType === gebruik &&
@@ -61,57 +63,27 @@ export function matchPrinters(printers, gebruik, priceGroup, answers, scores) {
     return { bestMatch: null, bestType: null, filteredMatchedPrinters: [] };
   }
 
-  // 2. Pick best kwaliteits-tier by score
-  const sortedTiers = Object.entries(scores)
-    .sort((a, b) => Number(b[1]) - Number(a[1]));
+  // 2. Apply volume (printvolume) voorkeur
+  let candidates = applyVolumeFilter(filtered, answers.volume ?? "");
 
-  let matchedPrinters = [];
-  let bestType = null;
+  // 3. Apply kleur filter
+  candidates = applyKleurFilter(candidates, answers.kleur ?? "");
 
-  for (let i = 0; i < sortedTiers.length; i++) {
-    const [, topScore] = sortedTiers[i];
-    const tiersWithTopScore = sortedTiers
-      .filter(([, s]) => Number(s) === Number(topScore))
-      .map(([t]) => t);
+  // 4. Apply all-in-one voorkeur
+  candidates = applyAioFilter(candidates, answers.aio ?? "");
 
-    let candidates = filtered.filter(p => tiersWithTopScore.includes(getPrinterTier(p)));
-
-    if (candidates.length === 0) continue;
-
-    // 3. Apply kleur filter
-    candidates = applyKleurFilter(candidates, answers.kleur ?? "");
-    if (candidates.length === 0) continue;
-
-    // 4. Apply all-in-one voorkeur
-    candidates = applyAioFilter(candidates, answers.aio ?? "");
-    if (candidates.length === 0) continue;
-
-    matchedPrinters = [...candidates];
-    bestType = tiersWithTopScore.join(" / ");
-    break;
-  }
-
-  // Fallback: if tier matching yielded nothing, use all gebruikstype+price
-  // filtered printers (still applying kleur/aio where possible) so a
-  // non-empty price bucket never results in an empty result set.
-  if (matchedPrinters.length === 0) {
-    let fallback = applyKleurFilter(filtered, answers.kleur ?? "");
-    fallback = applyAioFilter(fallback, answers.aio ?? "");
-    if (fallback.length === 0) fallback = [...filtered];
-    matchedPrinters = fallback;
-    bestType = "Algemeen";
-  }
+  const matchedPrinters = candidates.length > 0 ? candidates : filtered;
 
   // Best match = cheapest in the matched set
   const bestMatch = matchedPrinters.reduce((cheapest, p) => {
     return parsePrice(p.prijs) < parsePrice(cheapest.prijs) ? p : cheapest;
   });
 
-  return { bestMatch, bestType, filteredMatchedPrinters: matchedPrinters };
+  return { bestMatch, bestType: "Algemeen", filteredMatchedPrinters: matchedPrinters };
 }
 
-export function computeMatchForPriceGroup(printers, gebruik, priceGroup, answers, scores) {
-  return matchPrinters(printers, gebruik, priceGroup, answers, scores);
+export function computeMatchForPriceGroup(printers, gebruik, priceGroup, answers) {
+  return matchPrinters(printers, gebruik, priceGroup, answers);
 }
 
 
@@ -127,8 +99,8 @@ export function buildResultPoints(printer, answers) {
     points.push("Fotokwaliteit-afdrukken met extra kleuren");
   }
 
-  if (volume === "veel" && getPrinterTier(printer) === "Premium") {
-    points.push("Geschikt voor een hoog printvolume");
+  if (volume === "veel" && (parseInt(printer.printsnelheidZwart, 10) || 0) >= VEEL_VOLUME_MIN_SNELHEID) {
+    points.push(`Snel printen (${printer.printsnelheidZwart} pagina's per minuut), geschikt voor een hoog volume`);
   }
 
   if (kleur === "ja" && printer.kanKleurenPrinten === "Ja") {

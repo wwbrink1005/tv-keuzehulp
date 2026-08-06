@@ -1,4 +1,4 @@
-import { calculateScores, matchWasmachines } from "./matching.js";
+import { matchWasmachines } from "./matching.js";
 import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 import { capaciteitGroupToAllowedCapaciteit } from "./data.js";
@@ -7,10 +7,9 @@ import { capaciteitGroupToAllowedCapaciteit } from "./data.js";
 // dezelfde ranges die de matching-logica gebruikt (data.js) — geen losse
 // verzonnen getallen.
 const CAPACITEIT_BADGE_LABELS = Object.fromEntries(
-  Object.entries(capaciteitGroupToAllowedCapaciteit).map(([group, kgs]) => {
-    const min = Math.min(...kgs);
-    const max = Math.max(...kgs);
-    return [group, min === max ? `${min} kg` : `${min}-${max} kg`];
+  Object.entries(capaciteitGroupToAllowedCapaciteit).map(([group, range]) => {
+    const { displayMin, displayMax } = range;
+    return [group, displayMin === displayMax ? `${displayMin} kg` : `${displayMin}-${displayMax} kg`];
   })
 );
 
@@ -50,7 +49,22 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
-const TOTAL_QUESTIONS = 4;
+const TOTAL_QUESTIONS = 3;
+
+// Bovenladers komen in de catalogus uitsluitend voor bij de "klein"
+// capaciteitsgroep (1-2 personen) — bij gemiddeld/groot bestaat de optie
+// gewoon niet, dus die zou daar toch nooit iets filteren. Zelfde patroon als
+// de tower-only RGB/waterkoeling-opties bij de desktop-keuzehulp.
+function updateExtraOptionsVisibility() {
+  const isKlein = quizState.selectedCapaciteitGroup === "klein";
+  qsa('[data-klein-only]').forEach(label => {
+    label.style.display = isKlein ? "" : "none";
+    if (!isKlein) {
+      const input = label.querySelector("input");
+      if (input) input.checked = false;
+    }
+  });
+}
 
 // Capaciteit-visualisatie: 3 volledige achtergrond-varianten (zelfde kamer +
 // machine, oplopende hoeveelheid was) die crossfaden o.b.v. gezinsgrootte —
@@ -105,6 +119,8 @@ function showQuestion(num) {
     if (hintBtnMobile) hintBtnMobile.style.display = "none";
     return;
   }
+
+  if (num === 3) updateExtraOptionsVisibility();
 
   const currentQuestion = qs(`#question-${num}`);
   if (!currentQuestion) return;
@@ -174,7 +190,6 @@ function resetQuestionsFrom(questionNumber) {
 
 function buildAnswers() {
   return {
-    gebruik:      qs('input[name="gebruik"]:checked')?.value ?? "",
     geluid:       qs('input[name="geluid"]:checked')?.value ?? "",
     extraAnswers: qsa('input[name="extra"]:checked').map(cb => cb.value)
   };
@@ -205,7 +220,6 @@ function handleStartMatching() {
   if (extraChecked.length === 0) return alert("Kies minimaal 1 antwoord");
 
   const answers = buildAnswers();
-  const scores = calculateScores(answers);
 
   const btn = qs("#start-matching");
   if (btn) { btn.disabled = true; btn.textContent = "Bezig…"; }
@@ -217,13 +231,11 @@ function handleStartMatching() {
         wasmachines,
         quizState.selectedCapaciteitGroup,
         null,
-        answers,
-        scores
+        answers
       );
 
       localStorage.setItem("wasmachine_bestMatch",                   JSON.stringify(result.bestMatch));
       localStorage.setItem("wasmachine_bestType",                    result.bestType ?? "");
-      localStorage.setItem("wasmachine_scores",                      JSON.stringify(scores));
       localStorage.setItem("wasmachine_filteredMatchedWasmachines",  JSON.stringify(result.filteredMatchedWasmachines));
       localStorage.setItem("wasmachine_answers",                     JSON.stringify(answers));
       localStorage.setItem("wasmachine_selectedCapaciteitGroup",     quizState.selectedCapaciteitGroup ?? "");
@@ -262,7 +274,7 @@ export function initQuizPage() {
     showQuestion(1);
   });
 
-  // Q2 → Q3
+  // Q2 → Q3 (extra's)
   qs("#to-question-3")?.addEventListener("click", () => {
     const checked = qs('input[name="geluid"]:checked');
     if (!checked) return alert("Kies een antwoord");
@@ -275,22 +287,9 @@ export function initQuizPage() {
     showQuestion(2);
   });
 
-  // Q3 → Q4
-  qs("#to-question-4")?.addEventListener("click", () => {
-    const checked = qs('input[name="gebruik"]:checked');
-    if (!checked) return alert("Kies een antwoord");
-    showQuestion(4);
-  });
-
-  // Q4 → Q3
-  qs("#back-to-question-3")?.addEventListener("click", () => {
-    resetQuestionsFrom(4);
-    showQuestion(3);
-  });
-
   setupExtraLimit();
 
-  // Q4 → Result
+  // Q3 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
   // Live-visualisatie bij het kiezen van een gezinsgrootte (Q1)

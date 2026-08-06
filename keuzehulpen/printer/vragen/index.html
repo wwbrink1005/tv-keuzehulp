@@ -503,21 +503,15 @@ button.question-hint-btn-mobile { display: grid; }
               <h2>Waarvoor ga je de printer vooral gebruiken?</h2>
               <div class="question-popover" data-popover="1">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Dit is de belangrijkste vraag: puur tekst en documenten vraagt om een compacte, betaalbare inkjetprinter. Print je ook af en toe een foto, dan kijken we net iets breder naar kleurkwaliteit. Vooral foto's afdrukken vraagt om een fotoprinter met meer kleuren en hogere afdrukkwaliteit. Zakelijk gebruik vraagt om een snellere, robuustere printer (vaak laser) met functies als automatische documentinvoer en dubbelzijdig printen.</p>
+                <p class="question-popover-text">Dit is de belangrijkste vraag: thuisgebruik (documenten, af en toe een foto) vraagt om een compacte, betaalbare inkjetprinter. Vooral foto's afdrukken vraagt om een fotoprinter met meer kleuren en hogere afdrukkwaliteit. Zakelijk gebruik vraagt om een snellere, robuustere printer (vaak laser) met functies als automatische documentinvoer en dubbelzijdig printen.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
-                <input type="radio" name="gebruik" value="tekst">
-                <svg class="answer-info-icon" data-icon="file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Vooral tekst en documenten</span>
-                <span class="price-indicator">€</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="gebruik" value="gemengd">
+                <input type="radio" name="gebruik" value="thuis">
                 <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Van alles een beetje, ook af en toe een foto</span>
-                <span class="price-indicator">€€</span>
+                <span>Thuisgebruik, zoals documenten en schoolwerk</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="gebruik" value="foto">
@@ -532,7 +526,7 @@ button.question-hint-btn-mobile { display: grid; }
                 <span class="price-indicator">€€€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 15px) + 22px) * var(--scale));">
               <button id="back-to-start" style="background:rgba(255,255,255,.90);border:1.5px solid rgba(9,84,163,.30);color:var(--c-accent);box-shadow:0 2px 8px rgba(0,0,0,.08);filter:none;" onclick="window.location.href='./'">Terug</button>
               <button id="to-question-2">Volgende</button>
             </div>
@@ -541,33 +535,27 @@ button.question-hint-btn-mobile { display: grid; }
           <!-- VRAAG 2: Printvolume -->
           <div id="question-2" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Hoeveel print je gemiddeld per maand?</h2>
+              <h2>Print je regelmatig grote oplages?</h2>
               <div class="question-popover" data-popover="2">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Hoe meer je print, hoe zwaarder de kosten per pagina en de duurzaamheid van de printer gaan wegen. Bij weinig gebruik is een instapmodel ruim voldoende. Print je dagelijks of in grote oplages, dan zoeken we een robuustere printer die daarop berekend is.</p>
+                <p class="question-popover-text">Print je vooral incidenteel, dan is een instapmodel ruim voldoende. Print je vaak grote oplages, dan zoeken we een printer die daar qua snelheid op berekend is.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
-                <input type="radio" name="volume" value="weinig">
-                <svg class="answer-info-icon" data-icon="file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Weinig, tot ongeveer 30 pagina's</span>
-                <span class="price-indicator">€</span>
-              </label>
-              <label class="answer-option">
                 <input type="radio" name="volume" value="gemiddeld">
-                <svg class="answer-info-icon" data-icon="files" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gemiddeld, 30 tot 150 pagina's</span>
-                <span class="price-indicator">€€</span>
+                <svg class="answer-info-icon" data-icon="file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Normaal gebruik, af en toe printen</span>
+                <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
                 <input type="radio" name="volume" value="veel">
                 <svg class="answer-info-icon" data-icon="printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Veel, 150+ pagina's</span>
+                <span>Veel, regelmatig grote oplages</span>
                 <span class="price-indicator">€€€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 51.3935px) + (1 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-1">Terug</button>
               <button id="to-question-3">Volgende</button>
             </div>

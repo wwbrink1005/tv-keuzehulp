@@ -1,19 +1,10 @@
-import { capaciteitGroupToAllowedCapaciteit, getWasmachineTier, scoringSystem, TIER_ORDER } from "./data.js";
+import { isCapaciteitInGroup } from "./data.js";
 import { parsePrice } from "./utils.js";
 
-// ─── Score computation ────────────────────────────────────────────────────────
-
-export function calculateScores(answers) {
-  const scores = { Budget: 0, Mid: 0, Premium: 0 };
-
-  const gebruik = answers.gebruik ?? "";
-  if (gebruik && scoringSystem.gebruik[gebruik]) {
-    for (const tier of TIER_ORDER) {
-      scores[tier] += scoringSystem.gebruik[gebruik][tier] ?? 0;
-    }
-  }
-
-  return scores;
+// Geen scoring-as meer voor "gebruik" (zie matchWasmachines) — behouden als
+// no-op zodat de call-sites/localStorage-vorm elders niet hoeven te wijzigen.
+export function calculateScores() {
+  return {};
 }
 
 // ─── Geluid filter ─────────────────────────────────────────────────────────────
@@ -46,6 +37,17 @@ export function applyExtraFilter(wasmachines, extraAnswers) {
 
   let filtered = [...wasmachines];
 
+  // Bovenlader eerst en apart: dat is een fysiek vormfactor-vereiste, geen
+  // "leuk om te hebben"-extra zoals de rest. Door 'm als eerste toe te passen
+  // blijft die subset de basis waar de overige extra's op verder filteren,
+  // i.p.v. dat een latere extra de bovenlader-voorkeur per ongeluk
+  // wegfiltert (en dus stilletjes genegeerd wordt door de gracieuze
+  // degradatie hieronder).
+  if (extraAnswers.includes("bovenlader")) {
+    const bl = filtered.filter(w => w.typeLader === "Bovenlader");
+    if (bl.length > 0) filtered = bl;
+  }
+
   if (extraAnswers.includes("energiezuinig")) {
     const zuinig = filtered.filter(w => w.energieLabel === "A" || w.energieLabel === "B");
     if (zuinig.length > 0) filtered = zuinig;
@@ -66,23 +68,26 @@ export function applyExtraFilter(wasmachines, extraAnswers) {
     if (aq.length > 0) filtered = aq;
   }
 
+  if (extraAnswers.includes("inverter")) {
+    const inv = filtered.filter(w => w.inverter === "Ja");
+    if (inv.length > 0) filtered = inv;
+  }
+
   return filtered;
 }
 
 // ─── Main matching function ───────────────────────────────────────────────────
 
-export function matchWasmachines(wasmachines, capaciteitGroup, priceGroup, answers, scores) {
+export function matchWasmachines(wasmachines, capaciteitGroup, priceGroup, answers) {
   if (!Array.isArray(wasmachines) || !capaciteitGroup) {
     return { bestMatch: null, bestType: null, filteredMatchedWasmachines: [] };
   }
 
-  const allowedCapaciteit = capaciteitGroupToAllowedCapaciteit[capaciteitGroup] || [];
-
   // 1. Filter by capaciteit + price
-  let filtered = wasmachines.filter(w => {
+  const filtered = wasmachines.filter(w => {
     const price = parsePrice(w.prijs);
     return (
-      allowedCapaciteit.includes(w.capaciteit) &&
+      isCapaciteitInGroup(w.capaciteit, capaciteitGroup) &&
       (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max))
     );
   });
@@ -91,58 +96,24 @@ export function matchWasmachines(wasmachines, capaciteitGroup, priceGroup, answe
     return { bestMatch: null, bestType: null, filteredMatchedWasmachines: [] };
   }
 
-  // 2. Pick best tier by score
-  const sortedTiers = Object.entries(scores)
-    .sort((a, b) => Number(b[1]) - Number(a[1]));
+  // 2. Apply geluid filter
+  let candidates = applyGeluidFilter(filtered, answers.geluid ?? "");
 
-  let matchedWasmachines = [];
-  let bestType = null;
+  // 3. Apply extra preferences
+  candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
 
-  for (let i = 0; i < sortedTiers.length; i++) {
-    const [, topScore] = sortedTiers[i];
-    const tiersWithTopScore = sortedTiers
-      .filter(([, s]) => Number(s) === Number(topScore))
-      .map(([t]) => t);
-
-    let candidates = filtered.filter(w => tiersWithTopScore.includes(getWasmachineTier(w)));
-
-    if (candidates.length === 0) continue;
-
-    // 3. Apply geluid filter
-    candidates = applyGeluidFilter(candidates, answers.geluid ?? "");
-    if (candidates.length === 0) continue;
-
-    // 4. Apply extra preferences
-    candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
-    if (candidates.length === 0) continue;
-
-    matchedWasmachines = [...candidates];
-    bestType = tiersWithTopScore.join(" / ");
-    break;
-  }
-
-  // Fallback: if tier matching yielded nothing, use all capaciteit+price filtered
-  // (still applying geluid/extra where possible) so a non-empty price bucket
-  // never results in an empty result set.
-  if (matchedWasmachines.length === 0) {
-    let fallback = applyGeluidFilter(filtered, answers.geluid ?? "");
-    fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
-    if (fallback.length === 0) fallback = [...filtered];
-    matchedWasmachines = fallback;
-    bestType = "Algemeen";
-  }
+  const matchedWasmachines = candidates.length > 0 ? candidates : filtered;
 
   // Best match = cheapest in the matched set
   const bestMatch = matchedWasmachines.reduce((cheapest, w) => {
     return parsePrice(w.prijs) < parsePrice(cheapest.prijs) ? w : cheapest;
   });
 
-  return { bestMatch, bestType, filteredMatchedWasmachines: matchedWasmachines };
+  return { bestMatch, bestType: "Algemeen", filteredMatchedWasmachines: matchedWasmachines };
 }
 
 export function buildResultPoints(wasmachine, answers) {
   const points = [];
-  const gebruik = answers?.gebruik ?? "";
   const geluid = answers?.geluid ?? "";
 
   if (wasmachine.energieLabel === "A" || wasmachine.energieLabel === "B") {
@@ -157,10 +128,6 @@ export function buildResultPoints(wasmachine, answers) {
 
   if (wasmachine.centrifugeRpm >= 1400) {
     points.push(`Droogt wasgoed sneller voor dankzij ${wasmachine.centrifugeRpm} toeren`);
-  }
-
-  if (gebruik === "gemak" && wasmachine.display === "Ja") {
-    points.push("Ingebouwd display voor eenvoudige bediening");
   }
 
   if (wasmachine.inverter === "Ja") {

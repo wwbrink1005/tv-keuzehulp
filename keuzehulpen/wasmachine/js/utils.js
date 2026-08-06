@@ -113,9 +113,9 @@ function floorNice(value) {
  * given capaciteitsgroep.
  */
 export function computeDynamicPriceGroups(wasmachines, capaciteitGroup, allowedCapaciteit) {
-  const capaciteiten = allowedCapaciteit[capaciteitGroup] || [];
+  const range = allowedCapaciteit[capaciteitGroup];
   const prices = wasmachines
-    .filter(w => capaciteiten.includes(w.capaciteit))
+    .filter(w => range && Number.isFinite(w.capaciteit) && w.capaciteit >= range.min && w.capaciteit <= range.max)
     .map(w => parsePrice(w.prijs))
     .filter(p => Number.isFinite(p) && p > 0)
     .sort((a, b) => a - b);

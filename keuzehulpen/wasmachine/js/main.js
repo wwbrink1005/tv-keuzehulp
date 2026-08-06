@@ -3,10 +3,6 @@ import { initQuestionPopovers, initResultPopover } from "./popovers.js";
 import { initQuizPage } from "./quiz.js";
 import { initResultPage } from "./result.js";
 import { initFilters } from "./result-filters.js";
-import { getWasmachineTier } from "./data.js";
-
-// Expose getWasmachineTier globally so result-filters.js can use it
-window.__wasmachineData = { getWasmachineTier };
 
 const DEFAULT_BASE_WIDTH = 1242.21;
 

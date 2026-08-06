@@ -324,7 +324,7 @@ button.question-hint-btn-mobile:hover,
       background-repeat: no-repeat;
       background-position: center bottom;
       opacity: 0;
-      transition: opacity .9s ease, width .3s ease, height .3s ease, right .3s ease, bottom .3s ease;
+      transition: opacity .5s ease, width .3s ease, height .3s ease, right .3s ease, bottom .3s ease;
       display: none;
       pointer-events: none;
     }
@@ -345,31 +345,38 @@ button.question-hint-btn-mobile:hover,
   padding-top: 16px;
 }
 .background-container {
-        --base-width: 605.5;
-        --base-height: 595;
-        background-image: url('keuzehulpen/laptop/images/laptop telefoon.png');
+        --base-width: 635.843;
+        --base-height: 630.138;
+        /* Letterlijk bijgesneden versie van laptop achtergrond2.png (2048px
+           breed → 1003px, links en rechts weggesneden), zelfde beeldhoogte en
+           dezelfde schaal als de desktop-versie. Omdat er niets herschaald is,
+           gelden voor de PC-visualisaties hieronder exact dezelfde width/height
+           als op desktop (zie pcTypeDimensions in quiz.js) — alleen rightOffset
+           schuift mee met het weggesneden stuk aan de linkerkant. */
+        background-image: url('keuzehulpen/desktop/images/desktop achtergrond mobiel.png');
+        background-size: cover;
+        background-position: center;
 
         /* ── MOBILE PC VISUALISATIES ─────────────────────────────────────────────
-           Coördinatenruimte: 605.5 breed × 595 hoog.
-           Pas hieronder de waarden aan totdat de visualisaties goed staan.
+           Coördinatenruimte: 635.843 breed × 630.138 hoog (zelfde schaal als desktop).
            rightOffset = afstand van de rechterrand tot het MIDDEN van het beeld.
            bottomOffset = afstand van de onderrand tot de ONDERKANT van het beeld.
            ──────────────────────────────────────────────────────────────────────── */
-        --pc-tower-width: 236;
-        --pc-tower-height: 535;
-        --pc-tower-right-offset: 470;
-        --pc-tower-bottom-offset: 120;
+        --pc-tower-width: 202;
+        --pc-tower-height: 275.5;
+        --pc-tower-right-offset: 544.74;
+        --pc-tower-bottom-offset: 53;
 
-        --pc-mini-pc-width: 91;
-        --pc-mini-pc-height: 63;
-        --pc-mini-pc-right-offset: 515;
-        --pc-mini-pc-bottom-offset: 145;
+        --pc-mini-pc-width: 238;
+        --pc-mini-pc-height: 105;
+        --pc-mini-pc-right-offset: 586.74;
+        --pc-mini-pc-bottom-offset: 52;
 
-        --pc-all-in-one-width: 280;
-        --pc-all-in-one-height: 296;
-        --pc-all-in-one-right-offset: 310;
-        --pc-all-in-one-bottom-offset: 115;
-        aspect-ratio: 1 / 1;
+        --pc-all-in-one-width: 285;
+        --pc-all-in-one-height: 300;
+        --pc-all-in-one-right-offset: 294.74;
+        --pc-all-in-one-bottom-offset: 118;
+        aspect-ratio: 635.843 / 630.138;
         width: min(92vw, 560px);
         max-width: min(92vw, 560px);
         margin-top: 0; margin-bottom: 0;

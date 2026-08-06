@@ -9,11 +9,11 @@ const filterState = {
   brands:       new Set(),
   printtechnologieen: new Set(),
   kleuren:      new Set(),
+  snelheden:    new Set(),
   functies:     new Set(),
   aanbieder:    new Set(),
   baseMatches:  [],
   answers:      null,
-  scores:       null,
   bestType:     "",
   gebruik:      ""
 };
@@ -69,6 +69,22 @@ function collectKleurOptions(matches) {
   const set = new Set();
   matches.forEach(p => { if (p.kleur) set.add(p.kleur); });
   return Array.from(set).sort((a, b) => a.localeCompare(b, "nl"));
+}
+
+// Buckets op basis van de echte spreiding in de catalogus: het enige duidelijke
+// gat zit tussen 22 en 25 ppm, verder is de verdeling vrij continu — vandaar
+// 3 groepen i.p.v. een geforceerde 4e "extreem snel"-tier zonder echt gat.
+const SNELHEID_GROEPEN = [
+  { key: "traag",   label: "Traag, t/m 15 ppm",     min: 0,  max: 15 },
+  { key: "normaal", label: "Normaal, 16-22 ppm",     min: 16, max: 22 },
+  { key: "snel",    label: "Snel, 23 ppm of meer",   min: 23, max: Infinity }
+];
+
+function collectSnelheidOptions(matches) {
+  return SNELHEID_GROEPEN.filter(g => matches.some(p => {
+    const snelheid = parseInt(p.printsnelheidZwart, 10);
+    return Number.isFinite(snelheid) && snelheid >= g.min && snelheid <= g.max;
+  })).map(g => g.key);
 }
 
 function collectFunctieOptions(matches) {
@@ -150,6 +166,14 @@ function applyFilters() {
     filtered = filtered.filter(p => filterState.kleuren.has(p.kleur));
   }
 
+  if (filterState.snelheden.size > 0) {
+    filtered = filtered.filter(p => {
+      const snelheid = parseInt(p.printsnelheidZwart, 10);
+      if (!Number.isFinite(snelheid)) return false;
+      return SNELHEID_GROEPEN.some(g => filterState.snelheden.has(g.key) && snelheid >= g.min && snelheid <= g.max);
+    });
+  }
+
   if (filterState.functies.size > 0) {
     filtered = filtered.filter(p => {
       if (filterState.functies.has("duplex") && p.duplex === "Ja") return true;
@@ -184,7 +208,7 @@ function updateClearFiltersBtn() {
   const btn = qs("#clearFiltersBtn");
   if (!btn) return;
   const hasActive = filterState.priceLabels.size > 0 || filterState.brands.size > 0 || filterState.printtechnologieen.size > 0 ||
-    filterState.kleuren.size > 0 || filterState.functies.size > 0 || filterState.aanbieder.size > 0;
+    filterState.kleuren.size > 0 || filterState.snelheden.size > 0 || filterState.functies.size > 0 || filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
@@ -195,6 +219,7 @@ function renderAllFilters() {
   const brandContainer      = qs("[data-filter-container='brand']");
   const techContainer       = qs("[data-filter-container='printtechnologie']");
   const kleurContainer      = qs("[data-filter-container='kleur']");
+  const snelheidContainer   = qs("[data-filter-container='snelheid']");
   const functieContainer    = qs("[data-filter-container='functies']");
   const aanbiederContainer  = qs("[data-filter-container='aanbieder']");
 
@@ -202,6 +227,7 @@ function renderAllFilters() {
   const brandCard       = qs(".filter-card[data-filter='brand']");
   const techCard        = qs(".filter-card[data-filter='printtechnologie']");
   const kleurCard       = qs(".filter-card[data-filter='kleur']");
+  const snelheidCard    = qs(".filter-card[data-filter='snelheid']");
   const functieCard     = qs(".filter-card[data-filter='functies']");
   const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
 
@@ -251,6 +277,15 @@ function renderAllFilters() {
     });
   }
 
+  if (snelheidContainer && snelheidCard) {
+    const snelheden = collectSnelheidOptions(matches);
+    renderFilterOptions(snelheidContainer, snelheidCard, snelheden, "snelheden", key => SNELHEID_GROEPEN.find(g => g.key === key)?.label ?? key);
+    snelheidContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      if (input.value === "all") input.checked = filterState.snelheden.size === 0;
+      else input.checked = filterState.snelheden.has(input.value);
+    });
+  }
+
   if (functieContainer && functieCard) {
     const functies = collectFunctieOptions(matches);
     renderFilterOptions(functieContainer, functieCard, functies, "functies", f => FUNCTIE_LABELS[f] ?? f);
@@ -284,6 +319,7 @@ function handleFilterChange(event) {
     brands:             { set: filterState.brands,             parse: v => v },
     printtechnologieen: { set: filterState.printtechnologieen, parse: v => v },
     kleuren:            { set: filterState.kleuren,            parse: v => v },
+    snelheden:          { set: filterState.snelheden,           parse: v => v },
     functies:           { set: filterState.functies,            parse: v => v },
     aanbieder:          { set: filterState.aanbieder,           parse: v => v }
   };
@@ -313,12 +349,10 @@ export async function initFilters() {
 
   // Load state from localStorage
   const answersData  = localStorage.getItem("printer_answers");
-  const scoresData   = localStorage.getItem("printer_scores");
   const gebruikData  = localStorage.getItem("printer_selectedGebruik");
   const bestTypeData = localStorage.getItem("printer_bestType");
 
   filterState.answers   = answersData ? JSON.parse(answersData) : null;
-  filterState.scores    = scoresData  ? JSON.parse(scoresData)  : null;
   filterState.gebruik   = gebruikData ?? "";
   filterState.bestType  = bestTypeData ?? "";
 
@@ -335,7 +369,7 @@ export async function initFilters() {
 
   // Full, non-price-restricted match set (price=null) — the gebruikType hard
   // filter is still applied inside matchPrinters/computeMatchForPriceGroup.
-  const result = computeMatchForPriceGroup(allPrinters, filterState.gebruik, null, filterState.answers, filterState.scores);
+  const result = computeMatchForPriceGroup(allPrinters, filterState.gebruik, null, filterState.answers);
   filterState.baseMatches = Array.isArray(result.filteredMatchedPrinters) ? result.filteredMatchedPrinters : [];
 
   // Fallback: if the live fetch/computation yields nothing, seed the pool
@@ -369,6 +403,7 @@ export async function initFilters() {
       filterState.brands.clear();
       filterState.printtechnologieen.clear();
       filterState.kleuren.clear();
+      filterState.snelheden.clear();
       filterState.functies.clear();
       filterState.aanbieder.clear();
       renderAllFilters();

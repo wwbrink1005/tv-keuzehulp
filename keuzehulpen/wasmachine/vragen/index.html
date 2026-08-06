@@ -82,11 +82,11 @@
     justify-content: flex-start;
   }
 
-  /* Q4 heeft 5 opties waarvan er meerdere naar 2 regels wrappen, waardoor
-     het lijstje voller oogt dan de andere vragen — zelfde begrensde-
-     scrollbox-patroon als de koelkast-nis. */
-  #question-4 .answers-container {
-    max-height: calc(372px * var(--scale));
+  /* Q3 (extra's) heeft tot 7 opties waarvan er meerdere naar 2 regels
+     wrappen, waardoor het lijstje voller oogt dan de andere vragen —
+     zelfde begrensde-scrollbox-patroon als de koelkast-nis. */
+  #question-3 .answers-container {
+    max-height: calc(330px * var(--scale));
     overflow-y: auto;
     padding-top: calc(6px * var(--scale));
     padding-right: calc(8px * var(--scale));
@@ -99,20 +99,20 @@
      anders net buiten .background-container, die overflow:hidden heeft —
      dat sneed de rechterrand van de vakken zichtbaar af. Compenseer door
      de vakken exact zoveel smaller te maken. */
-  #question-4 .answer-option {
+  #question-3 .answer-option {
     width: calc(358.968px * var(--scale));
   }
 
-  #question-4 .answers-container::-webkit-scrollbar {
+  #question-3 .answers-container::-webkit-scrollbar {
     width: 6px;
   }
 
-  #question-4 .answers-container::-webkit-scrollbar-thumb {
+  #question-3 .answers-container::-webkit-scrollbar-thumb {
     background: rgba(9,84,163,.35);
     border-radius: 100px;
   }
 
-  #question-4 .answers-container::-webkit-scrollbar-track {
+  #question-3 .answers-container::-webkit-scrollbar-track {
     background: transparent;
   }
 }
@@ -222,7 +222,7 @@ button.question-hint-btn-mobile {
 
 button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-active { background: rgba(235,244,255,.97); color: var(--c-accent); }
 
-#question-1, #question-2, #question-3, #question-4 {
+#question-1, #question-2, #question-3 {
   position: relative;
   opacity: 0;
   transform: translateY(6px);
@@ -230,8 +230,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
   pointer-events: none;
 }
 
-#question-1.is-active, #question-2.is-active, #question-3.is-active,
-#question-4.is-active {
+#question-1.is-active, #question-2.is-active, #question-3.is-active {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -280,22 +279,20 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 
 #question-1 input[type="radio"],
 #question-2 input[type="radio"],
-#question-3 input[type="radio"],
-#question-4 input[type="checkbox"] {
+#question-3 input[type="checkbox"] {
   margin-right: calc(30px * var(--scale));
 }
 
 #question-1 .answer-info-icon,
 #question-2 .answer-info-icon,
-#question-3 .answer-info-icon,
-#question-4 .answer-info-icon {
+#question-3 .answer-info-icon {
   margin-left: calc(-20px * var(--scale));
   margin-right: calc(10px * var(--scale));
 }
 
 .button-container button:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3 {
+#back-to-question-1, #back-to-question-2 {
   background: rgba(255,255,255,.90);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -305,7 +302,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
   filter: none;
 }
 
-#back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover {
+#back-to-question-1:hover, #back-to-question-2:hover {
   background: rgba(232,242,255,.97);
   border-color: rgba(9,84,163,.50);
   box-shadow: 0 4px 14px rgba(9,84,163,.14);
@@ -315,8 +312,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 
 #question-1 .button-container,
 #question-2 .button-container,
-#question-3 .button-container,
-#question-4 .button-container {
+#question-3 .button-container {
   left: calc(26.2291px * var(--scale));
   width: calc(366.968px * var(--scale));
 }
@@ -454,9 +450,9 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 #question-1 .answer-info-icon, #question-2 .answer-info-icon,
-#question-3 .answer-info-icon, #question-4 .answer-info-icon { margin-left: 0; margin-right: 8px; }
+#question-3 .answer-info-icon { margin-left: 0; margin-right: 8px; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3 {
+#back-to-question-1, #back-to-question-2 {
   border-width: 1.5px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
@@ -464,7 +460,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 #question-1 .button-container, #question-2 .button-container,
-#question-3 .button-container, #question-4 .button-container {
+#question-3 .button-container {
   left: auto;
   width: 100%;
   max-width: 100%;
@@ -522,7 +518,7 @@ button.question-hint-btn-mobile { display: grid; }
     </div>
     <div class="quiz-panel-content" id="how-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>We stellen vijf korte vragen over je gezinsgrootte, budget, wensen rond geluid en gebruik. Op basis van je antwoorden berekenen we welke wasmachine het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) wasmachine leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+        <p>We stellen drie korte vragen over je gezinsgrootte, wensen rond geluid en extra wensen. Op basis van je antwoorden berekenen we welke wasmachine het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) wasmachine leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
         <div class="quiz-how-steps">
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">1</span>
@@ -670,44 +666,15 @@ button.question-hint-btn-mobile { display: grid; }
             </div>
           </div>
 
-          <!-- VRAAG 3: Gebruik -->
+          <!-- VRAAG 3: Extra's (multi-select) -->
           <div id="question-3" class="question-block" style="display:none;">
             <div class="question-container">
-              <h2>Waar hecht je de meeste waarde aan?</h2>
+              <div class="question-heading-wrap">
+                <h2>Welke van de volgende mag niet ontbreken?</h2>
+              </div>
               <div class="question-popover" data-popover="3">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Sommige mensen willen gewoon een wasmachine die het simpel goed doet. Anderen hechten meer waarde aan gebruiksgemak, zoals een display, extra programma's en app-bediening. Dit bepaalt welk type wasmachine we aanbevelen.</p>
-              </div>
-            </div>
-            <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
-              <label class="answer-option">
-                <input type="radio" name="gebruik" value="gewoon">
-                <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Een simpele, betrouwbare wasmachine</span>
-                <span class="price-indicator">€</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="gebruik" value="gemak">
-                <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Display, app-bediening en extra programma's</span>
-                <span class="price-indicator">€€€</span>
-              </label>
-            </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 58px) + (1 * 15px) + 22px) * var(--scale));">
-              <button id="back-to-question-2">Terug</button>
-              <button id="to-question-4">Volgende</button>
-            </div>
-          </div>
-
-          <!-- VRAAG 4: Extra's (multi-select) -->
-          <div id="question-4" class="question-block" style="display:none;">
-            <div class="question-container">
-              <div class="question-heading-wrap">
-                <h2>Nog specifieke extra's gewenst?</h2>
-              </div>
-              <div class="question-popover" data-popover="4">
-                <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Energiezuinig betekent een lager verbruik op je energierekening. Een uitgestelde start laat je de wasmachine op een later tijdstip laten starten, bijvoorbeeld 's nachts voor een lagere stroomprijs. Een kinderslot voorkomt dat kinderen de instellingen wijzigen. AquaStop beschermt tegen waterschade bij een lekkage. Je kunt meerdere opties aanvinken.</p>
+                <p class="question-popover-text">Energiezuinig betekent een lager verbruik op je energierekening. Een uitgestelde start laat je de wasmachine op een later tijdstip laten starten, bijvoorbeeld 's nachts voor een lagere stroomprijs. Een kinderslot voorkomt dat kinderen de instellingen wijzigen. AquaStop beschermt tegen waterschade bij een lekkage. Een invertermotor is stiller en gaat langer mee. Je kunt meerdere opties aanvinken.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
@@ -736,14 +703,26 @@ button.question-hint-btn-mobile { display: grid; }
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
+                <input type="checkbox" name="extra" value="inverter">
+                <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Stille, duurzame invertermotor</span>
+                <span class="price-indicator">€€</span>
+              </label>
+              <label class="answer-option" data-klein-only>
+                <input type="checkbox" name="extra" value="bovenlader">
+                <svg class="answer-info-icon" data-icon="box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Bovenlader (compacter, smal model)</span>
+                <span class="price-indicator">€€</span>
+              </label>
+              <label class="answer-option">
                 <input type="checkbox" name="extra" value="geen">
                 <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Geen extra wensen</span>
                 <span class="price-indicator">€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 58px) + (4 * 15px) + 22px) * var(--scale));">
-              <button id="back-to-question-3">Terug</button>
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (7 * 58px) + (6 * 15px) + 22px) * var(--scale));">
+              <button id="back-to-question-2">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>
           </div>
@@ -755,7 +734,7 @@ button.question-hint-btn-mobile { display: grid; }
         </button>
         <div class="quiz-panel-content how-content-below-image" id="how-content-mobile">
           <div class="quiz-panel-inner" style="width: 100%; max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto; box-sizing: border-box;">
-        <p>We stellen vijf korte vragen over je gezinsgrootte, budget, wensen rond geluid en gebruik. Op basis van je antwoorden berekenen we welke wasmachine het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) wasmachine leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+        <p>We stellen drie korte vragen over je gezinsgrootte, wensen rond geluid en extra wensen. Op basis van je antwoorden berekenen we welke wasmachine het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) wasmachine leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
         <div class="quiz-how-steps">
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">1</span>

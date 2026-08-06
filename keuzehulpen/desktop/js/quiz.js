@@ -35,8 +35,8 @@ function setQuestionExpanded(question, expanded) {
 // rightOffset = distance from right edge to the CENTER of the image.
 // bottomOffset = distance from bottom edge to the BOTTOM of the image.
 const pcTypeDimensions = {
-  'tower':      { width: 213.84, height: 485.1, rightOffset: 525, bottomOffset: 118 },
-  'mini-pc':    { width: 70,  height: 48,  rightOffset: 545, bottomOffset: 148 },
+  'tower':      { width: 202,    height: 275.5, rightOffset: 580, bottomOffset: 53 },
+  'mini-pc':    { width: 238, height: 105, rightOffset: 622, bottomOffset: 52 },
   'all-in-one': { width: 285, height: 300, rightOffset: 330, bottomOffset: 118 }
   // 'maakt-niet-uit' intentionally absent → no visualisation
 };
@@ -52,12 +52,15 @@ function updatePcTypeDisplay() {
   const pcDisplay = qs("#pc-type-display");
   const container = qs(".background-container");
   const fadeDurationMs = 120;
+  // Moet gelijk zijn aan de opacity-transition-duur van #pc-type-display in
+  // CSS (.5s) — anders wordt de fade-out afgekapt door display:none.
+  const hideFadeDurationMs = 500;
 
   if (!pcDisplay || !container) return;
 
   if (!checked || !pcTypeDimensions[checked.value]) {
     pcDisplay.style.opacity = "0";
-    window.setTimeout(() => { pcDisplay.style.display = "none"; }, fadeDurationMs);
+    window.setTimeout(() => { pcDisplay.style.display = "none"; }, hideFadeDurationMs);
     return;
   }
 
@@ -124,7 +127,7 @@ function hidePcTypeDisplay() {
   const pcDisplay = qs("#pc-type-display");
   if (!pcDisplay) return;
   pcDisplay.style.opacity = "0";
-  window.setTimeout(() => { pcDisplay.style.display = "none"; }, 120);
+  window.setTimeout(() => { pcDisplay.style.display = "none"; }, 500);
 }
 
 function showQuestion(num) {

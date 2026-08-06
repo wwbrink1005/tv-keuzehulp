@@ -1,9 +1,19 @@
 // ─── Capaciteitsgroepen (keyed by de "gezinsgrootte" antwoord-waarde) ─────────
+// Bereik (min/max) i.p.v. een lijst exacte waarden: de catalogus bevat ook
+// halve kg's (bijv. "6,5 kg", "10,5 kg") — met een exacte-waarde-lijst vielen
+// die producten buiten ELKE groep en verdwenen ze stilletjes uit alle
+// resultaten. displayLabel is puur voor UI-teksten (badge, prijsgroepen-titel).
 export const capaciteitGroupToAllowedCapaciteit = {
-  "klein":     [6, 7],
-  "gemiddeld": [8, 9],
-  "groot":     [10, 11, 12, 13, 14]
+  "klein":     { min: 6,  max: 7.9,              displayMin: 6,  displayMax: 7  },
+  "gemiddeld": { min: 8,  max: 9.9,               displayMin: 8,  displayMax: 9  },
+  "groot":     { min: 10, max: Number.POSITIVE_INFINITY, displayMin: 10, displayMax: 14 }
 };
+
+export function isCapaciteitInGroup(capaciteit, group) {
+  const range = capaciteitGroupToAllowedCapaciteit[group];
+  if (!range || !Number.isFinite(capaciteit)) return false;
+  return capaciteit >= range.min && capaciteit <= range.max;
+}
 
 // ─── Static fallback price groups per capaciteitsgroep ────────────────────────
 export const priceGroupsByCapaciteit = {
@@ -24,30 +34,10 @@ export const priceGroupsByCapaciteit = {
   ]
 };
 
-// ─── Wasmachine tier-definities ────────────────────────────────────────────────
-// Tiers zijn gebaseerd op energiezuinigheid, centrifugesnelheid en functierijkdom
-// (net als gpuTier bij desktop) — niet op prijs.
-export const TIER_ORDER = ["Budget", "Mid", "Premium"];
-
-export function getWasmachineTier(w) {
-  const label = String(w.energieLabel ?? "").toUpperCase();
-  const rpm = parseInt(w.centrifugeRpm, 10) || 0;
-  const featureCount = ["inverter", "display", "aquastop", "uitgesteldeStart", "kinderslot"]
-    .filter(key => w[key] === "Ja").length;
-
-  const isEfficient = label === "A" || label === "B";
-
-  if (isEfficient && (rpm >= 1400 || featureCount >= 3)) return "Premium";
-  if (isEfficient || rpm >= 1200 || featureCount >= 1) return "Mid";
-  return "Budget";
-}
-
-// ─── Scoringsysteem ────────────────────────────────────────────────────────────
-// Elk antwoord scoort per tier. Geluid en extra wensen zijn geen scoring-as maar
-// harde (gracieus degraderende) filters, zie matching.js.
-export const scoringSystem = {
-  gebruik: {
-    gewoon: { Budget: 9, Mid: 8, Premium: 4  },
-    gemak:  { Budget: 2, Mid: 6, Premium: 10 }
-  }
-};
+// Geen Budget/Mid/Premium-tier-classificatie (meer) voor wasmachines — die
+// correleerde niet betrouwbaar met prijs bij kleine capaciteitssegmenten (een
+// functierijke machine kon toevallig goedkoper zijn dan een "simpele",
+// waardoor "simpel" kiezen een duurder resultaat gaf dan "gemak" kiezen). De
+// vraag die op die tier scoorde ("waar hecht je waarde aan?") is daarom
+// verwijderd; invertermotor + bovenlader zijn losse extra-checkboxes
+// geworden (zie vragen/index.html en matching.js's applyExtraFilter).

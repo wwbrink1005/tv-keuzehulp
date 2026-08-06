@@ -3,10 +3,6 @@ import { initQuestionPopovers, initResultPopover } from "./popovers.js";
 import { initQuizPage } from "./quiz.js";
 import { initResultPage } from "./result.js";
 import { initFilters } from "./result-filters.js";
-import { getPrinterTier } from "./data.js";
-
-// Expose getPrinterTier globally so result-filters.js can use it
-window.__printerData = { getPrinterTier };
 
 const DEFAULT_BASE_WIDTH = 1242.21;
 
