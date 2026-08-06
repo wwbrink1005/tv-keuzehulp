@@ -99,11 +99,6 @@ export function applyExtraFilter(laptops, extraAnswers) {
     if (usbc.length > 0) filtered = usbc;
   }
 
-  if (extraAnswers.includes("meerdere-schermen")) {
-    const multi = filtered.filter(l => l.hdmi >= 2);
-    if (multi.length > 0) filtered = multi;
-  }
-
   if (extraAnswers.includes("scherp-beeldscherm")) {
     // Prefer OLED first, then high resolution, then IPS
     const oled = filtered.filter(l => l.paneeltype === "OLED");
@@ -268,9 +263,6 @@ export function buildResultPoints(laptop, answers) {
   }
   if (extraAnswers.includes("usb-c") && laptop.usb_c === "Ja") {
     addPoint("USB-C aansluiting voor snel opladen en accessoires");
-  }
-  if (extraAnswers.includes("meerdere-schermen") && laptop.hdmi >= 2) {
-    addPoint("Meerdere HDMI-aansluitingen voor extra beeldschermen");
   }
 
   // Opslag

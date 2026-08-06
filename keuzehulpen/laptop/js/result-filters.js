@@ -13,6 +13,8 @@ const filterState = {
   ramOptions:   new Set(),
   resolutions:  new Set(),
   touchscreens: new Set(),
+  usbc:         new Set(),
+  kleuren:      new Set(),
   osOptions:    new Set(),
   aanbieder:    new Set(),
   baseMatches:  [],
@@ -101,6 +103,27 @@ function collectTouchscreenOptions(matches) {
   matches.forEach(l => { if (l.touchscreen) set.add(l.touchscreen); });
   const order = ["Ja", "Nee"];
   return order.filter(t => set.has(t));
+}
+
+function collectUsbcOptions(matches) {
+  const set = new Set();
+  matches.forEach(l => { if (l.usb_c) set.add(l.usb_c); });
+  const order = ["Ja", "Nee"];
+  return order.filter(t => set.has(t));
+}
+
+// Normaliseert combinaties als "Zwart, Grijs" en "Grijs, Zwart" naar dezelfde
+// canonieke waarde, zodat ze niet als 2 losse filteropties verschijnen.
+function normalizeKleur(kleur) {
+  const raw = String(kleur ?? "").trim();
+  if (!raw) return "";
+  return raw.split(",").map(s => s.trim()).filter(Boolean).sort().join(", ");
+}
+
+function collectKleurOptions(matches) {
+  const set = new Set();
+  matches.forEach(l => { const k = normalizeKleur(l.kleur); if (k) set.add(k); });
+  return Array.from(set).sort((a, b) => a.localeCompare(b, "nl"));
 }
 
 function collectOsOptions(matches) {
@@ -240,6 +263,14 @@ function renderTouchscreenOptions(container, card, matches) {
   renderCheckboxFilter(container, card, collectTouchscreenOptions(matches), "touchscreens", "Alle");
 }
 
+function renderUsbcOptions(container, card, matches) {
+  renderCheckboxFilter(container, card, collectUsbcOptions(matches), "usbc", "Alle");
+}
+
+function renderKleurOptions(container, card, matches) {
+  renderCheckboxFilter(container, card, collectKleurOptions(matches), "kleuren", "Alle");
+}
+
 function renderOsOptions(container, card, matches) {
   renderCheckboxFilter(container, card, collectOsOptions(matches), "osOptions", "Alle");
 }
@@ -254,7 +285,9 @@ function updateClearFiltersBtn() {
   const hasActive = filterState.priceLabels.size > 0 || filterState.sizes.size > 0 || filterState.brands.size > 0 ||
     filterState.tiers.size > 0 || filterState.panelTypes.size > 0 ||
     filterState.ramOptions.size > 0 || filterState.resolutions.size > 0 ||
-    filterState.touchscreens.size > 0 || filterState.osOptions.size > 0 ||
+    filterState.touchscreens.size > 0 || filterState.usbc.size > 0 ||
+    filterState.kleuren.size > 0 ||
+    filterState.osOptions.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
@@ -290,6 +323,14 @@ function applyFilters() {
     filtered = filtered.filter(l => filterState.touchscreens.has(l.touchscreen));
   }
 
+  if (filterState.usbc.size > 0) {
+    filtered = filtered.filter(l => filterState.usbc.has(l.usb_c));
+  }
+
+  if (filterState.kleuren.size > 0) {
+    filtered = filtered.filter(l => filterState.kleuren.has(normalizeKleur(l.kleur)));
+  }
+
   if (filterState.osOptions.size > 0) {
     filtered = filtered.filter(l => filterState.osOptions.has(l.os));
   }
@@ -314,7 +355,7 @@ function applyFilters() {
   updateResultMatches(filtered, filterState.answers, filterState.bestType);
 }
 
-function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierContainer, panelContainer, ramContainer, resolutionContainer, touchscreenContainer, osContainer, aanbiederContainer) {
+function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierContainer, panelContainer, ramContainer, resolutionContainer, touchscreenContainer, usbcContainer, kleurContainer, osContainer, aanbiederContainer) {
   const priceCard       = qs(".filter-card[data-filter='price']");
   const sizeCard        = qs(".filter-card[data-filter='size']");
   const brandCard       = qs(".filter-card[data-filter='brand']");
@@ -323,6 +364,8 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
   const ramCard         = qs(".filter-card[data-filter='ram']");
   const resolutionCard  = qs(".filter-card[data-filter='resolution']");
   const touchscreenCard = qs(".filter-card[data-filter='touchscreen']");
+  const usbcCard        = qs(".filter-card[data-filter='usbc']");
+  const kleurCard       = qs(".filter-card[data-filter='kleur']");
   const osCard          = qs(".filter-card[data-filter='os']");
   const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
 
@@ -335,6 +378,8 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
     renderRamOptions(ramContainer, ramCard, matches);
     renderResolutionOptions(resolutionContainer, resolutionCard, matches);
     renderTouchscreenOptions(touchscreenContainer, touchscreenCard, matches);
+    renderUsbcOptions(usbcContainer, usbcCard, matches);
+    renderKleurOptions(kleurContainer, kleurCard, matches);
     renderOsOptions(osContainer, osCard, matches);
     renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
   }
@@ -366,7 +411,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
     applyFilters();
   });
 
-  function handleCheckboxSet(container, stateSet, card, renderFn, valueFn = v => v) {
+  function handleCheckboxSet(container, stateSet, card, renderFn, valueFn = v => v, exclusive = false) {
     container.addEventListener("change", event => {
       const input = event.target.closest("input[type=checkbox]");
       if (!input) return;
@@ -375,8 +420,14 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
         else if (stateSet.size === 0) { input.checked = true; }
       } else {
         const val = valueFn(input.value);
-        if (input.checked) stateSet.add(val);
-        else stateSet.delete(val);
+        if (input.checked) {
+          // "Ja"/"Nee"-achtige filters zijn elkaars tegenpolen: aanvinken
+          // van de één moet de ander automatisch uitvinken.
+          if (exclusive) stateSet.clear();
+          stateSet.add(val);
+        } else {
+          stateSet.delete(val);
+        }
         if (stateSet.size === 0) renderFn(container, card, getPriceScopedMatches());
         else { const allInput = container.querySelector('input[value="all"]'); if (allInput) allInput.checked = false; }
       }
@@ -390,7 +441,9 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
   handleCheckboxSet(panelContainer,       filterState.panelTypes,   panelCard,       renderPanelTypeOptions);
   handleCheckboxSet(ramContainer,         filterState.ramOptions,   ramCard,         renderRamOptions,        v => parseInt(v, 10));
   handleCheckboxSet(resolutionContainer,  filterState.resolutions,  resolutionCard,  renderResolutionOptions);
-  handleCheckboxSet(touchscreenContainer, filterState.touchscreens, touchscreenCard, renderTouchscreenOptions);
+  handleCheckboxSet(touchscreenContainer, filterState.touchscreens, touchscreenCard, renderTouchscreenOptions, v => v, true);
+  handleCheckboxSet(usbcContainer,        filterState.usbc,         usbcCard,        renderUsbcOptions,        v => v, true);
+  handleCheckboxSet(kleurContainer,       filterState.kleuren,      kleurCard,       renderKleurOptions);
   handleCheckboxSet(osContainer,          filterState.osOptions,    osCard,          renderOsOptions);
   handleCheckboxSet(aanbiederContainer,   filterState.aanbieder,    aanbiederCard,   renderAanbiederOptions);
 
@@ -402,6 +455,8 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
       filterState.tiers.clear(); filterState.panelTypes.clear();
       filterState.ramOptions.clear(); filterState.resolutions.clear();
       filterState.touchscreens.clear(); filterState.osOptions.clear();
+      filterState.usbc.clear();
+      filterState.kleuren.clear();
       filterState.aanbieder.clear();
       renderPriceOptions(priceContainer, priceCard, filterState.sizeGroup);
       renderAllSecondary();
@@ -419,6 +474,8 @@ function initResultFilters() {
   const ramContainer      = qs("#ramFilterOptions");
   const resolutionContainer  = qs("#resolutionFilterOptions");
   const touchscreenContainer = qs("#touchscreenFilterOptions");
+  const usbcContainer        = qs("#usbcFilterOptions");
+  const kleurContainer       = qs("#kleurFilterOptions");
   const osContainer          = qs("#osFilterOptions");
   const aanbiederContainer = qs("#aanbiederFilterOptions");
 
@@ -430,15 +487,17 @@ function initResultFilters() {
   const ramCard        = qs(".filter-card[data-filter='ram']");
   const resolutionCard  = qs(".filter-card[data-filter='resolution']");
   const touchscreenCard = qs(".filter-card[data-filter='touchscreen']");
+  const usbcCard        = qs(".filter-card[data-filter='usbc']");
+  const kleurCard       = qs(".filter-card[data-filter='kleur']");
   const osCard          = qs(".filter-card[data-filter='os']");
   const aanbiederCard  = qs(".filter-card[data-filter='aanbieder']");
 
   if (!priceContainer || !sizeContainer || !brandContainer || !tierContainer ||
       !panelContainer || !ramContainer || !resolutionContainer || !touchscreenContainer ||
-      !osContainer || !aanbiederContainer) return;
+      !usbcContainer || !kleurContainer || !osContainer || !aanbiederContainer) return;
   if (!priceCard || !sizeCard || !brandCard || !tierCard ||
       !panelCard || !ramCard || !resolutionCard || !touchscreenCard ||
-      !osCard || !aanbiederCard) return;
+      !usbcCard || !kleurCard || !osCard || !aanbiederCard) return;
 
   const stored      = getStoredSelection();
   const answersData = localStorage.getItem("laptop_answers");
@@ -490,13 +549,15 @@ function initResultFilters() {
       renderRamOptions(ramContainer, ramCard, matches);
       renderResolutionOptions(resolutionContainer, resolutionCard, matches);
       renderTouchscreenOptions(touchscreenContainer, touchscreenCard, matches);
+      renderUsbcOptions(usbcContainer, usbcCard, matches);
+      renderKleurOptions(kleurContainer, kleurCard, matches);
       renderOsOptions(osContainer, osCard, matches);
       renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
-      initFilterEvents(priceContainer, sizeContainer, brandContainer, tierContainer, panelContainer, ramContainer, resolutionContainer, touchscreenContainer, osContainer, aanbiederContainer);
+      initFilterEvents(priceContainer, sizeContainer, brandContainer, tierContainer, panelContainer, ramContainer, resolutionContainer, touchscreenContainer, usbcContainer, kleurContainer, osContainer, aanbiederContainer);
       applyFilters();
     })
     .catch(() => {
-      [priceCard, sizeCard, brandCard, tierCard, panelCard, ramCard, resolutionCard, touchscreenCard, osCard, aanbiederCard]
+      [priceCard, sizeCard, brandCard, tierCard, panelCard, ramCard, resolutionCard, touchscreenCard, usbcCard, kleurCard, osCard, aanbiederCard]
         .forEach(card => { card.hidden = true; });
     });
 }

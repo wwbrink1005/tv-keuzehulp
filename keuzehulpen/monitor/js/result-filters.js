@@ -14,6 +14,7 @@ const filterState = {
   aspectRatios: new Set(),
   curved:       new Set(),
   speakers:     new Set(),
+  usbc:         new Set(),
   hdmiOptions:  new Set(),
   aanbieder:    new Set(),
   baseMatches:  [],
@@ -115,6 +116,12 @@ function collectSpeakersOptions(matches) {
   return Array.from(set);
 }
 
+function collectUsbcOptions(matches) {
+  const set = new Set();
+  matches.forEach(m => { if (m.usb_c) set.add(m.usb_c); });
+  return Array.from(set);
+}
+
 function collectHdmiOptions(matches) {
   const set = new Set();
   matches.forEach(m => { if (m.hdmi_poorten) set.add(m.hdmi_poorten); });
@@ -204,6 +211,10 @@ function applyFilters() {
     filtered = filtered.filter(m => filterState.speakers.has(m.speakers));
   }
 
+  if (filterState.usbc.size > 0) {
+    filtered = filtered.filter(m => filterState.usbc.has(m.usb_c));
+  }
+
   if (filterState.hdmiOptions.size > 0) {
     filtered = filtered.filter(m => filterState.hdmiOptions.has(m.hdmi_poorten));
   }
@@ -235,6 +246,7 @@ function updateClearFiltersBtn() {
     filterState.panelTypes.size > 0 || filterState.resolutions.size > 0 ||
     filterState.hzOptions.size > 0 || filterState.aspectRatios.size > 0 ||
     filterState.curved.size > 0 || filterState.speakers.size > 0 ||
+    filterState.usbc.size > 0 ||
     filterState.hdmiOptions.size > 0 || filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
@@ -251,6 +263,7 @@ function renderAllFilters(monitors) {
   const aspectContainer   = qs("[data-filter-container='aspect']");
   const curvedContainer   = qs("[data-filter-container='curved']");
   const speakersContainer = qs("[data-filter-container='speakers']");
+  const usbcContainer     = qs("[data-filter-container='usbc']");
   const hdmiContainer     = qs("[data-filter-container='hdmi']");
   const aanbiederContainer = qs("[data-filter-container='aanbieder']");
 
@@ -263,6 +276,7 @@ function renderAllFilters(monitors) {
   const aspectCard    = qs(".filter-card[data-filter='aspect']");
   const curvedCard    = qs(".filter-card[data-filter='curved']");
   const speakersCard  = qs(".filter-card[data-filter='speakers']");
+  const usbcCard      = qs(".filter-card[data-filter='usbc']");
   const hdmiCard      = qs(".filter-card[data-filter='hdmi']");
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
@@ -354,6 +368,15 @@ function renderAllFilters(monitors) {
     });
   }
 
+  if (usbcContainer && usbcCard) {
+    const usbcOpts = collectUsbcOptions(matches);
+    renderFilterOptions(usbcContainer, usbcCard, usbcOpts, "usbc", null, false);
+    usbcContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      if (input.value === "all") input.checked = filterState.usbc.size === 0;
+      else input.checked = filterState.usbc.has(input.value);
+    });
+  }
+
   if (hdmiContainer && hdmiCard) {
     const hdmiOpts = collectHdmiOptions(matches);
     renderFilterOptions(hdmiContainer, hdmiCard, hdmiOpts, "hdmiOptions", n => `${n} HDMI`, false);
@@ -390,21 +413,26 @@ function handleFilterChange(event) {
     resolutions: { set: filterState.resolutions, parse: v => v },
     hzOptions:   { set: filterState.hzOptions,   parse: v => parseInt(v, 10) },
     aspectRatios: { set: filterState.aspectRatios, parse: v => v },
-    curved:      { set: filterState.curved,      parse: v => v },
-    speakers:    { set: filterState.speakers,    parse: v => v },
+    curved:      { set: filterState.curved,      parse: v => v, exclusive: true },
+    speakers:    { set: filterState.speakers,    parse: v => v, exclusive: true },
+    usbc:        { set: filterState.usbc,        parse: v => v, exclusive: true },
     hdmiOptions: { set: filterState.hdmiOptions, parse: v => parseInt(v, 10) },
     aanbieder:   { set: filterState.aanbieder,   parse: v => v }
   };
 
   if (!setMap[name]) return;
 
-  const { set, parse } = setMap[name];
+  const { set, parse, exclusive } = setMap[name];
 
   if (value === "all") {
     set.clear();
   } else {
     const parsed = parse(value);
     if (input.checked) {
+      // "Ja"/"Nee"-achtige filters zijn elkaars tegenpolen: aanvinken van
+      // de één moet de ander automatisch uitvinken (anders slaat "Ja" én
+      // "Nee" tegelijk aanvinken nergens op naast de "Alle"-optie).
+      if (exclusive) set.clear();
       set.add(parsed);
     } else {
       set.delete(parsed);
@@ -479,6 +507,7 @@ export async function initFilters() {
       filterState.aspectRatios.clear();
       filterState.curved.clear();
       filterState.speakers.clear();
+      filterState.usbc.clear();
       filterState.hdmiOptions.clear();
       filterState.aanbieder.clear();
       renderAllFilters(allMonitors);

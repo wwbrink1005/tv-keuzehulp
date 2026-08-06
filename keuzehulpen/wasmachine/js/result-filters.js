@@ -12,6 +12,9 @@ const filterState = {
   energieLabels:  new Set(),
   centrifugeRpms: new Set(),
   kleuren:        new Set(),
+  kinderslot:     new Set(),
+  aquastop:       new Set(),
+  uitgesteldeStart: new Set(),
   aanbieder:      new Set(),
   baseMatches:    [],
   answers:        null,
@@ -106,6 +109,27 @@ function collectKleurOptions(matches) {
   return inOrder;
 }
 
+function collectKinderslotOptions(matches) {
+  const set = new Set();
+  matches.forEach(w => { if (w.kinderslot) set.add(w.kinderslot); });
+  const order = ["Ja", "Nee"];
+  return order.filter(t => set.has(t));
+}
+
+function collectAquastopOptions(matches) {
+  const set = new Set();
+  matches.forEach(w => { if (w.aquastop) set.add(w.aquastop); });
+  const order = ["Ja", "Nee"];
+  return order.filter(t => set.has(t));
+}
+
+function collectUitgesteldeStartOptions(matches) {
+  const set = new Set();
+  matches.forEach(w => { if (w.uitgesteldeStart) set.add(w.uitgesteldeStart); });
+  const order = ["Ja", "Nee"];
+  return order.filter(t => set.has(t));
+}
+
 function collectAanbiederOptions(matches) {
   const set = new Set();
   matches.forEach(w => {
@@ -181,6 +205,18 @@ function applyFilters() {
     filtered = filtered.filter(w => filterState.kleuren.has(normalizeKleur(w.kleur)));
   }
 
+  if (filterState.kinderslot.size > 0) {
+    filtered = filtered.filter(w => filterState.kinderslot.has(w.kinderslot));
+  }
+
+  if (filterState.aquastop.size > 0) {
+    filtered = filtered.filter(w => filterState.aquastop.has(w.aquastop));
+  }
+
+  if (filterState.uitgesteldeStart.size > 0) {
+    filtered = filtered.filter(w => filterState.uitgesteldeStart.has(w.uitgesteldeStart));
+  }
+
   if (filterState.aanbieder.size > 0) {
     filtered = filtered.filter(w => {
       const a = w.aanbieder;
@@ -207,6 +243,8 @@ function updateClearFiltersBtn() {
   const hasActive = filterState.priceLabels.size > 0 || filterState.capaciteiten.size > 0 || filterState.brands.size > 0 ||
     filterState.typeLaders.size > 0 || filterState.energieLabels.size > 0 ||
     filterState.centrifugeRpms.size > 0 || filterState.kleuren.size > 0 ||
+    filterState.kinderslot.size > 0 || filterState.aquastop.size > 0 ||
+    filterState.uitgesteldeStart.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
@@ -221,6 +259,9 @@ function renderAllFilters() {
   const energieContainer    = qs("[data-filter-container='energie-label']");
   const rpmContainer        = qs("[data-filter-container='centrifuge-rpm']");
   const kleurContainer      = qs("[data-filter-container='kleur']");
+  const kinderslotContainer = qs("[data-filter-container='kinderslot']");
+  const aquastopContainer   = qs("[data-filter-container='aquastop']");
+  const uitgesteldeStartContainer = qs("[data-filter-container='uitgestelde-start']");
   const aanbiederContainer  = qs("[data-filter-container='aanbieder']");
 
   const priceCard      = qs(".filter-card[data-filter='price']");
@@ -230,6 +271,9 @@ function renderAllFilters() {
   const energieCard     = qs(".filter-card[data-filter='energie-label']");
   const rpmCard         = qs(".filter-card[data-filter='centrifuge-rpm']");
   const kleurCard       = qs(".filter-card[data-filter='kleur']");
+  const kinderslotCard  = qs(".filter-card[data-filter='kinderslot']");
+  const aquastopCard    = qs(".filter-card[data-filter='aquastop']");
+  const uitgesteldeStartCard = qs(".filter-card[data-filter='uitgestelde-start']");
   const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
@@ -332,6 +376,33 @@ function renderAllFilters() {
     });
   }
 
+  if (kinderslotContainer && kinderslotCard) {
+    const opts = collectKinderslotOptions(matches);
+    renderFilterOptions(kinderslotContainer, kinderslotCard, opts, "kinderslot", null);
+    kinderslotContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      if (input.value === "all") input.checked = filterState.kinderslot.size === 0;
+      else input.checked = filterState.kinderslot.has(input.value);
+    });
+  }
+
+  if (aquastopContainer && aquastopCard) {
+    const opts = collectAquastopOptions(matches);
+    renderFilterOptions(aquastopContainer, aquastopCard, opts, "aquastop", null);
+    aquastopContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      if (input.value === "all") input.checked = filterState.aquastop.size === 0;
+      else input.checked = filterState.aquastop.has(input.value);
+    });
+  }
+
+  if (uitgesteldeStartContainer && uitgesteldeStartCard) {
+    const opts = collectUitgesteldeStartOptions(matches);
+    renderFilterOptions(uitgesteldeStartContainer, uitgesteldeStartCard, opts, "uitgesteldeStart", null);
+    uitgesteldeStartContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      if (input.value === "all") input.checked = filterState.uitgesteldeStart.size === 0;
+      else input.checked = filterState.uitgesteldeStart.has(input.value);
+    });
+  }
+
   if (aanbiederContainer && aanbiederCard) {
     const aanbieders = collectAanbiederOptions(matches);
     renderFilterOptions(aanbiederContainer, aanbiederCard, aanbieders, "aanbieder", null);
@@ -359,18 +430,25 @@ function handleFilterChange(event) {
     energieLabels:  { set: filterState.energieLabels,  parse: v => v },
     centrifugeRpms: { set: filterState.centrifugeRpms, parse: v => parseInt(v, 10) },
     kleuren:        { set: filterState.kleuren,        parse: v => v },
+    kinderslot:     { set: filterState.kinderslot,     parse: v => v, exclusive: true },
+    aquastop:       { set: filterState.aquastop,       parse: v => v, exclusive: true },
+    uitgesteldeStart: { set: filterState.uitgesteldeStart, parse: v => v, exclusive: true },
     aanbieder:      { set: filterState.aanbieder,      parse: v => v }
   };
 
   if (!setMap[name]) return;
 
-  const { set, parse } = setMap[name];
+  const { set, parse, exclusive } = setMap[name];
 
   if (value === "all") {
     set.clear();
   } else {
     const parsed = parse(value);
     if (input.checked) {
+      // "Ja"/"Nee"-achtige filters zijn elkaars tegenpolen: aanvinken van
+      // de één moet de ander automatisch uitvinken (anders slaat "Ja" én
+      // "Nee" tegelijk aanvinken nergens op naast de "Alle"-optie).
+      if (exclusive) set.clear();
       set.add(parsed);
     } else {
       set.delete(parsed);
@@ -446,6 +524,9 @@ export async function initFilters() {
       filterState.energieLabels.clear();
       filterState.centrifugeRpms.clear();
       filterState.kleuren.clear();
+      filterState.kinderslot.clear();
+      filterState.aquastop.clear();
+      filterState.uitgesteldeStart.clear();
       filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();

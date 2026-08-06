@@ -66,11 +66,6 @@ export function applyExtraFilter(desktops, extraAnswers) {
     if (wk.length > 0) filtered = wk;
   }
 
-  if (extraAnswers.includes("veel-aansluitingen")) {
-    const multi = filtered.filter(d => d.hdmiPoorten >= 2 || d.displayport >= 2 || d.usbC >= 2);
-    if (multi.length > 0) filtered = multi;
-  }
-
   return filtered;
 }
 
@@ -205,10 +200,6 @@ export function buildResultPoints(desktop, answers) {
   }
   if (extraAnswers.includes("waterkoeling") && desktop.waterkoeling === "Ja") {
     addPoint("Waterkoeling voor optimale temperaturen onder belasting");
-  }
-  if (extraAnswers.includes("veel-aansluitingen") &&
-      (desktop.hdmiPoorten >= 2 || desktop.displayport >= 2)) {
-    addPoint("Meerdere video-uitgangen voor extra schermen");
   }
 
   // Opslag

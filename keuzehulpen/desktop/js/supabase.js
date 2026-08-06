@@ -42,6 +42,7 @@ function adaptRow(row) {
     gpuApart:            row.gpu_apart       ?? "Nee",
     gpuTier:             getGpuTier(row.gpu_model, row.gpu_apart),
     wifi:                row.wifi            ?? "Nee",
+    kleur:               row.kleur           ?? "",
     rgb:                 row.rgb             ?? "Nee",
     waterkoeling:        row.waterkoeling    ?? "Nee",
     hdmiPoorten:         parseFirstInt(row.hdmi_poorten),

@@ -143,11 +143,15 @@ function showQuestion(num) {
     return;
   }
 
-  // PC type display: hide on Q1, show/update from Q2 onwards
-  if (num === 1) {
-    hidePcTypeDisplay();
-  } else {
-    updatePcTypeDisplay();
+  // PC type display: Q1 (behuizing) is where the type gets picked, so keep
+  // it live-updated from Q1 onwards. updatePcTypeDisplay() itself hides the
+  // visual when nothing is checked yet.
+  updatePcTypeDisplay();
+
+  if (num === 5) updateExtraOptionsVisibility();
+  if (num === 4) {
+    updateQuestion4AsLastStep();
+    updateOpslagOptionsForBehuizing();
   }
 
   const currentQuestion = qs(`#question-${num}`);
@@ -174,6 +178,10 @@ function updateProgressBar(questionNum) {
   if (!progressBar) return;
   if (questionNum === "result") {
     progressBar.style.width = "100%";
+  } else if (questionNum === 4 && quizState.selectedBehuizingType !== "tower") {
+    // Bij mini-pc/all-in-one is Q5 overgeslagen (zie updateExtraOptionsVisibility/
+    // handleStartMatching), dus Q4 is dan de laatste stap.
+    progressBar.style.width = "100%";
   } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 5) {
     progressBar.style.width = `${(questionNum / 5) * 100}%`;
   }
@@ -199,6 +207,52 @@ function positionElements(questionNum) {
     const buttonsTop = answersTop + answers.offsetHeight + (22 * scale);
     buttons.style.top = `${buttonsTop}px`;
   }
+}
+
+// RGB-verlichting en waterkoeling zijn fysiek gebonden aan een tower-
+// behuizing (mini-pc/all-in-one hebben dit nooit) — verberg die opties dus
+// zodra een andere behuizing is gekozen, i.p.v. een checkbox te tonen die
+// toch nooit een match beïnvloedt.
+function updateExtraOptionsVisibility() {
+  const isTower = quizState.selectedBehuizingType === "tower";
+  qsa('[data-tower-only]').forEach(label => {
+    label.style.display = isTower ? "" : "none";
+    if (!isTower) {
+      const input = label.querySelector("input");
+      if (input) input.checked = false;
+    }
+  });
+}
+
+// Bij mini-pc/all-in-one slaat de "Volgende"-knop op Q4 direct door naar het
+// resultaat (zie handleStartMatching in de #to-question-5 listener), dus
+// laat de knop dat ook zeggen i.p.v. "Volgende" te tonen voor een vraag die
+// niet meer komt.
+function updateQuestion4AsLastStep() {
+  const btn = qs("#to-question-5");
+  if (!btn) return;
+  btn.textContent = quizState.selectedBehuizingType === "tower" ? "Volgende" : "Resultaat";
+}
+
+// Mini-pc's in de catalogus gaan nooit boven 1 TB (geen enkele met 2 TB+),
+// en 512 GB is voor dat formaat juist de standaard, niet "weinig". Zonder
+// aanpassing geeft de generieke opslagvraag dus een vertekend beeld. Pas de
+// labels aan en verberg de nooit-van-toepassing-zijnde "Veel"-optie.
+function updateOpslagOptionsForBehuizing() {
+  const isMiniPc = quizState.selectedBehuizingType === "mini-pc";
+
+  const weinigLabel    = qs("#opslag-weinig-label");
+  const gemiddeldLabel = qs("#opslag-gemiddeld-label");
+  if (weinigLabel)    weinigLabel.textContent    = isMiniPc ? "Standaard, 512 GB" : "Weinig, 512 GB";
+  if (gemiddeldLabel) gemiddeldLabel.textContent = isMiniPc ? "Ruimer, 1 TB"      : "Gemiddeld, 1 TB";
+
+  qsa('[data-tower-and-aio-only]').forEach(label => {
+    label.style.display = isMiniPc ? "none" : "";
+    if (isMiniPc) {
+      const input = label.querySelector("input");
+      if (input) input.checked = false;
+    }
+  });
 }
 
 function resetQuestionsFrom(questionNumber) {
@@ -304,8 +358,9 @@ export function initQuizPage() {
 
   // Q1 → Q2
   qs("#to-question-2")?.addEventListener("click", () => {
-    const checked = qsa('input[name="gebruik"]:checked');
-    if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
+    const checked = qs('input[name="behuizing"]:checked');
+    if (!checked) return alert("Kies een behuizing");
+    quizState.selectedBehuizingType = checked.value;
     showQuestion(2);
   });
 
@@ -317,9 +372,8 @@ export function initQuizPage() {
 
   // Q2 → Q3 (intensiteit)
   qs("#to-question-3")?.addEventListener("click", () => {
-    const checked = qs('input[name="behuizing"]:checked');
-    if (!checked) return alert("Kies een behuizing");
-    quizState.selectedBehuizingType = checked.value;
+    const checked = qsa('input[name="gebruik"]:checked');
+    if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
     showQuestion(3);
   });
 
@@ -342,10 +396,20 @@ export function initQuizPage() {
     showQuestion(3);
   });
 
-  // Q4 → Q5 (extra's)
+  // Q4 → Q5 (extra's) — bij mini-pc/all-in-one blijft er in Q5 alleen "Geen
+  // extra wensen" over (RGB/waterkoeling zijn tower-only), dus die vraag
+  // heeft dan geen functie meer: sla 'm over en ga direct naar het resultaat.
   qs("#to-question-5")?.addEventListener("click", () => {
     const checked = qs('input[name="opslag"]:checked');
     if (!checked) return alert("Kies een antwoord");
+
+    if (quizState.selectedBehuizingType !== "tower") {
+      const geenCheckbox = qs('input[name="extra"][value="geen"]');
+      if (geenCheckbox) geenCheckbox.checked = true;
+      handleStartMatching();
+      return;
+    }
+
     showQuestion(5);
   });
 

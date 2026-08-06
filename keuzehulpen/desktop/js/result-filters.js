@@ -13,6 +13,9 @@ const filterState = {
   opslagOptions: new Set(),
   osOptions:     new Set(),
   processorFabrikanten: new Set(),
+  rgb:           new Set(),
+  waterkoeling:  new Set(),
+  kleuren:       new Set(),
   aanbieder:     new Set(),
   baseMatches:   [],
   answers:       null,
@@ -102,6 +105,26 @@ function collectProcessorFabrikantOptions(matches) {
   const inOrder = order.filter(t => set.has(t));
   set.forEach(t => { if (!order.includes(t)) inOrder.push(t); });
   return inOrder;
+}
+
+function collectRgbOptions(matches) {
+  const set = new Set();
+  matches.forEach(d => { if (d.rgb) set.add(d.rgb); });
+  const order = ["Ja", "Nee"];
+  return order.filter(t => set.has(t));
+}
+
+function collectWaterkoelingOptions(matches) {
+  const set = new Set();
+  matches.forEach(d => { if (d.waterkoeling) set.add(d.waterkoeling); });
+  const order = ["Ja", "Nee"];
+  return order.filter(t => set.has(t));
+}
+
+function collectKleurOptions(matches) {
+  const set = new Set();
+  matches.forEach(d => { if (d.kleur) set.add(d.kleur); });
+  return Array.from(set).sort((a, b) => a.localeCompare(b, "nl"));
 }
 
 function collectAanbiederOptions(matches) {
@@ -268,6 +291,33 @@ function renderProcessorFabrikantOptions(container, card, matches) {
   });
 }
 
+function renderRgbOptions(container, card, matches) {
+  const options = collectRgbOptions(matches);
+  renderFilterOptions(container, card, options, "rgb", null);
+  container.querySelectorAll("input[type=checkbox]").forEach(input => {
+    if (input.value === "all") input.checked = filterState.rgb.size === 0;
+    else input.checked = filterState.rgb.has(input.value);
+  });
+}
+
+function renderWaterkoelingOptions(container, card, matches) {
+  const options = collectWaterkoelingOptions(matches);
+  renderFilterOptions(container, card, options, "waterkoeling", null);
+  container.querySelectorAll("input[type=checkbox]").forEach(input => {
+    if (input.value === "all") input.checked = filterState.waterkoeling.size === 0;
+    else input.checked = filterState.waterkoeling.has(input.value);
+  });
+}
+
+function renderKleurOptions(container, card, matches) {
+  const options = collectKleurOptions(matches);
+  renderFilterOptions(container, card, options, "kleuren", null);
+  container.querySelectorAll("input[type=checkbox]").forEach(input => {
+    if (input.value === "all") input.checked = filterState.kleuren.size === 0;
+    else input.checked = filterState.kleuren.has(input.value);
+  });
+}
+
 function renderAanbiederOptions(container, card, matches) {
   const aanbieders = collectAanbiederOptions(matches);
   renderFilterOptions(container, card, aanbieders, "aanbieder", null);
@@ -289,6 +339,9 @@ function updateClearFiltersBtn() {
     filterState.opslagOptions.size > 0   ||
     filterState.osOptions.size > 0       ||
     filterState.processorFabrikanten.size > 0 ||
+    filterState.rgb.size > 0 ||
+    filterState.waterkoeling.size > 0 ||
+    filterState.kleuren.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
@@ -324,6 +377,18 @@ function applyFilters() {
     filtered = filtered.filter(d => filterState.processorFabrikanten.has(d.processorFabrikant));
   }
 
+  if (filterState.rgb.size > 0) {
+    filtered = filtered.filter(d => filterState.rgb.has(d.rgb));
+  }
+
+  if (filterState.waterkoeling.size > 0) {
+    filtered = filtered.filter(d => filterState.waterkoeling.has(d.waterkoeling));
+  }
+
+  if (filterState.kleuren.size > 0) {
+    filtered = filtered.filter(d => filterState.kleuren.has(d.kleur));
+  }
+
   if (filterState.aanbieder.size > 0) {
     filtered = filtered.filter(d => {
       const a = d.aanbieder;
@@ -344,7 +409,7 @@ function applyFilters() {
   updateResultMatches(filtered, filterState.answers, filterState.bestType);
 }
 
-function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, aanbiederContainer) {
+function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, rgbContainer, waterkoelingContainer, kleurContainer, aanbiederContainer) {
   function renderAllSecondary() {
     const matches = getPriceScopedMatches();
     renderBehuizingOptions(behuizingContainer, qs(".filter-card[data-filter='behuizing']"), matches);
@@ -354,6 +419,9 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
     renderOpslagOptions(opslagContainer, qs(".filter-card[data-filter='opslag']"), matches);
     renderOsOptions(osContainer, qs(".filter-card[data-filter='os']"), matches);
     renderProcessorFabrikantOptions(processorFabrikantContainer, qs(".filter-card[data-filter='processor-fabrikant']"), matches);
+    renderRgbOptions(rgbContainer, qs(".filter-card[data-filter='rgb']"), matches);
+    renderWaterkoelingOptions(waterkoelingContainer, qs(".filter-card[data-filter='waterkoeling']"), matches);
+    renderKleurOptions(kleurContainer, qs(".filter-card[data-filter='kleur']"), matches);
     renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), matches);
   }
 
@@ -386,7 +454,7 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
     applyFilters();
   });
 
-  function handleCheckboxSet(container, stateSet, card, renderFn, valueFn = v => v) {
+  function handleCheckboxSet(container, stateSet, card, renderFn, valueFn = v => v, exclusive = false) {
     container.addEventListener("change", event => {
       const input = event.target.closest("input[type=checkbox]");
       if (!input) return;
@@ -395,8 +463,14 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
         else if (stateSet.size === 0) { input.checked = true; }
       } else {
         const val = valueFn(input.value);
-        if (input.checked) stateSet.add(val);
-        else stateSet.delete(val);
+        if (input.checked) {
+          // "Ja"/"Nee"-achtige filters zijn elkaars tegenpolen: aanvinken
+          // van de één moet de ander automatisch uitvinken.
+          if (exclusive) stateSet.clear();
+          stateSet.add(val);
+        } else {
+          stateSet.delete(val);
+        }
         if (stateSet.size === 0) renderFn(container, card, getPriceScopedMatches());
         else {
           const allInput = container.querySelector('input[value="all"]');
@@ -414,6 +488,9 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
   const opslagCard    = qs(".filter-card[data-filter='opslag']");
   const osCard        = qs(".filter-card[data-filter='os']");
   const processorFabrikantCard = qs(".filter-card[data-filter='processor-fabrikant']");
+  const rgbCard = qs(".filter-card[data-filter='rgb']");
+  const waterkoelingCard = qs(".filter-card[data-filter='waterkoeling']");
+  const kleurCard = qs(".filter-card[data-filter='kleur']");
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
   handleCheckboxSet(behuizingContainer, filterState.behuizingTypes, behuizingCard, renderBehuizingOptions);
@@ -423,6 +500,9 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
   handleCheckboxSet(opslagContainer,    filterState.opslagOptions,  opslagCard,    renderOpslagOptions, v => parseInt(v, 10));
   handleCheckboxSet(osContainer,        filterState.osOptions,      osCard,        renderOsOptions);
   handleCheckboxSet(processorFabrikantContainer, filterState.processorFabrikanten, processorFabrikantCard, renderProcessorFabrikantOptions);
+  handleCheckboxSet(rgbContainer,       filterState.rgb,            rgbCard,       renderRgbOptions,       v => v, true);
+  handleCheckboxSet(waterkoelingContainer, filterState.waterkoeling, waterkoelingCard, renderWaterkoelingOptions, v => v, true);
+  handleCheckboxSet(kleurContainer,     filterState.kleuren,        kleurCard,     renderKleurOptions);
   handleCheckboxSet(aanbiederContainer, filterState.aanbieder,      aanbiederCard, renderAanbiederOptions);
 
   const clearBtn = qs("#clearFiltersBtn");
@@ -436,6 +516,9 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
       filterState.opslagOptions.clear();
       filterState.osOptions.clear();
       filterState.processorFabrikanten.clear();
+      filterState.rgb.clear();
+      filterState.waterkoeling.clear();
+      filterState.kleuren.clear();
       filterState.aanbieder.clear();
       renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.behuizingType);
       renderAllSecondary();
@@ -453,6 +536,9 @@ function initResultFilters() {
   const opslagContainer   = qs("#opslagFilterOptions");
   const osContainer       = qs("#osFilterOptions");
   const processorFabrikantContainer = qs("#processorFabrikantFilterOptions");
+  const rgbContainer = qs("#rgbFilterOptions");
+  const waterkoelingContainer = qs("#waterkoelingFilterOptions");
+  const kleurContainer = qs("#kleurFilterOptions");
   const aanbiederContainer = qs("#aanbiederFilterOptions");
 
   const priceCard     = qs(".filter-card[data-filter='price']");
@@ -463,13 +549,18 @@ function initResultFilters() {
   const opslagCard    = qs(".filter-card[data-filter='opslag']");
   const osCard        = qs(".filter-card[data-filter='os']");
   const processorFabrikantCard = qs(".filter-card[data-filter='processor-fabrikant']");
+  const rgbCard = qs(".filter-card[data-filter='rgb']");
+  const waterkoelingCard = qs(".filter-card[data-filter='waterkoeling']");
+  const kleurCard = qs(".filter-card[data-filter='kleur']");
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
   if (!priceContainer || !behuizingContainer || !brandContainer || !gpuTierContainer ||
       !ramContainer || !opslagContainer || !osContainer || !processorFabrikantContainer ||
+      !rgbContainer || !waterkoelingContainer || !kleurContainer ||
       !aanbiederContainer) return;
   if (!priceCard || !behuizingCard || !brandCard || !gpuTierCard ||
-      !ramCard || !opslagCard || !osCard || !processorFabrikantCard || !aanbiederCard) return;
+      !ramCard || !opslagCard || !osCard || !processorFabrikantCard ||
+      !rgbCard || !waterkoelingCard || !kleurCard || !aanbiederCard) return;
 
   const stored      = getStoredSelection();
   const answersData = localStorage.getItem("desktop_answers");
@@ -521,12 +612,15 @@ function initResultFilters() {
       renderOpslagOptions(opslagContainer, opslagCard, matches);
       renderOsOptions(osContainer, osCard, matches);
       renderProcessorFabrikantOptions(processorFabrikantContainer, processorFabrikantCard, matches);
+      renderRgbOptions(rgbContainer, rgbCard, matches);
+      renderWaterkoelingOptions(waterkoelingContainer, waterkoelingCard, matches);
+      renderKleurOptions(kleurContainer, kleurCard, matches);
       renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
-      initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, aanbiederContainer);
+      initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, rgbContainer, waterkoelingContainer, kleurContainer, aanbiederContainer);
       applyFilters();
     })
     .catch(() => {
-      [priceCard, behuizingCard, brandCard, gpuTierCard, ramCard, opslagCard, osCard, processorFabrikantCard, aanbiederCard]
+      [priceCard, behuizingCard, brandCard, gpuTierCard, ramCard, opslagCard, osCard, processorFabrikantCard, rgbCard, waterkoelingCard, kleurCard, aanbiederCard]
         .forEach(card => { card.hidden = true; });
     });
 }

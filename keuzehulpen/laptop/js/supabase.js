@@ -115,6 +115,7 @@ function adaptRow(row) {
     gpu:                 row.gpu ?? "",
     gewicht:             parseGewicht(row.gewicht),
     os:                  parseOs(row.os),
+    kleur:               row.kleur ?? "",
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          [adaptAanbieders(row)],

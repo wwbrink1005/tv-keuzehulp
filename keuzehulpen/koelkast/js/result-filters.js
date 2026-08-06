@@ -303,24 +303,28 @@ function handleFilterChange(event) {
 
   const setMap = {
     priceLabels:   { set: filterState.priceLabels,   parse: v => v },
-    plaatsingen:   { set: filterState.plaatsingen,   parse: v => v },
+    plaatsingen:   { set: filterState.plaatsingen,   parse: v => v, exclusive: true },
     brands:        { set: filterState.brands,        parse: v => v },
     capaciteiten:  { set: filterState.capaciteiten,  parse: v => v },
     energielabels: { set: filterState.energielabels, parse: v => v },
-    nofrost:       { set: filterState.nofrost,       parse: v => v },
-    geluid:        { set: filterState.geluid,        parse: v => v },
-    vriesvak:      { set: filterState.vriesvak,       parse: v => v }
+    nofrost:       { set: filterState.nofrost,       parse: v => v, exclusive: true },
+    geluid:        { set: filterState.geluid,        parse: v => v, exclusive: true },
+    vriesvak:      { set: filterState.vriesvak,       parse: v => v, exclusive: true }
   };
 
   if (!setMap[name]) return;
 
-  const { set, parse } = setMap[name];
+  const { set, parse, exclusive } = setMap[name];
 
   if (value === "all") {
     set.clear();
   } else {
     const parsed = parse(value);
     if (input.checked) {
+      // "Ja"/"Nee"-achtige filters zijn elkaars tegenpolen: aanvinken van
+      // de één moet de ander automatisch uitvinken (anders slaat "Ja" én
+      // "Nee" tegelijk aanvinken nergens op naast de "Alle"-optie).
+      if (exclusive) set.clear();
       set.add(parsed);
     } else {
       set.delete(parsed);

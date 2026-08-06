@@ -108,6 +108,7 @@ function adaptRow(row) {
     scherpte:            mapScherpte(row.scherm_type),
     hz:                  parseRefreshRate(row.refresh_rate),
     hdmiPoorten:         parseHdmiPoorten(row.hdmi_poorten),
+    kleur:               row.kleur ?? "",
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          [adaptAanbieders(row)],

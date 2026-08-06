@@ -87,6 +87,7 @@ export function normalizeProducts(rawProducts) {
       behuizing:    product.behuizing  ?? null,
       behuizingCategory: classifyBehuizing(product.type_product, product.behuizing),
       wifi:         product.wifi       ?? "Nee",
+      kleur:        product.kleur      ?? "",
       rgb:          product.rgb        ?? "Nee",
       waterkoeling: product.waterkoeling ?? "Nee",
       hdmiPoorten:  product.hdmiPoorten ?? 0,
