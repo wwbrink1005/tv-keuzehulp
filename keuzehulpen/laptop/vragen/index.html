@@ -96,6 +96,45 @@
     bottom: 0;
     justify-content: flex-start;
   }
+
+  /* Q1 en Q5 hebben 5 opties waarvan er 1 naar 2 regels wrapt, waardoor het
+     lijstje voller oogt dan de andere vragen — zelfde begrensde-scrollbox-
+     patroon als de koelkast-nis. */
+  #question-1 .answers-container,
+  #question-5 .answers-container {
+    max-height: calc(372px * var(--scale));
+    overflow-y: auto;
+    padding-top: calc(6px * var(--scale));
+    padding-right: calc(8px * var(--scale));
+    margin-top: calc(-6px * var(--scale));
+    scrollbar-width: thin;
+    scrollbar-color: rgba(9,84,163,.35) transparent;
+  }
+
+  /* De padding-right hierboven (ruimte voor de scrollbar) duwt de vakken
+     anders net buiten .background-container, die overflow:hidden heeft —
+     dat sneed de rechterrand van de vakken zichtbaar af. Compenseer door
+     de vakken exact zoveel smaller te maken. */
+  #question-1 .answer-option,
+  #question-5 .answer-option {
+    width: calc(358.968px * var(--scale));
+  }
+
+  #question-1 .answers-container::-webkit-scrollbar,
+  #question-5 .answers-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #question-1 .answers-container::-webkit-scrollbar-thumb,
+  #question-5 .answers-container::-webkit-scrollbar-thumb {
+    background: rgba(9,84,163,.35);
+    border-radius: 100px;
+  }
+
+  #question-1 .answers-container::-webkit-scrollbar-track,
+  #question-5 .answers-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 
@@ -601,17 +640,17 @@ button.question-hint-btn-mobile { display: grid; }
           <!-- VRAAG 1: Gebruik (multi-select, max 2) -->
           <div id="question-1" class="question-block">
             <div class="question-container">
-              <div class="question-heading-wrap"><h2>Waar ga je je laptop vooral voor gebruiken?</h2></div>
+              <div class="question-heading-wrap"><h2>Waar ga je je laptop voor gebruiken?</h2></div>
               <div class="question-popover" data-popover="1">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Het doel van je laptop bepaalt welk type processor, hoeveel werkgeheugen en welke grafische kaart je nodig hebt. Dagelijks gebruik vraagt om een snelle maar zuinige laptop. Creatief werk of gaming vragen om een krachtigere machine. Je kunt maximaal 2 doelen aanvinken.</p>
+                <p class="question-popover-text">Het doel van je laptop bepaalt welk type processor, hoeveel werkgeheugen en welke grafische kaart je nodig hebt. Dagelijks gebruik vraagt om een snelle maar zuinige laptop. Creatief werk of gaming vragen om een krachtigere machine. Je kunt maximaal 2 doelen aanvinken — gebruik je de laptop voor meer dingen, kies dan "Een beetje van alles".</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="dagelijks">
                 <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Dagelijks gebruik, zoals surfen en Netflix</span>
+                <span>Dagelijks gebruik, zoals surfen</span>
                 <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
@@ -623,7 +662,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="creatief">
                 <svg class="answer-info-icon" data-icon="palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Creatief werk, zoals foto's en video's bewerken</span>
+                <span>Creatief werk, foto's en video's</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
@@ -632,8 +671,14 @@ button.question-hint-btn-mobile { display: grid; }
                 <span>Gamen</span>
                 <span class="price-indicator">€€€</span>
               </label>
+              <label class="answer-option">
+                <input type="checkbox" name="gebruik" value="allround">
+                <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Een beetje van alles</span>
+                <span class="price-indicator">€€</span>
+              </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 43.3935px) + 8px + (2 * 43.3935px) + 8px + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 43.3935px) + 8px + (2 * 43.3935px) + 8px + 43.3935px + 8px + 22px) * var(--scale));">
               <button id="back-to-start" style="background:rgba(255,255,255,.90);border:1.5px solid rgba(9,84,163,.30);color:var(--c-accent);box-shadow:0 2px 8px rgba(0,0,0,.08);filter:none;" onclick="window.location.href='keuzehulpen/laptop/vragen'">Terug</button>
               <button id="to-question-2">Volgende</button>
             </div>
@@ -763,7 +808,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="usb-c">
                 <svg class="answer-info-icon" data-icon="plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Eén kabel voor data en opladen (USB-C)</span>
+                <span>USB-C (data en opladen)</span>
                 <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
@@ -775,7 +820,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="scherp-beeldscherm">
                 <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Extra scherp beeld (hoge resolutie)</span>
+                <span>Hoge resolutie scherm</span>
                 <span class="price-indicator">€€€</span>
               </label>
               <label class="answer-option">

@@ -230,15 +230,34 @@ function buildAnswers() {
 }
 
 function setupGebruikLimit() {
-  const checkboxes = qsa('input[name="gebruik"]');
-  checkboxes.forEach(cb => {
+  const algemeenBox  = qs('input[name="gebruik"][value="algemeen"]');
+  const otherGebruik = qsa('input[name="gebruik"]:not([value="algemeen"])');
+
+  // De max-2-limiet geldt alleen voor de specifieke doelen, niet voor
+  // "algemeen" zelf — anders wint deze generieke check het van de
+  // exclusiviteits-logica hieronder als er al 2 andere zijn aangevinkt.
+  otherGebruik.forEach(cb => {
     cb.addEventListener("change", function () {
-      const checked = qsa('input[name="gebruik"]:checked');
+      const checked = qsa('input[name="gebruik"]:not([value="algemeen"]):checked');
       if (checked.length > 2) {
         this.checked = false;
+        alert("Je kunt maximaal 2 antwoorden selecteren");
       }
     });
   });
+
+  // "Algemeen gebruik" is een gebalanceerde score op zichzelf — sluit
+  // elkaar uit met de specifieke doelen, net als "geen" bij de extra's.
+  if (algemeenBox && otherGebruik.length > 0) {
+    algemeenBox.addEventListener("change", function () {
+      if (this.checked) otherGebruik.forEach(cb => { cb.checked = false; });
+    });
+    otherGebruik.forEach(checkbox => {
+      checkbox.addEventListener("change", function () {
+        if (this.checked) algemeenBox.checked = false;
+      });
+    });
+  }
 }
 
 function setupExtraLimit() {

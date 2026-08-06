@@ -81,6 +81,40 @@
     bottom: 0;
     justify-content: flex-start;
   }
+
+  /* Q4 heeft 5 opties waarvan er meerdere naar 2 regels wrappen, waardoor
+     het lijstje voller oogt dan de andere vragen — zelfde begrensde-
+     scrollbox-patroon als de koelkast-nis. */
+  #question-4 .answers-container {
+    max-height: calc(372px * var(--scale));
+    overflow-y: auto;
+    padding-top: calc(6px * var(--scale));
+    padding-right: calc(8px * var(--scale));
+    margin-top: calc(-6px * var(--scale));
+    scrollbar-width: thin;
+    scrollbar-color: rgba(9,84,163,.35) transparent;
+  }
+
+  /* De padding-right hierboven (ruimte voor de scrollbar) duwt de vakken
+     anders net buiten .background-container, die overflow:hidden heeft —
+     dat sneed de rechterrand van de vakken zichtbaar af. Compenseer door
+     de vakken exact zoveel smaller te maken. */
+  #question-4 .answer-option {
+    width: calc(358.968px * var(--scale));
+  }
+
+  #question-4 .answers-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #question-4 .answers-container::-webkit-scrollbar-thumb {
+    background: rgba(9,84,163,.35);
+    border-radius: 100px;
+  }
+
+  #question-4 .answers-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 .quiz-toggle-btn {
@@ -686,7 +720,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="uitgestelde-start">
                 <svg class="answer-info-icon" data-icon="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Op een later moment starten (uitgestelde start)</span>
+                <span>Uitgestelde start</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
@@ -698,7 +732,7 @@ button.question-hint-btn-mobile { display: grid; }
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="aquastop">
                 <svg class="answer-info-icon" data-icon="droplet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Bescherming tegen lekkage (AquaStop)</span>
+                <span>Lekkagebescherming (AquaStop)</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">

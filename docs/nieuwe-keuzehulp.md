@@ -95,6 +95,61 @@ project meermaals bugs heeft opgeleverd bij onderhoud):
   `IMG_FALLBACK`-placeholder (inline SVG data-URI) met `onerror`-handler op alle
   product-`<img>`-tags — Icecat-afbeeldingen 404'en soms.
 - `js/result-filters.js` — secundaire filters, zie stap 6.
+- **Lange antwoordenlijsten (6+ opties) ogen te vol/dicht op elkaar op desktop.**
+  Referentie voor "nog net goed": 5 korte, niet-wrappende opties (bijv.
+  desktop-keuzehulp Q1). **Eerste stap is altijd verkorten, niet scrollen:** kort het
+  vraagtitel/antwoordlabel in tot het op 1 regel past (5 opties × 58px item-hoogte +
+  4 × 15px gap = 350px — bij een label dat wrapt komt dat er snel overheen). Pas als
+  verkorten niet volstaat (6+ opties, zoals koelkast se nishoogte-vraag), begrens
+  `.answers-container` op desktop met een scrollbare box — gebruik `372px` als
+  max-height (ruim boven de 350px van 5 rechte regels, zodat een lijst die na
+  verkorten wél past geen onnodige/minimale scroll krijgt) — patroon (uit de
+  koelkast-keuzehulp, `#question-2 .answers-container`, binnen
+  `@media (min-width: 901px)`):
+  ```css
+  #question-N .answers-container {
+    max-height: calc(372px * var(--scale));
+    overflow-y: auto;
+    padding-right: calc(8px * var(--scale));
+    scrollbar-width: thin;
+    scrollbar-color: rgba(9,84,163,.35) transparent;
+  }
+  #question-N .answers-container::-webkit-scrollbar { width: 6px; }
+  #question-N .answers-container::-webkit-scrollbar-thumb { background: rgba(9,84,163,.35); border-radius: 100px; }
+  #question-N .answers-container::-webkit-scrollbar-track { background: transparent; }
+  ```
+  **Verplicht erbij:** `padding-right: 8px` (ruimte voor de scrollbar) maakt de
+  vakken 8px breder dan de `.background-container` toestaat — die heeft
+  `overflow: hidden`, dus zonder compensatie wordt de rechterrand van elk vak
+  zichtbaar afgesneden (echte bug geweest, pas ontdekt nadat scroll al op 4
+  plekken stond). Verklein `.answer-option`'s breedte in dezelfde media query met
+  exact die 8px:
+  ```css
+  #question-N .answer-option {
+    width: calc(358.968px * var(--scale)); /* 366.968px basis min 8px scrollbar-padding */
+  }
+  ```
+  **Ook verplicht:** `.answer-option:hover` (shared/quiz.css) tilt het vak `1px` op
+  met `transform: translateY(-1px)` plus een bredere box-shadow. Zonder
+  bovenmarge clipt `overflow-y: auto` dat effect weg bij het BOVENSTE item in de
+  lijst (zichtbaar als een afgesneden rand bij hover — echte bug geweest, pas
+  gevonden nadat de breedte-fix hierboven al live stond). Geef de container
+  een kleine `padding-top` en compenseer die met een even grote negatieve
+  `margin-top` (zodat de doosje niet lager komt te staan t.o.v. de vraagtitel):
+  ```css
+  #question-N .answers-container {
+    padding-top: calc(6px * var(--scale));
+    margin-top: calc(-6px * var(--scale));
+  }
+  ```
+  (Koelkast Q2 gebruikt bewust nog `330px` max-height omdat die vraag altijd 6
+  opties heeft en het scroll-hintje daar gewenst is — niet aanpassen.)
+  Geen JS-aanpassing nodig: `positionElements()` in `quiz.js` leest de werkelijke
+  `offsetHeight` van `.answers-container` om de knoppen te positioneren, dus die volgen
+  automatisch de begrensde hoogte. Let op: dit patroon gaat ervan uit dat de vraag de
+  standaard verticale 1-koloms `.answers-container`-layout gebruikt — sommige vragen
+  (bijv. tv's Q1/Q2 met een vaste 2-koloms grid) hebben een eigen, compactere layout en
+  hebben dit niet nodig, ook niet bij 6+ opties.
 
 ## 5. Matching-logica: verplichte eindfallback
 

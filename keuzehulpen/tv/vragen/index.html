@@ -955,10 +955,10 @@ button.question-hint-btn-mobile { display: grid; }
        <!-- VRAAG 3 -->
        <div id="question-3" class="question-block" style="display:none;">
          <div class="question-container">
-           <div class="question-heading-wrap"><h2>Waar ga je de tv voornamelijk voor gebruiken?</h2></div>
+           <div class="question-heading-wrap"><h2>Waar ga je de tv voor gebruiken?</h2></div>
            <div class="question-popover" data-popover="3">
              <h3 class="question-popover-title">Waarom deze vraag?</h3>
-             <p class="question-popover-text">Het gebruik heeft grote invloed op welk type tv het beste bij je past. Voor films en series is een hoge contrastratio cruciaal zodat donkere scènes er diep en gedetailleerd uitzien. Sportkijkers profiteren van een hoge beeldverversing (120 Hz of hoger) om bewegingsonscherpte te vermijden. Gamers hebben baat bij lage invoervertraging (input lag) en ondersteuning voor VRR of G-Sync. Je kunt meerdere opties aanvinken als je de tv voor een combinatie van doeleinden gebruikt.</p>
+             <p class="question-popover-text">Het gebruik heeft grote invloed op welk type tv het beste bij je past. Voor films en series is een hoge contrastratio cruciaal zodat donkere scènes er diep en gedetailleerd uitzien. Sportkijkers profiteren van een hoge beeldverversing (120 Hz of hoger) om bewegingsonscherpte te vermijden. Gamers hebben baat bij lage invoervertraging (input lag) en ondersteuning voor VRR of G-Sync. Je kunt maximaal 2 doelen aanvinken — gebruik je de tv voor meer dingen, kies dan "Een beetje van alles".</p>
            </div>
          </div>
          <div class="answers-container">
@@ -986,8 +986,14 @@ button.question-hint-btn-mobile { display: grid; }
              <span>Normale televisie kijken</span>
              <span class="price-indicator">€</span>
            </label>
+           <label class="answer-option">
+             <input type="checkbox" name="usage" value="allround">
+             <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+             <span>Een beetje van alles</span>
+             <span class="price-indicator">€€</span>
+           </label>
          </div>
-         <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
+         <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 51.3935px) + (4 * 8px) + 22px) * var(--scale));">
            <button id="back-to-question-2">Terug</button>
            <button id="to-question-4">Volgende</button>
          </div>

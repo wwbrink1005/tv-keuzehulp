@@ -88,9 +88,19 @@
   #question-2 .answers-container {
     max-height: calc(330px * var(--scale));
     overflow-y: auto;
+    padding-top: calc(6px * var(--scale));
     padding-right: calc(8px * var(--scale));
+    margin-top: calc(-6px * var(--scale));
     scrollbar-width: thin;
     scrollbar-color: rgba(9,84,163,.35) transparent;
+  }
+
+  /* De padding-right hierboven (ruimte voor de scrollbar) duwt de vakken
+     anders net buiten .background-container, die overflow:hidden heeft —
+     dat sneed de rechterrand van de vakken zichtbaar af. Compenseer door
+     de vakken exact zoveel smaller te maken. */
+  #question-2 .answer-option {
+    width: calc(358.968px * var(--scale));
   }
 
   #question-2 .answers-container::-webkit-scrollbar {

@@ -81,7 +81,11 @@ export const scoringSystem = {
     dagelijks: { Budget: 10, Mid: 8,  Krachtig: 4,  Topklasse: 1  },
     werk:      { Budget: 7,  Mid: 9,  Krachtig: 7,  Topklasse: 4  },
     gaming:    { Budget: 1,  Mid: 5,  Krachtig: 9,  Topklasse: 10 },
-    creatief:  { Budget: 2,  Mid: 6,  Krachtig: 9,  Topklasse: 10 }
+    creatief:  { Budget: 2,  Mid: 6,  Krachtig: 9,  Topklasse: 10 },
+    // Voor wie te veel doelen heeft om er 2 te kiezen: 1 gebalanceerde score
+    // die middenin leunt, i.p.v. dat de gebruiker gedwongen wordt een
+    // onvolledige selectie te maken.
+    allround:  { Budget: 5,  Mid: 8,  Krachtig: 7,  Topklasse: 4  }
   },
   intensiteit: {
     licht:     { Budget: 10, Mid: 7,  Krachtig: 3,  Topklasse: 1  },

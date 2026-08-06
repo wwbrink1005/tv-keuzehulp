@@ -218,13 +218,34 @@ function buildAnswers() {
 }
 
 function setupGebruikLimit() {
-  const checkboxes = qsa('input[name="gebruik"]');
-  checkboxes.forEach(cb => {
+  const allroundBox   = qs('input[name="gebruik"][value="allround"]');
+  const otherGebruik  = qsa('input[name="gebruik"]:not([value="allround"])');
+
+  // De max-2-limiet geldt alleen voor de specifieke doelen, niet voor
+  // "allround" zelf — anders wint deze generieke check het van de
+  // exclusiviteits-logica hieronder als er al 2 andere zijn aangevinkt.
+  otherGebruik.forEach(cb => {
     cb.addEventListener("change", function () {
-      const checked = qsa('input[name="gebruik"]:checked');
-      if (checked.length > 2) this.checked = false;
+      const checked = qsa('input[name="gebruik"]:not([value="allround"]):checked');
+      if (checked.length > 2) {
+        this.checked = false;
+        alert("Je kunt maximaal 2 antwoorden selecteren");
+      }
     });
   });
+
+  // "Een beetje van alles" is een gebalanceerde score op zichzelf — sluit
+  // elkaar uit met de specifieke doelen, net als "geen" bij de extra's.
+  if (allroundBox && otherGebruik.length > 0) {
+    allroundBox.addEventListener("change", function () {
+      if (this.checked) otherGebruik.forEach(cb => { cb.checked = false; });
+    });
+    otherGebruik.forEach(checkbox => {
+      checkbox.addEventListener("change", function () {
+        if (this.checked) allroundBox.checked = false;
+      });
+    });
+  }
 }
 
 function setupExtraLimit() {

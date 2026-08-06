@@ -537,14 +537,14 @@ button.question-hint-btn-mobile { display: grid; }
               </div>
               <div class="question-popover" data-popover="1">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Het doel van je desktop bepaalt welke grafische kaart, hoeveel RAM en welk type processor je nodig hebt. Dagelijks gebruik vraagt een efficiënte machine zonder GPU. Gaming en creatief werk vereisen een krachtigere grafische kaart. Je kunt maximaal 2 doelen aanvinken.</p>
+                <p class="question-popover-text">Het doel van je desktop bepaalt welke grafische kaart, hoeveel RAM en welk type processor je nodig hebt. Dagelijks gebruik vraagt een efficiënte machine zonder GPU. Gaming en creatief werk vereisen een krachtigere grafische kaart. Je kunt maximaal 2 doelen aanvinken — gebruik je de desktop voor meer dingen, kies dan "Een beetje van alles".</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
                 <input type="checkbox" name="gebruik" value="dagelijks">
                 <svg class="answer-info-icon" data-icon="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Dagelijks gebruik</span>
+                <span>Dagelijks gebruik, zoals surfen en mailen</span>
                 <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
@@ -565,8 +565,14 @@ button.question-hint-btn-mobile { display: grid; }
                 <span>Creatief werk</span>
                 <span class="price-indicator">€€€</span>
               </label>
+              <label class="answer-option">
+                <input type="checkbox" name="gebruik" value="allround">
+                <svg class="answer-info-icon" data-icon="sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Een beetje van alles</span>
+                <span class="price-indicator">€€</span>
+              </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 58px) + (3 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 58px) + (4 * 15px) + 22px) * var(--scale));">
               <button id="back-to-start" style="background:rgba(255,255,255,.90);border:1.5px solid rgba(9,84,163,.30);color:var(--c-accent);box-shadow:0 2px 8px rgba(0,0,0,.08);filter:none;" onclick="window.location.href='keuzehulpen/desktop/vragen'">Terug</button>
               <button id="to-question-2">Volgende</button>
             </div>

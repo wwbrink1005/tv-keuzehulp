@@ -98,7 +98,11 @@ export const scoringSystem = {
     films: { "LED": 5, "Mini LED": 8, "QLED": 7, "OLED": 10 },
     sport: { "LED": 7, "Mini LED": 9, "QLED": 9, "OLED": 7 },
     gamen: { "LED": 6, "Mini LED": 9, "QLED": 8, "OLED": 9 },
-    normaal: { "LED": 8, "Mini LED": 5, "QLED": 7, "OLED": 5 }
+    normaal: { "LED": 8, "Mini LED": 5, "QLED": 7, "OLED": 5 },
+    // Voor wie te veel doelen heeft om er 2 te kiezen: 1 gebalanceerde score
+    // die middenin leunt, i.p.v. dat de gebruiker gedwongen wordt een
+    // onvolledige selectie te maken.
+    allround: { "LED": 6, "Mini LED": 8, "QLED": 8, "OLED": 8 }
   },
   quality: {
     best: { "LED": 4, "Mini LED": 8, "QLED": 7, "OLED": 10 },
