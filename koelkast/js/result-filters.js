@@ -12,6 +12,7 @@ const filterState = {
   nofrost:       new Set(),
   geluid:        new Set(),
   vriesvak:      new Set(),
+  aanbieder:     new Set(),
   baseMatches:   [],
   priceGroups:   [],
   answers:       null,
@@ -106,6 +107,14 @@ function collectVriesvakOptions(matches) {
   return order.filter(l => set.has(l));
 }
 
+function collectAanbiederOptions(matches) {
+  const set = new Set();
+  matches.forEach(k => {
+    (k.aanbieders ?? []).forEach(a => set.add(a.winkel));
+  });
+  return Array.from(set).sort();
+}
+
 function renderFilterOptions(container, card, items, filterName, labelFn) {
   container.innerHTML = "";
   if (items.length === 0) { card.hidden = true; return; }
@@ -176,6 +185,12 @@ function applyFilters() {
     filtered = filtered.filter(k => filterState.vriesvak.has(k.heeftVriesvak ? "Met vriesvak" : "Zonder vriesvak"));
   }
 
+  if (filterState.aanbieder.size > 0) {
+    filtered = filtered.filter(k =>
+      (k.aanbieders ?? []).some(a => filterState.aanbieder.has(a.winkel))
+    );
+  }
+
   updateClearFiltersBtn();
   updateResultMatches(filtered, filterState.answers, filterState.bestType);
 }
@@ -186,7 +201,7 @@ function updateClearFiltersBtn() {
   const hasActive = filterState.priceLabels.size > 0 || filterState.plaatsingen.size > 0 ||
     filterState.brands.size > 0 || filterState.capaciteiten.size > 0 ||
     filterState.energielabels.size > 0 || filterState.nofrost.size > 0 || filterState.geluid.size > 0 ||
-    filterState.vriesvak.size > 0;
+    filterState.vriesvak.size > 0 || filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
@@ -201,6 +216,7 @@ function renderAllFilters() {
   const nofrostContainer      = qs("[data-filter-container='nofrost']");
   const geluidContainer       = qs("[data-filter-container='geluid']");
   const vriesvakContainer     = qs("[data-filter-container='vriesvak']");
+  const aanbiederContainer    = qs("[data-filter-container='aanbieder']");
 
   const priceCard        = qs(".filter-card[data-filter='price']");
   const plaatsingCard    = qs(".filter-card[data-filter='plaatsing']");
@@ -210,6 +226,7 @@ function renderAllFilters() {
   const nofrostCard      = qs(".filter-card[data-filter='nofrost']");
   const geluidCard       = qs(".filter-card[data-filter='geluid']");
   const vriesvakCard     = qs(".filter-card[data-filter='vriesvak']");
+  const aanbiederCard    = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
     const base = getBaseMatches();
@@ -291,6 +308,15 @@ function renderAllFilters() {
     });
   }
 
+  if (aanbiederContainer && aanbiederCard) {
+    const opts = collectAanbiederOptions(matches);
+    renderFilterOptions(aanbiederContainer, aanbiederCard, opts, "aanbieder", null);
+    aanbiederContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      if (input.value === "all") input.checked = filterState.aanbieder.size === 0;
+      else input.checked = filterState.aanbieder.has(input.value);
+    });
+  }
+
   updateClearFiltersBtn();
 }
 
@@ -309,7 +335,8 @@ function handleFilterChange(event) {
     energielabels: { set: filterState.energielabels, parse: v => v },
     nofrost:       { set: filterState.nofrost,       parse: v => v, exclusive: true },
     geluid:        { set: filterState.geluid,        parse: v => v, exclusive: true },
-    vriesvak:      { set: filterState.vriesvak,       parse: v => v, exclusive: true }
+    vriesvak:      { set: filterState.vriesvak,       parse: v => v, exclusive: true },
+    aanbieder:     { set: filterState.aanbieder,      parse: v => v }
   };
 
   if (!setMap[name]) return;
@@ -394,6 +421,7 @@ export async function initFilters() {
       filterState.nofrost.clear();
       filterState.geluid.clear();
       filterState.vriesvak.clear();
+      filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();
     });
