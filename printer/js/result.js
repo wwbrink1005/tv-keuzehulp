@@ -12,33 +12,7 @@ function formatShipping(verzendkosten) {
 }
 
 function buildProvidersHtml(printer) {
-  const aanbieder = printer?.aanbieder;
-  if (!aanbieder) return "";
-
-  const providers = [];
-
-  const priceCb = parseFloat(String(aanbieder.prijs_cb ?? "").replace(",", "."));
-  if (aanbieder.url_cb && Number.isFinite(priceCb) && priceCb > 0) {
-    providers.push({
-      naam: "Coolblue",
-      price: priceCb,
-      url: aanbieder.url_cb,
-      levertijd: String(aanbieder.levertijd_cb ?? "").trim(),
-      verzendkosten: String(aanbieder.verzendkosten_cb ?? "").trim()
-    });
-  }
-
-  const priceExpert = parseFloat(String(aanbieder.prijs_expert ?? "").replace(",", "."));
-  if (aanbieder.url_expert && Number.isFinite(priceExpert) && priceExpert > 0) {
-    providers.push({
-      naam: "Expert",
-      price: priceExpert,
-      url: aanbieder.url_expert,
-      levertijd: String(aanbieder.levertijd_expert ?? "").trim(),
-      verzendkosten: String(aanbieder.verzendkosten_expert ?? "").trim()
-    });
-  }
-
+  const providers = printer?.aanbieders ?? [];
   if (providers.length === 0) return "";
 
   return `
@@ -46,16 +20,16 @@ function buildProvidersHtml(printer) {
       <p class="tv-providers-header">Beschikbaar bij</p>
       <div class="tv-providers-list">
         ${providers.map(p => {
-          const priceLabel = formatPriceLabel(p.price);
+          const priceLabel = formatPriceLabel(p.prijs);
           const shippingLabel = formatShipping(p.verzendkosten);
           const subParts = [];
           if (p.levertijd) subParts.push(p.levertijd);
           subParts.push(shippingLabel);
           const subText = subParts.join(" · ");
           return `
-            <a href="${p.url}" class="tv-provider-row" target="_blank" rel="noopener noreferrer" aria-label="${p.naam}: €${priceLabel}">
+            <a href="${p.url}" class="tv-provider-row" target="_blank" rel="noopener noreferrer" aria-label="${p.winkel}: €${priceLabel}">
               <div class="tv-provider-left">
-                <span class="tv-provider-name">${p.naam}</span>
+                <span class="tv-provider-name">${p.winkel}</span>
                 ${subText ? `<span class="tv-provider-sub">${subText}</span>` : ""}
               </div>
               <div class="tv-provider-right">

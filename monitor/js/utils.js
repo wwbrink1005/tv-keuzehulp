@@ -41,19 +41,16 @@ export function normalizeProducts(rawProducts) {
   if (!Array.isArray(rawProducts)) return [];
 
   return rawProducts.flatMap(product => {
-    const aanbieders = Array.isArray(product.aanbieders) ? product.aanbieders : [];
-    const aanbieder = aanbieders[0];
-    if (!aanbieder) return [];
+    const rawAanbieders = Array.isArray(product.aanbieders) ? product.aanbieders : [];
+    const aanbieders = rawAanbieders
+      .map(a => ({ ...a, prijs: parseFloat(String(a.prijs || "").replace(",", ".")) }))
+      .filter(a => a.url && Number.isFinite(a.prijs) && a.prijs > 0);
+    if (aanbieders.length === 0) return [];
 
-    const naam = String(aanbieder.productnaam_cb || "").trim()
-               || String(aanbieder.productnaam_expert || "").trim();
+    const naam = aanbieders.map(a => String(a.productnaam || "").trim()).find(Boolean) || "";
     if (!naam) return [];
 
-    const prijsCb     = parseFloat(String(aanbieder.prijs_cb     || "").replace(",", "."));
-    const prijsExpert = parseFloat(String(aanbieder.prijs_expert || "").replace(",", "."));
-    const validPrices = [prijsCb, prijsExpert].filter(p => Number.isFinite(p) && p > 0);
-    if (validPrices.length === 0) return [];
-    const prijs = Math.min(...validPrices);
+    const prijs = Math.min(...aanbieders.map(a => a.prijs));
 
     const afbeelding   = String(product.icecat_afbeelding || "").trim();
     const afbeeldingen = Array.isArray(product.icecat_afbeeldingen) ? product.icecat_afbeeldingen : [];
@@ -83,7 +80,7 @@ export function normalizeProducts(rawProducts) {
       beeldverhouding: product.beeldverhouding ?? "",
       afbeelding,
       afbeeldingen,
-      aanbieder
+      aanbieders
     }];
   });
 }

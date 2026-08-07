@@ -151,12 +151,7 @@ function collectKleurOptions(matches) {
 function collectAanbiederOptions(matches) {
   const set = new Set();
   matches.forEach(tv => {
-    const a = tv.aanbieder;
-    if (!a) return;
-    const pCb = parseFloat(String(a.prijs_cb ?? "").replace(",", "."));
-    if (a.url_cb && Number.isFinite(pCb) && pCb > 0) set.add("Coolblue");
-    const pEx = parseFloat(String(a.prijs_expert ?? "").replace(",", "."));
-    if (a.url_expert && Number.isFinite(pEx) && pEx > 0) set.add("Expert");
+    (tv.aanbieders ?? []).forEach(a => set.add(a.winkel));
   });
   return Array.from(set).sort();
 }
@@ -499,19 +494,9 @@ function applyFilters() {
     filtered = filtered.filter(tv => filterState.kleuren.has(normalizeKleur(tv.kleur)));
   }
   if (filterState.aanbieder.size > 0) {
-    filtered = filtered.filter(tv => {
-      const a = tv.aanbieder;
-      if (!a) return false;
-      if (filterState.aanbieder.has("Coolblue")) {
-        const p = parseFloat(String(a.prijs_cb ?? "").replace(",", "."));
-        if (a.url_cb && Number.isFinite(p) && p > 0) return true;
-      }
-      if (filterState.aanbieder.has("Expert")) {
-        const p = parseFloat(String(a.prijs_expert ?? "").replace(",", "."));
-        if (a.url_expert && Number.isFinite(p) && p > 0) return true;
-      }
-      return false;
-    });
+    filtered = filtered.filter(tv =>
+      (tv.aanbieders ?? []).some(a => filterState.aanbieder.has(a.winkel))
+    );
   }
 
   updateClearFiltersBtn();

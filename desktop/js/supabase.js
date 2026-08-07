@@ -15,19 +15,34 @@ function parseFirstInt(value) {
   return m ? parseInt(m[1], 10) : 0;
 }
 
+/**
+ * Geeft de generieke aanbieders-lijst terug die normalizeProducts() verwacht.
+ * Leest bij voorkeur de aanbieders-jsonb-kolom (gevuld door de pipeline, al
+ * in de juiste vorm). Valt terug op de oude losse coolblue- en
+ * expert-kolommen zolang de pipeline nog niet is omgezet naar de jsonb-kolom.
+ */
 function adaptAanbieders(row) {
-  return {
-    productnaam_cb:       row.coolblue_naam              ?? "",
-    prijs_cb:             row.coolblue_prijs   != null   ? String(row.coolblue_prijs)   : "",
-    url_cb:               row.coolblue_affiliate_link    ?? "",
-    levertijd_cb:         row.coolblue_levertijd         ?? "",
-    verzendkosten_cb:     row.coolblue_bezorgkosten != null ? String(row.coolblue_bezorgkosten) : "",
-    productnaam_expert:   row.expert_naam                ?? "",
-    prijs_expert:         row.expert_prijs    != null    ? String(row.expert_prijs)     : "",
-    url_expert:           row.expert_affiliate_link      ?? "",
-    levertijd_expert:     row.expert_levertijd           ?? "",
-    verzendkosten_expert: row.expert_bezorgkosten != null ? String(row.expert_bezorgkosten) : "",
-  };
+  if (Array.isArray(row.aanbieders) && row.aanbieders.length > 0) {
+    return row.aanbieders;
+  }
+  return [
+    {
+      winkel:        "Coolblue",
+      productnaam:   row.coolblue_naam              ?? "",
+      prijs:         row.coolblue_prijs   != null    ? String(row.coolblue_prijs)   : "",
+      url:           row.coolblue_affiliate_link     ?? "",
+      levertijd:     row.coolblue_levertijd          ?? "",
+      verzendkosten: row.coolblue_bezorgkosten != null ? String(row.coolblue_bezorgkosten) : "",
+    },
+    {
+      winkel:        "Expert",
+      productnaam:   row.expert_naam                ?? "",
+      prijs:         row.expert_prijs    != null     ? String(row.expert_prijs)     : "",
+      url:           row.expert_affiliate_link       ?? "",
+      levertijd:     row.expert_levertijd            ?? "",
+      verzendkosten: row.expert_bezorgkosten != null ? String(row.expert_bezorgkosten) : "",
+    },
+  ];
 }
 
 function adaptRow(row) {
@@ -52,7 +67,7 @@ function adaptRow(row) {
     processorFabrikant:  row.processor_fabrikant ?? "",
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
-    aanbieders:          [adaptAanbieders(row)],
+    aanbieders:          adaptAanbieders(row),
   };
 }
 

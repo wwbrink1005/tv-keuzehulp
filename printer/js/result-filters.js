@@ -106,12 +106,7 @@ const FUNCTIE_LABELS = {
 function collectAanbiederOptions(matches) {
   const set = new Set();
   matches.forEach(p => {
-    const a = p.aanbieder;
-    if (!a) return;
-    const pCb = parseFloat(String(a.prijs_cb ?? "").replace(",", "."));
-    if (a.url_cb && Number.isFinite(pCb) && pCb > 0) set.add("Coolblue");
-    const pEx = parseFloat(String(a.prijs_expert ?? "").replace(",", "."));
-    if (a.url_expert && Number.isFinite(pEx) && pEx > 0) set.add("Expert");
+    (p.aanbieders ?? []).forEach(a => set.add(a.winkel));
   });
   return Array.from(set).sort();
 }
@@ -185,19 +180,9 @@ function applyFilters() {
   }
 
   if (filterState.aanbieder.size > 0) {
-    filtered = filtered.filter(p => {
-      const a = p.aanbieder;
-      if (!a) return false;
-      if (filterState.aanbieder.has("Coolblue")) {
-        const price = parseFloat(String(a.prijs_cb ?? "").replace(",", "."));
-        if (a.url_cb && Number.isFinite(price) && price > 0) return true;
-      }
-      if (filterState.aanbieder.has("Expert")) {
-        const price = parseFloat(String(a.prijs_expert ?? "").replace(",", "."));
-        if (a.url_expert && Number.isFinite(price) && price > 0) return true;
-      }
-      return false;
-    });
+    filtered = filtered.filter(p =>
+      (p.aanbieders ?? []).some(a => filterState.aanbieder.has(a.winkel))
+    );
   }
 
   updateClearFiltersBtn();
