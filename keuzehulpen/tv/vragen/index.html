@@ -34,8 +34,8 @@
  </script>
  <style>
 :root {
-  --tv-right-offset: 410;
-  --tv-bottom-offset: 234;
+  --tv-right-offset: 440;
+  --tv-bottom-offset: 248;
 }
 
 .quiz-title-row {
@@ -492,8 +492,9 @@ button.question-hint-btn-mobile:hover,
 
 #tv-display {
      position: absolute;
-     background-image: url('keuzehulpen/tv/images/schilderij tv.png');
-     background-size: cover;
+     background-image: url('keuzehulpen/tv/images/tv visualisatie.png');
+     background-size: contain;
+     background-repeat: no-repeat;
      background-position: center;
      opacity: 0;
      transition: opacity .9s ease,
@@ -503,6 +504,41 @@ button.question-hint-btn-mobile:hover,
                  right .12s ease,
                  bottom .12s ease;
      display: none;
+   }
+
+#tv-size-badge {
+     position: absolute;
+     transform: translate(-50%, -100%) translateY(-4px);
+     z-index: 2;
+     display: inline-flex;
+     align-items: center;
+     gap: calc(6px * var(--scale, 1));
+     background: rgba(255,255,255,.92);
+     backdrop-filter: blur(16px) saturate(200%);
+     -webkit-backdrop-filter: blur(16px) saturate(200%);
+     border: 1px solid rgba(9,84,163,.18);
+     color: #0954a3;
+     font-family: 'Inter', sans-serif;
+     font-size: calc(12.5px * var(--scale, 1));
+     font-weight: 600;
+     letter-spacing: 0.01em;
+     padding: calc(6px * var(--scale, 1)) calc(13px * var(--scale, 1)) calc(6px * var(--scale, 1)) calc(10px * var(--scale, 1));
+     border-radius: 999px;
+     box-shadow: 0 2px 12px rgba(9,84,163,.13), 0 1px 3px rgba(0,0,0,.07);
+     white-space: nowrap;
+     opacity: 0;
+     transition: opacity .3s ease, right .12s ease, bottom .12s ease;
+     pointer-events: none;
+     display: none;
+   }
+
+#tv-size-badge.is-visible { opacity: 1; display: inline-flex; }
+
+#tv-size-badge svg {
+     width: calc(14px * var(--scale, 1));
+     height: calc(14px * var(--scale, 1));
+     flex-shrink: 0;
+     stroke-width: 2;
    }
 
 .info-panel-icon-wrap { display: none; }
@@ -573,7 +609,7 @@ button.question-hint-btn-mobile:hover,
        --base-width: 605.5;
        --base-height: 595;
        --tv-right-offset: 315;
-       --tv-bottom-offset: 212;
+       --tv-bottom-offset: 230;
        background-image: url('keuzehulpen/tv/images/nieuw design telefoon.png');
        aspect-ratio: 1211 / 1190;
        width: min(92vw, 560px);
@@ -583,6 +619,15 @@ button.question-hint-btn-mobile:hover,
        border-radius: var(--r-lg) var(--r-lg) 0 0;
        box-shadow: 0 -2px 20px rgba(0,0,0,.05);
      }
+
+#tv-size-badge {
+       font-size: 14px;
+       padding: 8px 16px 8px 12px;
+       gap: 7px;
+       transform: translate(-50%, -100%) translateY(2px);
+     }
+
+#tv-size-badge svg { width: 16px; height: 16px; }
 
 #question-1 .answers-container,
      #question-2 .answers-container {
@@ -839,6 +884,7 @@ button.question-hint-btn-mobile { display: grid; }
            <div class="progress-bar" id="progress-bar"></div>
          </div>
          <div id="tv-display"></div>
+        <div id="tv-size-badge"></div>
          <!-- Mobile hint button: small ? circle at bottom-right of the image -->
          <button id="question-hint-btn-mobile" class="question-hint-btn-mobile" type="button" aria-label="Waarom deze vraag?">
            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

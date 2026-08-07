@@ -19,6 +19,17 @@ function prefetchProducts() {
 
 const sizeGroups = ["24-32", "40-43", "48-50", "55", "58-65", "70-77", "83-86", "97-115"];
 
+const SIZE_BADGE_LABELS = {
+  "24-32":  "24 - 32 inch",
+  "40-43":  "40 - 43 inch",
+  "48-50":  "48 - 50 inch",
+  "55":     "55 inch",
+  "58-65":  "58 - 65 inch",
+  "70-77":  "70 - 77 inch",
+  "83-86":  "83 - 86 inch",
+  "97-115": "97 - 115 inch"
+};
+
 const mobileQuery = window.matchMedia("(max-width: 900px)");
 
 function getMenuOffset() {
@@ -120,6 +131,11 @@ function updateProgressBar(questionNum) {
   }
 }
 
+function hideTvSizeBadge() {
+  const badge = qs("#tv-size-badge");
+  if (badge) badge.classList.remove("is-visible");
+}
+
 function updateTVDisplay() {
   const checked = qs('input[name="sizeGroup"]:checked');
   const tvDisplay = qs("#tv-display");
@@ -133,6 +149,7 @@ function updateTVDisplay() {
         tvDisplay.style.display = "none";
       }, fadeDurationMs);
     }
+    hideTvSizeBadge();
     return;
   }
 
@@ -144,6 +161,7 @@ function updateTVDisplay() {
     window.setTimeout(() => {
       tvDisplay.style.display = "none";
     }, fadeDurationMs);
+    hideTvSizeBadge();
     return;
   }
 
@@ -183,6 +201,30 @@ function updateTVDisplay() {
   } else {
     tvDisplay.style.opacity = "1";
   }
+
+  // Inch-label: zweeft mee boven de bovenrand van de TV-visualisatie, horizontaal
+  // gecentreerd op dezelfde as als de TV zelf (rightOffset = het scherm-midden).
+  const badge = qs("#tv-size-badge");
+  if (badge) {
+    const label = SIZE_BADGE_LABELS[sizeGroup];
+    if (label) {
+      const leftPercentage = ((originalWidth - rightOffset) / originalWidth) * 100;
+      const topEdgeOffset = bottomOffset + dims.height;
+      const badgeBottomPercentage = (topEdgeOffset / containerHeight) * 100;
+      badge.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="4" width="20" height="13" rx="2"/>
+          <path d="M8 21h8M12 17v4"/>
+        </svg>
+        <span>${label}</span>
+      `;
+      badge.style.left = `${leftPercentage}%`;
+      badge.style.bottom = `${badgeBottomPercentage}%`;
+      badge.classList.add("is-visible");
+    } else {
+      hideTvSizeBadge();
+    }
+  }
 }
 
 function showQuestion(num) {
@@ -200,6 +242,7 @@ function showQuestion(num) {
   const tvDisplay = qs("#tv-display");
   if (num === 1 && tvDisplay) {
     tvDisplay.style.display = "none";
+    hideTvSizeBadge();
   } else if (num >= 2 && num <= 7 && quizState.selectedSizeGroup) {
     updateTVDisplay();
   }

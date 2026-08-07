@@ -156,12 +156,10 @@ function showQuestion(num) {
 
   currentQuestion.style.display = "block";
 
-  // Monitor display: hide on Q1, show on Q2+ if a size is selected
-  if (num === 1) {
-    hideMonitorDisplay();
-  } else if (num >= 2 && quizState.selectedSizeGroup) {
-    updateMonitorDisplay();
-  }
+  // Monitor display: schermgrootte is nu Q1, dus de visualisatie kan vanaf
+  // de eerste vraag al leven — updateMonitorDisplay() verbergt zichzelf
+  // gracieus als er nog geen schermgrootte gekozen is.
+  updateMonitorDisplay();
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -328,8 +326,11 @@ export function initQuizPage() {
 
   // Q1 → Q2
   qs("#to-question-2")?.addEventListener("click", () => {
-    const checked = qsa('input[name="gebruik"]:checked');
-    if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
+    const checked = qs('input[name="schermgrootte"]:checked');
+    if (!checked) return alert("Kies een schermgrootte");
+
+    quizState.selectedSizeGroup = checked.value;
+
     showQuestion(2);
   });
 
@@ -341,11 +342,8 @@ export function initQuizPage() {
 
   // Q2 → Q3
   qs("#to-question-3")?.addEventListener("click", () => {
-    const checked = qs('input[name="schermgrootte"]:checked');
-    if (!checked) return alert("Kies een schermgrootte");
-
-    quizState.selectedSizeGroup = checked.value;
-
+    const checked = qsa('input[name="gebruik"]:checked');
+    if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
     showQuestion(3);
   });
 
@@ -374,7 +372,7 @@ export function initQuizPage() {
   // Q4 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
-  // Listen for schermgrootte (Q2) changes → update monitor visualisation
+  // Listen for schermgrootte (Q1) changes → update monitor visualisation
   qsa('input[name="schermgrootte"]').forEach(radio => {
     radio.addEventListener("change", updateMonitorDisplay);
   });

@@ -97,10 +97,10 @@
     justify-content: flex-start;
   }
 
-  /* Q1 en Q5 hebben 5 opties waarvan er 1 naar 2 regels wrapt, waardoor het
+  /* Q2 en Q5 hebben 5 opties waarvan er 1 naar 2 regels wrapt, waardoor het
      lijstje voller oogt dan de andere vragen — zelfde begrensde-scrollbox-
      patroon als de koelkast-nis. */
-  #question-1 .answers-container,
+  #question-2 .answers-container,
   #question-5 .answers-container {
     max-height: calc(372px * var(--scale));
     overflow-y: auto;
@@ -115,23 +115,23 @@
      anders net buiten .background-container, die overflow:hidden heeft —
      dat sneed de rechterrand van de vakken zichtbaar af. Compenseer door
      de vakken exact zoveel smaller te maken. */
-  #question-1 .answer-option,
+  #question-2 .answer-option,
   #question-5 .answer-option {
     width: calc(358.968px * var(--scale));
   }
 
-  #question-1 .answers-container::-webkit-scrollbar,
+  #question-2 .answers-container::-webkit-scrollbar,
   #question-5 .answers-container::-webkit-scrollbar {
     width: 6px;
   }
 
-  #question-1 .answers-container::-webkit-scrollbar-thumb,
+  #question-2 .answers-container::-webkit-scrollbar-thumb,
   #question-5 .answers-container::-webkit-scrollbar-thumb {
     background: rgba(9,84,163,.35);
     border-radius: 100px;
   }
 
-  #question-1 .answers-container::-webkit-scrollbar-track,
+  #question-2 .answers-container::-webkit-scrollbar-track,
   #question-5 .answers-container::-webkit-scrollbar-track {
     background: transparent;
   }
@@ -343,8 +343,8 @@ button.question-hint-btn-mobile:hover,
       flex-shrink: 0;
     }
 
-#question-1 input[type="checkbox"],
-    #question-2 input[type="radio"],
+#question-1 input[type="radio"],
+    #question-2 input[type="checkbox"],
     #question-3 input[type="radio"],
     #question-4 input[type="radio"],
     #question-5 input[type="checkbox"] {
@@ -519,8 +519,8 @@ button.question-hint-btn-mobile { display: grid; }
         word-break: break-word;
       }
 
-#question-1 .answer-option input[type="checkbox"],
-      #question-2 .answer-option input[type="radio"] {
+#question-1 .answer-option input[type="radio"],
+      #question-2 .answer-option input[type="checkbox"] {
         flex-shrink: 0;
         width: 17px; height: 17px;
         margin-right: 8px;
@@ -637,11 +637,46 @@ button.question-hint-btn-mobile { display: grid; }
             Waarom deze vraag?
           </button>
 
-          <!-- VRAAG 1: Gebruik (multi-select, max 2) -->
+          <!-- VRAAG 1: Formaat en draagbaarheid -->
           <div id="question-1" class="question-block">
             <div class="question-container">
-              <div class="question-heading-wrap"><h2>Waar ga je je laptop voor gebruiken?</h2></div>
+              <div class="question-heading-wrap"><h2>Hoe gebruik je je laptop het liefst?</h2></div>
               <div class="question-popover" data-popover="1">
+                <h3 class="question-popover-title">Waarom deze vraag?</h3>
+                <p class="question-popover-text">Het formaat en gewicht van je laptop bepalen hoeveel comfort je hebt onderweg en thuis. Een lichte compact laptop (13–14 inch) is ideaal voor dagelijks meenemen. Een middenweg (15–16 inch) biedt een goede balans. Een grote krachtige laptop (17 inch) is het prettigst voor thuisgebruik met groot scherm.</p>
+              </div>
+            </div>
+            <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
+              <label class="answer-option">
+                <input type="radio" name="formaat" value="licht-compact">
+                <svg class="answer-info-icon" data-icon="laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Licht en compact, 13 tot 14 inch</span>
+                <span class="price-indicator">€</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="formaat" value="middenweg">
+                <svg class="answer-info-icon" data-icon="laptop-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Middenweg, 15 tot 16 inch</span>
+                <span class="price-indicator">€€</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="formaat" value="groot-krachtig">
+                <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Groot en krachtig, 17 inch</span>
+                <span class="price-indicator">€€€</span>
+              </label>
+            </div>
+            <div class="button-container" id="q2-buttons" style="top: calc((70.11px + 37.77px + 44px + 8px + 22px) * var(--scale));">
+              <button id="back-to-start" style="background:rgba(255,255,255,.90);border:1.5px solid rgba(9,84,163,.30);color:var(--c-accent);box-shadow:0 2px 8px rgba(0,0,0,.08);filter:none;" onclick="window.location.href='keuzehulpen/laptop/vragen'">Terug</button>
+              <button id="to-question-2">Volgende</button>
+            </div>
+          </div>
+
+          <!-- VRAAG 2: Gebruik (multi-select, max 2) -->
+          <div id="question-2" class="question-block" style="display:none;">
+            <div class="question-container">
+              <h2>Waar ga je je laptop voor gebruiken?</h2>
+              <div class="question-popover" data-popover="2">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
                 <p class="question-popover-text">Het doel van je laptop bepaalt welk type processor, hoeveel werkgeheugen en welke grafische kaart je nodig hebt. Dagelijks gebruik vraagt om een snelle maar zuinige laptop. Creatief werk of gaming vragen om een krachtigere machine. Je kunt maximaal 2 doelen aanvinken — gebruik je de laptop voor meer dingen, kies dan "Een beetje van alles".</p>
               </div>
@@ -679,41 +714,6 @@ button.question-hint-btn-mobile { display: grid; }
               </label>
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 43.3935px) + 8px + (2 * 43.3935px) + 8px + 43.3935px + 8px + 22px) * var(--scale));">
-              <button id="back-to-start" style="background:rgba(255,255,255,.90);border:1.5px solid rgba(9,84,163,.30);color:var(--c-accent);box-shadow:0 2px 8px rgba(0,0,0,.08);filter:none;" onclick="window.location.href='keuzehulpen/laptop/vragen'">Terug</button>
-              <button id="to-question-2">Volgende</button>
-            </div>
-          </div>
-
-          <!-- VRAAG 2: Formaat en draagbaarheid -->
-          <div id="question-2" class="question-block" style="display:none;">
-            <div class="question-container">
-              <h2>Hoe gebruik je je laptop het liefst?</h2>
-              <div class="question-popover" data-popover="2">
-                <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Het formaat en gewicht van je laptop bepalen hoeveel comfort je hebt onderweg en thuis. Een lichte compact laptop (13–14 inch) is ideaal voor dagelijks meenemen. Een middenweg (15–16 inch) biedt een goede balans. Een grote krachtige laptop (17 inch) is het prettigst voor thuisgebruik met groot scherm.</p>
-              </div>
-            </div>
-            <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
-              <label class="answer-option">
-                <input type="radio" name="formaat" value="licht-compact">
-                <svg class="answer-info-icon" data-icon="laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Licht en compact, 13 tot 14 inch</span>
-                <span class="price-indicator">€</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="formaat" value="middenweg">
-                <svg class="answer-info-icon" data-icon="laptop-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Middenweg, 15 tot 16 inch</span>
-                <span class="price-indicator">€€</span>
-              </label>
-              <label class="answer-option">
-                <input type="radio" name="formaat" value="groot-krachtig">
-                <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Groot en krachtig, 17 inch</span>
-                <span class="price-indicator">€€€</span>
-              </label>
-            </div>
-            <div class="button-container" id="q2-buttons" style="top: calc((70.11px + 37.77px + 44px + 8px + 22px) * var(--scale));">
               <button id="back-to-question-1">Terug</button>
               <button id="to-question-3">Volgende</button>
             </div>

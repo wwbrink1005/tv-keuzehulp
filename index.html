@@ -302,13 +302,15 @@
         animation: collage-fly-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) 1.28s both;
       }
 
-      /* Desktop tower — anchored bottom-right, fully visible */
+      /* Desktop tower — anchored bottom-right, fully visible. right: 5% i.p.v.
+         9% — bij 9% overlapte de laptop (tot left: 89%) bijna de hele breedte
+         van dit item, waardoor het nauwelijks klikbaar was, vooral op mobiel. */
       .hero-collage-desktop {
-        right: 9%;
+        right: 5%;
         bottom: 7%;
         width: 12%;
         z-index: 3;
-        /* right: 9% ≈ left: 79% — verste, komt als laatste */
+        /* right: 5% ≈ left: 83% — verste, komt als laatste */
         animation: collage-fly-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) 1.44s both;
       }
 
@@ -346,7 +348,7 @@
       @media (min-width: 881px) and (max-width: 1200px) {
         .hero-collage-tv          { width: 55%; left: 10%; bottom: 20%; }
         .hero-collage-wasmachine  { width: 30%; right: 8%;  top: 5%;    }
-        .hero-collage-desktop     { width: 12%; right: 9%;  bottom: 7%;  }
+        .hero-collage-desktop     { width: 12%; right: 4%;  bottom: 7%;  }
         .hero-collage-laptop      { width: 38%; left: 44%;  bottom: 4%;  }
         .hero-collage-printer     { width: 32%; left: 19%;  bottom: 7%;  }
         .hero-collage-stofzuiger  { width: 20%; left: 0%;   bottom: 5%;  }

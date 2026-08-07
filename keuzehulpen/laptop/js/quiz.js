@@ -38,11 +38,13 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
-// Dimensions (px in 1242.21-wide coordinate space) per size group
+// Dimensions (px in 1242.21-wide coordinate space) per size group.
+// Geschaald t.o.v. de stoelrug op het bureau (~44cm breed, betrouwbaardere
+// referentie dan de decoratieve pennenbeker) in de achtergrondfoto.
 const laptopDimensions = {
-  'licht-compact':  { width: 155, height: 144 },  // 13–14 inch
-  'middenweg':      { width: 185, height: 171 },  // 15–16 inch
-  'groot-krachtig': { width: 215, height: 199 }   // 17 inch+
+  'licht-compact':  { width: 188, height: 174 },  // 13–14 inch
+  'middenweg':      { width: 219, height: 203 },  // 15–16 inch
+  'groot-krachtig': { width: 250, height: 231 }   // 17 inch+
 };
 
 function updateLaptopDisplay() {
@@ -128,12 +130,10 @@ function showQuestion(num) {
 
   currentQuestion.style.display = "block";
 
-  // Laptop display: hide on Q1, show on Q2+ if a size is selected
-  if (num === 1) {
-    hideLaptopDisplay();
-  } else if (num >= 2 && quizState.selectedSizeGroup) {
-    updateLaptopDisplay();
-  }
+  // Laptop display: formaat is nu Q1, dus de visualisatie kan vanaf de
+  // eerste vraag al leven — updateLaptopDisplay() verbergt zichzelf gracieus
+  // als er nog geen formaat gekozen is.
+  updateLaptopDisplay();
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -301,10 +301,12 @@ export function initQuizPage() {
   // Pre-fetch products in the background
   prefetchProducts();
 
-  // Q1 → Q2 (gebruik is multi-select, require at least 1)
+  // Q1 → Q2 (formaat)
   qs("#to-question-2")?.addEventListener("click", () => {
-    const checked = qsa('input[name="gebruik"]:checked');
-    if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
+    const checked = qs('input[name="formaat"]:checked');
+    if (!checked) return alert("Kies een formaat");
+
+    quizState.selectedSizeGroup = checked.value;
     showQuestion(2);
   });
 
@@ -314,12 +316,10 @@ export function initQuizPage() {
     showQuestion(1);
   });
 
-  // Q2 → Q3
+  // Q2 → Q3 (gebruik is multi-select, require at least 1)
   qs("#to-question-3")?.addEventListener("click", () => {
-    const checked = qs('input[name="formaat"]:checked');
-    if (!checked) return alert("Kies een formaat");
-
-    quizState.selectedSizeGroup = checked.value;
+    const checked = qsa('input[name="gebruik"]:checked');
+    if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
     showQuestion(3);
   });
 
@@ -355,7 +355,7 @@ export function initQuizPage() {
     showQuestion(4);
   });
 
-  // Listen for formaat (Q2) changes → update laptop visualisation
+  // Listen for formaat (Q1) changes → update laptop visualisation
   qsa('input[name="formaat"]').forEach(radio => {
     radio.addEventListener("change", updateLaptopDisplay);
   });
