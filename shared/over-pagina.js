@@ -218,7 +218,7 @@ if (navList) {
     const link = document.createElement("a");
     const icon = document.createElement("i");
 
-    link.href = "overige-paginas/" + page.file;
+    link.href = "" + page.file;
     link.className = "info-nav-link";
     link.textContent = page.title;
 

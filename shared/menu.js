@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
         <a class="menu-link" href="blog/">Blogs</a>
-        <a class="menu-link" href="overige-paginas/over-ons">Over ons</a>
+        <a class="menu-link" href="over-ons">Over ons</a>
       </div>
 
       <!-- Hamburger (always visible) -->
@@ -179,14 +179,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <a class="mobile-nav-link" href="blog/">Blogs</a>
-        <a class="mobile-nav-link" href="overige-paginas/hoe-werkt-het">Hoe werkt het?</a>
-        <a class="mobile-nav-link" href="overige-paginas/over-ons">Over ons</a>
+        <a class="mobile-nav-link" href="hoe-werkt-het">Hoe werkt het?</a>
+        <a class="mobile-nav-link" href="over-ons">Over ons</a>
       </div>
 
       <div class="mobile-nav-footer">
-        <a href="overige-paginas/contact">Contact</a>
-        <a href="overige-paginas/disclaimer">Disclaimer</a>
-        <a href="overige-paginas/privacy">Privacybeleid</a>
+        <a href="contact">Contact</a>
+        <a href="disclaimer">Disclaimer</a>
+        <a href="privacy">Privacybeleid</a>
       </div>
     </nav>
   `;

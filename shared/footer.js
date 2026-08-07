@@ -53,9 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3 class="footer-col-title">Informatie</h3>
           <ul>
             <li><a href="blog/">Blogs</a></li>
-            <li><a href="overige-paginas/over-ons">Over ons</a></li>
-            <li><a href="overige-paginas/hoe-werkt-het">Hoe werkt het?</a></li>
-            <li><a href="overige-paginas/contact">Contact</a></li>
+            <li><a href="over-ons">Over ons</a></li>
+            <li><a href="hoe-werkt-het">Hoe werkt het?</a></li>
+            <li><a href="contact">Contact</a></li>
           </ul>
         </div>
 
@@ -63,8 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="footer-col">
           <h3 class="footer-col-title">Juridisch</h3>
           <ul>
-            <li><a href="overige-paginas/disclaimer">Disclaimer</a></li>
-            <li><a href="overige-paginas/privacy">Privacybeleid</a></li>
+            <li><a href="disclaimer">Disclaimer</a></li>
+            <li><a href="privacy">Privacybeleid</a></li>
           </ul>
         </div>
 
@@ -74,9 +74,9 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="footer-bottom">
         <p class="footer-bottom-left">&copy; ${year} producthulp.nl &mdash; Alle rechten voorbehouden</p>
         <div class="footer-bottom-right">
-          <a href="overige-paginas/disclaimer">Disclaimer</a>
-          <a href="overige-paginas/privacy">Privacy</a>
-          <a href="overige-paginas/contact">Contact</a>
+          <a href="disclaimer">Disclaimer</a>
+          <a href="privacy">Privacy</a>
+          <a href="contact">Contact</a>
         </div>
       </div>
 

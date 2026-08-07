@@ -29,8 +29,10 @@ Supabase-migratie uitvoeren) versus wat zelfstandig te doen is.
 - Oude `keuzehulpen/{categorie}/...`-URL's die al door Google geïndexeerd waren, hebben
   een lichte redirect-stub gekregen op hun oude locatie (canonical + meta-refresh naar de
   nieuwe URL, zelfde patroon als de stubs voor `contact/`, `privacy/` etc. op de root).
-- De vaste pagina's (contact, disclaimer, hoe-werkt-het, over-ons, privacy) staan onder
-  `overige-paginas/` met `<base href="../../">` (2x omhoog i.p.v. 1x).
+- De vaste pagina's (contact, disclaimer, hoe-werkt-het, over-ons, privacy) staan direct
+  onder de repo-root als `{pagina}/` (bijv. `contact/`, `privacy/`) met `<base href="../">`,
+  net als de keuzehulp-gidspagina's. De oude `overige-paginas/{pagina}/`-locatie heeft een
+  redirect-stub gekregen (zelfde patroon als de `keuzehulpen/`-stubs hierboven).
 - Per keuzehulp (`{categorie}/`): `js/data.js` (scoring/tiers), `js/supabase.js`
   (fetch + adaptRow), `js/utils.js` (normalizeProducts/prijsbuckets), `js/matching.js`
   (scoring + tier-cascade met verplichte eindfallback), `js/quiz.js`, `js/result.js`,

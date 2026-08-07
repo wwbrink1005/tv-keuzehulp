@@ -75,7 +75,7 @@
     banner.setAttribute("role", "dialog");
     banner.setAttribute("aria-label", "Cookiemelding");
     banner.innerHTML = `
-      <p>We gebruiken cookies om te begrijpen hoe bezoekers onze keuzehulpen gebruiken, zodat we ze kunnen verbeteren. Lees ons <a href="overige-paginas/privacy">privacybeleid</a>.</p>
+      <p>We gebruiken cookies om te begrijpen hoe bezoekers onze keuzehulpen gebruiken, zodat we ze kunnen verbeteren. Lees ons <a href="privacy">privacybeleid</a>.</p>
       <div class="ph-cookie-actions">
         <button type="button" class="ph-decline">Weigeren</button>
         <button type="button" class="ph-accept">Accepteren</button>
