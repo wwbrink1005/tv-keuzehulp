@@ -2,7 +2,8 @@
 
 Dit document is bedoeld voor een AI (of ontwikkelaar) die de opdracht krijgt: **"maak een
 [categorie]-keuzehulp"** (bijv. wasmachine, koelkast, soundbar). Volg dit stap voor stap.
-Alle bestaande keuzehulpen (tv, laptop, monitor, desktop) volgen exact dit patroon —
+Alle bestaande keuzehulpen (tv, laptop, monitor, desktop, printer, wasmachine, koelkast)
+volgen exact dit patroon —
 gebruik ze als referentie-implementatie, kopieer niet blind maar begrijp waarom elk stuk
 er zo uitziet.
 
@@ -64,17 +65,21 @@ Met de bestaande Icecat-API-credentials uit de pipeline:
 4. Pas dezelfde vuistregel toe als bij filters (zie stap 6): alleen features meenemen
    die "zo goed als volledig" gevuld zijn én genoeg variatie hebben om nuttig te zijn.
 
-## 4. Website: nieuwe map `keuzehulpen/{categorie}/`
+## 4. Website: nieuwe map `{categorie}/`
 
-Alle keuzehulpen staan onder de map `keuzehulpen/` (bijv. `keuzehulpen/wasmachine/`).
+Elke keuzehulp staat als eigen map direct onder de repo-root (bijv. `wasmachine/`) —
+**geen** `keuzehulpen/`-laag ervoor (die is bewust verwijderd voor kortere URL's:
+`producthulp.nl/wasmachine/vragen/` i.p.v. `producthulp.nl/keuzehulpen/wasmachine/vragen/`).
 Kopieer de structuur van een bestaande keuzehulp (bij voorkeur **monitor** als
 basis voor `result-filters.js` — die gebruikt een generieke `renderAllFilters()`-stijl,
 in tegenstelling tot tv/laptop/desktop's verbose per-filter-functie-stijl, die dit
 project meermaals bugs heeft opgeleverd bij onderhoud):
 
-- `vragen/index.html` en `resultaat/index.html` zitten 3 mappen diep vanaf de repo-root
-  (`keuzehulpen/{categorie}/vragen/index.html`), dus `<base href="../../../">`
-  (3x omhoog, niet 2x) — dit is de meest voorkomende fout bij het kopiëren van een
+- `vragen/index.html` en `resultaat/index.html` zitten 2 mappen diep vanaf de repo-root
+  (`{categorie}/vragen/index.html`), dus `<base href="../../">` (2x omhoog) — de gidspagina
+  (`{categorie}/index.html`, zie stap 10) zit 1 map diep (`<base href="../">`), en
+  blogartikelen (`{categorie}/blog/{slug}/index.html`) zitten 3 mappen diep
+  (`<base href="../../../">`). Dit is de meest voorkomende fout bij het kopiëren van een
   bestaande pagina.
 - `vragen/index.html` — dunne pagina, `<link rel="stylesheet" href="shared/quiz.css">` (dankzij
   `<base href>` zijn alle relatieve paden in de pagina al t.o.v. de repo-root),
@@ -211,7 +216,7 @@ Voeg een nieuwe entry toe aan de `keuzehulpen`-array:
 {
   title: "Wasmachine keuzehulp",
   keywords: ["wasmachine", "wasmachines", "wasautomaat", "wasautomaten"],
-  url: "keuzehulpen/wasmachine/vragen",
+  url: "wasmachine/vragen",
 },
 ```
 
@@ -230,23 +235,44 @@ doen.
 
 ## 10. SEO-checklist (verplicht bij elke nieuwe categorie)
 
-Elke nieuwe keuzehulp moet vanaf dag 1 dezelfde SEO-basis hebben als de bestaande zes —
-dit hoort er standaard bij, niet als los, later toe te voegen werk:
+Elke nieuwe keuzehulp moet vanaf dag 1 dezelfde SEO-basis hebben als de bestaande zeven —
+dit hoort er standaard bij, niet als los, later toe te voegen werk. Titels/beschrijvingen
+altijd als natuurlijke zin schrijven, **geen streepje (–) als verbindingsteken** (leest als
+AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
 
-- **`<title>`** op `vragen/index.html`: uniek, patroon `"{Categorie} Keuzehulp – Vind jouw
-  perfecte {product}"`.
-- **`<meta name="description">`**: op zoekintentie geschreven, vraag-vorm zoals mensen
-  echt zoeken (bijv. "Welke wasmachine moet ik kopen?"), niet alleen merknamen. Circa
-  150-160 tekens.
-- **`sitemap.xml`**: nieuwe `<url>`-entry voor `https://producthulp.nl/keuzehulpen/{categorie}/vragen/`
-  toevoegen (met `<lastmod>` op de dag van livegang). De `resultaat/`-pagina hoort **niet**
-  in de sitemap (client-side gerenderd, geen indexeringsdoel — zie
-  hieronder).
-- **`robots.txt`**: geen wijziging nodig — de bestaande regel
-  `Disallow: /keuzehulpen/*/resultaat/` dekt automatisch elke nieuwe categorie.
-- **`BreadcrumbList` JSON-LD** op `vragen/index.html` (zie een bestaande keuzehulp als
-  voorbeeld): `Home → {Categorie} Keuzehulp`, met de juiste `item`-URL.
-- Na livegang: URL indienen via **Google Search Console** → URL-inspectie →
-  "Indexering aanvragen", zodat de nieuwe pagina niet hoeft te wachten tot een crawler
-  hem toevallig tegenkomt.
+- **`<title>`** op `vragen/index.html`: actiegericht, patroon `"Start de {Categorie}
+  Keuzehulp en ontvang direct persoonlijk advies"`.
+- **`<meta name="description">`** op `vragen/index.html`: actiegericht, sluit aan bij de
+  titel (bijv. "Doe de gratis {Categorie} Keuzehulp: beantwoord een paar korte vragen over
+  ... en ontvang direct een persoonlijk advies op maat.").
+- **Gidspagina (`{categorie}/index.html`)** — een losse SEO-landingspagina vóór de
+  keuzehulp, puur bedoeld voor zoekverkeer (interne navigatie linkt nog altijd rechtstreeks
+  naar `vragen/`, deze pagina staat dus **niet** in het hoofdmenu/footer). Bevat: H1 met de
+  kernzoekterm (bijv. "Welke wasmachine moet je kopen? Vind in 1 minuut de wasmachine die
+  bij jou past"), `<title>`/`<meta description>` op zoekintentie geschreven (vraag-vorm,
+  bijv. "Welke wasmachine moet je kopen? Praktisch advies en tips"), 3 "Binnenkort"-
+  blogteaser-kaarten, een FAQ-sectie (4 vragen) met bijpassende `FAQPage` JSON-LD, en een
+  `BreadcrumbList` (`Home → {Categorie's}`). Zie een bestaande gidspagina als sjabloon.
+- **`vragen/index.html`'s `BreadcrumbList`** uitbreiden met de gidspagina als tussenstap:
+  `Home → {Categorie's} → {Categorie} Keuzehulp` (3 niveaus, niet 2) — voorkomt dat de
+  gidspagina en de keuzehulp-pagina op dezelfde zoekterm gaan concurreren.
+- **3 blogartikelen per categorie** (`{categorie}/blog/{slug}/index.html`) — onderwerpen
+  eerst valideren tegen echte zoekresultaten (niet blind verzinnen), korte educatieve
+  artikelen (~500-700 woorden, geen streepjes), met `Article` + `BreadcrumbList` JSON-LD en
+  een CTA terug naar de keuzehulp. Koppel de "Binnenkort"-teasers op de gidspagina zodra het
+  artikel klaar is, en voeg het toe aan `blog/index.html`'s `BLOG_ARTICLES`-array (plus een
+  nieuwe filterchip als het de eerste keer is dat deze categorie in de blog-hub verschijnt).
+  Geef bij elk artikel een losse AI-beeldprompt aan de eigenaar (zelfde stijl: flat vector,
+  lichtgrijze achtergrond, blauw/groen accent, geen tekst) — de afbeelding wordt zelf
+  gegenereerd en later toegevoegd; tot die tijd toont een ingebouwde SVG-placeholder
+  (`onerror`-fallback) netjes iets in plaats van een kapotte afbeelding.
+- **`sitemap.xml`**: nieuwe `<url>`-entries voor de gidspagina (`https://producthulp.nl/{categorie}/`,
+  prioriteit 0.9), de keuzehulp (`.../{categorie}/vragen/`, prioriteit 0.7) en elk
+  blogartikel (`.../{categorie}/blog/{slug}/`, prioriteit 0.6). De `resultaat/`-pagina hoort
+  **niet** in de sitemap (client-side gerenderd, geen indexeringsdoel).
+- **`robots.txt`**: geen wijziging nodig — de bestaande regel `Disallow: /*/resultaat/`
+  dekt automatisch elke nieuwe categorie.
+- Na livegang: elke nieuwe URL indienen via **Google Search Console** → URL-inspectie →
+  "Indexering aanvragen", zodat niet hoeft te wachten tot een crawler het toevallig
+  tegenkomt.
 

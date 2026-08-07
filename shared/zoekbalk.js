@@ -2,17 +2,17 @@ const keuzehulpen = [
   {
     title: "Televisie keuzehulp",
     keywords: ["tv", "tv's", "televisie", "televisies", "smart tv", "smart-tv"],
-    url: "keuzehulpen/tv/vragen",
+    url: "tv/vragen",
   },
   {
     title: "Laptop keuzehulp",
     keywords: ["laptop", "laptops", "notebook", "notebooks"],
-    url: "keuzehulpen/laptop/vragen",
+    url: "laptop/vragen",
   },
   {
     title: "Monitor keuzehulp",
     keywords: ["monitor", "monitoren", "beeldscherm", "beeldschermen", "scherm", "schermen"],
-    url: "keuzehulpen/monitor/vragen",
+    url: "monitor/vragen",
   },
   {
     title: "Desktop keuzehulp",
@@ -22,17 +22,17 @@ const keuzehulpen = [
       "mini pc", "mini-pc", "minipc",
       "all-in-one", "all in one", "alles-in-een",
     ],
-    url: "keuzehulpen/desktop/vragen",
+    url: "desktop/vragen",
   },
   {
     title: "Wasmachine keuzehulp",
     keywords: ["wasmachine", "wasmachines", "wasautomaat", "wasautomaten", "wasgoed"],
-    url: "keuzehulpen/wasmachine/vragen",
+    url: "wasmachine/vragen",
   },
   {
     title: "Printer keuzehulp",
     keywords: ["printer", "printers", "all-in-one printer", "multifunctional", "fotoprinter"],
-    url: "keuzehulpen/printer/vragen",
+    url: "printer/vragen",
   },
   {
     title: "Koelkast keuzehulp",
@@ -44,7 +44,7 @@ const keuzehulpen = [
       "koel-vriescombinatie", "koelvriescombinatie", "koel vries combinatie",
       "tafelmodel koelkast", "tafelmodel",
     ],
-    url: "keuzehulpen/koelkast/vragen",
+    url: "koelkast/vragen",
   },
 ];
 

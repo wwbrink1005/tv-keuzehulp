@@ -1,17 +1,20 @@
 // Generieke funnel-events voor alle keuzehulpen: quiz_gestart, quiz_voltooid, affiliate_klik.
-// Werkt op basis van de URL-structuur (keuzehulpen/{categorie}/vragen|resultaat), zodat er
-// geen aanpassingen nodig zijn in de per-categorie quiz.js/result.js bestanden.
+// Werkt op basis van de URL-structuur (/{categorie}/vragen|resultaat), zodat er geen
+// aanpassingen nodig zijn in de per-categorie quiz.js/result.js bestanden.
 (function () {
+  // Houd in sync met de categorieen in shared/zoekbalk.js en blog/index.html.
+  const CATEGORIES = ["tv", "laptop", "monitor", "desktop", "printer", "wasmachine", "koelkast"];
+
   function getCategoryAndStage() {
-    const match = window.location.pathname.match(/\/keuzehulpen\/([^/]+)\/(vragen|resultaat)\/?/);
-    if (!match) return null;
+    const match = window.location.pathname.match(/^\/([^/]+)\/(vragen|resultaat)\/?/);
+    if (!match || !CATEGORIES.includes(match[1])) return null;
     return { category: match[1], stage: match[2] };
   }
 
-  // SEO-tussenpagina van een categorie: /keuzehulpen/{categorie}/ zonder vragen/resultaat erachter.
+  // SEO-tussenpagina van een categorie: /{categorie}/ zonder vragen/resultaat erachter.
   function getGuideCategory() {
-    const match = window.location.pathname.match(/\/keuzehulpen\/([^/]+)\/?$/);
-    if (!match) return null;
+    const match = window.location.pathname.match(/^\/([^/]+)\/?$/);
+    if (!match || !CATEGORIES.includes(match[1])) return null;
     return match[1];
   }
 

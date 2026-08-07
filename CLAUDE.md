@@ -1,8 +1,9 @@
 # producthulp.nl / tv
 
 Statische productvergelijkingswebsite met keuzehulpen (quiz-achtige productkeuze-tools):
-tv, laptop, monitor, desktop. Geen build-tool — kale HTML/CSS/JS, ES modules, gehost via
-GitHub Pages. Data komt uit Supabase, gevuld door een losse `keuzehulp-pipeline`-repo.
+tv, laptop, monitor, desktop, printer, wasmachine, koelkast. Geen build-tool — kale
+HTML/CSS/JS, ES modules, gehost via GitHub Pages. Data komt uit Supabase, gevuld door een
+losse `keuzehulp-pipeline`-repo.
 
 ## Nieuwe keuzehulp toevoegen
 
@@ -18,12 +19,19 @@ Supabase-migratie uitvoeren) versus wat zelfstandig te doen is.
   vragen-/resultaatpagina's; pagina-specifieke overrides staan in een inline
   `<style>`-blok dat NA de shared link geladen wordt.
 - `shared/zoekbalk.js` — homepage-zoekbalk, matcht op keywords + titel per keuzehulp.
-- Alle keuzehulpen staan onder `keuzehulpen/{categorie}/` (bijv.
-  `keuzehulpen/tv/`) — let op de extra nestingsdiepte in `<base href="../../../">`
-  op de vragen-/resultaatpagina's (3x omhoog i.p.v. 2x).
+- Alle keuzehulpen staan direct onder de repo-root als `{categorie}/` (bijv. `tv/`,
+  `wasmachine/`) — **geen** `keuzehulpen/`-laag meer (die is verwijderd om kortere,
+  schonere URL's te krijgen: `producthulp.nl/wasmachine/vragen/` i.p.v.
+  `producthulp.nl/keuzehulpen/wasmachine/vragen/`). Let op de nestingsdiepte in
+  `<base href="../../">` op de vragen-/resultaatpagina's (2x omhoog), `<base href="../">`
+  op de gidspagina (`{categorie}/index.html`, 1x omhoog), en `<base href="../../../">`
+  op blogartikelen (`{categorie}/blog/{slug}/index.html`, 3x omhoog).
+- Oude `keuzehulpen/{categorie}/...`-URL's die al door Google geïndexeerd waren, hebben
+  een lichte redirect-stub gekregen op hun oude locatie (canonical + meta-refresh naar de
+  nieuwe URL, zelfde patroon als de stubs voor `contact/`, `privacy/` etc. op de root).
 - De vaste pagina's (contact, disclaimer, hoe-werkt-het, over-ons, privacy) staan onder
   `overige-paginas/` met `<base href="../../">` (2x omhoog i.p.v. 1x).
-- Per keuzehulp (`keuzehulpen/{categorie}/`): `js/data.js` (scoring/tiers), `js/supabase.js`
+- Per keuzehulp (`{categorie}/`): `js/data.js` (scoring/tiers), `js/supabase.js`
   (fetch + adaptRow), `js/utils.js` (normalizeProducts/prijsbuckets), `js/matching.js`
   (scoring + tier-cascade met verplichte eindfallback), `js/quiz.js`, `js/result.js`,
   `js/result-filters.js` (secundaire filters op de resultaatpagina).
