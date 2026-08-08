@@ -277,6 +277,78 @@
 .filters-panel-header { padding-bottom: 14px; margin-bottom: 4px; }
 
 .tv-providers-list { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+
+/* Filters wordt de duidelijke hoofdactie i.p.v. een kaal icoontje gelijk aan
+   herstart/info — gevulde, geaccentueerde knop met label, net als een actieve
+   filter-chip (.icon-button.is-active) elders op de pagina. */
+.mobile-actions { flex: 1; min-width: 0; }
+
+.filter-toggle {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  gap: 7px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-toggle-label { display: inline; }
+
+/* Herstart + info blijven werken zoals ze waren, maar worden visueel stiller
+   zodat Filters als enige knop opvalt. */
+.restart-trigger, #infoTriggerMobile {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.restart-trigger:hover, #infoTriggerMobile:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Titel + aantal compacter — het "Jouw resultaten"-label kost een hele regel
+   zonder extra informatie t.o.v. de titel eronder. */
+.results-section-label { display: none; }
+
+.results-heading {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 6px 8px;
+  padding-bottom: 0.5rem;
+}
+
+.result-title { font-size: 15.5px; }
+
+/* Uitleg over de keuzes: tekstlink i.p.v. een eigen volle knoppenrij, zodat
+   Filters de enige nadrukkelijke knop op de pagina blijft. */
+.results-explainer { margin-bottom: 10px; }
+
+.results-explainer-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 12.5px;
+}
+
+.results-explainer-btn:hover, .results-explainer-btn.is-open {
+  background: none;
+  border-color: transparent;
+}
 }
 
 /* Card layout switches to the stacked (mobile) design as soon as the results
@@ -347,6 +419,7 @@
       <div class="mobile-actions" aria-label="Snelle acties">
         <button class="icon-button filter-toggle" type="button" aria-label="Open filters" aria-expanded="false" aria-controls="filtersPanel">
           <i data-lucide="sliders-horizontal"></i>
+          <span class="filter-toggle-label">Filters</span>
         </button>
         <div class="restart-toggle">
           <button class="icon-button restart-trigger" type="button" aria-label="Begin opnieuw" aria-expanded="false" aria-controls="restartPopover">
