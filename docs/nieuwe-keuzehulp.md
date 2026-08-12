@@ -156,6 +156,38 @@ project meermaals bugs heeft opgeleverd bij onderhoud):
   (bijv. tv's Q1/Q2 met een vaste 2-koloms grid) hebben een eigen, compactere layout en
   hebben dit niet nodig, ook niet bij 6+ opties.
 
+## 4b. €-indicatoren op elk antwoord (verplicht, geen losse taak)
+
+Elke bestaande keuzehulp (tv/laptop/monitor/desktop/printer/wasmachine/koelkast) geeft
+**elk** antwoord een `<span class="price-indicator">€</span>` (€/€€/€€€) die aangeeft of die
+keuze vaker naar een voordeliger of duurdere prijs leidt — puur indicatief, er wordt niets
+mee weggefilterd. Dit hoort standaard bij een nieuwe keuzehulp, niet als losse vervolgstap.
+**Ook neutrale opties** ("weet ik niet", "maakt niet uit", "geen extra wensen") krijgen
+altijd precies één `€` — nooit weglaten (bevestigd bij desktop's "Maakt niet uit" en
+monitor's "Geen extra wensen").
+
+**Vergeet de CSS niet:** elke keuzehulp definieert `.answer-option .price-indicator` los in
+het eigen `<style>`-blok van `vragen/index.html` (staat niet in `shared/quiz.css`). Zonder
+die regel oogt de € lelijk en ongestyled. Kopieer 'm uit een bestaande keuzehulp, vlak vóór
+`.answer-option input[type="radio"]`:
+```css
+.answer-option .price-indicator {
+      margin-left: auto;
+      padding-left: calc(8px * var(--scale));
+      font-size: calc(11.5px * var(--scale));
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--c-text-3);
+      opacity: .55;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+```
+
+Voeg ook een zin toe aan de "Hoe werkt het?"-uitleg (desktop én mobiel blok): "Bij sommige
+antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of
+duurdere (€€€) {categorie} leidt, puur ter indicatie, we filteren er niets mee weg."
+
 ## 5. Matching-logica: verplichte eindfallback
 
 Elke `match{Categorie}()`-functie moet, na de tier-cascade, een fallback hebben voor het

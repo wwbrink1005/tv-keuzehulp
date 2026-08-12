@@ -45,6 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <li>
               <a href="koelkast/vragen">Koelkasten</a>
             </li>
+            <li>
+              <a href="soundbar/vragen">Soundbars</a>
+            </li>
           </ul>
         </div>
 

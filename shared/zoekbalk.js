@@ -46,6 +46,14 @@ const keuzehulpen = [
     ],
     url: "koelkast/vragen",
   },
+  {
+    title: "Soundbar keuzehulp",
+    keywords: [
+      "soundbar", "soundbars", "sound bar", "geluidsbalk",
+      "surround", "surroundset", "home cinema", "hometheater",
+    ],
+    url: "soundbar/vragen",
+  },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();
