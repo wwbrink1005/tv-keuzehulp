@@ -34,12 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
               <a href="laptop/vragen">Laptops</a>
             </li>
             <li>
-              <a href="monitor/vragen">Monitoren</a>
-            </li>
-            <li>
-              <a href="desktop/vragen">Desktops</a>
-            </li>
-            <li>
               <a href="wasmachine/vragen">Wasmachines</a>
             </li>
             <li>
