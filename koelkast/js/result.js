@@ -1,50 +1,10 @@
 import { buildResultPoints } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
+import { buildProvidersHtml, resetProvidersRegistry } from "../../shared/aanbieders.js";
 
 // Fallback shown when an Icecat product image URL 404's (stale/broken CDN entry).
 const IMG_FALLBACK = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f4f5f7'/%3E%3Cg fill='none' stroke='%23c8ccd2' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='40' y='50' width='120' height='90' rx='8'/%3E%3Ccircle cx='75' cy='85' r='10'/%3E%3Cpath d='M40 125l35-30 30 25 20-18 35 28'/%3E%3C/g%3E%3C/svg%3E";
 window.IMG_FALLBACK = IMG_FALLBACK;
-
-function formatShipping(verzendkosten) {
-  const val = parseFloat(String(verzendkosten ?? "").replace(",", "."));
-  if (!Number.isFinite(val) || val <= 0) return "Gratis bezorgd";
-  return `+ €${val.toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} verzending`;
-}
-
-function buildProvidersHtml(koelkast) {
-  const providers = koelkast?.aanbieders ?? [];
-  if (providers.length === 0) return "";
-
-  return `
-    <div class="tv-card-providers">
-      <p class="tv-providers-header">Beschikbaar bij</p>
-      <div class="tv-providers-list">
-        ${providers.map(p => {
-          const priceLabel = formatPriceLabel(p.prijs);
-          const shippingLabel = formatShipping(p.verzendkosten);
-          const subParts = [];
-          if (p.levertijd) subParts.push(p.levertijd);
-          subParts.push(shippingLabel);
-          const subText = subParts.join(" · ");
-          return `
-            <a href="${p.url}" class="tv-provider-row" target="_blank" rel="noopener noreferrer" aria-label="${p.winkel}: €${priceLabel}">
-              <div class="tv-provider-left">
-                <span class="tv-provider-name">${p.winkel}</span>
-                ${subText ? `<span class="tv-provider-sub">${subText}</span>` : ""}
-              </div>
-              <div class="tv-provider-right">
-                <span class="tv-provider-price">€ ${priceLabel}</span>
-                <span class="tv-provider-arrow" aria-hidden="true">
-                  <i data-lucide="chevron-right"></i>
-                </span>
-              </div>
-            </a>
-          `;
-        }).join("")}
-      </div>
-    </div>
-  `;
-}
 
 function buildSpecList(koelkast) {
   const specs = [];
@@ -73,6 +33,7 @@ function updateMatchCount(count) {
 }
 
 function displayOtherMatchesRedesign(filteredMatchedKoelkasten) {
+  resetProvidersRegistry();
   const container = qs("#otherMatchesGrid");
   if (!container) return;
 
@@ -97,7 +58,7 @@ function displayOtherMatchesRedesign(filteredMatchedKoelkasten) {
           <span>${point}</span>
         </li>
       `).join("");
-      const providersHtml = buildProvidersHtml(koelkast);
+      const providersHtml = buildProvidersHtml(koelkast.aanbieders);
 
       return `
         <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
