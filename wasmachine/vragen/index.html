@@ -163,7 +163,7 @@
   width: 100%;
   max-width: calc(var(--base-width) * 1px);
   aspect-ratio: 1242.21 / 630.138;
-  background-image: url('wasmachine/images/wasmachine achtergrond.png');
+  background-image: url('wasmachine/images/wasmachine nieuw.png');
   background-size: var(--wasmachine-bg-size);
   background-position: var(--wasmachine-bg-position);
   border-radius: var(--r-lg);
@@ -329,25 +329,10 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 
-/* ─── Capaciteit-visualisatie (3 volledige achtergrond-varianten die
-   crossfaden o.b.v. gezinsgrootte, zelfde patroon als de koelkast-keuzehulp) ── */
-.background-layer {
-  position: absolute;
-  inset: 0;
-  background-size: var(--wasmachine-bg-size);
-  background-position: var(--wasmachine-bg-position);
-  opacity: 0;
-  transition: opacity .9s ease;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.background-layer.is-visible { opacity: 1; }
-
 .wasmachine-dim-badge {
   position: absolute;
-  left: 54%;
-  top: 47%;
+  left: 49%;
+  top: 43%;
   transform: translate(-50%, -100%) translateY(2px);
   z-index: 2;
   display: inline-flex;
@@ -393,17 +378,6 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
   .wasmachine-dim-badge svg { width: 16px; height: 16px; }
 }
 
-.background-layer--klein {
-  background-image: url('wasmachine/images/wasmachine achtergrond klein.png');
-}
-
-.background-layer--gemiddeld {
-  background-image: url('wasmachine/images/wasmachine achtergrond gemiddeld.png');
-}
-
-.background-layer--groot {
-  background-image: url('wasmachine/images/wasmachine achtergrond groot.png');
-}
 
 .info-panel-icon-wrap { display: none; }
 
@@ -427,9 +401,9 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 .background-container {
   --base-width: 605.5;
   --base-height: 495;
-  --wasmachine-bg-position: 58% 55%;
+  --wasmachine-bg-position: 48% 55%;
   --wasmachine-bg-size: 220%;
-  background-image: url('wasmachine/images/wasmachine achtergrond.png');
+  background-image: url('wasmachine/images/wasmachine nieuw.png');
   aspect-ratio: 1 / 1;
   width: min(92vw, 560px);
   max-width: min(92vw, 560px);
@@ -551,12 +525,6 @@ button.question-hint-btn-mobile { display: grid; }
     <div class="container-wrapper">
       <div class="quiz-hero">
         <div class="background-container">
-          <!-- Capaciteit-visualisatie: 3 volledige achtergrond-varianten (zelfde
-               kamer/machine, oplopende hoeveelheid was) die crossfaden o.b.v.
-               gezinsgrootte — zelfde patroon als de koelkast-keuzehulp. -->
-          <div class="background-layer background-layer--klein" id="bg-layer-klein" aria-hidden="true"></div>
-          <div class="background-layer background-layer--gemiddeld" id="bg-layer-gemiddeld" aria-hidden="true"></div>
-          <div class="background-layer background-layer--groot" id="bg-layer-groot" aria-hidden="true"></div>
           <div class="wasmachine-dim-badge" id="wasmachine-dim-badge" aria-hidden="true"></div>
           <div class="top-bar">
             <div class="progress-bar" id="progress-bar"></div>

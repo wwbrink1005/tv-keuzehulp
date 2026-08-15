@@ -66,36 +66,26 @@ function updateExtraOptionsVisibility() {
   });
 }
 
-// Capaciteit-visualisatie: 3 volledige achtergrond-varianten (zelfde kamer +
-// machine, oplopende hoeveelheid was) die crossfaden o.b.v. gezinsgrootte —
-// zelfde laag-crossfade-patroon als de koelkast-keuzehulp.
+// Capaciteit-visualisatie: de crossfade-achtergrondlagen (klein/gemiddeld/
+// groot) zijn vervangen door 1 vaste wasmachine-achtergrond ("wasmachine
+// nieuw.png") — die lagen worden dus niet meer getoond. Het label met de
+// capaciteit reageert nog wel gewoon op het gekozen antwoord.
 function updateWasmachineDisplay() {
   const checked = qs('input[name="capaciteitGroup"]:checked');
-  const layers = {
-    klein:     qs("#bg-layer-klein"),
-    gemiddeld: qs("#bg-layer-gemiddeld"),
-    groot:     qs("#bg-layer-groot"),
-  };
-
   const active = checked?.value ?? null;
-
-  Object.entries(layers).forEach(([key, layer]) => {
-    if (layer) layer.classList.toggle("is-visible", key === active);
-  });
 
   const badge = qs("#wasmachine-dim-badge");
   if (badge) {
     const label = active ? CAPACITEIT_BADGE_LABELS[active] : null;
     if (label) {
       badge.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"/>
-          <circle cx="12" cy="12" r="5.5"/>
-          <path d="M12 9.2v2.8l1.8 1.8"/>
-        </svg>
+        <i data-lucide="washing-machine" aria-hidden="true"></i>
         <span>Trommelcapaciteit ${label}</span>
       `;
       badge.classList.add("is-visible");
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons();
+      }
     } else {
       badge.classList.remove("is-visible");
     }
