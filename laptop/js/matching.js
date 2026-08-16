@@ -80,6 +80,30 @@ export function applyOpslagFilter(laptops, opslag) {
   return laptops;
 }
 
+// ─── Werkgeheugen (RAM) filter ─────────────────────────────────────────────────
+// Geen eigen vraag — leunt op de al-bestaande "intensiteit"-vraag, want RAM
+// correleert daarmee net zo goed als processortier: binnen bijv. de "Mid"-tier
+// zit nog een echte spreiding van 4 tot 48 GB (129 op 16 GB, maar ook 23 op
+// 8 GB en 16 op 24-48 GB) die tot nu toe volledig ongebruikt bleef in de
+// matching. Zelfde gracieus-degraderende patroon als applyOpslagFilter.
+//
+// Bewust géén 32 GB-eis voor "intensief": getest tegen de live catalogus en
+// dat sneed tot 90% van de Krachtig/Topklasse-laptops weg (169 van de 271
+// hebben "gewoon" 16 GB, wat prima intensief-geschikt is — 32 GB is een
+// premium-upgrade, geen basisvereiste). 16 GB als ondergrens voor zowel
+// "gemiddeld" als "intensief" verwijdert vooral de paar 4/8 GB-uitschieters
+// die in hogere tiers lekken, zonder overig goed aanbod weg te filteren.
+export function applyRamFilter(laptops, intensiteit) {
+  if (intensiteit === "gemiddeld" || intensiteit === "intensief") {
+    const medium = laptops.filter(l => l.werkgeheugen >= 16);
+    if (medium.length > 0) return medium;
+    return laptops;
+  }
+
+  // "licht" → geen RAM-eis (8 GB is prima)
+  return laptops;
+}
+
 // ─── Extra preferences ────────────────────────────────────────────────────────
 
 export function applyExtraFilter(laptops, extraAnswers) {
@@ -151,24 +175,47 @@ export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
       .filter(([, s]) => Number(s) === Number(topScore))
       .map(([t]) => t);
 
-    let candidates = filtered.filter(l => tiersWithTopScore.includes(getProcessorTier(l.processor)));
+    // Tegenstrijdige antwoorden (bv. "werk" + "gaming") kunnen 2 tiers laten
+    // gelijkspelen. Die dan allebei samenvoegen tot 1 pool verdubbelde het
+    // aantal resultaten (getest: 126+ i.p.v. de gebruikelijke ~60-80) — dus
+    // bij een gelijkspel proberen we de getailde tiers apart, goedkoopste/
+    // conservatiefste eerst (TIER_ORDER), en gebruiken we de eerste die na
+    // alle filters daadwerkelijk treffers overhoudt. Zo blijft de resultaten-
+    // lijst net zo scherp als bij een ondubbelzinnig antwoord.
+    const tiersInVolgorde = TIER_ORDER.filter(t => tiersWithTopScore.includes(t));
+
+    let candidates = [];
+    let gekozenTier = null;
+
+    for (const tier of tiersInVolgorde) {
+      let poging = filtered.filter(l => getProcessorTier(l.processor, l.processor_familie) === tier);
+      if (poging.length === 0) continue;
+
+      // 3. Apply formaat filter (weight-based portability)
+      poging = applyFormaatFilter(poging, answers.formaat ?? "");
+      if (poging.length === 0) continue;
+
+      // 4. Apply opslag filter
+      poging = applyOpslagFilter(poging, answers.opslag ?? "");
+      if (poging.length === 0) continue;
+
+      // 5. Apply werkgeheugen (RAM) filter
+      poging = applyRamFilter(poging, answers.intensiteit ?? "");
+      if (poging.length === 0) continue;
+
+      // 6. Apply extra preferences
+      poging = applyExtraFilter(poging, answers.extraAnswers ?? []);
+      if (poging.length === 0) continue;
+
+      candidates = poging;
+      gekozenTier = tier;
+      break;
+    }
 
     if (candidates.length === 0) continue;
 
-    // 3. Apply formaat filter (weight-based portability)
-    candidates = applyFormaatFilter(candidates, answers.formaat ?? "");
-    if (candidates.length === 0) continue;
-
-    // 4. Apply opslag filter
-    candidates = applyOpslagFilter(candidates, answers.opslag ?? "");
-    if (candidates.length === 0) continue;
-
-    // 5. Apply extra preferences
-    candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
-    if (candidates.length === 0) continue;
-
-    matchedLaptops = [...candidates];
-    bestType = tiersWithTopScore.join(" / ");
+    matchedLaptops = candidates;
+    bestType = gekozenTier;
     break;
   }
 
@@ -178,6 +225,7 @@ export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
   if (matchedLaptops.length === 0) {
     let fallback = applyFormaatFilter(filtered, answers.formaat ?? "");
     fallback = applyOpslagFilter(fallback, answers.opslag ?? "");
+    fallback = applyRamFilter(fallback, answers.intensiteit ?? "");
     fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
     if (fallback.length === 0) fallback = [...filtered];
     matchedLaptops = fallback;
@@ -221,7 +269,7 @@ export function buildResultPoints(laptop, answers) {
   const formaat      = answers.formaat ?? "";
   const opslag       = answers.opslag ?? "";
   const extraAnswers = answers.extraAnswers ?? [];
-  const tier         = getProcessorTier(laptop.processor);
+  const tier         = getProcessorTier(laptop.processor, laptop.processor_familie);
 
   // Processor tier points
   if (tier === "Topklasse") {

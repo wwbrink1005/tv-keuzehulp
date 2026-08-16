@@ -88,6 +88,7 @@ export function normalizeProducts(rawProducts) {
       paneeltype:     product.paneeltype,
       hz,
       processor:      product.processor,
+      processor_familie: product.processor_familie ?? "",
       gpu:            product.gpu ?? "",
       gewicht:        Number.isFinite(gewicht) ? gewicht : null,
       os:             product.os ?? "",

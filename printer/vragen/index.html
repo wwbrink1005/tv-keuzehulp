@@ -201,7 +201,7 @@ button.question-hint-btn-mobile {
 
 button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-active { background: rgba(235,244,255,.97); color: var(--c-accent); }
 
-#question-1, #question-2, #question-3, #question-4 {
+#question-1, #question-2, #question-3, #question-4, #question-5 {
   position: relative;
   opacity: 0;
   transform: translateY(6px);
@@ -210,7 +210,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 #question-1.is-active, #question-2.is-active, #question-3.is-active,
-#question-4.is-active {
+#question-4.is-active, #question-5.is-active {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -272,21 +272,23 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 #question-1 input[type="radio"],
 #question-2 input[type="radio"],
 #question-3 input[type="radio"],
-#question-4 input[type="radio"] {
+#question-4 input[type="radio"],
+#question-5 input[type="radio"] {
   margin-right: calc(30px * var(--scale));
 }
 
 #question-1 .answer-info-icon,
 #question-2 .answer-info-icon,
 #question-3 .answer-info-icon,
-#question-4 .answer-info-icon {
+#question-4 .answer-info-icon,
+#question-5 .answer-info-icon {
   margin-left: calc(-20px * var(--scale));
   margin-right: calc(10px * var(--scale));
 }
 
 .button-container button:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3 {
+#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
   background: rgba(255,255,255,.90);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -296,7 +298,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
   filter: none;
 }
 
-#back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover {
+#back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover, #back-to-question-4:hover {
   background: rgba(232,242,255,.97);
   border-color: rgba(9,84,163,.50);
   box-shadow: 0 4px 14px rgba(9,84,163,.14);
@@ -307,7 +309,8 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 #question-1 .button-container,
 #question-2 .button-container,
 #question-3 .button-container,
-#question-4 .button-container {
+#question-4 .button-container,
+#question-5 .button-container {
   left: calc(26.2291px * var(--scale));
   width: calc(366.968px * var(--scale));
 }
@@ -358,9 +361,10 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 #question-1 .answer-info-icon, #question-2 .answer-info-icon,
-#question-3 .answer-info-icon, #question-4 .answer-info-icon { margin-left: 0; margin-right: 8px; }
+#question-3 .answer-info-icon, #question-4 .answer-info-icon,
+#question-5 .answer-info-icon { margin-left: 0; margin-right: 8px; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3 {
+#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
   border-width: 1.5px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
@@ -368,7 +372,8 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 #question-1 .button-container, #question-2 .button-container,
-#question-3 .button-container, #question-4 .button-container {
+#question-3 .button-container, #question-4 .button-container,
+#question-5 .button-container {
   left: auto;
   width: 100%;
   max-width: 100%;
@@ -616,6 +621,35 @@ button.question-hint-btn-mobile { display: grid; }
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 51.3935px) + (1 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-3">Terug</button>
+              <button id="to-question-5">Volgende</button>
+            </div>
+          </div>
+
+          <!-- VRAAG 5: Inktsysteem -->
+          <div id="question-5" class="question-block" style="display:none;">
+            <div class="question-container">
+              <h2>Wat vind je belangrijker: een lage aanschafprijs of lage kosten per pagina?</h2>
+              <div class="question-popover" data-popover="5">
+                <h3 class="question-popover-title">Waarom deze vraag?</h3>
+                <p class="question-popover-text">Printers met een navulbaar inktsysteem (zoals EcoTank of Smart Tank) kosten meer bij aanschaf, maar de inkt is daarna veel goedkoper per pagina. Printers met losse cartridges zijn goedkoper in aanschaf, maar de cartridges zijn relatief duur.</p>
+              </div>
+            </div>
+            <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
+              <label class="answer-option">
+                <input type="radio" name="inkt" value="aanschafprijs">
+                <svg class="answer-info-icon" data-icon="tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Lage aanschafprijs is belangrijker</span>
+                <span class="price-indicator">€</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="inkt" value="tank">
+                <svg class="answer-info-icon" data-icon="droplets" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Lage kosten per pagina</span>
+                <span class="price-indicator">€€€</span>
+              </label>
+            </div>
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 51.3935px) + (1 * 15px) + 22px) * var(--scale));">
+              <button id="back-to-question-4">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { VEEL_VOLUME_MIN_SNELHEID } from "./data.js";
+import { VEEL_VOLUME_MIN_SNELHEID, isInktTankSysteem } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 // Geen scoring-as meer (zie data.js) — behouden als no-op zodat de
@@ -28,6 +28,25 @@ export function applyKleurFilter(printers, kleurBelangrijk) {
     return printers;
   }
   // "nee" of onbeantwoord → geen filter (zwart-wit is voor iedereen prima)
+  return printers;
+}
+
+// ─── Inktsysteem voorkeur ───────────────────────────────────────────────────────
+// "tank" versmalt naar tank-printers (hogere aanschafprijs, lagere kosten per
+// pagina); "aanschafprijs" versmalt juist naar cartridge-printers (lagere
+// aanschafprijs) — dit is de vraag die daadwerkelijk de prijsspreiding binnen
+// "thuis" narrowt, in plaats van dat alle "€"-antwoorden nog steeds de volle
+// €49-959-range opleveren. Beide kanten degraderen gracieus naar het
+// ongefilterde aanbod als de voorkeur toevallig 0 treffers oplevert.
+export function applyInktFilter(printers, inktVoorkeur) {
+  if (inktVoorkeur === "tank") {
+    const tank = printers.filter(p => isInktTankSysteem(p.naam));
+    if (tank.length > 0) return tank;
+  }
+  if (inktVoorkeur === "aanschafprijs") {
+    const cartridge = printers.filter(p => !isInktTankSysteem(p.naam));
+    if (cartridge.length > 0) return cartridge;
+  }
   return printers;
 }
 
@@ -72,6 +91,9 @@ export function matchPrinters(printers, gebruik, priceGroup, answers) {
   // 4. Apply all-in-one voorkeur
   candidates = applyAioFilter(candidates, answers.aio ?? "");
 
+  // 5. Apply inktsysteem voorkeur
+  candidates = applyInktFilter(candidates, answers.inkt ?? "");
+
   const matchedPrinters = candidates.length > 0 ? candidates : filtered;
 
   // Best match = cheapest in the matched set
@@ -92,6 +114,13 @@ export function buildResultPoints(printer, answers) {
   const kleur = answers?.kleur ?? "";
   const aio = answers?.aio ?? "";
   const volume = answers?.volume ?? "";
+  const inkt = answers?.inkt ?? "";
+
+  if (inkt === "tank" && isInktTankSysteem(printer.naam)) {
+    points.push("Navulbaar inktsysteem: lage kosten per pagina op de lange termijn");
+  } else if (inkt === "aanschafprijs" && !isInktTankSysteem(printer.naam)) {
+    points.push("Lage aanschafprijs, standaard cartridges");
+  }
 
   if (printer.gebruikType === "zakelijk") {
     points.push("Geschikt voor intensief zakelijk gebruik");

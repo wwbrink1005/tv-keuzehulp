@@ -25,6 +25,9 @@ export const priceGroupsBySize = {
 };
 
 // ─── Processor tier definitions ───────────────────────────────────────────────
+// Legacy patroon (bv. "Intel Core i7-13620H", "AMD Ryzen 7 5825U") — dekt
+// alleen de oude naamgeving, waar merk+lijnnummer al in het processor-veld
+// zelf staan.
 export const PROCESSOR_TIERS = {
   Budget:    ["i3"],
   Mid:       ["i5", "Ryzen 5"],
@@ -34,12 +37,50 @@ export const PROCESSOR_TIERS = {
 
 export const TIER_ORDER = ["Budget", "Mid", "Krachtig", "Topklasse"];
 
-export function getProcessorTier(processor) {
+// Moderne processormodellen ("356H", "275HX", "N100") bevatten zelf geen
+// merk/lijn meer — die info staat apart in Icecat's "Processorfamilie"
+// (bv. "Intel Core Ultra 7", "AMD Ryzen AI 9 HX", "Intel® N", "MediaTek").
+// Zonder dit veld vielen 511 van de 573 laptops (89%) stil terug op de
+// "Mid"-default, waardoor bv. €7.700 workstation-laptops (Ultra 9 HX) als
+// "Mid" werden aangeboden aan iemand die gemiddeld gebruik zocht.
+function tierFromFamilieNummer(familie) {
+  const f = String(familie ?? "");
+  if (!f) return null;
+
+  if (/mediatek/i.test(f)) return "Budget";
+  // "AMD Ryzen AI Max(+) PRO" heeft geen cijfer-lijn in de familienaam zelf
+  // (die zit in het modelnummer, bv. "390"/"PRO 395") — dit is AMD's
+  // topklasse mobiele workstationchip, vergelijkbaar met Ryzen 9.
+  if (/ryzen ai max/i.test(f)) return "Topklasse";
+  // "Intel® N" (Celeron/Pentium N-serie, bv. N100/N355) heeft geen cijfer-lijn.
+  if (/intel.{0,3}\bn\b/i.test(f)) return "Budget";
+  // Snapdragon X Elite/Plus zijn krachtige Copilot+-chips; overige Snapdragons
+  // (zonder cijfer-lijn) behandelen we als middenklasse-efficiëntiechip.
+  if (/snapdragon.*(x elite|x plus)/i.test(f)) return "Krachtig";
+  if (/snapdragon/i.test(f)) return "Mid";
+
+  // Laatste losse cijfer in de familienaam is de lijn/tier (Intel Core(?:
+  // Ultra)? 3/5/7/9, AMD Ryzen(?: AI)? 3/5/7/9).
+  const match = f.match(/(\d+)(?!.*\d)/);
+  if (!match) return null;
+
+  const nummer = parseInt(match[1], 10);
+  if (nummer <= 3) return "Budget";
+  if (nummer === 5) return "Mid";
+  if (nummer === 7) return "Krachtig";
+  if (nummer >= 9) return "Topklasse";
+  return null;
+}
+
+export function getProcessorTier(processor, processorFamilie) {
+  const uitFamilie = tierFromFamilieNummer(processorFamilie);
+  if (uitFamilie) return uitFamilie;
+
   const raw = String(processor ?? "").trim();
   for (const [tier, procs] of Object.entries(PROCESSOR_TIERS)) {
     if (procs.some(p => raw.toLowerCase().includes(p.toLowerCase()))) return tier;
   }
-  return "Mid"; // default fallback
+  return "Mid"; // default fallback voor de resterende, écht onherkende gevallen
 }
 
 // ─── Scoring system ───────────────────────────────────────────────────────────

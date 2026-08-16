@@ -35,10 +35,27 @@ export function classifyGebruik(printtechnologie, marktPositionering, printkleur
   const markt = String(marktPositionering ?? "").toLowerCase();
   const kleurenAantal = String(printkleuren ?? "").split(",").map(s => s.trim()).filter(Boolean).length;
 
-  if (tech.includes("laser") || markt.includes("bedrijf")) return "zakelijk";
+  // "LED" is Brother's eigen naam voor hun laserprinter-technologie (LED-array
+  // i.p.v. laserdiode, functioneel dezelfde toner-klasse) — zonder deze check
+  // vielen deze 2 producten ten onrechte onder "thuis" i.p.v. "zakelijk".
+  if (tech.includes("laser") || tech.includes("led") || markt.includes("bedrijf")) return "zakelijk";
   if (kleurenAantal >= 5) return "foto";
   if (tech) return "thuis";
   return null;
+}
+
+// ─── Inktsysteem (tank vs. cartridge) ──────────────────────────────────────
+// Icecat heeft geen apart, betrouwbaar "heeft navulbare inkttank"-veld — wel
+// zijn EcoTank/Smart Tank/MegaTank/SuperTank getrademarkte productlijnnamen
+// (Epson/HP/Canon), dus naam-detectie is hier betrouwbaar, i.t.t. generieke
+// zoektermen. Onderzoek in de "thuis"-categorie: tank-printers liggen op een
+// mediaan van €278 t.o.v. €120 voor cartridge-printers — een reëel en
+// uitlegbaar prijsverschil (hogere aanschafprijs, veel lagere kosten per
+// pagina), dus relevant als eigen keuzevraag i.p.v. een blinde prijscap.
+const INKTTANK_PATRONEN = [/ecotank/i, /smart tank/i, /megatank/i, /supertank/i];
+
+export function isInktTankSysteem(naam) {
+  return INKTTANK_PATRONEN.some(re => re.test(String(naam ?? "")));
 }
 
 // Geen Budget/Mid/Premium-tier-classificatie (meer) — die correleerde niet

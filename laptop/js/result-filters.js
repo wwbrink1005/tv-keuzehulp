@@ -74,7 +74,7 @@ function collectBrandOptions(matches) {
 function collectTierOptions(matches) {
   const order = ["Budget", "Mid", "Krachtig", "Topklasse"];
   const set = new Set();
-  matches.forEach(l => set.add(getProcessorTier(l.processor)));
+  matches.forEach(l => set.add(getProcessorTier(l.processor, l.processor_familie)));
   return order.filter(t => set.has(t));
 }
 
@@ -247,7 +247,10 @@ function renderPanelTypeOptions(container, card, matches) {
 }
 
 function renderRamOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectRamOptions(matches), "ramOptions", "Alle", r => `${r} GB`, v => parseInt(v, 10));
+  // "X GB of meer" i.p.v. exacte match — zie applyFilters(): met meerdere
+  // aangevinkte waarden geldt de laagste als ondergrens (die dekt de hogere
+  // al), dus "16 GB" aanvinken sluit 24/32 GB niet meer ten onrechte uit.
+  renderCheckboxFilter(container, card, collectRamOptions(matches), "ramOptions", "Alle", r => `${r}+ GB`, v => parseInt(v, 10));
 }
 
 function renderResolutionOptions(container, card, matches) {
@@ -299,7 +302,7 @@ function applyFilters() {
   }
 
   if (filterState.tiers.size > 0) {
-    filtered = filtered.filter(l => filterState.tiers.has(getProcessorTier(l.processor)));
+    filtered = filtered.filter(l => filterState.tiers.has(getProcessorTier(l.processor, l.processor_familie)));
   }
 
   if (filterState.panelTypes.size > 0) {
@@ -307,7 +310,8 @@ function applyFilters() {
   }
 
   if (filterState.ramOptions.size > 0) {
-    filtered = filtered.filter(l => filterState.ramOptions.has(l.werkgeheugen));
+    const minRam = Math.min(...filterState.ramOptions);
+    filtered = filtered.filter(l => l.werkgeheugen >= minRam);
   }
 
   if (filterState.resolutions.size > 0) {

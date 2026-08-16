@@ -102,6 +102,7 @@ function adaptRow(row) {
     paneeltype:          row.scherm_type ?? "",
     hz:                  "60",
     processor:           row.processor ?? "",
+    processor_familie:   row.processor_familie ?? "",
     gpu:                 row.gpu ?? "",
     gewicht:             parseGewicht(row.gewicht),
     os:                  parseOs(row.os),

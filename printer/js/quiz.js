@@ -30,7 +30,7 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
-const TOTAL_QUESTIONS = 4;
+const TOTAL_QUESTIONS = 5;
 
 // ─── Printer-visualisatie: silhouet per gebruiksdoel ───────────────────────────
 // Het printer-silhouet wisselt (met crossfade, dubbele buffer — zelfde patroon
@@ -258,12 +258,13 @@ function buildAnswers() {
     gebruik: qs('input[name="gebruik"]:checked')?.value ?? "",
     volume:  qs('input[name="volume"]:checked')?.value ?? "",
     aio:     qs('input[name="aio"]:checked')?.value ?? "",
-    kleur:   qs('input[name="kleur"]:checked')?.value ?? ""
+    kleur:   qs('input[name="kleur"]:checked')?.value ?? "",
+    inkt:    qs('input[name="inkt"]:checked')?.value ?? ""
   };
 }
 
 function handleStartMatching() {
-  const checked = qs('input[name="kleur"]:checked');
+  const checked = qs('input[name="inkt"]:checked');
   if (!checked) return alert("Kies een antwoord");
 
   const answers = buildAnswers();
@@ -352,7 +353,20 @@ export function initQuizPage() {
     showQuestion(3);
   });
 
-  // Q4 → Result
+  // Q4 → Q5
+  qs("#to-question-5")?.addEventListener("click", () => {
+    const checked = qs('input[name="kleur"]:checked');
+    if (!checked) return alert("Kies een antwoord");
+    showQuestion(5);
+  });
+
+  // Q5 → Q4
+  qs("#back-to-question-4")?.addEventListener("click", () => {
+    resetQuestionsFrom(5);
+    showQuestion(4);
+  });
+
+  // Q5 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
   window.addEventListener("resize", () => {
