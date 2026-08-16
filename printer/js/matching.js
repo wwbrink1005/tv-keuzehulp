@@ -126,6 +126,8 @@ export function buildResultPoints(printer, answers) {
     points.push("Geschikt voor intensief zakelijk gebruik");
   } else if (printer.gebruikType === "foto") {
     points.push("Fotokwaliteit-afdrukken met extra kleuren");
+  } else if (printer.gebruikType === "thuis") {
+    points.push("Compacte printer voor thuisgebruik");
   }
 
   if (volume === "veel" && (parseInt(printer.printsnelheidZwart, 10) || 0) >= VEEL_VOLUME_MIN_SNELHEID) {
@@ -148,5 +150,36 @@ export function buildResultPoints(printer, answers) {
     points.push(`${printer.printsnelheidZwart} pagina's per minuut (zwart-wit)`);
   }
 
+  // Generieke aanvulling: garandeert altijd 4 punten. printtechnologie is
+  // bij elke printer gegarandeerd aanwezig (harde eis in normalizeProducts());
+  // de rest is best-effort maar dekt de meeste modellen.
+  if (points.length < 4 && printer.printtechnologie) {
+    points.push(printtechniekLabel(printer.printtechnologie));
+  }
+  if (points.length < 4 && printer.kanKleurenPrinten === "Ja" && !points.some(p => p.toLowerCase().includes("kleur"))) {
+    points.push("Kleurenprinter");
+  }
+  if (points.length < 4 && printer.wifi === "Ja") {
+    points.push("Verbindt draadloos via wifi");
+  }
+  if (points.length < 4 && printer.printkleuren) {
+    const aantalKleuren = String(printer.printkleuren).split(",").map(s => s.trim()).filter(Boolean).length;
+    if (aantalKleuren === 1) points.push("Zwart-wit printer");
+    else if (aantalKleuren > 1) points.push(`${aantalKleuren} kleuren inkt`);
+  }
+  if (points.length < 4 && printer.merk) {
+    points.push(`Van het merk ${printer.merk}`);
+  }
+  if (points.length < 4) {
+    points.push("Betrouwbare printer voor dagelijks gebruik");
+  }
+
   return points.slice(0, 4);
+}
+
+function printtechniekLabel(tech) {
+  const t = String(tech ?? "");
+  if (/inkjet/i.test(t)) return "Inkjetprinter";
+  if (/laser|led/i.test(t)) return "Laserprinter";
+  return `${t}-printer`;
 }

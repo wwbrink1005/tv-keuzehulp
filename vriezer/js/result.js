@@ -34,8 +34,16 @@ function buildSpecList(vriezer) {
 
 function updateMatchCount(count) {
   const countEl = qs("#resultMatchCount");
-  if (!countEl) return;
-  countEl.textContent = `${Number.isFinite(count) ? count : 0}`;
+  if (countEl) countEl.textContent = `${Number.isFinite(count) ? count : 0}`;
+
+  // Enkelvoud alleen bij precies 1 resultaat — zie laptop/js/result.js voor
+  // de reden (voorkomt de indruk dat de eerste kaart de enige/beste optie is).
+  const titleEl = qs("#resultTitleText");
+  if (titleEl) {
+    titleEl.textContent = count === 1
+      ? "De vriezer die het beste bij je past!"
+      : "De vriezers die het beste bij je passen!";
+  }
 }
 
 function displayOtherMatchesRedesign(filteredMatchedVriezers) {

@@ -197,5 +197,31 @@ export function buildResultPoints(monitor, answers) {
     points.push("Ingebouwde luidsprekers, geen externe speakers nodig");
   }
 
+  // Generieke aanvulling: garandeert altijd 4 punten. schermdiagonaal is bij
+  // elke monitor gegarandeerd aanwezig (harde eis in normalizeProducts());
+  // resolutie/paneeltype/hz zijn hierboven alleen bij de hogere waarden
+  // gedekt, dus vul de resterende (Full HD/HD, TN, <144Hz) hier generiek aan.
+  if (points.length < 4) {
+    points.push(`${monitor.schermdiagonaal}" scherm`);
+  }
+  if (points.length < 4 && monitor.resolutie && !points.some(p => p.includes(monitor.resolutie))) {
+    points.push(`${monitor.resolutie}-resolutie`);
+  }
+  if (points.length < 4 && monitor.paneeltype && !points.some(p => p.includes(monitor.paneeltype))) {
+    points.push(`${monitor.paneeltype}-paneel`);
+  }
+  if (points.length < 4 && monitor.hz && !points.some(p => p.includes("Hz"))) {
+    points.push(`${monitor.hz}Hz verversingssnelheid`);
+  }
+  if (points.length < 4 && monitor.beeldverhouding) {
+    points.push(`${monitor.beeldverhouding} beeldverhouding`);
+  }
+  if (points.length < 4 && monitor.merk) {
+    points.push(`Van het merk ${monitor.merk}`);
+  }
+  if (points.length < 4) {
+    points.push("Scherp en helder beeld voor dagelijks gebruik");
+  }
+
   return points.slice(0, 4);
 }

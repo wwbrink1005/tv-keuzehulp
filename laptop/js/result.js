@@ -43,8 +43,17 @@ function buildSpecList(laptop) {
 
 function updateMatchCount(count) {
   const countEl = qs("#resultMatchCount");
-  if (!countEl) return;
-  countEl.textContent = `${Number.isFinite(count) ? count : 0}`;
+  if (countEl) countEl.textContent = `${Number.isFinite(count) ? count : 0}`;
+
+  // Enkelvoud alleen bij precies 1 resultaat — anders wekt "de laptop die
+  // het beste past" ten onrechte de indruk dat de eerste kaart de enige/
+  // beste optie is, terwijl het een lijst met meerdere goede matches is.
+  const titleEl = qs("#resultTitleText");
+  if (titleEl) {
+    titleEl.textContent = count === 1
+      ? "De laptop die het beste bij je past!"
+      : "De laptops die het beste bij je passen!";
+  }
 }
 
 function displayOtherMatchesRedesign(filteredMatchedLaptops) {

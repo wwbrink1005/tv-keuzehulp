@@ -180,5 +180,27 @@ export function buildResultPoints(soundbar, answers) {
     points.push("WiFi-streaming (Spotify Connect, AirPlay of vergelijkbaar)");
   }
 
+  // Generieke aanvulling: garandeert altijd 4 punten. merk is gegarandeerd
+  // aanwezig; de rest is best-effort (niet elke Icecat-productprofiel levert
+  // deze velden).
+  if (points.length < 4 && soundbar.hdmi_poorten > 0) {
+    points.push(`${soundbar.hdmi_poorten}x HDMI-aansluiting`);
+  }
+  if (points.length < 4 && soundbar.bluetooth === "Ja") {
+    points.push("Bluetooth om draadloos muziek te streamen");
+  }
+  if (points.length < 4 && soundbar.audio_decoders && !hasAtmos) {
+    points.push(`Ondersteunt ${soundbar.audio_decoders}`);
+  }
+  if (points.length < 4 && soundbar.breedte_mm) {
+    points.push(`${Math.round(soundbar.breedte_mm)} mm breed`);
+  }
+  if (points.length < 4 && soundbar.merk) {
+    points.push(`Van het merk ${soundbar.merk}`);
+  }
+  if (points.length < 4) {
+    points.push("Verbetert het geluid van je tv aanzienlijk");
+  }
+
   return points.slice(0, 4);
 }

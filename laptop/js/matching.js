@@ -320,11 +320,21 @@ export function buildResultPoints(laptop, answers) {
     addPoint(`${laptop.opslag} GB opslag, ruim voor foto's en programma's`);
   }
 
-  // Fill remaining slots with generic spec points
-  if (points.length < 2) {
-    if (laptop.werkgeheugen >= 32) addPoint("32 GB RAM voor zware workloads");
-    else if (laptop.werkgeheugen >= 16) addPoint("16 GB RAM voor vlot multitasken");
-  }
+  // Generieke aanvulling: garandeert altijd 4 punten, ook als er weinig
+  // voorwaardelijke punten hierboven matchten. Deze specs zijn bij elke
+  // laptop gegarandeerd aanwezig (harde eisen in normalizeProducts()),
+  // dus deze cascade kan nooit op ontbrekende data stranden. addPoint()
+  // dedupliceert en stopt vanzelf bij 4, dus onvoorwaardelijk aanroepen kan.
+  if (laptop.werkgeheugen >= 32) addPoint("32 GB RAM voor zware workloads");
+  else if (laptop.werkgeheugen >= 16) addPoint("16 GB RAM voor vlot multitasken");
+  else addPoint(`${laptop.werkgeheugen} GB RAM`);
+
+  if (laptop.opslag >= 1024) addPoint(`${laptop.opslag / 1024} TB opslag`);
+  else addPoint(`${laptop.opslag} GB opslag`);
+
+  addPoint(`${laptop.schermdiagonaal}" scherm`);
+  addPoint(`${laptop.resolutie}-resolutie`);
+  addPoint(`${laptop.paneeltype}-paneel`);
 
   return points;
 }

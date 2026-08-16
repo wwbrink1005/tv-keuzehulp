@@ -208,6 +208,33 @@ teruggeven. Elke sub-filter (opslag, extra's, formaat, …) moet zelf ook al gra
 degraderen: "als deze wens 0 resultaten oplevert, sla 'm over" — nooit hard filteren tot
 leeg.
 
+## 5b. `buildResultPoints()`: altijd 4 groene vinkjes garanderen (verplicht)
+
+Elke resultaatkaart toont maximaal 4 USP-punten (groene vinkjes). `buildResultPoints()`
+mag **nooit** minder dan 4 teruggeven — ook niet als een product weinig specs heeft of de
+gebruiker weinig voorwaardelijke punten triggert. TV (`tv/js/matching.js`) is het
+referentiepatroon: eerst een dichte set voorwaardelijke punten per antwoordcombinatie, dan
+een generieke aanvulling met specs die (bijna) altijd aanwezig zijn, en als allerlaatste
+vangnet één of twee puur generieke, altijd-ware zinnen (geen productdata nodig).
+
+Bouw de aanvulling in 3 lagen, elke laag alleen aangeroepen als `points.length < 4`:
+
+1. **Specifieke, voorwaardelijke punten** — de normale matching-logica (antwoord × spec).
+2. **Generieke spec-punten** — velden die vrijwel altijd gevuld zijn (bv. schermgrootte,
+   capaciteit, merk). Check de harde vereisten in `normalizeProducts()` (`utils.js`) om te
+   weten welke velden echt gegarandeerd zijn.
+3. **Pure vangnet-zin(nen)** — geen productdata nodig, bv. "Betrouwbare keuze voor
+   dagelijks gebruik". **Reken uit wat het laagst-mogelijke aantal punten is vóórdat deze
+   laag begint** (bv. bij desktop bleek dat soms slechts 2 te zijn) en voeg net zoveel
+   vangnet-zinnen toe als nodig om altijd op 4 uit te komen — één vangnet-zin is vaak niet
+   genoeg.
+
+Test dit altijd tegen de volledige live catalogus (niet alleen handmatige voorbeelden):
+roep `buildResultPoints()` aan met lege/minimale `answers` voor elk product en controleer
+dat `points.length` nooit onder 4 zakt. Dat is het "worst case"-scenario (geen enkel
+voorwaardelijk punt triggert) en dus de enige betrouwbare manier om de garantie te
+verifiëren.
+
 ## 6. Filter-uitbreiding (pas ná livegang, met echte data)
 
 Volg dezelfde cyclus als bij de bestaande 4:

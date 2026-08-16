@@ -209,11 +209,24 @@ export function buildResultPoints(desktop, answers) {
     addPoint("1 TB SSD, ruim voor programma's en bestanden");
   }
 
-  // RAM fallback
-  if (points.length < 2) {
-    if (desktop.ram >= 32) addPoint("32 GB RAM voor vlot multitasken");
-    else if (desktop.ram >= 16) addPoint("16 GB RAM voor comfortabel gebruik");
+  // Generieke aanvulling: garandeert altijd 4 punten. merk is bij elke
+  // desktop gegarandeerd aanwezig; ram/opslag zijn best-effort (niet elke
+  // Icecat-productprofiel levert ze).
+  if (desktop.ram >= 32) addPoint("32 GB RAM voor vlot multitasken");
+  else if (desktop.ram >= 16) addPoint("16 GB RAM voor comfortabel gebruik");
+  else if (desktop.ram) addPoint(`${desktop.ram} GB RAM`);
+
+  if (desktop.opslag >= 1024) addPoint(`${desktop.opslag / 1024} TB opslag`);
+  else if (desktop.opslag) addPoint(`${desktop.opslag} GB opslag`);
+
+  const behuizingLabels = { "tower": "Tower-behuizing", "mini-pc": "Compacte mini-pc", "all-in-one": "All-in-one, monitor inbegrepen" };
+  if (desktop.behuizingCategory && behuizingLabels[desktop.behuizingCategory]) {
+    addPoint(behuizingLabels[desktop.behuizingCategory]);
   }
+  if (desktop.os) addPoint(`Inclusief ${desktop.os}`);
+  if (desktop.merk) addPoint(`Van het merk ${desktop.merk}`);
+  addPoint("Uitbreidbaar met extra opslag en randapparatuur");
+  addPoint("Direct klaar voor gebruik, thuis of op kantoor");
 
   return points;
 }

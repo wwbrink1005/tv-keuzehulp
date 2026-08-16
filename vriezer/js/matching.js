@@ -118,6 +118,8 @@ export function buildResultPoints(vriezer, answers) {
 
   if (vriezer.plaatsing === "inbouw" && vriezer.nishoogteGroup) {
     points.push(`Past in een nis van ${vriezer.nishoogteGroup} cm hoog`);
+  } else if (vriezer.plaatsing === "inbouw") {
+    points.push("Inbouwmodel, past onder het keukenblad");
   }
 
   if (vriezer.nettoInhoudL) {
@@ -148,6 +150,21 @@ export function buildResultPoints(vriezer, answers) {
 
   if (vriezer.plaatsing === "vrieskist") {
     points.push("Vrieskist, veel opbergruimte voor grote of onregelmatige vormen");
+  } else if (vriezer.plaatsing === "vrijstaand") {
+    points.push("Vrijstaand model, overal in huis te plaatsen");
+  }
+
+  // Generieke aanvulling: garandeert altijd 4 punten. plaatsing en merk zijn
+  // gegarandeerd aanwezig; de rest is best-effort (Icecat-datagaten komen
+  // voor bij vriezers) maar dekt de meeste modellen.
+  if (points.length < 4 && vriezer.geluidsniveauDb !== null && !points.some(p => p.includes("dB"))) {
+    points.push(`Geluidsniveau van ${vriezer.geluidsniveauDb} dB`);
+  }
+  if (points.length < 4 && vriezer.energielabel && !points.some(p => p.includes("energielabel"))) {
+    points.push(`Energielabel ${vriezer.energielabel}`);
+  }
+  if (points.length < 4 && vriezer.merk) {
+    points.push(`Van het merk ${vriezer.merk}`);
   }
 
   return points.slice(0, 4);

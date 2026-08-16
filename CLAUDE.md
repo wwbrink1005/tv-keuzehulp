@@ -51,3 +51,7 @@ Supabase-migratie uitvoeren) versus wat zelfstandig te doen is.
 - tv/laptop/desktop's `result-filters.js` gebruiken een verbose per-filter-stijl; monitor
   gebruikt een generieke `renderAllFilters()`-stijl — gebruik bij nieuwe keuzehulpen het
   generieke patroon.
+- **`buildResultPoints()` moet altijd exact 4 USP-punten teruggeven**, nooit minder — zie
+  stap 5b in [docs/nieuwe-keuzehulp.md](docs/nieuwe-keuzehulp.md) voor het verplichte
+  3-lagen-patroon (specifiek → generieke specs → puur generiek vangnet) en hoe dat te
+  testen tegen de volledige live catalogus. TV is het referentiepatroon.

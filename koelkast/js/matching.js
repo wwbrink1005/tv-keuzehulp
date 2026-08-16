@@ -120,6 +120,8 @@ export function buildResultPoints(koelkast, answers) {
 
   if (koelkast.plaatsing === "inbouw" && koelkast.nishoogteGroup) {
     points.push(`Past in een nis van ${koelkast.nishoogteGroup} cm hoog`);
+  } else if (koelkast.plaatsing === "inbouw") {
+    points.push("Inbouwmodel, past onder het keukenblad");
   }
 
   if (koelkast.nettoInhoudL) {
@@ -150,6 +152,21 @@ export function buildResultPoints(koelkast, answers) {
 
   if (koelkast.plaatsing !== "inbouw" && koelkast.vrijstaandType === "amerikaans") {
     points.push("Extra ruime Amerikaanse koelkast (side-by-side)");
+  } else if (koelkast.plaatsing !== "inbouw") {
+    points.push("Vrijstaand model, overal in huis te plaatsen");
+  }
+
+  // Generieke aanvulling: garandeert altijd 4 punten. plaatsing en merk zijn
+  // gegarandeerd aanwezig; de rest is best-effort (Icecat-datagaten komen
+  // voor bij koelkasten) maar dekt de meeste modellen.
+  if (points.length < 4 && koelkast.geluidsniveauDb !== null && !points.some(p => p.includes("dB"))) {
+    points.push(`Geluidsniveau van ${koelkast.geluidsniveauDb} dB`);
+  }
+  if (points.length < 4 && koelkast.energielabel && !points.some(p => p.includes("energielabel"))) {
+    points.push(`Energielabel ${koelkast.energielabel}`);
+  }
+  if (points.length < 4 && koelkast.merk) {
+    points.push(`Van het merk ${koelkast.merk}`);
   }
 
   return points.slice(0, 4);

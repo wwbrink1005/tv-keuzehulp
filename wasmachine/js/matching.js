@@ -142,5 +142,21 @@ export function buildResultPoints(wasmachine, answers) {
     points.push("Kinderslot aanwezig");
   }
 
+  // Generieke aanvulling: garandeert altijd 4 punten. capaciteit is bij elke
+  // wasmachine gegarandeerd aanwezig (harde eis in normalizeProducts()) en
+  // stond hierboven nog helemaal niet als eigen punt; de rest is best-effort.
+  if (points.length < 4) {
+    points.push(`${wasmachine.capaciteit} kg wascapaciteit`);
+  }
+  if (points.length < 4 && wasmachine.energieLabel && !points.some(p => p.includes("energielabel"))) {
+    points.push(`Energielabel ${wasmachine.energieLabel}`);
+  }
+  if (points.length < 4 && wasmachine.geluidDb && !points.some(p => p.includes("dB"))) {
+    points.push(`Geluidsniveau van ${wasmachine.geluidDb} dB tijdens centrifugeren`);
+  }
+  if (points.length < 4 && wasmachine.centrifugeRpm && !points.some(p => p.includes("toeren"))) {
+    points.push(`Centrifugeert op ${wasmachine.centrifugeRpm} toeren per minuut`);
+  }
+
   return points.slice(0, 4);
 }

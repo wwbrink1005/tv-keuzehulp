@@ -114,15 +114,19 @@ function buildSpecList(tv) {
   return specs;
 }
 
-function updateResultMatchUI(tv, scores, answers) {
+function updateResultMatchUI(tv, scores, answers, count = 0) {
   const newTitleTextEl = qs("#resultTitle span") || qs("#resultTitleText");
   const newTitleEl = qs("#resultTitle");
   const titleEl = newTitleTextEl || newTitleEl;
 
+  // Enkelvoud alleen bij precies 1 resultaat — anders wekt "de tv die het
+  // beste past" ten onrechte de indruk dat de eerste kaart de enige/beste
+  // optie is, terwijl het een lijst met meerdere goede matches is.
+  const enkelvoud = count === 1;
   const perfectMatch = isPerfectMatch(tv, scores, answers, currentSizeGroup);
   const titleText = perfectMatch
-    ? "De tv's die perfect bij je keuzes passen"
-    : "De tv's die het beste bij je keuzes passen";
+    ? (enkelvoud ? "De tv die perfect bij je keuzes past" : "De tv's die perfect bij je keuzes passen")
+    : (enkelvoud ? "De tv die het beste bij je keuzes past" : "De tv's die het beste bij je keuzes passen");
 
   if (titleEl) {
     titleEl.textContent = titleText;
@@ -363,7 +367,7 @@ export function updateResultMatches(matches, answers, type, scores, sizeGroup) {
   setResultState(matches, answers, type, sizeGroup);
   const sortedMatches = applySortAndRender(currentSort);
   updateMatchCount(sortedMatches.length);
-  updateResultMatchUI(sortedMatches[0] || null, scores, answers);
+  updateResultMatchUI(sortedMatches[0] || null, scores, answers, sortedMatches.length);
 }
 
 function initSortControl() {
@@ -531,5 +535,5 @@ export function initResultPage() {
   showResultRedesign(bestMatch, bestType, answers, filteredMatchedTVs, bestMatch);
   setResultState(filteredMatchedTVs, answers, bestType, sizeGroup);
   updateMatchCount(filteredMatchedTVs.length);
-  updateResultMatchUI(bestMatch, scores, answers);
+  updateResultMatchUI(bestMatch, scores, answers, filteredMatchedTVs.length);
 }
