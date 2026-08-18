@@ -12,6 +12,9 @@ export const AANBIEDER_LOGOS = {
   // Heet sinds de 2023-rebranding officieel gewoon "bol" (niet meer "bol.com")
   // — zie ook de weergavenaam in AANBIEDERS["bol"] in de pipeline-config.
   "bol":        "shared/images/aanbieder-logos/bol.svg",
+  // Sleutel moet exact matchen met AANBIEDERS["ep"]["weergavenaam"] in de
+  // pipeline-config ("EP.").
+  "EP.":        "shared/images/aanbieder-logos/ep.svg",
 };
 
 const MAX_ZICHTBAAR = 2;
