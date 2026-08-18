@@ -66,7 +66,11 @@ export function renderFilterList(container, card, opts) {
 
   const buildRow = (value, text, count) => {
     const label = document.createElement("label");
-    label.className = "filter-row" + (value !== "all" && stateSet?.has(value) ? " checked" : "") + (value === "all" && isAllSelected ? " checked" : "");
+    // Geen "checked"-klasse in JS bijhouden — CSS gebruikt :has(input:checked)
+    // zodat de blauwe styling altijd live de daadwerkelijke checkbox-status
+    // volgt, ook als iets anders (bv. de "Alle"-checkbox programmatisch
+    // uitvinken) de checkbox toggelt zonder een volledige her-render.
+    label.className = "filter-row";
 
     const input = document.createElement("input");
     input.type = "checkbox";
