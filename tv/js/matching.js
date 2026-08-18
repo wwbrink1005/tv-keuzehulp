@@ -425,5 +425,14 @@ export function buildResultPoints(tv, answers, sizeGroup = "") {
     if (resolution === "<4K") addPoint("Beeld is redelijk scherp");
   }
 
+  // Vangnet: als er nog steeds geen 4 punten zijn (bv. weinig/geen
+  // voorwaardelijke antwoorden getriggerd), vul aan met specs die
+  // normalizeProducts() altijd garandeert (merk/grootte/hz — zie de harde
+  // vereisten in tv/js/utils.js). addPoint() dedupliceert en stopt vanzelf
+  // bij 4, dus deze cascade kan nooit op ontbrekende data stranden.
+  if (points.length < 4) addPoint(`${tv.merk} kwaliteit`);
+  if (points.length < 4) addPoint(`${tv.grootte}" scherm`);
+  if (points.length < 4) addPoint(`${tv.hz} Hz voor vloeiend beeld`);
+
   return points.slice(0, 4);
 }
