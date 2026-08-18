@@ -53,6 +53,22 @@ export function normaliseLevertijd(raw) {
     return dagen <= 1 ? { label: "Morgen in huis", dagen: 1 } : { label: `${dagen} werkdagen`, dagen };
   }
 
+  // ep.nl's format: "Vandaag besteld, woensdag in huis" — de volledige zin
+  // is te lang voor de kaart (dwingt 'm naar 2 regels), dus alleen het
+  // weekdag-deel overhouden. Dagen-afstand is een schatting (geen rekening
+  // met besteltijd-cutoffs) maar goed genoeg om te sorteren/"snelst" te tonen.
+  const weekdagen = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+  const weekdagMatch = weekdagen.find((d) => lower.includes(d));
+  if (weekdagMatch && lower.includes("in huis")) {
+    const vandaag = new Date().getDay();
+    const doelIndex = weekdagen.indexOf(weekdagMatch);
+    const verschil = ((doelIndex - vandaag + 7) % 7) || 7;
+    return {
+      label: `${weekdagMatch.charAt(0).toUpperCase()}${weekdagMatch.slice(1)} in huis`,
+      dagen: verschil,
+    };
+  }
+
   return { label: value, dagen: 99 };
 }
 
