@@ -915,7 +915,6 @@ body.tv-modal-open { overflow: hidden; }
 
 .tv-provider-row:hover .tv-provider-arrow {
 				background: var(--accent-dark);
-				transform: translateX(2px);
 			}
 
 .tv-provider-arrow svg,
