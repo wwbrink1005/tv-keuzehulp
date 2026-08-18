@@ -3,6 +3,7 @@ import { computeMatchForPriceGroup } from "./matching.js";
 import { computeDynamicPriceGroups, getResolutionTier, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
+import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
 const filterState = {
   priceLabels: new Set(),
@@ -63,36 +64,17 @@ function collectSizeOptions(matches) {
 }
 
 function renderSizeOptions(container, sizeCard, matches) {
-  container.innerHTML = "";
   const sizes = collectSizeOptions(matches);
-  if (sizes.length <= 1) { sizeCard.hidden = true; return; }
-  sizeCard.hidden = false;
-
-  const isAllSelected = filterState.sizes.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "sizeFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle maten";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  sizes.forEach(size => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "sizeFilter";
-    input.value = size;
-    input.checked = filterState.sizes.has(size);
-    const text = document.createElement("span");
-    text.textContent = `${size}"`;
-    label.append(input, text);
-    container.appendChild(label);
+  if (sizes.length <= 1) { container.innerHTML = ""; sizeCard.hidden = true; return; }
+  const counts = computeCounts(matches, tv => tv.grootte);
+  renderFilterList(container, sizeCard, {
+    items: sizes,
+    counts,
+    filterName: "sizeFilter",
+    stateSet: filterState.sizes,
+    labelFn: size => `${size}"`,
+    allLabel: "Alle maten",
+    searchPlaceholder: "Zoek een maat...",
   });
 }
 
@@ -158,303 +140,118 @@ function collectAanbiederOptions(matches) {
 
 function renderPriceOptions(container, priceCard, sizeGroup) {
   const groups = getDynamicPriceGroups(sizeGroup);
-  container.innerHTML = "";
 
   // Only show price buckets that actually contain a matching TV for the
   // current quiz answers — otherwise users click a bucket that can never
   // show a result. If there's only one (or zero) non-empty bucket there's
   // nothing meaningful to narrow, so hide the whole filter card.
   const base = getBaseMatches();
-  const labels = groups.filter(g => base.some(tv => {
-    const price = parsePrice(tv.prijs);
-    return price >= g.min && price <= g.max;
-  }));
+  const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
+  const counts = computeCounts(base, tv => groupForPrice(parsePrice(tv.prijs))?.label);
+  const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
 
   if (labels.length <= 1) {
+    container.innerHTML = "";
     priceCard.hidden = true;
     return;
   }
 
-  priceCard.hidden = false;
-
-  const isAllSelected = filterState.priceLabels.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "priceFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle prijzen";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  labels.forEach(group => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "priceFilter";
-    input.value = group.label;
-    input.checked = filterState.priceLabels.has(group.label);
-
-    const text = document.createElement("span");
-    text.textContent = `€ ${group.label}`;
-
-    label.append(input, text);
-    container.appendChild(label);
+  renderFilterList(container, priceCard, {
+    items: labels,
+    counts,
+    filterName: "priceFilter",
+    stateSet: filterState.priceLabels,
+    labelFn: label => `€ ${label}`,
+    allLabel: "Alle prijzen",
   });
 }
 
 function renderBrandOptions(container, brandCard, matches) {
-  container.innerHTML = "";
-
   const brands = collectBrandOptions(matches);
-  if (brands.length === 0) {
-    brandCard.hidden = true;
-    return;
-  }
-
-  brandCard.hidden = false;
-
-  const isAllSelected = filterState.brands.size === 0;
-
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "brandFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-
-  const allText = document.createElement("span");
-  allText.textContent = "Alle merken";
-
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  brands.forEach(brand => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "brandFilter";
-    input.value = brand;
-    input.checked = filterState.brands.has(brand);
-
-    const text = document.createElement("span");
-    text.textContent = brand;
-
-    label.append(input, text);
-    container.appendChild(label);
+  if (brands.length === 0) { container.innerHTML = ""; brandCard.hidden = true; return; }
+  const counts = computeCounts(matches, tv => formatBrandLabel(tv.merk));
+  renderFilterList(container, brandCard, {
+    items: brands,
+    counts,
+    filterName: "brandFilter",
+    stateSet: filterState.brands,
+    allLabel: "Alle merken",
+    searchPlaceholder: "Zoek een merk...",
   });
 }
 
 function renderTypeOptions(container, typeCard, matches) {
-  container.innerHTML = "";
   const types = collectTypeOptions(matches);
-  if (types.length === 0) { typeCard.hidden = true; return; }
-  typeCard.hidden = false;
-
-  const isAllSelected = filterState.types.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "typeFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle types";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  types.forEach(type => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "typeFilter";
-    input.value = type;
-    input.checked = filterState.types.has(type);
-    const text = document.createElement("span");
-    text.textContent = type;
-    label.append(input, text);
-    container.appendChild(label);
+  if (types.length === 0) { container.innerHTML = ""; typeCard.hidden = true; return; }
+  const counts = computeCounts(matches, tv => tv.type);
+  renderFilterList(container, typeCard, {
+    items: types,
+    counts,
+    filterName: "typeFilter",
+    stateSet: filterState.types,
+    allLabel: "Alle types",
   });
 }
 
 function renderResolutionOptions(container, resolutionCard, matches) {
-  container.innerHTML = "";
   const resolutions = collectResolutionOptions(matches);
-  if (resolutions.length === 0) { resolutionCard.hidden = true; return; }
-  resolutionCard.hidden = false;
-
-  const isAllSelected = filterState.resolutions.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "resolutionFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  resolutions.forEach(res => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "resolutionFilter";
-    input.value = res;
-    input.checked = filterState.resolutions.has(res);
-    const text = document.createElement("span");
-    text.textContent = res;
-    label.append(input, text);
-    container.appendChild(label);
+  if (resolutions.length === 0) { container.innerHTML = ""; resolutionCard.hidden = true; return; }
+  const counts = computeCounts(matches, tv => getResolutionTier(tv));
+  renderFilterList(container, resolutionCard, {
+    items: resolutions,
+    counts,
+    filterName: "resolutionFilter",
+    stateSet: filterState.resolutions,
   });
 }
 
 function renderHzOptions(container, hzCard, matches) {
-  container.innerHTML = "";
   const hzValues = collectHzOptions(matches);
-  if (hzValues.length === 0) { hzCard.hidden = true; return; }
-  hzCard.hidden = false;
-
-  const isAllSelected = filterState.hzOptions.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "hzFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  hzValues.forEach(hz => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "hzFilter";
-    input.value = hz;
-    input.checked = filterState.hzOptions.has(hz);
-    const text = document.createElement("span");
-    text.textContent = `${hz} Hz`;
-    label.append(input, text);
-    container.appendChild(label);
+  if (hzValues.length === 0) { container.innerHTML = ""; hzCard.hidden = true; return; }
+  const counts = computeCounts(matches, tv => tv.Hz);
+  renderFilterList(container, hzCard, {
+    items: hzValues,
+    counts,
+    filterName: "hzFilter",
+    stateSet: filterState.hzOptions,
+    labelFn: hz => `${hz} Hz`,
   });
 }
 
 function renderHdmiOptions(container, hdmiCard, matches) {
-  container.innerHTML = "";
   const hdmiValues = collectHdmiOptions(matches);
-  if (hdmiValues.length === 0) { hdmiCard.hidden = true; return; }
-  hdmiCard.hidden = false;
-
-  const isAllSelected = filterState.hdmiOptions.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "hdmiFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  hdmiValues.forEach(count => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "hdmiFilter";
-    input.value = count;
-    input.checked = filterState.hdmiOptions.has(count);
-    const text = document.createElement("span");
-    text.textContent = `${count} HDMI`;
-    label.append(input, text);
-    container.appendChild(label);
+  if (hdmiValues.length === 0) { container.innerHTML = ""; hdmiCard.hidden = true; return; }
+  const counts = computeCounts(matches, tv => tv.hdmiPoorten);
+  renderFilterList(container, hdmiCard, {
+    items: hdmiValues,
+    counts,
+    filterName: "hdmiFilter",
+    stateSet: filterState.hdmiOptions,
+    labelFn: count => `${count} HDMI`,
   });
 }
 
 function renderKleurOptions(container, kleurCard, matches) {
-  container.innerHTML = "";
   const kleuren = collectKleurOptions(matches);
-  if (kleuren.length === 0) { kleurCard.hidden = true; return; }
-  kleurCard.hidden = false;
-
-  const isAllSelected = filterState.kleuren.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "kleurFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  kleuren.forEach(kleur => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "kleurFilter";
-    input.value = kleur;
-    input.checked = filterState.kleuren.has(kleur);
-    const text = document.createElement("span");
-    text.textContent = kleur;
-    label.append(input, text);
-    container.appendChild(label);
+  if (kleuren.length === 0) { container.innerHTML = ""; kleurCard.hidden = true; return; }
+  const counts = computeCounts(matches, tv => normalizeKleur(tv.kleur));
+  renderFilterList(container, kleurCard, {
+    items: kleuren,
+    counts,
+    filterName: "kleurFilter",
+    stateSet: filterState.kleuren,
   });
 }
 
 function renderAanbiederOptions(container, aanbiederCard, matches) {
-  container.innerHTML = "";
   const aanbieders = collectAanbiederOptions(matches);
-  if (aanbieders.length === 0) { aanbiederCard.hidden = true; return; }
-  aanbiederCard.hidden = false;
-
-  const isAllSelected = filterState.aanbieder.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "aanbiederFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  aanbieders.forEach(a => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "aanbiederFilter";
-    input.value = a;
-    input.checked = filterState.aanbieder.has(a);
-    const text = document.createElement("span");
-    text.textContent = a;
-    label.append(input, text);
-    container.appendChild(label);
+  if (aanbieders.length === 0) { container.innerHTML = ""; aanbiederCard.hidden = true; return; }
+  const counts = computeCounts(matches, tv => (tv.aanbieders ?? []).map(a => a.winkel));
+  renderFilterList(container, aanbiederCard, {
+    items: aanbieders,
+    counts,
+    filterName: "aanbiederFilter",
+    stateSet: filterState.aanbieder,
   });
 }
 

@@ -3,6 +3,7 @@ import { matchMonitors } from "./matching.js";
 import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
+import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
 const filterState = {
   priceLabels:  new Set(),
@@ -12,9 +13,9 @@ const filterState = {
   resolutions:  new Set(),
   hzOptions:    new Set(),
   aspectRatios: new Set(),
-  curved:       new Set(),
-  speakers:     new Set(),
-  usbc:         new Set(),
+  // Gebogen scherm, ingebouwde speakers en USB-C waren 3 losse Ja/Nee-
+  // kaarten — samengevoegd tot 1 "Functies"-kaart (zie FUNCTIE_DEFINITIES).
+  functies:     new Set(),
   hdmiOptions:  new Set(),
   aanbieder:    new Set(),
   baseMatches:  [],
@@ -23,6 +24,12 @@ const filterState = {
   bestType:     "",
   sizeGroup:    ""
 };
+
+const FUNCTIE_DEFINITIES = [
+  { key: "curved", label: "Gebogen scherm", check: m => m.gebogen === "Gebogen" },
+  { key: "speakers", label: "Ingebouwde speakers", check: m => m.speakers === "Ja" },
+  { key: "usbc", label: "USB-C", check: m => m.usb_c === "Ja" },
+];
 
 // Price buckets are recomputed fresh from the live-fetched catalog on every
 // results page load (not trusted from the quiz-time localStorage snapshot),
@@ -104,22 +111,8 @@ function collectAspectRatioOptions(matches) {
   return inOrder;
 }
 
-function collectCurvedOptions(matches) {
-  const set = new Set();
-  matches.forEach(m => { if (m.gebogen) set.add(m.gebogen); });
-  return Array.from(set);
-}
-
-function collectSpeakersOptions(matches) {
-  const set = new Set();
-  matches.forEach(m => { if (m.speakers) set.add(m.speakers); });
-  return Array.from(set);
-}
-
-function collectUsbcOptions(matches) {
-  const set = new Set();
-  matches.forEach(m => { if (m.usb_c) set.add(m.usb_c); });
-  return Array.from(set);
+function collectFunctieOptions(matches) {
+  return FUNCTIE_DEFINITIES.filter(f => matches.some(f.check)).map(f => f.key);
 }
 
 function collectHdmiOptions(matches) {
@@ -136,39 +129,11 @@ function collectAanbiederOptions(matches) {
   return Array.from(set).sort();
 }
 
-function renderFilterOptions(container, card, items, filterName, labelFn) {
-  container.innerHTML = "";
-  if (items.length === 0) { card.hidden = true; return; }
-  card.hidden = false;
-
+function renderFilterOptions(container, card, items, matches, productValueFn, filterName, labelFn) {
+  if (items.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
   const stateSet = filterState[filterName];
-
-  const isAllSelected = !stateSet || stateSet.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = filterName;
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  items.forEach(item => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = filterName;
-    input.value = String(item);
-    input.checked = stateSet?.has(item) ?? false;
-    const text = document.createElement("span");
-    text.textContent = labelFn ? labelFn(item) : String(item);
-    label.append(input, text);
-    container.appendChild(label);
-  });
+  const counts = computeCounts(matches, productValueFn);
+  renderFilterList(container, card, { items, counts, filterName, stateSet, labelFn });
 }
 
 function applyFilters() {
@@ -198,16 +163,10 @@ function applyFilters() {
     filtered = filtered.filter(m => filterState.aspectRatios.has(m.beeldverhouding));
   }
 
-  if (filterState.curved.size > 0) {
-    filtered = filtered.filter(m => filterState.curved.has(m.gebogen));
-  }
-
-  if (filterState.speakers.size > 0) {
-    filtered = filtered.filter(m => filterState.speakers.has(m.speakers));
-  }
-
-  if (filterState.usbc.size > 0) {
-    filtered = filtered.filter(m => filterState.usbc.has(m.usb_c));
+  if (filterState.functies.size > 0) {
+    filtered = filtered.filter(m =>
+      FUNCTIE_DEFINITIES.filter(f => filterState.functies.has(f.key)).every(f => f.check(m))
+    );
   }
 
   if (filterState.hdmiOptions.size > 0) {
@@ -230,13 +189,12 @@ function updateClearFiltersBtn() {
   const hasActive = filterState.priceLabels.size > 0 || filterState.sizes.size > 0 || filterState.brands.size > 0 ||
     filterState.panelTypes.size > 0 || filterState.resolutions.size > 0 ||
     filterState.hzOptions.size > 0 || filterState.aspectRatios.size > 0 ||
-    filterState.curved.size > 0 || filterState.speakers.size > 0 ||
-    filterState.usbc.size > 0 ||
+    filterState.functies.size > 0 ||
     filterState.hdmiOptions.size > 0 || filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
-function renderAllFilters(monitors) {
+function renderAllFilters() {
   const matches = getPriceScopedMatches();
 
   const priceContainer    = qs("[data-filter-container='price']");
@@ -246,9 +204,7 @@ function renderAllFilters(monitors) {
   const resContainer      = qs("[data-filter-container='resolution']");
   const hzContainer       = qs("[data-filter-container='hz']");
   const aspectContainer   = qs("[data-filter-container='aspect']");
-  const curvedContainer   = qs("[data-filter-container='curved']");
-  const speakersContainer = qs("[data-filter-container='speakers']");
-  const usbcContainer     = qs("[data-filter-container='usbc']");
+  const functieContainer  = qs("[data-filter-container='functies']");
   const hdmiContainer     = qs("[data-filter-container='hdmi']");
   const aanbiederContainer = qs("[data-filter-container='aanbieder']");
 
@@ -259,125 +215,63 @@ function renderAllFilters(monitors) {
   const resCard       = qs(".filter-card[data-filter='resolution']");
   const hzCard        = qs(".filter-card[data-filter='hz']");
   const aspectCard    = qs(".filter-card[data-filter='aspect']");
-  const curvedCard    = qs(".filter-card[data-filter='curved']");
-  const speakersCard  = qs(".filter-card[data-filter='speakers']");
-  const usbcCard      = qs(".filter-card[data-filter='usbc']");
+  const functieCard   = qs(".filter-card[data-filter='functies']");
   const hdmiCard      = qs(".filter-card[data-filter='hdmi']");
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
     const base = getBaseMatches();
-    const groups = getDynamicPriceGroups(filterState.sizeGroup).filter(group => {
-      return base.some(m => {
-        const price = parsePrice(m.prijs);
-        return price >= group.min && price <= group.max;
+    const groups = getDynamicPriceGroups(filterState.sizeGroup);
+    const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
+    const counts = computeCounts(base, m => groupForPrice(parsePrice(m.prijs))?.label);
+    const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
+    if (labels.length <= 1) {
+      priceContainer.innerHTML = "";
+      priceCard.hidden = true;
+    } else {
+      renderFilterList(priceContainer, priceCard, {
+        items: labels, counts, filterName: "priceLabels", stateSet: filterState.priceLabels,
+        labelFn: label => `€ ${label}`, allLabel: "Alle prijzen",
       });
-    });
-    renderFilterOptions(priceContainer, priceCard, groups.map(g => g.label), "priceLabels", label => `€ ${label}`, false);
-    priceContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.priceLabels.size === 0;
-      else input.checked = filterState.priceLabels.has(input.value);
-    });
-    if (groups.length <= 1) priceCard.hidden = true;
+    }
   }
 
   if (sizeContainer && sizeCard) {
-    const sizes = collectSizeOptions(matches);
-    renderFilterOptions(sizeContainer, sizeCard, sizes, "sizes", s => `${s}"`, false);
-    sizeContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.sizes.size === 0;
-      else input.checked = filterState.sizes.has(parseFloat(input.value));
-    });
+    renderFilterOptions(sizeContainer, sizeCard, collectSizeOptions(matches), matches, m => m.schermdiagonaal, "sizes", s => `${s}"`);
   }
 
   if (brandContainer && brandCard) {
-    const brands = collectBrandOptions(matches);
-    renderFilterOptions(brandContainer, brandCard, brands, "brands", null, false);
-    brandContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.brands.size === 0;
-      else input.checked = filterState.brands.has(input.value);
-    });
+    renderFilterOptions(brandContainer, brandCard, collectBrandOptions(matches), matches, m => formatBrandLabel(m.merk), "brands");
   }
 
   if (panelContainer && panelCard) {
-    const panels = collectPanelTypeOptions(matches);
-    renderFilterOptions(panelContainer, panelCard, panels, "panelTypes", null, false);
-    panelContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.panelTypes.size === 0;
-      else input.checked = filterState.panelTypes.has(input.value);
-    });
+    renderFilterOptions(panelContainer, panelCard, collectPanelTypeOptions(matches), matches, m => m.paneeltype, "panelTypes");
   }
 
   if (resContainer && resCard) {
-    const resolutions = collectResolutionOptions(matches);
-    renderFilterOptions(resContainer, resCard, resolutions, "resolutions", null, false);
-    resContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.resolutions.size === 0;
-      else input.checked = filterState.resolutions.has(input.value);
-    });
+    renderFilterOptions(resContainer, resCard, collectResolutionOptions(matches), matches, m => m.resolutie, "resolutions");
   }
 
   if (hzContainer && hzCard) {
-    const hzOpts = collectHzOptions(matches);
-    renderFilterOptions(hzContainer, hzCard, hzOpts, "hzOptions", hz => `${hz}Hz`, false);
-    hzContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.hzOptions.size === 0;
-      else input.checked = filterState.hzOptions.has(parseInt(input.value, 10));
-    });
+    renderFilterOptions(hzContainer, hzCard, collectHzOptions(matches), matches, m => m.hz, "hzOptions", hz => `${hz}Hz`);
   }
 
   if (aspectContainer && aspectCard) {
-    const aspects = collectAspectRatioOptions(matches);
-    renderFilterOptions(aspectContainer, aspectCard, aspects, "aspectRatios", null, false);
-    aspectContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.aspectRatios.size === 0;
-      else input.checked = filterState.aspectRatios.has(input.value);
-    });
+    renderFilterOptions(aspectContainer, aspectCard, collectAspectRatioOptions(matches), matches, m => m.beeldverhouding, "aspectRatios");
   }
 
-  if (curvedContainer && curvedCard) {
-    const curvedOpts = collectCurvedOptions(matches);
-    renderFilterOptions(curvedContainer, curvedCard, curvedOpts, "curved", null, false);
-    curvedContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.curved.size === 0;
-      else input.checked = filterState.curved.has(input.value);
-    });
-  }
-
-  if (speakersContainer && speakersCard) {
-    const speakerOpts = collectSpeakersOptions(matches);
-    renderFilterOptions(speakersContainer, speakersCard, speakerOpts, "speakers", null, false);
-    speakersContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.speakers.size === 0;
-      else input.checked = filterState.speakers.has(input.value);
-    });
-  }
-
-  if (usbcContainer && usbcCard) {
-    const usbcOpts = collectUsbcOptions(matches);
-    renderFilterOptions(usbcContainer, usbcCard, usbcOpts, "usbc", null, false);
-    usbcContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.usbc.size === 0;
-      else input.checked = filterState.usbc.has(input.value);
-    });
+  if (functieContainer && functieCard) {
+    const functieValueFn = m => FUNCTIE_DEFINITIES.filter(f => f.check(m)).map(f => f.key);
+    const labelFn = key => FUNCTIE_DEFINITIES.find(f => f.key === key)?.label ?? key;
+    renderFilterOptions(functieContainer, functieCard, collectFunctieOptions(matches), matches, functieValueFn, "functies", labelFn);
   }
 
   if (hdmiContainer && hdmiCard) {
-    const hdmiOpts = collectHdmiOptions(matches);
-    renderFilterOptions(hdmiContainer, hdmiCard, hdmiOpts, "hdmiOptions", n => `${n} HDMI`, false);
-    hdmiContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.hdmiOptions.size === 0;
-      else input.checked = filterState.hdmiOptions.has(parseInt(input.value, 10));
-    });
+    renderFilterOptions(hdmiContainer, hdmiCard, collectHdmiOptions(matches), matches, m => m.hdmi_poorten, "hdmiOptions", n => `${n} HDMI`);
   }
 
   if (aanbiederContainer && aanbiederCard) {
-    const aanbieders = collectAanbiederOptions(matches);
-    renderFilterOptions(aanbiederContainer, aanbiederCard, aanbieders, "aanbieder", null, false);
-    aanbiederContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.aanbieder.size === 0;
-      else input.checked = filterState.aanbieder.has(input.value);
-    });
+    renderFilterOptions(aanbiederContainer, aanbiederCard, collectAanbiederOptions(matches), matches, m => (m.aanbieders ?? []).map(a => a.winkel), "aanbieder");
   }
 
   updateClearFiltersBtn();
@@ -398,9 +292,7 @@ function handleFilterChange(event) {
     resolutions: { set: filterState.resolutions, parse: v => v },
     hzOptions:   { set: filterState.hzOptions,   parse: v => parseInt(v, 10) },
     aspectRatios: { set: filterState.aspectRatios, parse: v => v },
-    curved:      { set: filterState.curved,      parse: v => v, exclusive: true },
-    speakers:    { set: filterState.speakers,    parse: v => v, exclusive: true },
-    usbc:        { set: filterState.usbc,        parse: v => v, exclusive: true },
+    functies:    { set: filterState.functies,    parse: v => v },
     hdmiOptions: { set: filterState.hdmiOptions, parse: v => parseInt(v, 10) },
     aanbieder:   { set: filterState.aanbieder,   parse: v => v }
   };
@@ -474,7 +366,7 @@ export async function initFilters() {
 
   filterState.baseMatches = baseMatches;
 
-  renderAllFilters(allMonitors);
+  renderAllFilters();
 
   // Delegate all filter changes
   filtersPanel.addEventListener("change", handleFilterChange);
@@ -490,12 +382,10 @@ export async function initFilters() {
       filterState.resolutions.clear();
       filterState.hzOptions.clear();
       filterState.aspectRatios.clear();
-      filterState.curved.clear();
-      filterState.speakers.clear();
-      filterState.usbc.clear();
+      filterState.functies.clear();
       filterState.hdmiOptions.clear();
       filterState.aanbieder.clear();
-      renderAllFilters(allMonitors);
+      renderAllFilters();
       applyFilters();
     });
   }

@@ -3,6 +3,7 @@ import { computeMatchForPriceGroup } from "./matching.js";
 import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
+import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
 const filterState = {
   priceLabels:  new Set(),
@@ -111,39 +112,11 @@ function collectAanbiederOptions(matches) {
   return Array.from(set).sort();
 }
 
-function renderFilterOptions(container, card, items, filterName, labelFn) {
-  container.innerHTML = "";
-  if (items.length === 0) { card.hidden = true; return; }
-  card.hidden = false;
-
+function renderFilterOptions(container, card, items, matches, productValueFn, filterName, labelFn) {
+  if (items.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
   const stateSet = filterState[filterName];
-  const isAllSelected = !stateSet || stateSet.size === 0;
-
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = filterName;
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  items.forEach(item => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = filterName;
-    input.value = String(item);
-    input.checked = stateSet?.has(item) ?? false;
-    const text = document.createElement("span");
-    text.textContent = labelFn ? labelFn(item) : String(item);
-    label.append(input, text);
-    container.appendChild(label);
-  });
+  const counts = computeCounts(matches, productValueFn);
+  renderFilterList(container, card, { items, counts, filterName, stateSet, labelFn });
 }
 
 function applyFilters() {
@@ -223,70 +196,55 @@ function renderAllFilters() {
     // bucket that can never show a result. If there's ≤1 non-empty bucket
     // there's nothing meaningful to narrow, so hide the whole filter card.
     const base = getBaseMatches();
-    const labels = groups.filter(g => base.some(p => {
-      const price = parsePrice(p.prijs);
-      return price >= g.min && price <= g.max;
-    }));
+    const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
+    const counts = computeCounts(base, p => groupForPrice(parsePrice(p.prijs))?.label);
+    const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
     if (labels.length <= 1) {
       priceContainer.innerHTML = "";
       priceCard.hidden = true;
     } else {
-      renderFilterOptions(priceContainer, priceCard, labels.map(g => g.label), "priceLabels", label => `€ ${label}`);
+      renderFilterList(priceContainer, priceCard, {
+        items: labels, counts, filterName: "priceLabels", stateSet: filterState.priceLabels,
+        labelFn: label => `€ ${label}`, allLabel: "Alle prijzen",
+      });
     }
   }
 
   if (brandContainer && brandCard) {
-    const brands = collectBrandOptions(matches);
-    renderFilterOptions(brandContainer, brandCard, brands, "brands", null);
-    brandContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.brands.size === 0;
-      else input.checked = filterState.brands.has(input.value);
-    });
+    renderFilterOptions(brandContainer, brandCard, collectBrandOptions(matches), matches, p => formatBrandLabel(p.merk), "brands");
   }
 
   if (techContainer && techCard) {
-    const techs = collectPrinttechnologieOptions(matches);
-    renderFilterOptions(techContainer, techCard, techs, "printtechnologieen", null);
-    techContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.printtechnologieen.size === 0;
-      else input.checked = filterState.printtechnologieen.has(input.value);
-    });
+    renderFilterOptions(techContainer, techCard, collectPrinttechnologieOptions(matches), matches, p => p.printtechnologie, "printtechnologieen");
   }
 
   if (kleurContainer && kleurCard) {
-    const kleuren = collectKleurOptions(matches);
-    renderFilterOptions(kleurContainer, kleurCard, kleuren, "kleuren", null);
-    kleurContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.kleuren.size === 0;
-      else input.checked = filterState.kleuren.has(input.value);
-    });
+    renderFilterOptions(kleurContainer, kleurCard, collectKleurOptions(matches), matches, p => p.kleur, "kleuren");
   }
 
   if (snelheidContainer && snelheidCard) {
-    const snelheden = collectSnelheidOptions(matches);
-    renderFilterOptions(snelheidContainer, snelheidCard, snelheden, "snelheden", key => SNELHEID_GROEPEN.find(g => g.key === key)?.label ?? key);
-    snelheidContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.snelheden.size === 0;
-      else input.checked = filterState.snelheden.has(input.value);
-    });
+    const snelheidValueFn = p => {
+      const snelheid = parseInt(p.printsnelheidZwart, 10);
+      if (!Number.isFinite(snelheid)) return undefined;
+      return SNELHEID_GROEPEN.find(g => snelheid >= g.min && snelheid <= g.max)?.key;
+    };
+    renderFilterOptions(snelheidContainer, snelheidCard, collectSnelheidOptions(matches), matches, snelheidValueFn, "snelheden", key => SNELHEID_GROEPEN.find(g => g.key === key)?.label ?? key);
   }
 
   if (functieContainer && functieCard) {
-    const functies = collectFunctieOptions(matches);
-    renderFilterOptions(functieContainer, functieCard, functies, "functies", f => FUNCTIE_LABELS[f] ?? f);
-    functieContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.functies.size === 0;
-      else input.checked = filterState.functies.has(input.value);
-    });
+    const functieValueFn = p => {
+      const opties = [];
+      if (p.duplex === "Ja") opties.push("duplex");
+      if (p.scannen === "Ja" && p.kopieren === "Ja") opties.push("scan-kopieer");
+      if (p.wifi === "Ja") opties.push("wifi");
+      if (p.display === "Ja") opties.push("display");
+      return opties;
+    };
+    renderFilterOptions(functieContainer, functieCard, collectFunctieOptions(matches), matches, functieValueFn, "functies", f => FUNCTIE_LABELS[f] ?? f);
   }
 
   if (aanbiederContainer && aanbiederCard) {
-    const aanbieders = collectAanbiederOptions(matches);
-    renderFilterOptions(aanbiederContainer, aanbiederCard, aanbieders, "aanbieder", null);
-    aanbiederContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.aanbieder.size === 0;
-      else input.checked = filterState.aanbieder.has(input.value);
-    });
+    renderFilterOptions(aanbiederContainer, aanbiederCard, collectAanbiederOptions(matches), matches, p => (p.aanbieders ?? []).map(a => a.winkel), "aanbieder");
   }
 
   updateClearFiltersBtn();

@@ -3,15 +3,15 @@ import { matchSoundbars } from "./matching.js";
 import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
+import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
 const filterState = {
   priceLabels:  new Set(),
   brands:       new Set(),
   kanalen:      new Set(),
-  subwoofer:    new Set(),
-  surround:     new Set(),
-  wandmontage:  new Set(),
-  wifi:         new Set(),
+  // Subwoofer meegeleverd, surround, wandmontage en wifi waren 4 losse Ja/
+  // Nee-kaarten — samengevoegd tot 1 "Functies"-kaart (zie FUNCTIE_DEFINITIES).
+  functies:     new Set(),
   hdmiOptions:  new Set(),
   aanbieder:    new Set(),
   baseMatches:  [],
@@ -20,6 +20,13 @@ const filterState = {
   bestType:     "",
   breedteGroup: ""
 };
+
+const FUNCTIE_DEFINITIES = [
+  { key: "subwoofer", label: "Subwoofer meegeleverd", check: sb => sb.subwoofer_meegeleverd === "Ja" },
+  { key: "surround", label: "Surround (Atmos/DTS:X)", check: sb => hasSurround(sb) === "Ja" },
+  { key: "wandmontage", label: "Wandmontage mogelijk", check: sb => sb.wandmontage === "Ja" },
+  { key: "wifi", label: "Wifi", check: sb => sb.wifi === "Ja" },
+];
 
 // Prijsbuckets worden altijd vers herberekend vanuit de zojuist opgehaalde
 // catalogus (niet vertrouwd op de localStorage-snapshot van het quiz-moment).
@@ -65,31 +72,8 @@ function collectKanalenOptions(matches) {
   return KANALEN_GROEP_ORDER.filter(g => set.has(g));
 }
 
-function collectSubwooferOptions(matches) {
-  const set = new Set();
-  matches.forEach(sb => { if (sb.subwoofer_meegeleverd) set.add(sb.subwoofer_meegeleverd); });
-  return Array.from(set);
-}
-
-function collectSurroundOptions(matches) {
-  const set = new Set();
-  matches.forEach(sb => {
-    const d = String(sb.audio_decoders || "").toLowerCase();
-    set.add(d.includes("atmos") || d.includes("dts:x") || d.includes("dts x") ? "Ja" : "Nee");
-  });
-  return Array.from(set);
-}
-
-function collectWandmontageOptions(matches) {
-  const set = new Set();
-  matches.forEach(sb => { if (sb.wandmontage) set.add(sb.wandmontage); });
-  return Array.from(set);
-}
-
-function collectWifiOptions(matches) {
-  const set = new Set();
-  matches.forEach(sb => { if (sb.wifi) set.add(sb.wifi); });
-  return Array.from(set);
+function collectFunctieOptions(matches) {
+  return FUNCTIE_DEFINITIES.filter(f => matches.some(f.check)).map(f => f.key);
 }
 
 function collectHdmiOptions(matches) {
@@ -111,41 +95,6 @@ function hasSurround(sb) {
   return d.includes("atmos") || d.includes("dts:x") || d.includes("dts x") ? "Ja" : "Nee";
 }
 
-function renderFilterOptions(container, card, items, filterName, labelFn) {
-  container.innerHTML = "";
-  if (items.length === 0) { card.hidden = true; return; }
-  card.hidden = false;
-
-  const stateSet = filterState[filterName];
-
-  const isAllSelected = !stateSet || stateSet.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = filterName;
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  items.forEach(item => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = filterName;
-    input.value = String(item);
-    input.checked = stateSet?.has(item) ?? false;
-    const text = document.createElement("span");
-    text.textContent = labelFn ? labelFn(item) : String(item);
-    label.append(input, text);
-    container.appendChild(label);
-  });
-}
-
 function applyFilters() {
   let filtered = getPriceScopedMatches();
 
@@ -157,20 +106,10 @@ function applyFilters() {
     filtered = filtered.filter(sb => filterState.kanalen.has(getKanalenGroep(sb)));
   }
 
-  if (filterState.subwoofer.size > 0) {
-    filtered = filtered.filter(sb => filterState.subwoofer.has(sb.subwoofer_meegeleverd));
-  }
-
-  if (filterState.surround.size > 0) {
-    filtered = filtered.filter(sb => filterState.surround.has(hasSurround(sb)));
-  }
-
-  if (filterState.wandmontage.size > 0) {
-    filtered = filtered.filter(sb => filterState.wandmontage.has(sb.wandmontage));
-  }
-
-  if (filterState.wifi.size > 0) {
-    filtered = filtered.filter(sb => filterState.wifi.has(sb.wifi));
+  if (filterState.functies.size > 0) {
+    filtered = filtered.filter(sb =>
+      FUNCTIE_DEFINITIES.filter(f => filterState.functies.has(f.key)).every(f => f.check(sb))
+    );
   }
 
   if (filterState.hdmiOptions.size > 0) {
@@ -191,44 +130,39 @@ function updateClearFiltersBtn() {
   const btn = qs("#clearFiltersBtn");
   if (!btn) return;
   const hasActive = filterState.priceLabels.size > 0 || filterState.brands.size > 0 ||
-    filterState.kanalen.size > 0 || filterState.subwoofer.size > 0 ||
-    filterState.surround.size > 0 || filterState.wandmontage.size > 0 ||
-    filterState.wifi.size > 0 || filterState.hdmiOptions.size > 0 ||
+    filterState.kanalen.size > 0 || filterState.functies.size > 0 ||
+    filterState.hdmiOptions.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
 function renderAllFilters() {
   const matches = getPriceScopedMatches();
+  const functieValueFn = sb => FUNCTIE_DEFINITIES.filter(f => f.check(sb)).map(f => f.key);
+  const functieLabelFn = key => FUNCTIE_DEFINITIES.find(f => f.key === key)?.label ?? key;
 
   const filters = [
-    { key: "priceLabels", filter: "price",       collect: () => getDynamicPriceGroups(filterState.breedteGroup).filter(g => getBaseMatches().some(sb => { const p = parsePrice(sb.prijs); return p >= g.min && p <= g.max; })).map(g => g.label), labelFn: label => `€ ${label}`, hideIfSingle: true },
-    { key: "brands",      filter: "brand",       collect: () => collectBrandOptions(matches) },
-    { key: "kanalen",     filter: "kanalen",     collect: () => collectKanalenOptions(matches) },
-    { key: "subwoofer",   filter: "subwoofer",   collect: () => collectSubwooferOptions(matches) },
-    { key: "surround",    filter: "surround",    collect: () => collectSurroundOptions(matches) },
-    { key: "wandmontage", filter: "wandmontage", collect: () => collectWandmontageOptions(matches) },
-    { key: "wifi",        filter: "wifi",        collect: () => collectWifiOptions(matches) },
-    { key: "hdmiOptions", filter: "hdmi",        collect: () => collectHdmiOptions(matches), labelFn: n => `${n} HDMI` },
-    { key: "aanbieder",   filter: "aanbieder",   collect: () => collectAanbiederOptions(matches) },
+    { key: "priceLabels", filter: "price",       matches: getBaseMatches(), valueFn: sb => getDynamicPriceGroups(filterState.breedteGroup).find(g => { const p = parsePrice(sb.prijs); return p >= g.min && p <= g.max; })?.label, collect: (counts) => getDynamicPriceGroups(filterState.breedteGroup).filter(g => counts.has(g.label)).map(g => g.label), labelFn: label => `€ ${label}`, allLabel: "Alle prijzen" },
+    { key: "brands",      filter: "brand",       matches, valueFn: sb => formatBrandLabel(sb.merk), collect: () => collectBrandOptions(matches) },
+    { key: "kanalen",     filter: "kanalen",     matches, valueFn: sb => getKanalenGroep(sb), collect: () => collectKanalenOptions(matches) },
+    { key: "functies",    filter: "functies",    matches, valueFn: functieValueFn, collect: () => collectFunctieOptions(matches), labelFn: functieLabelFn },
+    { key: "hdmiOptions", filter: "hdmi",        matches, valueFn: sb => sb.hdmi_poorten, collect: () => collectHdmiOptions(matches), labelFn: n => `${n} HDMI` },
+    { key: "aanbieder",   filter: "aanbieder",   matches, valueFn: sb => (sb.aanbieders ?? []).map(a => a.winkel), collect: () => collectAanbiederOptions(matches) },
   ];
 
-  filters.forEach(({ key, filter, collect, labelFn, hideIfSingle }) => {
+  filters.forEach(({ key, filter, matches: source, valueFn, collect, labelFn, allLabel }) => {
     const container = qs(`[data-filter-container='${filter}']`);
     const card      = qs(`.filter-card[data-filter='${filter}']`);
     if (!container || !card) return;
 
-    const items = collect();
-    renderFilterOptions(container, card, items, key, labelFn);
-    container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") {
-        input.checked = filterState[key].size === 0;
-      } else {
-        const parsed = key === "hdmiOptions" ? parseInt(input.value, 10) : input.value;
-        input.checked = filterState[key].has(parsed);
-      }
-    });
-    if (hideIfSingle && items.length <= 1) card.hidden = true;
+    const counts = computeCounts(source, valueFn);
+    const items = collect(counts);
+    if (items.length === 0 || (key === "priceLabels" && items.length <= 1)) {
+      container.innerHTML = "";
+      card.hidden = true;
+      return;
+    }
+    renderFilterList(container, card, { items, counts, filterName: key, stateSet: filterState[key], labelFn, allLabel });
   });
 
   updateClearFiltersBtn();
@@ -245,10 +179,7 @@ function handleFilterChange(event) {
     priceLabels: { set: filterState.priceLabels, parse: v => v },
     brands:      { set: filterState.brands,      parse: v => v },
     kanalen:     { set: filterState.kanalen,      parse: v => v },
-    subwoofer:   { set: filterState.subwoofer,    parse: v => v, exclusive: true },
-    surround:    { set: filterState.surround,     parse: v => v, exclusive: true },
-    wandmontage: { set: filterState.wandmontage,  parse: v => v, exclusive: true },
-    wifi:        { set: filterState.wifi,         parse: v => v, exclusive: true },
+    functies:    { set: filterState.functies,     parse: v => v },
     hdmiOptions: { set: filterState.hdmiOptions,  parse: v => parseInt(v, 10) },
     aanbieder:   { set: filterState.aanbieder,    parse: v => v }
   };
@@ -328,10 +259,7 @@ export async function initFilters() {
       filterState.priceLabels.clear();
       filterState.brands.clear();
       filterState.kanalen.clear();
-      filterState.subwoofer.clear();
-      filterState.surround.clear();
-      filterState.wandmontage.clear();
-      filterState.wifi.clear();
+      filterState.functies.clear();
       filterState.hdmiOptions.clear();
       filterState.aanbieder.clear();
       renderAllFilters();

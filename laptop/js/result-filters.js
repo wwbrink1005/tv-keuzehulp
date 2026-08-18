@@ -3,6 +3,7 @@ import { computeMatchForPriceGroup } from "./matching.js";
 import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
+import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
 const filterState = {
   priceLabels:  new Set(),
@@ -143,138 +144,93 @@ function collectAanbiederOptions(matches) {
   return Array.from(set).sort();
 }
 
-function renderCheckboxFilter(container, card, items, filterName, allLabelText, labelFn, valueFn = v => v) {
-  container.innerHTML = "";
-  if (items.length === 0) { card.hidden = true; return; }
-  card.hidden = false;
-
+function renderCheckboxFilter(container, card, items, matches, productValueFn, filterName, allLabelText, labelFn) {
+  if (items.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
   const stateSet = filterState[filterName];
-  const isAllSelected = stateSet.size === 0;
-
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = `${filterName}Filter`;
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = allLabelText;
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  items.forEach(item => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = `${filterName}Filter`;
-    input.value = String(item);
-    input.checked = stateSet.has(valueFn(String(item)));
-    const text = document.createElement("span");
-    text.textContent = labelFn ? labelFn(item) : String(item);
-    label.append(input, text);
-    container.appendChild(label);
+  const counts = computeCounts(matches, productValueFn);
+  renderFilterList(container, card, {
+    items,
+    counts,
+    filterName: `${filterName}Filter`,
+    stateSet,
+    labelFn,
+    allLabel: allLabelText,
   });
 }
 
 function renderPriceOptions(container, priceCard, sizeGroup) {
   const groups = getDynamicPriceGroups(sizeGroup);
-  container.innerHTML = "";
 
   // Only show price buckets that actually contain a matching laptop for the
   // current quiz answers — otherwise users click a bucket that can never
   // show a result. If there's only one (or zero) non-empty bucket there's
   // nothing meaningful to narrow, so hide the whole filter card.
   const base = getBaseMatches();
-  const labels = groups.filter(g => base.some(l => {
-    const price = parsePrice(l.prijs);
-    return price >= g.min && price <= g.max;
-  }));
+  const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
+  const counts = computeCounts(base, l => groupForPrice(parsePrice(l.prijs))?.label);
+  const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
 
   if (labels.length <= 1) {
+    container.innerHTML = "";
     priceCard.hidden = true;
     return;
   }
 
-  priceCard.hidden = false;
-
-  const isAllSelected = filterState.priceLabels.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = "priceFilter";
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle prijzen";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  labels.forEach(group => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = "priceFilter";
-    input.value = group.label;
-    input.checked = filterState.priceLabels.has(group.label);
-
-    const text = document.createElement("span");
-    text.textContent = `€ ${group.label}`;
-
-    label.append(input, text);
-    container.appendChild(label);
+  renderFilterList(container, priceCard, {
+    items: labels,
+    counts,
+    filterName: "priceFilter",
+    stateSet: filterState.priceLabels,
+    labelFn: label => `€ ${label}`,
+    allLabel: "Alle prijzen",
   });
 }
 
 function renderSizeOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectSizeOptions(matches), "sizes", "Alle maten", s => `${s}"`, v => parseFloat(v));
+  renderCheckboxFilter(container, card, collectSizeOptions(matches), matches, l => l.schermdiagonaal, "sizes", "Alle maten", s => `${s}"`);
 }
 
 function renderBrandOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectBrandOptions(matches), "brands", "Alle merken");
+  renderCheckboxFilter(container, card, collectBrandOptions(matches), matches, l => formatBrandLabel(l.merk), "brands", "Alle merken");
 }
 
 function renderTierOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectTierOptions(matches), "tiers", "Alle");
+  renderCheckboxFilter(container, card, collectTierOptions(matches), matches, l => getProcessorTier(l.processor, l.processor_familie), "tiers", "Alle");
 }
 
 function renderPanelTypeOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectPanelTypeOptions(matches), "panelTypes", "Alle");
+  renderCheckboxFilter(container, card, collectPanelTypeOptions(matches), matches, l => l.paneeltype, "panelTypes", "Alle");
 }
 
 function renderRamOptions(container, card, matches) {
   // "X GB of meer" i.p.v. exacte match — zie applyFilters(): met meerdere
   // aangevinkte waarden geldt de laagste als ondergrens (die dekt de hogere
   // al), dus "16 GB" aanvinken sluit 24/32 GB niet meer ten onrechte uit.
-  renderCheckboxFilter(container, card, collectRamOptions(matches), "ramOptions", "Alle", r => `${r}+ GB`, v => parseInt(v, 10));
+  renderCheckboxFilter(container, card, collectRamOptions(matches), matches, l => l.werkgeheugen, "ramOptions", "Alle", r => `${r}+ GB`);
 }
 
 function renderResolutionOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectResolutionOptions(matches), "resolutions", "Alle");
+  renderCheckboxFilter(container, card, collectResolutionOptions(matches), matches, l => l.resolutie, "resolutions", "Alle");
 }
 
 function renderTouchscreenOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectTouchscreenOptions(matches), "touchscreens", "Alle");
+  renderCheckboxFilter(container, card, collectTouchscreenOptions(matches), matches, l => l.touchscreen, "touchscreens", "Alle");
 }
 
 function renderUsbcOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectUsbcOptions(matches), "usbc", "Alle");
+  renderCheckboxFilter(container, card, collectUsbcOptions(matches), matches, l => l.usb_c, "usbc", "Alle");
 }
 
 function renderKleurOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectKleurOptions(matches), "kleuren", "Alle");
+  renderCheckboxFilter(container, card, collectKleurOptions(matches), matches, l => normalizeKleur(l.kleur), "kleuren", "Alle");
 }
 
 function renderOsOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectOsOptions(matches), "osOptions", "Alle");
+  renderCheckboxFilter(container, card, collectOsOptions(matches), matches, l => l.os, "osOptions", "Alle");
 }
 
 function renderAanbiederOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectAanbiederOptions(matches), "aanbieder", "Alle");
+  renderCheckboxFilter(container, card, collectAanbiederOptions(matches), matches, l => (l.aanbieders ?? []).map(a => a.winkel), "aanbieder", "Alle");
 }
 
 function updateClearFiltersBtn() {

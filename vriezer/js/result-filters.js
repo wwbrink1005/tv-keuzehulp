@@ -3,6 +3,7 @@ import { GESCHIKT_VOOR_GARAGE_KLASSEN } from "./data.js";
 import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
+import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
 const PLAATSING_LABELS = {
   inbouw:     "Inbouw",
@@ -126,39 +127,11 @@ function collectAanbiederOptions(matches) {
   return Array.from(set).sort();
 }
 
-function renderFilterOptions(container, card, items, filterName, labelFn) {
-  container.innerHTML = "";
-  if (items.length === 0) { card.hidden = true; return; }
-  card.hidden = false;
-
+function renderFilterOptions(container, card, items, matches, productValueFn, filterName, labelFn) {
+  if (items.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
   const stateSet = filterState[filterName];
-
-  const isAllSelected = !stateSet || stateSet.size === 0;
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = filterName;
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  items.forEach(item => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = filterName;
-    input.value = String(item);
-    input.checked = stateSet?.has(item) ?? false;
-    const text = document.createElement("span");
-    text.textContent = labelFn ? labelFn(item) : String(item);
-    label.append(input, text);
-    container.appendChild(label);
-  });
+  const counts = computeCounts(matches, productValueFn);
+  renderFilterList(container, card, { items, counts, filterName, stateSet, labelFn });
 }
 
 function applyFilters() {
@@ -245,91 +218,57 @@ function renderAllFilters() {
 
   if (priceContainer && priceCard) {
     const base = getBaseMatches();
-    const groups = getDynamicPriceGroups().filter(group => {
-      return base.some(v => {
-        const price = parsePrice(v.prijs);
-        return price >= group.min && price <= group.max;
+    const groups = getDynamicPriceGroups();
+    const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
+    const counts = computeCounts(base, v => groupForPrice(parsePrice(v.prijs))?.label);
+    const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
+    if (labels.length <= 1) {
+      priceContainer.innerHTML = "";
+      priceCard.hidden = true;
+    } else {
+      renderFilterList(priceContainer, priceCard, {
+        items: labels, counts, filterName: "priceLabels", stateSet: filterState.priceLabels,
+        labelFn: label => `€ ${label}`, allLabel: "Alle prijzen",
       });
-    });
-    renderFilterOptions(priceContainer, priceCard, groups.map(g => g.label), "priceLabels", label => `€ ${label}`);
-    priceContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.priceLabels.size === 0;
-      else input.checked = filterState.priceLabels.has(input.value);
-    });
-    if (groups.length <= 1) priceCard.hidden = true;
+    }
   }
 
   if (plaatsingContainer && plaatsingCard) {
     const opts = collectPlaatsingOptions(matches);
-    renderFilterOptions(plaatsingContainer, plaatsingCard, opts, "plaatsingen", null);
-    plaatsingContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.plaatsingen.size === 0;
-      else input.checked = filterState.plaatsingen.has(input.value);
-    });
-    if (opts.length <= 1) plaatsingCard.hidden = true;
+    if (opts.length <= 1) {
+      plaatsingContainer.innerHTML = "";
+      plaatsingCard.hidden = true;
+    } else {
+      renderFilterOptions(plaatsingContainer, plaatsingCard, opts, matches, v => PLAATSING_LABELS[v.plaatsing] ?? v.plaatsing, "plaatsingen");
+    }
   }
 
   if (brandContainer && brandCard) {
-    const brands = collectBrandOptions(matches);
-    renderFilterOptions(brandContainer, brandCard, brands, "brands", null);
-    brandContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.brands.size === 0;
-      else input.checked = filterState.brands.has(input.value);
-    });
+    renderFilterOptions(brandContainer, brandCard, collectBrandOptions(matches), matches, v => formatBrandLabel(v.merk), "brands");
   }
 
   if (capaciteitContainer && capaciteitCard) {
-    const caps = collectCapaciteitOptions(matches);
-    renderFilterOptions(capaciteitContainer, capaciteitCard, caps, "capaciteiten", null);
-    capaciteitContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.capaciteiten.size === 0;
-      else input.checked = filterState.capaciteiten.has(input.value);
-    });
+    renderFilterOptions(capaciteitContainer, capaciteitCard, collectCapaciteitOptions(matches), matches, v => capaciteitBucketLabel(v.nettoInhoudL), "capaciteiten");
   }
 
   if (energielabelContainer && energielabelCard) {
-    const labels = collectEnergielabelOptions(matches);
-    renderFilterOptions(energielabelContainer, energielabelCard, labels, "energielabels", l => `Label ${l}`);
-    energielabelContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.energielabels.size === 0;
-      else input.checked = filterState.energielabels.has(input.value);
-    });
+    renderFilterOptions(energielabelContainer, energielabelCard, collectEnergielabelOptions(matches), matches, v => v.energielabel, "energielabels", l => `Label ${l}`);
   }
 
   if (nofrostContainer && nofrostCard) {
-    const opts = collectNofrostOptions(matches);
-    renderFilterOptions(nofrostContainer, nofrostCard, opts, "nofrost", null);
-    nofrostContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.nofrost.size === 0;
-      else input.checked = filterState.nofrost.has(input.value);
-    });
+    renderFilterOptions(nofrostContainer, nofrostCard, collectNofrostOptions(matches), matches, v => v.automatischOntdooien, "nofrost");
   }
 
   if (geluidContainer && geluidCard) {
-    const opts = collectGeluidOptions(matches);
-    renderFilterOptions(geluidContainer, geluidCard, opts, "geluid", null);
-    geluidContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.geluid.size === 0;
-      else input.checked = filterState.geluid.has(input.value);
-    });
+    renderFilterOptions(geluidContainer, geluidCard, collectGeluidOptions(matches), matches, v => v.geluidsniveauDb === null ? null : (v.geluidsniveauDb <= 38 ? "Stil (≤ 38 dB)" : "Normaal"), "geluid");
   }
 
   if (garageContainer && garageCard) {
-    const opts = collectGarageOptions(matches);
-    renderFilterOptions(garageContainer, garageCard, opts, "garage", null);
-    garageContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.garage.size === 0;
-      else input.checked = filterState.garage.has(input.value);
-    });
+    renderFilterOptions(garageContainer, garageCard, collectGarageOptions(matches), matches, v => v.klimaatklasse ? (GESCHIKT_VOOR_GARAGE_KLASSEN.includes(v.klimaatklasse) ? "Geschikt voor garage/schuur" : "Voor binnenshuis") : null, "garage");
   }
 
   if (aanbiederContainer && aanbiederCard) {
-    const opts = collectAanbiederOptions(matches);
-    renderFilterOptions(aanbiederContainer, aanbiederCard, opts, "aanbieder", null);
-    aanbiederContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.aanbieder.size === 0;
-      else input.checked = filterState.aanbieder.has(input.value);
-    });
+    renderFilterOptions(aanbiederContainer, aanbiederCard, collectAanbiederOptions(matches), matches, v => (v.aanbieders ?? []).map(a => a.winkel), "aanbieder");
   }
 
   updateClearFiltersBtn();

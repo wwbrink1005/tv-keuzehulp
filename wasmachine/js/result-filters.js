@@ -3,6 +3,7 @@ import { matchWasmachines } from "./matching.js";
 import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
+import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
 const filterState = {
   priceLabels:    new Set(),
@@ -12,16 +13,22 @@ const filterState = {
   energieLabels:  new Set(),
   centrifugeRpms: new Set(),
   kleuren:        new Set(),
-  kinderslot:     new Set(),
-  aquastop:       new Set(),
-  uitgesteldeStart: new Set(),
-  inverter:       new Set(),
+  // Kinderslot/AquaStop/Uitgestelde start/Inverter waren 4 losse Ja/Nee-
+  // kaarten — samengevoegd tot 1 "Functies"-kaart (zie FUNCTIE_DEFINITIES).
+  functies:       new Set(),
   aanbieder:      new Set(),
   baseMatches:    [],
   answers:        null,
   bestType:       "",
   capaciteitGroup: ""
 };
+
+const FUNCTIE_DEFINITIES = [
+  { key: "kinderslot", label: "Kinderslot", check: w => w.kinderslot === "Ja" },
+  { key: "aquastop", label: "AquaStop", check: w => w.aquastop === "Ja" },
+  { key: "uitgesteldeStart", label: "Uitgestelde start", check: w => w.uitgesteldeStart === "Ja" },
+  { key: "inverter", label: "Inverter motor", check: w => w.inverter === "Ja" },
+];
 
 // Price buckets are recomputed fresh from the live-fetched catalog on every
 // results page load (not trusted from the quiz-time localStorage snapshot),
@@ -109,32 +116,8 @@ function collectKleurOptions(matches) {
   return inOrder;
 }
 
-function collectKinderslotOptions(matches) {
-  const set = new Set();
-  matches.forEach(w => { if (w.kinderslot) set.add(w.kinderslot); });
-  const order = ["Ja", "Nee"];
-  return order.filter(t => set.has(t));
-}
-
-function collectAquastopOptions(matches) {
-  const set = new Set();
-  matches.forEach(w => { if (w.aquastop) set.add(w.aquastop); });
-  const order = ["Ja", "Nee"];
-  return order.filter(t => set.has(t));
-}
-
-function collectUitgesteldeStartOptions(matches) {
-  const set = new Set();
-  matches.forEach(w => { if (w.uitgesteldeStart) set.add(w.uitgesteldeStart); });
-  const order = ["Ja", "Nee"];
-  return order.filter(t => set.has(t));
-}
-
-function collectInverterOptions(matches) {
-  const set = new Set();
-  matches.forEach(w => { if (w.inverter) set.add(w.inverter); });
-  const order = ["Ja", "Nee"];
-  return order.filter(t => set.has(t));
+function collectFunctieOptions(matches) {
+  return FUNCTIE_DEFINITIES.filter(f => matches.some(f.check)).map(f => f.key);
 }
 
 function collectAanbiederOptions(matches) {
@@ -145,39 +128,11 @@ function collectAanbiederOptions(matches) {
   return Array.from(set).sort();
 }
 
-function renderFilterOptions(container, card, items, filterName, labelFn) {
-  container.innerHTML = "";
-  if (items.length === 0) { card.hidden = true; return; }
-  card.hidden = false;
-
+function renderFilterOptions(container, card, items, matches, productValueFn, filterName, labelFn) {
+  if (items.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
   const stateSet = filterState[filterName];
-  const isAllSelected = !stateSet || stateSet.size === 0;
-
-  const allLabel = document.createElement("label");
-  allLabel.className = "filter-option";
-  const allInput = document.createElement("input");
-  allInput.type = "checkbox";
-  allInput.name = filterName;
-  allInput.value = "all";
-  allInput.checked = isAllSelected;
-  const allText = document.createElement("span");
-  allText.textContent = "Alle";
-  allLabel.append(allInput, allText);
-  container.appendChild(allLabel);
-
-  items.forEach(item => {
-    const label = document.createElement("label");
-    label.className = "filter-option";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = filterName;
-    input.value = String(item);
-    input.checked = stateSet?.has(item) ?? false;
-    const text = document.createElement("span");
-    text.textContent = labelFn ? labelFn(item) : String(item);
-    label.append(input, text);
-    container.appendChild(label);
-  });
+  const counts = computeCounts(matches, productValueFn);
+  renderFilterList(container, card, { items, counts, filterName, stateSet, labelFn });
 }
 
 function applyFilters() {
@@ -207,20 +162,10 @@ function applyFilters() {
     filtered = filtered.filter(w => filterState.kleuren.has(normalizeKleur(w.kleur)));
   }
 
-  if (filterState.kinderslot.size > 0) {
-    filtered = filtered.filter(w => filterState.kinderslot.has(w.kinderslot));
-  }
-
-  if (filterState.aquastop.size > 0) {
-    filtered = filtered.filter(w => filterState.aquastop.has(w.aquastop));
-  }
-
-  if (filterState.uitgesteldeStart.size > 0) {
-    filtered = filtered.filter(w => filterState.uitgesteldeStart.has(w.uitgesteldeStart));
-  }
-
-  if (filterState.inverter.size > 0) {
-    filtered = filtered.filter(w => filterState.inverter.has(w.inverter));
+  if (filterState.functies.size > 0) {
+    filtered = filtered.filter(w =>
+      FUNCTIE_DEFINITIES.filter(f => filterState.functies.has(f.key)).every(f => f.check(w))
+    );
   }
 
   if (filterState.aanbieder.size > 0) {
@@ -239,9 +184,7 @@ function updateClearFiltersBtn() {
   const hasActive = filterState.priceLabels.size > 0 || filterState.capaciteiten.size > 0 || filterState.brands.size > 0 ||
     filterState.typeLaders.size > 0 || filterState.energieLabels.size > 0 ||
     filterState.centrifugeRpms.size > 0 || filterState.kleuren.size > 0 ||
-    filterState.kinderslot.size > 0 || filterState.aquastop.size > 0 ||
-    filterState.uitgesteldeStart.size > 0 ||
-    filterState.inverter.size > 0 ||
+    filterState.functies.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
@@ -256,10 +199,7 @@ function renderAllFilters() {
   const energieContainer    = qs("[data-filter-container='energie-label']");
   const rpmContainer        = qs("[data-filter-container='centrifuge-rpm']");
   const kleurContainer      = qs("[data-filter-container='kleur']");
-  const kinderslotContainer = qs("[data-filter-container='kinderslot']");
-  const aquastopContainer   = qs("[data-filter-container='aquastop']");
-  const uitgesteldeStartContainer = qs("[data-filter-container='uitgestelde-start']");
-  const inverterContainer  = qs("[data-filter-container='inverter']");
+  const functieContainer   = qs("[data-filter-container='functies']");
   const aanbiederContainer  = qs("[data-filter-container='aanbieder']");
 
   const priceCard      = qs(".filter-card[data-filter='price']");
@@ -269,10 +209,7 @@ function renderAllFilters() {
   const energieCard     = qs(".filter-card[data-filter='energie-label']");
   const rpmCard         = qs(".filter-card[data-filter='centrifuge-rpm']");
   const kleurCard       = qs(".filter-card[data-filter='kleur']");
-  const kinderslotCard  = qs(".filter-card[data-filter='kinderslot']");
-  const aquastopCard    = qs(".filter-card[data-filter='aquastop']");
-  const uitgesteldeStartCard = qs(".filter-card[data-filter='uitgestelde-start']");
-  const inverterCard    = qs(".filter-card[data-filter='inverter']");
+  const functieCard    = qs(".filter-card[data-filter='functies']");
   const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
@@ -282,142 +219,53 @@ function renderAllFilters() {
     // can never show a result. If there's only one (or zero) non-empty
     // bucket there's nothing meaningful to narrow, so hide the whole card.
     const base = getBaseMatches();
-    const labels = groups.filter(g => base.some(w => {
-      const price = parsePrice(w.prijs);
-      return price >= g.min && price <= g.max;
-    }));
+    const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
+    const counts = computeCounts(base, w => groupForPrice(parsePrice(w.prijs))?.label);
+    const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
 
-    priceContainer.innerHTML = "";
-    if (labels.length <= 1) { priceCard.hidden = true; }
-    else {
-      priceCard.hidden = false;
-
-      const isAllSelected = filterState.priceLabels.size === 0;
-      const allLabel = document.createElement("label");
-      allLabel.className = "filter-option";
-      const allInput = document.createElement("input");
-      allInput.type = "checkbox";
-      allInput.name = "priceFilter";
-      allInput.value = "all";
-      allInput.checked = isAllSelected;
-      const allText = document.createElement("span");
-      allText.textContent = "Alle prijzen";
-      allLabel.append(allInput, allText);
-      priceContainer.appendChild(allLabel);
-
-      labels.forEach(group => {
-        const label = document.createElement("label");
-        label.className = "filter-option";
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.name = "priceFilter";
-        input.value = group.label;
-        input.checked = filterState.priceLabels.has(group.label);
-        const text = document.createElement("span");
-        text.textContent = `€ ${group.label}`;
-        label.append(input, text);
-        priceContainer.appendChild(label);
+    if (labels.length <= 1) {
+      priceContainer.innerHTML = "";
+      priceCard.hidden = true;
+    } else {
+      renderFilterList(priceContainer, priceCard, {
+        items: labels, counts, filterName: "priceFilter", stateSet: filterState.priceLabels,
+        labelFn: label => `€ ${label}`, allLabel: "Alle prijzen",
       });
     }
   }
 
   if (capaciteitContainer && capaciteitCard) {
-    const capaciteiten = collectCapaciteitOptions(matches);
-    renderFilterOptions(capaciteitContainer, capaciteitCard, capaciteiten, "capaciteiten", c => `${c} kg`);
-    capaciteitContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.capaciteiten.size === 0;
-      else input.checked = filterState.capaciteiten.has(parseFloat(input.value));
-    });
+    renderFilterOptions(capaciteitContainer, capaciteitCard, collectCapaciteitOptions(matches), matches, w => w.capaciteit, "capaciteiten", c => `${c} kg`);
   }
 
   if (brandContainer && brandCard) {
-    const brands = collectBrandOptions(matches);
-    renderFilterOptions(brandContainer, brandCard, brands, "brands", null);
-    brandContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.brands.size === 0;
-      else input.checked = filterState.brands.has(input.value);
-    });
+    renderFilterOptions(brandContainer, brandCard, collectBrandOptions(matches), matches, w => formatBrandLabel(w.merk), "brands");
   }
 
   if (typeLaderContainer && typeLaderCard) {
-    const typeLaders = collectTypeLaderOptions(matches);
-    renderFilterOptions(typeLaderContainer, typeLaderCard, typeLaders, "typeLaders", null);
-    typeLaderContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.typeLaders.size === 0;
-      else input.checked = filterState.typeLaders.has(input.value);
-    });
+    renderFilterOptions(typeLaderContainer, typeLaderCard, collectTypeLaderOptions(matches), matches, w => w.typeLader, "typeLaders");
   }
 
   if (energieContainer && energieCard) {
-    const labels = collectEnergieLabelOptions(matches);
-    renderFilterOptions(energieContainer, energieCard, labels, "energieLabels", l => `Label ${l}`);
-    energieContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.energieLabels.size === 0;
-      else input.checked = filterState.energieLabels.has(input.value);
-    });
+    renderFilterOptions(energieContainer, energieCard, collectEnergieLabelOptions(matches), matches, w => w.energieLabel, "energieLabels", l => `Label ${l}`);
   }
 
   if (rpmContainer && rpmCard) {
-    const rpms = collectCentrifugeRpmOptions(matches);
-    renderFilterOptions(rpmContainer, rpmCard, rpms, "centrifugeRpms", r => `${r} RPM`);
-    rpmContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.centrifugeRpms.size === 0;
-      else input.checked = filterState.centrifugeRpms.has(parseInt(input.value, 10));
-    });
+    renderFilterOptions(rpmContainer, rpmCard, collectCentrifugeRpmOptions(matches), matches, w => w.centrifugeRpm, "centrifugeRpms", r => `${r} RPM`);
   }
 
   if (kleurContainer && kleurCard) {
-    const kleuren = collectKleurOptions(matches);
-    renderFilterOptions(kleurContainer, kleurCard, kleuren, "kleuren", null);
-    kleurContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.kleuren.size === 0;
-      else input.checked = filterState.kleuren.has(input.value);
-    });
+    renderFilterOptions(kleurContainer, kleurCard, collectKleurOptions(matches), matches, w => normalizeKleur(w.kleur), "kleuren");
   }
 
-  if (kinderslotContainer && kinderslotCard) {
-    const opts = collectKinderslotOptions(matches);
-    renderFilterOptions(kinderslotContainer, kinderslotCard, opts, "kinderslot", null);
-    kinderslotContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.kinderslot.size === 0;
-      else input.checked = filterState.kinderslot.has(input.value);
-    });
-  }
-
-  if (aquastopContainer && aquastopCard) {
-    const opts = collectAquastopOptions(matches);
-    renderFilterOptions(aquastopContainer, aquastopCard, opts, "aquastop", null);
-    aquastopContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.aquastop.size === 0;
-      else input.checked = filterState.aquastop.has(input.value);
-    });
-  }
-
-  if (uitgesteldeStartContainer && uitgesteldeStartCard) {
-    const opts = collectUitgesteldeStartOptions(matches);
-    renderFilterOptions(uitgesteldeStartContainer, uitgesteldeStartCard, opts, "uitgesteldeStart", null);
-    uitgesteldeStartContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.uitgesteldeStart.size === 0;
-      else input.checked = filterState.uitgesteldeStart.has(input.value);
-    });
-  }
-
-  if (inverterContainer && inverterCard) {
-    const opts = collectInverterOptions(matches);
-    renderFilterOptions(inverterContainer, inverterCard, opts, "inverter", null);
-    inverterContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.inverter.size === 0;
-      else input.checked = filterState.inverter.has(input.value);
-    });
+  if (functieContainer && functieCard) {
+    const functieValueFn = w => FUNCTIE_DEFINITIES.filter(f => f.check(w)).map(f => f.key);
+    const labelFn = key => FUNCTIE_DEFINITIES.find(f => f.key === key)?.label ?? key;
+    renderFilterOptions(functieContainer, functieCard, collectFunctieOptions(matches), matches, functieValueFn, "functies", labelFn);
   }
 
   if (aanbiederContainer && aanbiederCard) {
-    const aanbieders = collectAanbiederOptions(matches);
-    renderFilterOptions(aanbiederContainer, aanbiederCard, aanbieders, "aanbieder", null);
-    aanbiederContainer.querySelectorAll('input[type="checkbox"]').forEach(input => {
-      if (input.value === "all") input.checked = filterState.aanbieder.size === 0;
-      else input.checked = filterState.aanbieder.has(input.value);
-    });
+    renderFilterOptions(aanbiederContainer, aanbiederCard, collectAanbiederOptions(matches), matches, w => (w.aanbieders ?? []).map(a => a.winkel), "aanbieder");
   }
 
   updateClearFiltersBtn();
@@ -438,10 +286,7 @@ function handleFilterChange(event) {
     energieLabels:  { set: filterState.energieLabels,  parse: v => v },
     centrifugeRpms: { set: filterState.centrifugeRpms, parse: v => parseInt(v, 10) },
     kleuren:        { set: filterState.kleuren,        parse: v => v },
-    kinderslot:     { set: filterState.kinderslot,     parse: v => v, exclusive: true },
-    aquastop:       { set: filterState.aquastop,       parse: v => v, exclusive: true },
-    uitgesteldeStart: { set: filterState.uitgesteldeStart, parse: v => v, exclusive: true },
-    inverter:       { set: filterState.inverter,       parse: v => v, exclusive: true },
+    functies:       { set: filterState.functies,       parse: v => v },
     aanbieder:      { set: filterState.aanbieder,      parse: v => v }
   };
 
@@ -531,10 +376,7 @@ export async function initFilters() {
       filterState.energieLabels.clear();
       filterState.centrifugeRpms.clear();
       filterState.kleuren.clear();
-      filterState.kinderslot.clear();
-      filterState.aquastop.clear();
-      filterState.uitgesteldeStart.clear();
-      filterState.inverter.clear();
+      filterState.functies.clear();
       filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();
