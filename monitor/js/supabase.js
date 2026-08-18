@@ -80,6 +80,7 @@ function adaptRow(row) {
   const inch = parseSchermInch(row.scherm_inch);
   return {
     ean:             row.ean,
+    titel:           row.titel ?? "",
     merk:            row.merk,
     schermdiagonaal: inch,
     resolutie:       parseResolutie(row.scherm_resolutie),

@@ -27,6 +27,7 @@ function adaptAanbieders(row) {
 function adaptRow(row) {
   return {
     ean:                 row.ean,
+    titel:           row.titel ?? "",
     merk:                row.merk,
     behuizing:           row.type_behuizing  ?? null,
     type_product:        row.type_product    ?? null,

@@ -65,6 +65,7 @@ function parseBreedteMm(value) {
 function adaptRow(row) {
   return {
     ean:                  row.ean,
+    titel:           row.titel ?? "",
     merk:                 row.merk,
     breedte_mm:           parseBreedteMm(row.breedte_mm),
     hoogte_mm:            parseMm(row.hoogte_mm),

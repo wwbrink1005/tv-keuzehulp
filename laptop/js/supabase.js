@@ -90,6 +90,7 @@ function adaptAanbieders(row) {
 function adaptRow(row) {
   return {
     ean:             row.ean,
+    titel:           row.titel ?? "",
     extra_eans:      [],
     merk:            row.merk,
     schermdiagonaal: parseSchermInch(row.scherm_inch),

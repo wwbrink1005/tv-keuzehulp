@@ -45,7 +45,7 @@ export function normalizeProducts(rawProducts) {
       .filter(a => a.url && Number.isFinite(a.prijs) && a.prijs > 0);
     if (aanbieders.length === 0) return [];
 
-    const naam = aanbieders.map(a => String(a.productnaam || "").trim()).find(Boolean) || "";
+    const naam = String(product.titel || "").trim() || aanbieders.map(a => String(a.productnaam || "").trim()).find(Boolean) || "";
     if (!naam) return [];
 
     const prijs = Math.min(...aanbieders.map(a => a.prijs));

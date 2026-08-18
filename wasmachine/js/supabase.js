@@ -50,6 +50,7 @@ function adaptAanbieders(row) {
 function adaptRow(row) {
   return {
     ean:                 row.ean,
+    titel:           row.titel ?? "",
     merk:                row.merk,
     capaciteit:          parseCapaciteit(row.capaciteit_kg),
     typeLader:           row.type_lader ?? "",

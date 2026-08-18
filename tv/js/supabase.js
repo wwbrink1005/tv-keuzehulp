@@ -92,6 +92,7 @@ function adaptRow(row) {
 
   return {
     ean:                 row.ean,
+    titel:           row.titel ?? "",
     type,
     grootte,
     merk:                row.merk,
