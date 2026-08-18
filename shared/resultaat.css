@@ -826,15 +826,16 @@ body.filter-drawer-open {
 
 .tv-providers-modal {
 				width: 100%;
-				max-width: 420px;
-				max-height: min(600px, 80vh);
+				max-width: 500px;
+				max-height: min(640px, 80vh);
 				background: var(--card-bg);
 				border-radius: var(--radius-lg);
 				box-shadow: var(--shadow-card-hover);
-				padding: 18px;
+				padding: 22px;
 				display: flex;
 				flex-direction: column;
-				gap: 12px;
+				gap: 14px;
+				overflow: hidden;
 				transform: translateY(10px) scale(0.98);
 				transition: transform 0.2s ease;
 			}
@@ -875,9 +876,11 @@ body.filter-drawer-open {
 .tv-providers-modal-list {
 				display: flex;
 				flex-direction: column;
-				gap: 7px;
+				gap: 8px;
 				overflow-y: auto;
+				overflow-x: hidden;
 				padding-right: 2px;
+				margin-right: -2px;
 			}
 
 body.tv-modal-open { overflow: hidden; }
