@@ -9,9 +9,12 @@ export const AANBIEDER_LOGOS = {
   "Coolblue":   "shared/images/aanbieder-logos/coolblue.png",
   "MediaMarkt": "shared/images/aanbieder-logos/mediamarkt.png",
   "Expert":     "shared/images/aanbieder-logos/expert.png",
+  // Heet sinds de 2023-rebranding officieel gewoon "bol" (niet meer "bol.com")
+  // — zie ook de weergavenaam in AANBIEDERS["bol"] in de pipeline-config.
+  "bol":        "shared/images/aanbieder-logos/bol.svg",
 };
 
-const MAX_ZICHTBAAR = 3;
+const MAX_ZICHTBAAR = 2;
 
 /**
  * Zet een ruwe levertijd-string van een willekeurige aanbieder om naar een
@@ -160,6 +163,82 @@ export function buildProvidersHtml(aanbieders) {
 
 let interactionsBound = false;
 
+// Zelfde 1100px-omslagpunt als waarop elke categorie's .tv-card van een
+// horizontale flex-rij naar een gestapelde grid overschakelt (zie elke
+// resultaat/index.html). Boven dat punt: popover (deze module). Eronder:
+// het bestaande inline-uitklap-gedrag (kaart wordt gewoon iets hoger, geen
+// stretch-probleem omdat de aanbieders-kolom daar al een eigen grid-rij is).
+const DESKTOP_QUERY = "(min-width: 1101px)";
+
+// De popover wordt als los element aan <body> gehangen (niet als kind van de
+// kaart) en met getBoundingClientRect() gepositioneerd — zo hoeft .tv-card's
+// eigen overflow: hidden (voor de afgeronde hoeken/cheapest-badge) niet
+// aangepast te worden, en kan de popover nooit binnen de kaart afgeknipt
+// worden.
+let activeFlyout = null;
+let activeFlyoutBtn = null;
+
+function closeFlyout() {
+  if (activeFlyout) {
+    activeFlyout.remove();
+    activeFlyout = null;
+  }
+  if (activeFlyoutBtn) {
+    activeFlyoutBtn.setAttribute("aria-expanded", "false");
+    activeFlyoutBtn.classList.remove("is-open");
+    const label = activeFlyoutBtn.querySelector("span");
+    if (label && activeFlyoutBtn.dataset.closedLabel) label.textContent = activeFlyoutBtn.dataset.closedLabel;
+    activeFlyoutBtn = null;
+  }
+}
+
+function openFlyout(button) {
+  if (activeFlyoutBtn === button) {
+    closeFlyout();
+    return;
+  }
+  closeFlyout();
+
+  const container = button.closest(".tv-card-providers");
+  const extra = container?.querySelector(".tv-providers-extra");
+  if (!extra) return;
+
+  const flyout = document.createElement("div");
+  flyout.className = "tv-provider-flyout";
+  flyout.innerHTML = extra.innerHTML;
+  document.body.appendChild(flyout);
+
+  const btnRect = button.getBoundingClientRect();
+  const flyoutRect = flyout.getBoundingClientRect();
+
+  let left = btnRect.right - flyoutRect.width;
+  left = Math.max(8, Math.min(left, window.innerWidth - flyoutRect.width - 8));
+
+  let top = btnRect.bottom + 8;
+  const passtOnder = top + flyoutRect.height <= window.innerHeight - 8;
+  const passtBoven = btnRect.top - flyoutRect.height - 8 >= 8;
+  if (!passtOnder && passtBoven) top = btnRect.top - flyoutRect.height - 8;
+
+  flyout.style.left = `${left + window.scrollX}px`;
+  flyout.style.top = `${top + window.scrollY}px`;
+
+  requestAnimationFrame(() => flyout.classList.add("is-open"));
+
+  button.setAttribute("aria-expanded", "true");
+  button.classList.add("is-open");
+  const label = button.querySelector("span");
+  if (label) {
+    button.dataset.closedLabel = label.textContent;
+    label.textContent = "Toon minder";
+  }
+  activeFlyout = flyout;
+  activeFlyoutBtn = button;
+
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    window.lucide.createIcons();
+  }
+}
+
 /** Eenmalige, gedelegeerde click-handler voor sorteren/uitklappen — werkt
  * voor elk "Beschikbaar bij"-blok op de pagina, ongeacht hoeveel er zijn. */
 export function initProvidersInteractions() {
@@ -169,7 +248,17 @@ export function initProvidersInteractions() {
   document.addEventListener("click", (event) => {
     const sortBtn = event.target.closest(".tv-providers-sort-btn");
     const expandBtn = event.target.closest(".tv-providers-expand");
-    if (!sortBtn && !expandBtn) return;
+
+    if (expandBtn && window.matchMedia(DESKTOP_QUERY).matches) {
+      event.preventDefault();
+      openFlyout(expandBtn);
+      return;
+    }
+
+    if (!sortBtn && !expandBtn) {
+      if (activeFlyout && !event.target.closest(".tv-provider-flyout")) closeFlyout();
+      return;
+    }
 
     const container = (sortBtn || expandBtn).closest(".tv-card-providers");
     if (!container) return;
@@ -177,6 +266,7 @@ export function initProvidersInteractions() {
     if (!data) return;
 
     event.preventDefault();
+    closeFlyout(); // dit blok gaat zo opnieuw renderen — een open popover zou nu stale data tonen
 
     if (sortBtn) container.dataset.sort = sortBtn.dataset.sort;
     if (expandBtn) container.dataset.expanded = container.dataset.expanded === "1" ? "0" : "1";
@@ -187,6 +277,9 @@ export function initProvidersInteractions() {
       window.lucide.createIcons();
     }
   });
+
+  window.addEventListener("resize", closeFlyout, { passive: true });
+  window.addEventListener("scroll", closeFlyout, { passive: true, capture: true });
 }
 
 if (typeof document !== "undefined") initProvidersInteractions();

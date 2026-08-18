@@ -817,6 +817,36 @@ body.filter-drawer-open {
 
 .tv-providers-extra.is-open { display: flex; }
 
+/* Popover voor de resterende aanbieders (≥1101px, zie DESKTOP_QUERY in
+   shared/aanbieders.js) — als los element aan <body> gehangen, dus deze
+   klasse leeft buiten .tv-card en heeft geen relatie met .tv-card-providers'
+   eigen breedte/overflow. Onder 1100px wordt deze klasse nooit aangemaakt;
+   daar blijft het bestaande inline .tv-providers-extra-gedrag gewoon staan. */
+.tv-provider-flyout {
+				position: absolute;
+				width: 300px;
+				max-width: calc(100vw - 16px);
+				background: var(--card-bg);
+				border: 1px solid var(--line);
+				border-radius: var(--radius-md);
+				box-shadow: var(--shadow-card-hover);
+				padding: 10px;
+				display: flex;
+				flex-direction: column;
+				gap: 7px;
+				z-index: 50;
+				opacity: 0;
+				transform: translateY(-6px);
+				pointer-events: none;
+				transition: opacity 0.18s ease, transform 0.18s ease;
+			}
+
+.tv-provider-flyout.is-open {
+				opacity: 1;
+				transform: translateY(0);
+				pointer-events: auto;
+			}
+
 .tv-provider-right {
 				display: flex;
 				align-items: center;
