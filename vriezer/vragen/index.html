@@ -153,26 +153,87 @@
 
 @keyframes hero-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 
-/* Nog geen scene-foto voor deze keuzehulp (zie CLAUDE.md stap 0 — een mens
-   moet die aanleveren) — vlakke, neutrale achtergrond als placeholder.
-   Zodra er een foto is: vervang background hieronder door
-   background-image: url('vriezer/images/....png') + de bijbehorende
-   --base-width/--base-height/positie-variabelen, zelfde patroon als
-   koelkast/wasmachine. */
 .background-container {
       --base-width: 1242.21;
       --base-height: 630.138;
       --scale: 1;
+      --vriezer-bg-position: center 30%;
+      --vriezer-bg-size: cover;
       width: 100%;
       max-width: calc(var(--base-width) * 1px);
       aspect-ratio: 1242.21 / 630.138;
-      background: linear-gradient(160deg, #eef1f5 0%, #e4e8ee 100%);
+      background-image: url('vriezer/images/achtegrond zonder vriezer.png');
+      background-size: var(--vriezer-bg-size);
+      background-position: var(--vriezer-bg-position);
+      background-repeat: no-repeat;
       border-radius: var(--r-lg);
       position: relative;
       margin-bottom: clamp(28px, 5vh, 56px);
       z-index: 1;
       box-shadow: 0 8px 40px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.04);
       overflow: hidden;
+    }
+
+.background-layer {
+      position: absolute;
+      inset: 0;
+      background-size: var(--vriezer-bg-size);
+      background-position: var(--vriezer-bg-position);
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity .9s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+.background-layer.is-visible { opacity: 1; }
+
+.background-layer--inbouw {
+      background-image: url('vriezer/images/keuken zwart test.png');
+    }
+
+.background-layer--vrijstaand-mini {
+      background-image: url('vriezer/images/compact.png');
+    }
+
+.background-layer--vrijstaand-middel {
+      background-image: url('vriezer/images/middel.png');
+    }
+
+.background-layer--vrijstaand-groot {
+      background-image: url('vriezer/images/vrijstaande vriezer in afbeelding.png');
+    }
+
+/* Instappen in vrieskist (vanuit de keuken-scène op Q1) krijgt een slide-in
+   i.p.v. een crossfade — alsof de camera naar de kamer ernaast schuift (een
+   berging/bijkeuken i.p.v. de keuken). Ervoor schuift eerst een vlakke
+   "muur"-laag (gemiddelde van beide muurkleuren) sneller in dan de foto
+   zelf, wat het gevoel geeft van eerst langs een muur en dan de kamer in
+   lopen. Deze muur-laag blijft daarna gewoon staan (géén herhaalde slide)
+   terwijl je op Q2 tussen de 3 formaten wisselt — dát gebeurt met de
+   standaard crossfade (.background-layer, opacity .9s), zelfde als bij
+   vrijstaand. */
+.background-layer--vrieskist-muur {
+      background: #d9c7b8;
+      opacity: 1;
+      transform: translateX(100%);
+      transition: transform .4s cubic-bezier(.4, 0, .2, 1);
+    }
+
+.background-layer--vrieskist-muur.is-visible {
+      transform: translateX(0);
+    }
+
+.background-layer--vrieskist-middel {
+      background-image: url('vriezer/images/vrieskist middel.png');
+    }
+
+.background-layer--vrieskist-groot {
+      background-image: url('vriezer/images/vrieskist groot.png');
+    }
+
+.background-layer--vrieskist-extra-groot {
+      background-image: url('vriezer/images/vrieskist extra groot.png');
     }
 
 button.question-hint-btn {
@@ -366,6 +427,8 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 .background-container {
   --base-width: 605.5;
   --base-height: 595;
+  --vriezer-bg-position: 62% 40%;
+  --vriezer-bg-size: 200%;
         aspect-ratio: 1 / 1;
         width: min(92vw, 560px);
         max-width: min(92vw, 560px);
@@ -373,6 +436,23 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
         margin-bottom: 0;
         border-radius: var(--r-lg) var(--r-lg) 0 0;
         box-shadow: 0 -2px 20px rgba(0,0,0,.05);
+      }
+
+/* Vrieskist-kamer heeft een heel andere compositie dan de keukenfoto's, dus
+   een eigen crop i.p.v. de gedeelde --vriezer-bg-position/--vriezer-bg-size.
+   Bewust "cover" i.p.v. een handmatig percentage: background-size in % zet
+   alleen de breedte (hoogte schaalt automatisch mee), en bij deze brede
+   foto's (1740x904) op een vierkant mobiel vlak dekte de hoogte daardoor
+   niet vol — de browser vulde dat gat op door de afbeelding te hérhalen
+   (zichtbaar als een dubbele/afgeknipte strook bovenin). "cover" garandeert
+   altijd volledige dekking zonder herhaling. */
+.background-layer--vrieskist-muur,
+.background-layer--vrieskist-middel,
+.background-layer--vrieskist-groot,
+.background-layer--vrieskist-extra-groot {
+        background-size: cover;
+        background-position: 62% 45%;
+        background-repeat: no-repeat;
       }
 
 .question-block .answer-option input[type="radio"],
@@ -493,6 +573,14 @@ button.question-hint-btn-mobile { display: grid; }
     <div class="container-wrapper">
       <div class="quiz-hero">
         <div class="background-container">
+          <div class="background-layer background-layer--inbouw" id="bg-layer-inbouw" aria-hidden="true"></div>
+          <div class="background-layer background-layer--vrijstaand-mini" id="bg-layer-vrijstaand-mini" aria-hidden="true"></div>
+          <div class="background-layer background-layer--vrijstaand-middel" id="bg-layer-vrijstaand-middel" aria-hidden="true"></div>
+          <div class="background-layer background-layer--vrijstaand-groot" id="bg-layer-vrijstaand-groot" aria-hidden="true"></div>
+          <div class="background-layer background-layer--vrieskist-muur" id="bg-layer-vrieskist-muur" aria-hidden="true"></div>
+          <div class="background-layer background-layer--vrieskist-middel" id="bg-layer-vrieskist-middel" aria-hidden="true"></div>
+          <div class="background-layer background-layer--vrieskist-groot" id="bg-layer-vrieskist-groot" aria-hidden="true"></div>
+          <div class="background-layer background-layer--vrieskist-extra-groot" id="bg-layer-vrieskist-extra-groot" aria-hidden="true"></div>
           <div class="top-bar">
             <div class="progress-bar" id="progress-bar"></div>
           </div>

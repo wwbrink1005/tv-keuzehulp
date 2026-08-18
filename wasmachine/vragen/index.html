@@ -166,6 +166,7 @@
   background-image: url('wasmachine/images/wasmachine nieuw.png');
   background-size: var(--wasmachine-bg-size);
   background-position: var(--wasmachine-bg-position);
+  background-repeat: no-repeat;
   border-radius: var(--r-lg);
   position: relative;
   margin-bottom: clamp(28px, 5vh, 56px);
@@ -331,8 +332,8 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 
 .wasmachine-dim-badge {
   position: absolute;
-  left: 49%;
-  top: 43%;
+  left: 71%;
+  top: 47%;
   transform: translate(-50%, -100%) translateY(2px);
   z-index: 2;
   display: inline-flex;
@@ -370,7 +371,8 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 
 @media (max-width: 900px) {
   .wasmachine-dim-badge {
-    top: 40%;
+    left: 50%;
+    top: 34%;
     font-size: 14px;
     padding: 8px 16px 8px 12px;
     gap: 7px;
@@ -401,7 +403,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 .background-container {
   --base-width: 605.5;
   --base-height: 495;
-  --wasmachine-bg-position: 48% 55%;
+  --wasmachine-bg-position: 86% 90%;
   --wasmachine-bg-size: 220%;
   background-image: url('wasmachine/images/wasmachine nieuw.png');
   aspect-ratio: 1 / 1;

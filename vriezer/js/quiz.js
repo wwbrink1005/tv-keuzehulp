@@ -34,6 +34,51 @@ function getMenuOffset() {
   return Number.isFinite(menuHeight) ? menuHeight : 64;
 }
 
+// Basis-achtergrond toont de keuken zonder vriezer. Per plaatsing-antwoord
+// fade (of bij vrieskist: schuift) een eigen volledige scène-foto erover:
+// "inbouw" toont de kast erbij; "vrijstaand" en "vrieskist" hebben elk eigen
+// formaat-varianten die op Q2 verder verfijnen — vóór die keuze (nog op Q1)
+// toont het grootste formaat als redelijk standaard-voorbeeld. Vrieskist
+// heeft nog geen apart "extra-groot"-beeld — die valt terug op "groot".
+// "vrieskist" is bewust een andere ruimte (berging i.p.v. keuken), dus die
+// schuift in i.p.v. te faden (zie .background-layer--vrieskist-* in
+// vragen/index.html) — voelt als naar de kamer ernaast gaan.
+function updateBackgroundLayer(plaatsing, grootte) {
+  let active = null;
+  if (plaatsing === "inbouw") {
+    active = "inbouw";
+  } else if (plaatsing === "vrijstaand") {
+    active = grootte === "mini" ? "vrijstaand-mini"
+           : grootte === "middel" ? "vrijstaand-middel"
+           : "vrijstaand-groot"; // standaard / nog niet gekozen
+  } else if (plaatsing === "vrieskist") {
+    active = grootte === "middel" ? "vrieskist-middel"
+           : grootte === "groot" ? "vrieskist-groot"
+           : grootte === "extra-groot" ? "vrieskist-extra-groot"
+           : "vrieskist-groot"; // standaard / nog niet gekozen
+  }
+
+  const layers = {
+    "inbouw":              qs("#bg-layer-inbouw"),
+    "vrijstaand-mini":     qs("#bg-layer-vrijstaand-mini"),
+    "vrijstaand-middel":   qs("#bg-layer-vrijstaand-middel"),
+    "vrijstaand-groot":    qs("#bg-layer-vrijstaand-groot"),
+    "vrieskist-middel":    qs("#bg-layer-vrieskist-middel"),
+    "vrieskist-groot":     qs("#bg-layer-vrieskist-groot"),
+    "vrieskist-extra-groot": qs("#bg-layer-vrieskist-extra-groot"),
+  };
+
+  Object.entries(layers).forEach(([key, layer]) => {
+    if (layer) layer.classList.toggle("is-visible", key === active);
+  });
+
+  // De muur-laag hoort altijd bij vrieskist (zie CSS-comment hierboven) —
+  // geen eigen "active"-status, gewoon gelijk geschakeld, en blijft staan
+  // (geen herhaalde slide) terwijl je tussen de 3 formaten wisselt.
+  const muurLayer = qs("#bg-layer-vrieskist-muur");
+  if (muurLayer) muurLayer.classList.toggle("is-visible", Boolean(active) && active.startsWith("vrieskist-"));
+}
+
 function setQuestionExpanded(question, expanded) {
   if (!question) return;
   question.classList.toggle("is-expanded", expanded);
@@ -182,6 +227,11 @@ function renderQ2Options(plaatsing) {
       `;
       container.appendChild(label);
     });
+
+    // Live crossfade/slide preview while still on Q2, before "Volgende" is clicked
+    qsa('input[name="grootte"]', container).forEach(radio => {
+      radio.addEventListener("change", () => updateBackgroundLayer(plaatsing, radio.value));
+    });
   }
 
   const rowCount = container.children.length;
@@ -269,8 +319,14 @@ export function initQuizPage() {
     if (!checked) return alert("Kies welk type vriezer je zoekt");
 
     quizState.plaatsing = checked.value;
+    updateBackgroundLayer(quizState.plaatsing);
     renderQ2Options(quizState.plaatsing);
     showQuestion(2);
+  });
+
+  // Live crossfade preview while still on Q1, before "Volgende" is clicked
+  qsa('input[name="plaatsing"]').forEach(radio => {
+    radio.addEventListener("change", () => updateBackgroundLayer(radio.value));
   });
 
   // Q2 → Q1
