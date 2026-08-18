@@ -4,6 +4,12 @@
 // (Coolblue's hele zin, Expert's paar varianten, MediaMarkt's kale getal)
 // naar een vast label + een sorteerbaar dagen-getal, en toont een logo i.p.v.
 // tekst zodra er een logo-bestand beschikbaar is voor die winkel.
+//
+// Kaart toont altijd alleen de 2 goedkoopste aanbieders, zonder header/sort —
+// bij meer aanbieders komt daaronder een "Vergelijk X prijzen"-link die een
+// modal opent met de volledige, sorteerbare lijst. Zelfde gedrag op mobiel
+// en desktop (geen aparte popover-/inline-uitklap-varianten meer — dat bleek
+// rommelig bij veel aanbieders en had positionerings-edge-cases).
 
 export const AANBIEDER_LOGOS = {
   "Coolblue":   "shared/images/aanbieder-logos/coolblue.png",
@@ -90,9 +96,9 @@ function storeLabelHtml(winkel) {
   return `<span class="tv-provider-name">${winkel}</span>`;
 }
 
-// id → ruwe aanbieders-array, zodat de sort/expand-knoppen (event delegation,
-// zie initProvidersInteractions) een blok kunnen her-renderen zonder de data
-// opnieuw uit de kaart te hoeven lezen.
+// id → ruwe aanbieders-array, zodat de modal (event delegation, zie
+// initProvidersInteractions) een blok kan openen zonder de data opnieuw uit
+// de kaart te hoeven lezen.
 const registry = new Map();
 let seq = 0;
 
@@ -101,6 +107,7 @@ let seq = 0;
 export function resetProvidersRegistry() {
   registry.clear();
   seq = 0;
+  closeModal();
 }
 
 // Zelfde opmaak als formatPriceLabel() in elke categorie's eigen utils.js:
@@ -108,6 +115,13 @@ export function resetProvidersRegistry() {
 function formatPriceLabel(prijs) {
   const numeriek = Number.isFinite(prijs) ? prijs : 0;
   return Math.trunc(numeriek).toLocaleString("nl-NL");
+}
+
+function sorteerAanbieders(aanbieders, sortKey) {
+  return [...aanbieders].sort((a, b) => {
+    if (sortKey === "levertijd") return normaliseLevertijd(a.levertijd).dagen - normaliseLevertijd(b.levertijd).dagen;
+    return Number(a.prijs ?? Infinity) - Number(b.prijs ?? Infinity);
+  });
 }
 
 function rowHtml(p, fastest) {
@@ -138,34 +152,20 @@ function rowHtml(p, fastest) {
   `;
 }
 
-function renderBlock(aanbieders, sortKey, expanded) {
-  const sorted = [...aanbieders].sort((a, b) => {
-    if (sortKey === "levertijd") return normaliseLevertijd(a.levertijd).dagen - normaliseLevertijd(b.levertijd).dagen;
-    return Number(a.prijs ?? Infinity) - Number(b.prijs ?? Infinity);
-  });
-  const fastest = Math.min(...sorted.map(p => normaliseLevertijd(p.levertijd).dagen));
+/** De altijd-zichtbare kaart-inhoud: top 2 (op prijs) + evt. compare-trigger. */
+function renderCardBlock(aanbieders) {
+  const sorted = sorteerAanbieders(aanbieders, "prijs");
+  const fastest = Math.min(...sorted.map((p) => normaliseLevertijd(p.levertijd).dagen));
   const visible = sorted.slice(0, MAX_ZICHTBAAR);
-  const rest = sorted.slice(MAX_ZICHTBAAR);
+  const rest = sorted.length - visible.length;
 
   return `
-    <div class="tv-providers-head">
-      <p class="tv-providers-header">Beschikbaar bij</p>
-      ${aanbieders.length > 1 ? `
-        <div class="tv-providers-sort">
-          <span>Sorteer:</span>
-          <button type="button" class="tv-providers-sort-btn${sortKey === "prijs" ? " is-active" : ""}" data-sort="prijs">Prijs</button>
-          <span>·</span>
-          <button type="button" class="tv-providers-sort-btn${sortKey === "levertijd" ? " is-active" : ""}" data-sort="levertijd">Levertijd</button>
-        </div>
-      ` : ""}
-    </div>
-    <div class="tv-providers-list">${visible.map(p => rowHtml(p, fastest)).join("")}</div>
-    ${rest.length > 0 ? `
-      <button type="button" class="tv-providers-expand${expanded ? " is-open" : ""}">
-        <span>${expanded ? "Toon minder" : `Toon nog ${rest.length} aanbieder${rest.length > 1 ? "s" : ""}`}</span>
-        <i data-lucide="chevron-down" class="tv-providers-expand-icon" aria-hidden="true"></i>
+    <div class="tv-providers-list">${visible.map((p) => rowHtml(p, fastest)).join("")}</div>
+    ${rest > 0 ? `
+      <button type="button" class="tv-providers-compare-trigger">
+        <span>Vergelijk ${sorted.length} prijzen</span>
+        <i data-lucide="chevron-right" class="tv-providers-compare-icon" aria-hidden="true"></i>
       </button>
-      <div class="tv-providers-extra${expanded ? " is-open" : ""}">${rest.map(p => rowHtml(p, fastest)).join("")}</div>
     ` : ""}
   `;
 }
@@ -177,128 +177,120 @@ export function buildProvidersHtml(aanbieders) {
 
   const id = `tv-providers-${seq++}`;
   registry.set(id, list);
-  return `<div class="tv-card-providers" id="${id}" data-sort="prijs" data-expanded="0">${renderBlock(list, "prijs", false)}</div>`;
+  return `<div class="tv-card-providers" id="${id}">${renderCardBlock(list)}</div>`;
 }
 
-let interactionsBound = false;
+// ─── Modal: "Vergelijk X prijzen" ─────────────────────────────────────────
+// Eén gedeelde modal voor de hele pagina (niet één per kaart) — als los
+// element aan <body> gehangen, los van .tv-card's overflow: hidden.
 
-// Zelfde 1100px-omslagpunt als waarop elke categorie's .tv-card van een
-// horizontale flex-rij naar een gestapelde grid overschakelt (zie elke
-// resultaat/index.html). Boven dat punt: popover (deze module). Eronder:
-// het bestaande inline-uitklap-gedrag (kaart wordt gewoon iets hoger, geen
-// stretch-probleem omdat de aanbieders-kolom daar al een eigen grid-rij is).
-const DESKTOP_QUERY = "(min-width: 1101px)";
+let modalBackdrop = null;
+let modalData = null;
+let modalSort = "prijs";
 
-// De popover wordt als los element aan <body> gehangen (niet als kind van de
-// kaart) en met getBoundingClientRect() gepositioneerd — zo hoeft .tv-card's
-// eigen overflow: hidden (voor de afgeronde hoeken/cheapest-badge) niet
-// aangepast te worden, en kan de popover nooit binnen de kaart afgeknipt
-// worden.
-let activeFlyout = null;
-let activeFlyoutBtn = null;
-
-function closeFlyout() {
-  if (activeFlyout) {
-    activeFlyout.remove();
-    activeFlyout = null;
-  }
-  if (activeFlyoutBtn) {
-    activeFlyoutBtn.setAttribute("aria-expanded", "false");
-    activeFlyoutBtn.classList.remove("is-open");
-    const label = activeFlyoutBtn.querySelector("span");
-    if (label && activeFlyoutBtn.dataset.closedLabel) label.textContent = activeFlyoutBtn.dataset.closedLabel;
-    activeFlyoutBtn = null;
-  }
+function renderModalList() {
+  const sorted = sorteerAanbieders(modalData, modalSort);
+  const fastest = Math.min(...sorted.map((p) => normaliseLevertijd(p.levertijd).dagen));
+  return sorted.map((p) => rowHtml(p, fastest)).join("");
 }
 
-function openFlyout(button) {
-  if (activeFlyoutBtn === button) {
-    closeFlyout();
-    return;
-  }
-  closeFlyout();
+function renderModalMarkup() {
+  return `
+    <div class="tv-providers-modal" role="dialog" aria-modal="true" aria-label="Vergelijk winkels">
+      <div class="tv-providers-modal-header">
+        <p class="tv-providers-header">Beschikbaar bij</p>
+        <button type="button" class="tv-providers-modal-close" aria-label="Sluiten">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="tv-providers-sort">
+        <span>Sorteer:</span>
+        <button type="button" class="tv-providers-sort-btn${modalSort === "prijs" ? " is-active" : ""}" data-sort="prijs">Prijs</button>
+        <span>·</span>
+        <button type="button" class="tv-providers-sort-btn${modalSort === "levertijd" ? " is-active" : ""}" data-sort="levertijd">Levertijd</button>
+      </div>
+      <div class="tv-providers-modal-list">${renderModalList()}</div>
+    </div>
+  `;
+}
 
-  const container = button.closest(".tv-card-providers");
-  const extra = container?.querySelector(".tv-providers-extra");
-  if (!extra) return;
+function closeModal() {
+  if (!modalBackdrop) return;
+  modalBackdrop.classList.remove("is-open");
+  const el = modalBackdrop;
+  modalBackdrop = null;
+  modalData = null;
+  window.setTimeout(() => el.remove(), 200);
+  document.body.classList.remove("tv-modal-open");
+}
 
-  const flyout = document.createElement("div");
-  flyout.className = "tv-provider-flyout";
-  flyout.innerHTML = extra.innerHTML;
-  document.body.appendChild(flyout);
+function openModal(aanbieders) {
+  closeModal();
+  modalData = aanbieders;
+  modalSort = "prijs";
 
-  const btnRect = button.getBoundingClientRect();
-  const flyoutRect = flyout.getBoundingClientRect();
+  const backdrop = document.createElement("div");
+  backdrop.className = "tv-providers-modal-backdrop";
+  backdrop.innerHTML = renderModalMarkup();
+  document.body.appendChild(backdrop);
+  document.body.classList.add("tv-modal-open");
 
-  let left = btnRect.right - flyoutRect.width;
-  left = Math.max(8, Math.min(left, window.innerWidth - flyoutRect.width - 8));
-
-  let top = btnRect.bottom + 8;
-  const passtOnder = top + flyoutRect.height <= window.innerHeight - 8;
-  const passtBoven = btnRect.top - flyoutRect.height - 8 >= 8;
-  if (!passtOnder && passtBoven) top = btnRect.top - flyoutRect.height - 8;
-
-  flyout.style.left = `${left + window.scrollX}px`;
-  flyout.style.top = `${top + window.scrollY}px`;
-
-  requestAnimationFrame(() => flyout.classList.add("is-open"));
-
-  button.setAttribute("aria-expanded", "true");
-  button.classList.add("is-open");
-  const label = button.querySelector("span");
-  if (label) {
-    button.dataset.closedLabel = label.textContent;
-    label.textContent = "Toon minder";
-  }
-  activeFlyout = flyout;
-  activeFlyoutBtn = button;
+  requestAnimationFrame(() => backdrop.classList.add("is-open"));
+  modalBackdrop = backdrop;
 
   if (window.lucide && typeof window.lucide.createIcons === "function") {
     window.lucide.createIcons();
   }
 }
 
-/** Eenmalige, gedelegeerde click-handler voor sorteren/uitklappen — werkt
- * voor elk "Beschikbaar bij"-blok op de pagina, ongeacht hoeveel er zijn. */
+function rerenderModal() {
+  if (!modalBackdrop) return;
+  const dialog = modalBackdrop.querySelector(".tv-providers-modal");
+  if (!dialog) return;
+  dialog.outerHTML = renderModalMarkup();
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    window.lucide.createIcons();
+  }
+}
+
+let interactionsBound = false;
+
+/** Eenmalige, gedelegeerde click-handler voor de compare-trigger/modal —
+ * werkt voor elk "Beschikbaar bij"-blok op de pagina, ongeacht hoeveel er
+ * zijn. */
 export function initProvidersInteractions() {
   if (interactionsBound) return;
   interactionsBound = true;
 
   document.addEventListener("click", (event) => {
-    const sortBtn = event.target.closest(".tv-providers-sort-btn");
-    const expandBtn = event.target.closest(".tv-providers-expand");
-
-    if (expandBtn && window.matchMedia(DESKTOP_QUERY).matches) {
+    const trigger = event.target.closest(".tv-providers-compare-trigger");
+    if (trigger) {
       event.preventDefault();
-      openFlyout(expandBtn);
+      const container = trigger.closest(".tv-card-providers");
+      const data = container && registry.get(container.id);
+      if (data) openModal(data);
       return;
     }
 
-    if (!sortBtn && !expandBtn) {
-      if (activeFlyout && !event.target.closest(".tv-provider-flyout")) closeFlyout();
+    if (!modalBackdrop) return;
+
+    const sortBtn = event.target.closest(".tv-providers-sort-btn");
+    if (sortBtn) {
+      modalSort = sortBtn.dataset.sort;
+      rerenderModal();
       return;
     }
 
-    const container = (sortBtn || expandBtn).closest(".tv-card-providers");
-    if (!container) return;
-    const data = registry.get(container.id);
-    if (!data) return;
-
-    event.preventDefault();
-    closeFlyout(); // dit blok gaat zo opnieuw renderen — een open popover zou nu stale data tonen
-
-    if (sortBtn) container.dataset.sort = sortBtn.dataset.sort;
-    if (expandBtn) container.dataset.expanded = container.dataset.expanded === "1" ? "0" : "1";
-
-    container.innerHTML = renderBlock(data, container.dataset.sort, container.dataset.expanded === "1");
-
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
+    const closeBtn = event.target.closest(".tv-providers-modal-close");
+    const clickedInsideDialog = event.target.closest(".tv-providers-modal");
+    if (closeBtn || !clickedInsideDialog) {
+      closeModal();
     }
   });
 
-  window.addEventListener("resize", closeFlyout, { passive: true });
-  window.addEventListener("scroll", closeFlyout, { passive: true, capture: true });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modalBackdrop) closeModal();
+  });
 }
 
 if (typeof document !== "undefined") initProvidersInteractions();

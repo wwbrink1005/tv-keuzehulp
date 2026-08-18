@@ -652,13 +652,6 @@ body.filter-drawer-open {
 				justify-content: center;
 			}
 
-.tv-providers-head {
-				display: flex;
-				align-items: baseline;
-				justify-content: space-between;
-				gap: 10px;
-			}
-
 .tv-providers-header {
 				font-size: 10px;
 				font-weight: 700;
@@ -783,7 +776,7 @@ body.filter-drawer-open {
 
 .tv-provider-badge.is-free .tv-provider-badge-icon { color: var(--accent-green-dark); }
 
-.tv-providers-expand {
+.tv-providers-compare-trigger {
 				appearance: none;
 				border: none;
 				background: none;
@@ -799,53 +792,95 @@ body.filter-drawer-open {
 				align-items: center;
 				justify-content: center;
 				gap: 4px;
+				transition: color 0.15s ease;
 			}
 
-.tv-providers-expand-icon {
+.tv-providers-compare-trigger:hover { color: var(--accent-dark); }
+
+.tv-providers-compare-icon {
 				width: 12px;
 				height: 12px;
+			}
+
+/* Eén gedeelde modal voor de hele pagina (niet per kaart) — als los element
+   aan <body> gehangen, dus onafhankelijk van .tv-card's eigen breedte/
+   overflow: hidden. Zelfde gedrag op mobiel en desktop. */
+.tv-providers-modal-backdrop {
+				position: fixed;
+				inset: 0;
+				background: rgba(17, 24, 39, 0.45);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 16px;
+				z-index: 100;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.2s ease;
+			}
+
+.tv-providers-modal-backdrop.is-open {
+				opacity: 1;
+				pointer-events: auto;
+			}
+
+.tv-providers-modal {
+				width: 100%;
+				max-width: 420px;
+				max-height: min(600px, 80vh);
+				background: var(--card-bg);
+				border-radius: var(--radius-lg);
+				box-shadow: var(--shadow-card-hover);
+				padding: 18px;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+				transform: translateY(10px) scale(0.98);
 				transition: transform 0.2s ease;
 			}
 
-.tv-providers-expand.is-open .tv-providers-expand-icon { transform: rotate(180deg); }
+.tv-providers-modal-backdrop.is-open .tv-providers-modal { transform: translateY(0) scale(1); }
 
-.tv-providers-extra {
-				display: none;
-				flex-direction: column;
-				gap: 7px;
+.tv-providers-modal-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 10px;
 			}
 
-.tv-providers-extra.is-open { display: flex; }
+.tv-providers-modal-close {
+				appearance: none;
+				border: none;
+				background: var(--page-bg);
+				color: var(--text-secondary);
+				width: 28px;
+				height: 28px;
+				border-radius: 50%;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				flex-shrink: 0;
+				transition: background 0.15s ease, color 0.15s ease;
+			}
 
-/* Popover voor de resterende aanbieders (≥1101px, zie DESKTOP_QUERY in
-   shared/aanbieders.js) — als los element aan <body> gehangen, dus deze
-   klasse leeft buiten .tv-card en heeft geen relatie met .tv-card-providers'
-   eigen breedte/overflow. Onder 1100px wordt deze klasse nooit aangemaakt;
-   daar blijft het bestaande inline .tv-providers-extra-gedrag gewoon staan. */
-.tv-provider-flyout {
-				position: absolute;
-				width: 300px;
-				max-width: calc(100vw - 16px);
-				background: var(--card-bg);
-				border: 1px solid var(--line);
-				border-radius: var(--radius-md);
-				box-shadow: var(--shadow-card-hover);
-				padding: 10px;
+.tv-providers-modal-close:hover { background: var(--line); color: var(--text-primary); }
+
+.tv-providers-modal-close svg,
+.tv-providers-modal-close i {
+				width: 15px;
+				height: 15px;
+			}
+
+.tv-providers-modal-list {
 				display: flex;
 				flex-direction: column;
 				gap: 7px;
-				z-index: 50;
-				opacity: 0;
-				transform: translateY(-6px);
-				pointer-events: none;
-				transition: opacity 0.18s ease, transform 0.18s ease;
+				overflow-y: auto;
+				padding-right: 2px;
 			}
 
-.tv-provider-flyout.is-open {
-				opacity: 1;
-				transform: translateY(0);
-				pointer-events: auto;
-			}
+body.tv-modal-open { overflow: hidden; }
 
 .tv-provider-right {
 				display: flex;
@@ -946,12 +981,6 @@ body.has-menu {
 				}
 
 .tv-providers-list {
-					display: grid;
-					grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-					gap: 8px;
-				}
-
-.tv-providers-extra.is-open {
 					display: grid;
 					grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 					gap: 8px;
