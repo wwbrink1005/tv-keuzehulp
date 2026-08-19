@@ -89,6 +89,9 @@ export function normalizeProducts(rawProducts) {
       automatischOntdooien: product.automatisch_ontdooien ?? "",
       geluidsniveauDb:   Number.isFinite(geluidsniveauDb) ? geluidsniveauDb : null,
       heeftVriesvak,
+      waterdispenser:    product.waterdispenser ?? "Nee",
+      ijsmaker:          product.ijsmaker       ?? "Nee",
+      versZone:          product.vers_zone      ?? "Nee",
       afbeelding,
       afbeeldingen,
       aanbieders

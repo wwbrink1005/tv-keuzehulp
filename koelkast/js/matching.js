@@ -49,7 +49,7 @@ export function applyExtraFilter(koelkasten, extraAnswers) {
   let filtered = [...koelkasten];
 
   if (extraAnswers.includes("energiezuinig")) {
-    const zuinig = filtered.filter(k => k.energielabel === "A" || k.energielabel === "B");
+    const zuinig = filtered.filter(k => ["A", "B", "C"].includes(k.energielabel));
     if (zuinig.length > 0) filtered = zuinig;
   }
 
@@ -66,6 +66,26 @@ export function applyExtraFilter(koelkasten, extraAnswers) {
   if (extraAnswers.includes("vriesvak")) {
     const vv = filtered.filter(k => k.heeftVriesvak);
     if (vv.length > 0) filtered = vv;
+  }
+
+  if (extraAnswers.includes("verszone")) {
+    const vz = filtered.filter(k => k.versZone === "Ja");
+    if (vz.length > 0) filtered = vz;
+  }
+
+  // Waterdispenser/ijsmaker komen vrijwel uitsluitend voor bij Amerikaanse/
+  // extra-brede koelkasten (84% resp. 38-42% dekking daar, vs. 1-4% bij
+  // standaard/inbouw/tafelmodel) — de checkboxes worden in de UI dan ook
+  // alleen bij die types getoond (zie updateExtraOptionsVisibility in
+  // quiz.js), maar de filter zelf blijft generiek/gracieus zoals de rest.
+  if (extraAnswers.includes("waterdispenser")) {
+    const wd = filtered.filter(k => k.waterdispenser === "Ja");
+    if (wd.length > 0) filtered = wd;
+  }
+
+  if (extraAnswers.includes("ijsmaker")) {
+    const im = filtered.filter(k => k.ijsmaker === "Ja");
+    if (im.length > 0) filtered = im;
   }
 
   return filtered;
@@ -146,7 +166,19 @@ export function buildResultPoints(koelkast, answers) {
     points.push("Heeft een vriesvak");
   }
 
-  if (koelkast.energielabel === "A" || koelkast.energielabel === "B") {
+  if (koelkast.versZone === "Ja") {
+    points.push("Vers zone compartiment voor langere houdbaarheid");
+  }
+
+  if (koelkast.waterdispenser === "Ja") {
+    points.push("Waterdispenser aan de deur");
+  }
+
+  if (koelkast.ijsmaker === "Ja") {
+    points.push("Ingebouwde ijsmaker");
+  }
+
+  if (["A", "B", "C"].includes(koelkast.energielabel)) {
     points.push(`Energiezuinig dankzij energielabel ${koelkast.energielabel}`);
   }
 

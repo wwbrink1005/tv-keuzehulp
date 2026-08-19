@@ -10,15 +10,25 @@ const filterState = {
   brands:        new Set(),
   capaciteiten:  new Set(),
   energielabels: new Set(),
-  nofrost:       new Set(),
   geluid:        new Set(),
-  vriesvak:      new Set(),
+  // No Frost/vriesvak/waterdispenser/ijsmaker/vers zone waren 5 losse
+  // kaarten — samengevoegd tot 1 "Functies"-kaart (zie FUNCTIE_DEFINITIES),
+  // zelfde patroon als monitor/desktop/wasmachine.
+  functies:      new Set(),
   aanbieder:     new Set(),
   baseMatches:   [],
   priceGroups:   [],
   answers:       null,
   bestType:      ""
 };
+
+const FUNCTIE_DEFINITIES = [
+  { key: "nofrost", label: "No Frost", check: k => k.automatischOntdooien === "Ja" },
+  { key: "vriesvak", label: "Met vriesvak", check: k => Boolean(k.heeftVriesvak) },
+  { key: "verszone", label: "Vers zone compartiment", check: k => k.versZone === "Ja" },
+  { key: "waterdispenser", label: "Waterdispenser", check: k => k.waterdispenser === "Ja" },
+  { key: "ijsmaker", label: "IJsmaker", check: k => k.ijsmaker === "Ja" },
+];
 
 // Price buckets are recomputed fresh from the live-fetched catalog on every
 // results page load (not trusted from the quiz-time localStorage snapshot).
@@ -85,10 +95,8 @@ function collectEnergielabelOptions(matches) {
   return inOrder;
 }
 
-function collectNofrostOptions(matches) {
-  const set = new Set();
-  matches.forEach(k => { if (k.automatischOntdooien) set.add(k.automatischOntdooien); });
-  return Array.from(set);
+function collectFunctieOptions(matches) {
+  return FUNCTIE_DEFINITIES.filter(f => matches.some(f.check)).map(f => f.key);
 }
 
 function collectGeluidOptions(matches) {
@@ -98,13 +106,6 @@ function collectGeluidOptions(matches) {
     set.add(k.geluidsniveauDb <= 38 ? "Stil (≤ 38 dB)" : "Normaal");
   });
   const order = ["Stil (≤ 38 dB)", "Normaal"];
-  return order.filter(l => set.has(l));
-}
-
-function collectVriesvakOptions(matches) {
-  const set = new Set();
-  matches.forEach(k => { set.add(k.heeftVriesvak ? "Met vriesvak" : "Zonder vriesvak"); });
-  const order = ["Met vriesvak", "Zonder vriesvak"];
   return order.filter(l => set.has(l));
 }
 
@@ -142,10 +143,6 @@ function applyFilters() {
     filtered = filtered.filter(k => filterState.energielabels.has(k.energielabel));
   }
 
-  if (filterState.nofrost.size > 0) {
-    filtered = filtered.filter(k => filterState.nofrost.has(k.automatischOntdooien));
-  }
-
   if (filterState.geluid.size > 0) {
     filtered = filtered.filter(k => {
       if (k.geluidsniveauDb === null) return false;
@@ -154,8 +151,10 @@ function applyFilters() {
     });
   }
 
-  if (filterState.vriesvak.size > 0) {
-    filtered = filtered.filter(k => filterState.vriesvak.has(k.heeftVriesvak ? "Met vriesvak" : "Zonder vriesvak"));
+  if (filterState.functies.size > 0) {
+    filtered = filtered.filter(k =>
+      FUNCTIE_DEFINITIES.filter(f => filterState.functies.has(f.key)).every(f => f.check(k))
+    );
   }
 
   if (filterState.aanbieder.size > 0) {
@@ -173,8 +172,8 @@ function updateClearFiltersBtn() {
   if (!btn) return;
   const hasActive = filterState.priceLabels.size > 0 || filterState.plaatsingen.size > 0 ||
     filterState.brands.size > 0 || filterState.capaciteiten.size > 0 ||
-    filterState.energielabels.size > 0 || filterState.nofrost.size > 0 || filterState.geluid.size > 0 ||
-    filterState.vriesvak.size > 0 || filterState.aanbieder.size > 0;
+    filterState.energielabels.size > 0 || filterState.geluid.size > 0 ||
+    filterState.functies.size > 0 || filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
@@ -186,9 +185,8 @@ function renderAllFilters() {
   const brandContainer        = qs("[data-filter-container='brand']");
   const capaciteitContainer   = qs("[data-filter-container='capaciteit']");
   const energielabelContainer = qs("[data-filter-container='energielabel']");
-  const nofrostContainer      = qs("[data-filter-container='nofrost']");
   const geluidContainer       = qs("[data-filter-container='geluid']");
-  const vriesvakContainer     = qs("[data-filter-container='vriesvak']");
+  const functieContainer      = qs("[data-filter-container='functies']");
   const aanbiederContainer    = qs("[data-filter-container='aanbieder']");
 
   const priceCard        = qs(".filter-card[data-filter='price']");
@@ -196,9 +194,8 @@ function renderAllFilters() {
   const brandCard        = qs(".filter-card[data-filter='brand']");
   const capaciteitCard   = qs(".filter-card[data-filter='capaciteit']");
   const energielabelCard = qs(".filter-card[data-filter='energielabel']");
-  const nofrostCard      = qs(".filter-card[data-filter='nofrost']");
   const geluidCard       = qs(".filter-card[data-filter='geluid']");
-  const vriesvakCard     = qs(".filter-card[data-filter='vriesvak']");
+  const functieCard      = qs(".filter-card[data-filter='functies']");
   const aanbiederCard    = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
@@ -240,16 +237,14 @@ function renderAllFilters() {
     renderFilterOptions(energielabelContainer, energielabelCard, collectEnergielabelOptions(matches), matches, k => k.energielabel, "energielabels", l => `Label ${l}`);
   }
 
-  if (nofrostContainer && nofrostCard) {
-    renderFilterOptions(nofrostContainer, nofrostCard, collectNofrostOptions(matches), matches, k => k.automatischOntdooien, "nofrost");
-  }
-
   if (geluidContainer && geluidCard) {
     renderFilterOptions(geluidContainer, geluidCard, collectGeluidOptions(matches), matches, k => k.geluidsniveauDb === null ? null : (k.geluidsniveauDb <= 38 ? "Stil (≤ 38 dB)" : "Normaal"), "geluid");
   }
 
-  if (vriesvakContainer && vriesvakCard) {
-    renderFilterOptions(vriesvakContainer, vriesvakCard, collectVriesvakOptions(matches), matches, k => k.heeftVriesvak ? "Met vriesvak" : "Zonder vriesvak", "vriesvak");
+  if (functieContainer && functieCard) {
+    const functieValueFn = k => FUNCTIE_DEFINITIES.filter(f => f.check(k)).map(f => f.key);
+    const labelFn = key => FUNCTIE_DEFINITIES.find(f => f.key === key)?.label ?? key;
+    renderFilterOptions(functieContainer, functieCard, collectFunctieOptions(matches), matches, functieValueFn, "functies", labelFn);
   }
 
   if (aanbiederContainer && aanbiederCard) {
@@ -272,9 +267,8 @@ function handleFilterChange(event) {
     brands:        { set: filterState.brands,        parse: v => v },
     capaciteiten:  { set: filterState.capaciteiten,  parse: v => v },
     energielabels: { set: filterState.energielabels, parse: v => v },
-    nofrost:       { set: filterState.nofrost,       parse: v => v, exclusive: true },
     geluid:        { set: filterState.geluid,        parse: v => v, exclusive: true },
-    vriesvak:      { set: filterState.vriesvak,       parse: v => v, exclusive: true },
+    functies:      { set: filterState.functies,      parse: v => v },
     aanbieder:     { set: filterState.aanbieder,      parse: v => v }
   };
 
@@ -357,9 +351,8 @@ export async function initFilters() {
       filterState.brands.clear();
       filterState.capaciteiten.clear();
       filterState.energielabels.clear();
-      filterState.nofrost.clear();
       filterState.geluid.clear();
-      filterState.vriesvak.clear();
+      filterState.functies.clear();
       filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();

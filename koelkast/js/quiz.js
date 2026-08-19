@@ -5,7 +5,8 @@ import { fetchProducts } from "./supabase.js";
 import { initLucideIcons } from "./icons.js";
 
 const quizState = {
-  plaatsing: null
+  plaatsing: null,
+  vrijstaandtype: null
 };
 
 let productsFetchPromise = null;
@@ -76,6 +77,22 @@ function setQuestionExpanded(question, expanded) {
 }
 
 const TOTAL_QUESTIONS = 4;
+
+// Waterdispenser/ijsmaker komen vrijwel uitsluitend voor bij Amerikaanse en
+// extra-brede koelkasten (84% resp. 38-42% dekking daar, vs. 1-4% bij
+// standaard/inbouw/tafelmodel) — tonen bij de andere types zou vrijwel altijd
+// niets filteren. Zelfde data-*-only-patroon als bovenlader bij wasmachine.
+function updateExtraOptionsVisibility() {
+  const isBreed = quizState.plaatsing === "vrijstaand"
+    && (quizState.vrijstaandtype === "amerikaans" || quizState.vrijstaandtype === "extra-breed");
+  qsa('[data-breed-only]').forEach(label => {
+    label.style.display = isBreed ? "" : "none";
+    if (!isBreed) {
+      const input = label.querySelector("input");
+      if (input) input.checked = false;
+    }
+  });
+}
 
 function showQuestion(num) {
   for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
@@ -335,6 +352,7 @@ export function initQuizPage() {
     const name = quizState.plaatsing === "inbouw" ? "nishoogte" : "vrijstaandtype";
     const checked = qs(`input[name="${name}"]:checked`);
     if (!checked) return alert("Kies een antwoord");
+    quizState.vrijstaandtype = quizState.plaatsing === "vrijstaand" ? checked.value : null;
     showQuestion(3);
   });
 
@@ -350,6 +368,7 @@ export function initQuizPage() {
   qs("#to-question-4")?.addEventListener("click", () => {
     const checked = qs('input[name="gezinsgrootte"]:checked');
     if (!checked) return alert("Kies een antwoord");
+    updateExtraOptionsVisibility();
     showQuestion(4);
   });
 

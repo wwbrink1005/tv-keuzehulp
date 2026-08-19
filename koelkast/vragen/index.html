@@ -84,8 +84,11 @@
 
   /* Q2 (inbouw) heeft 6 antwoordopties — te veel om zonder scroll prettig
      op de achtergrondfoto te laten passen. Begrens de hoogte en maak het
-     lijstje zelf scrollbaar i.p.v. de opties dichter op elkaar te proppen. */
-  #question-2 .answers-container {
+     lijstje zelf scrollbaar i.p.v. de opties dichter op elkaar te proppen.
+     Q4 (extra's) heeft tot 8 opties (incl. de conditionele waterdispenser/
+     ijsmaker) — zelfde probleem, zelfde patroon. */
+  #question-2 .answers-container,
+  #question-4 .answers-container {
     max-height: calc(330px * var(--scale));
     overflow-y: auto;
     padding-top: calc(6px * var(--scale));
@@ -99,20 +102,24 @@
      anders net buiten .background-container, die overflow:hidden heeft —
      dat sneed de rechterrand van de vakken zichtbaar af. Compenseer door
      de vakken exact zoveel smaller te maken. */
-  #question-2 .answer-option {
+  #question-2 .answer-option,
+  #question-4 .answer-option {
     width: calc(358.968px * var(--scale));
   }
 
-  #question-2 .answers-container::-webkit-scrollbar {
+  #question-2 .answers-container::-webkit-scrollbar,
+  #question-4 .answers-container::-webkit-scrollbar {
     width: 6px;
   }
 
-  #question-2 .answers-container::-webkit-scrollbar-thumb {
+  #question-2 .answers-container::-webkit-scrollbar-thumb,
+  #question-4 .answers-container::-webkit-scrollbar-thumb {
     background: rgba(9,84,163,.35);
     border-radius: 100px;
   }
 
-  #question-2 .answers-container::-webkit-scrollbar-track {
+  #question-2 .answers-container::-webkit-scrollbar-track,
+  #question-4 .answers-container::-webkit-scrollbar-track {
     background: transparent;
   }
 }
@@ -707,7 +714,7 @@ button.question-hint-btn-mobile { display: grid; }
               </div>
               <div class="question-popover" data-popover="4">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Energiezuinig betekent een lager verbruik op je energierekening. Stil in gebruik is prettig als de koelkast dicht bij een woon- of slaapkamer staat. No Frost betekent dat de vriezer nooit meer handmatig ontdooid hoeft te worden. Een vriesvak is handig als je ook bevroren producten wilt bewaren zonder een aparte vriezer. Je kunt meerdere opties aanvinken.</p>
+                <p class="question-popover-text">Energiezuinig betekent een lager verbruik op je energierekening. Stil in gebruik is prettig als de koelkast dicht bij een woon- of slaapkamer staat. No Frost betekent dat de vriezer nooit meer handmatig ontdooid hoeft te worden. Een vriesvak is handig als je ook bevroren producten wilt bewaren zonder een aparte vriezer. Een vers zone compartiment houdt groente, fruit en vlees langer vers op een net iets hogere temperatuur. Waterdispenser en ijsmaker zijn vooral te vinden bij Amerikaanse en extra brede koelkasten. Je kunt meerdere opties aanvinken.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
@@ -736,13 +743,31 @@ button.question-hint-btn-mobile { display: grid; }
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
+                <input type="checkbox" name="extra" value="verszone">
+                <svg class="answer-info-icon" data-icon="salad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Vers zone compartiment</span>
+                <span class="price-indicator">€€</span>
+              </label>
+              <label class="answer-option" data-breed-only>
+                <input type="checkbox" name="extra" value="waterdispenser">
+                <svg class="answer-info-icon" data-icon="glass-water" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Waterdispenser</span>
+                <span class="price-indicator">€€€</span>
+              </label>
+              <label class="answer-option" data-breed-only>
+                <input type="checkbox" name="extra" value="ijsmaker">
+                <svg class="answer-info-icon" data-icon="package-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>IJsmaker</span>
+                <span class="price-indicator">€€€</span>
+              </label>
+              <label class="answer-option">
                 <input type="checkbox" name="extra" value="geen">
                 <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
                 <span>Geen extra wensen</span>
                 <span class="price-indicator">€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 58px) + (4 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (8 * 58px) + (7 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-3">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>
