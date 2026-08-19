@@ -1,4 +1,4 @@
-import { getMonitorTier, priceGroupsBySize, scoringSystem, sizeGroupToAllowedSizes, TIER_ORDER } from "./data.js";
+import { getMonitorTier, scoringSystem, sizeGroupToAllowedSizes, TIER_ORDER } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 // ─── Score computation ────────────────────────────────────────────────────────
@@ -31,23 +31,29 @@ export function calculateScores(answers) {
 // ─── Hz filter ────────────────────────────────────────────────────────────────
 
 export function applyHzFilter(monitors, hz) {
-  if (hz === "ultra") {
-    const ultra = monitors.filter(m => m.hz >= 240);
-    if (ultra.length > 0) return ultra;
-    const fast = monitors.filter(m => m.hz >= 144);
-    if (fast.length > 0) return fast;
+  if (hz === "extreem") {
+    const extreem = monitors.filter(m => m.hz >= 240);
+    if (extreem.length > 0) return extreem;
+    const vloeiend = monitors.filter(m => m.hz >= 120);
+    if (vloeiend.length > 0) return vloeiend;
     return monitors;
   }
 
-  if (hz === "snel") {
-    const fast = monitors.filter(m => m.hz >= 144);
-    if (fast.length > 0) return fast;
-    const medium = monitors.filter(m => m.hz >= 75);
-    if (medium.length > 0) return medium;
+  if (hz === "vloeiend") {
+    const vloeiend = monitors.filter(m => m.hz >= 120 && m.hz < 240);
+    if (vloeiend.length > 0) return vloeiend;
+    const soepel = monitors.filter(m => m.hz >= 75);
+    if (soepel.length > 0) return soepel;
     return monitors;
   }
 
-  // "normaal" → no Hz filter (60Hz is fine)
+  if (hz === "soepel") {
+    const soepel = monitors.filter(m => m.hz >= 75 && m.hz < 120);
+    if (soepel.length > 0) return soepel;
+    return monitors;
+  }
+
+  // "rustig" → no Hz filter (60Hz is fine)
   return monitors;
 }
 
@@ -78,11 +84,6 @@ export function applyExtraFilter(monitors, extraAnswers) {
   if (extraAnswers.includes("4k")) {
     const fourk = filtered.filter(m => m.resolutie === "4K");
     if (fourk.length > 0) filtered = fourk;
-  }
-
-  if (extraAnswers.includes("hdr")) {
-    const hdr = filtered.filter(m => m.hdr === "Ja");
-    if (hdr.length > 0) filtered = hdr;
   }
 
   return filtered;
@@ -123,20 +124,29 @@ export function matchMonitors(monitors, sizeGroup, priceGroup, answers, scores) 
       .filter(([, s]) => Number(s) === Number(topScore))
       .map(([t]) => t);
 
-    let candidates = filtered.filter(m => tiersWithTopScore.includes(getMonitorTier(m)));
+    // Bij een gelijke stand tussen tiers voegen we ze niet samen (dat maakt de
+    // resultatenlijst juist grovers/breder) — we evalueren elke getelde tier
+    // apart en kiezen de tier met de kleinste niet-lege resultatenset, zodat
+    // de klant zo specifiek mogelijke keuzes krijgt in plaats van de optelsom
+    // van alle tiers die toevallig gelijk scoorden.
+    let bestTierCandidates = null;
+    let bestTierName = null;
 
-    if (candidates.length === 0) continue;
+    for (const tier of tiersWithTopScore) {
+      let tierCandidates = filtered.filter(m => getMonitorTier(m) === tier);
+      tierCandidates = applyHzFilter(tierCandidates, answers.hz ?? "");
+      tierCandidates = applyExtraFilter(tierCandidates, answers.extraAnswers ?? []);
+      if (tierCandidates.length === 0) continue;
+      if (bestTierCandidates === null || tierCandidates.length < bestTierCandidates.length) {
+        bestTierCandidates = tierCandidates;
+        bestTierName = tier;
+      }
+    }
 
-    // 3. Apply Hz filter
-    candidates = applyHzFilter(candidates, answers.hz ?? "");
-    if (candidates.length === 0) continue;
+    if (bestTierCandidates === null) continue;
 
-    // 4. Apply extra preferences
-    candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
-    if (candidates.length === 0) continue;
-
-    matchedMonitors = [...candidates];
-    bestType = tiersWithTopScore.join(" / ");
+    matchedMonitors = bestTierCandidates;
+    bestType = bestTierName;
     break;
   }
 

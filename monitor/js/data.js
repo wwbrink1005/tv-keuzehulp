@@ -1,8 +1,8 @@
 // ─── Size groups (keyed by schermgrootte answer) ─────────────────────────────
 export const sizeGroupToAllowedSizes = {
   "compact":    [21.5, 22, 23.8, 24],
-  "standaard":  [27],
-  "groot":      [28, 31.5, 32],
+  "standaard":  [27, 28],
+  "groot":      [31.5, 32],
   "ultrawide":  [29, 34, 40, 49]
 };
 
@@ -58,8 +58,9 @@ export const scoringSystem = {
     algemeen:  { Budget: 7, Mid: 9, Gaming: 6,  Premium: 7  }
   },
   hz: {
-    normaal: { Budget: 9, Mid: 7, Gaming: 2,  Premium: 6 },
-    snel:    { Budget: 3, Mid: 7, Gaming: 10, Premium: 7 },
-    ultra:   { Budget: 1, Mid: 3, Gaming: 10, Premium: 8 }
+    rustig:   { Budget: 9, Mid: 7, Gaming: 1,  Premium: 5 },
+    soepel:   { Budget: 5, Mid: 8, Gaming: 4,  Premium: 6 },
+    vloeiend: { Budget: 2, Mid: 6, Gaming: 10, Premium: 7 },
+    extreem:  { Budget: 1, Mid: 3, Gaming: 10, Premium: 8 }
   }
 };
