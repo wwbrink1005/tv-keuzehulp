@@ -1,11 +1,14 @@
 # Runbook: een nieuwe keuzehulp bouwen
 
 Dit document is bedoeld voor een AI (of ontwikkelaar) die de opdracht krijgt: **"maak een
-[categorie]-keuzehulp"** (bijv. wasmachine, koelkast, soundbar). Volg dit stap voor stap.
-Alle bestaande keuzehulpen (tv, laptop, monitor, desktop, printer, wasmachine, koelkast)
-volgen exact dit patroon —
-gebruik ze als referentie-implementatie, kopieer niet blind maar begrijp waarom elk stuk
-er zo uitziet.
+[categorie]-keuzehulp"**. Volg dit stap voor stap. Alle bestaande keuzehulpen (tv, laptop,
+monitor, desktop, printer, wasmachine, koelkast, vriezer, soundbar) volgen exact dit
+patroon — gebruik ze als referentie-implementatie, kopieer niet blind maar begrijp waarom
+elk stuk er zo uitziet. **Koelkast en vriezer zijn de meest volwassen referentie voor de
+matching-architectuur** (dynamische vraag 2, doorgedreven gracieuze degradatie, geen
+Icecat-veldnaam-bugs) — gebruik die als basis voor `matching.js`/`data.js` bij een nieuwe
+categorie zonder natuurlijke prijs/prestatie-tier, en **monitor** voor het generieke
+`result-filters.js`-patroon (zie stap 4).
 
 ## 0. Wat een mens moet aanleveren (kan de AI niet zelf)
 
@@ -58,12 +61,75 @@ lees-queries tijdens onderzoek. Voor het aanmaken van de tabel is de service-key
 
 ## 3. Icecat-specs bepalen (grotendeels AI-zelfstandig)
 
-Met de bestaande Icecat-API-credentials uit de pipeline:
+Met de bestaande Icecat-API-credentials uit de pipeline (`keuzehulp-pipeline/.env`,
+`ICECAT_USERNAME`/`ICECAT_APP_KEY`):
 1. Zoek de juiste Icecat-categorie-ID voor de nieuwe productcategorie.
-2. Vraag de featurelijst voor die categorie op.
+2. Vraag de featurelijst voor die categorie op (`Content=All` in de live API-call geeft de
+   volledige `FeaturesGroups`-lijst per product).
 3. Test tegen een paar echte producten welke features daadwerkelijk gevuld zijn.
 4. Pas dezelfde vuistregel toe als bij filters (zie stap 6): alleen features meenemen
    die "zo goed als volledig" gevuld zijn én genoeg variatie hebben om nuttig te zijn.
+
+### 3a. De "plausibele veldnaam"-valkuil (kostte dit project 5+ losse bugs in 1 sessie)
+
+**Zet nooit een Icecat-veldnaam in `config.py`'s `spec_mapping` omdat hij logisch klinkt.**
+Icecat gebruikt zelden de voor de hand liggende naam, en splitst concepten vaak op in
+meerdere deelvelden i.p.v. 1 samenvattend veld. Dit project had, verspreid over
+tv/laptop/desktop/monitor, minstens 5 `spec_mapping`-entries die een veld noemden dat
+in Icecat's data helemaal niet bestaat — allemaal maandenlang onopgemerkt, want een
+niet-bestaand Icecat-veld levert **nooit een foutmelding**, alleen een permanent lege
+Supabase-kolom (die de matching-logica dan stilletjes als "Nee"/afwezig behandelt).
+Concrete, echt gebeurde voorbeelden:
+
+- `"Grafische adapter"` bestaat niet voor laptops/desktops (0-1× aanwezig in een
+  steekproef van 400 producten). Het juiste veld is `"Discreet grafische adapter model"`
+  (geeft direct de GPU-modelnaam terug, bv. "NVIDIA GeForce RTX 4070"; 85-94% dekking;
+  leeg bij alleen geïntegreerde graphics — dus meteen ook het "heeft dedicated GPU"-signaal).
+- `"USB Type-C"` bestaat niet als los Ja/Nee-veld. Het signaal moet samengesteld worden
+  uit meerdere subvelden: bij laptops `"USB Type-C DisplayPort alternatieve modus"` +
+  `"USB Type-C-oplaadpoort"` + Thunderbolt-poorttellingen; bij monitoren `"Aantal USB
+  Type-C-upstreampoorten"` + `"...downstreampoorten"` + dezelfde DisplayPort-alt-mode-vlag.
+- `"Automatisch ontdooien (koelkast)"` heet bij vriezers anders:
+  `"Automatische ontdooiing ( diepvries )"` — inclusief de rare spaties in de haakjes,
+  exact zoals Icecat het zelf levert. **Kopieer nooit een `spec_mapping`-entry 1-op-1 naar
+  een nieuwe, verwante categorie** zonder 'm apart te verifiëren.
+
+Een aanverwant patroon: een kolom kán al in Supabase bestaan (bv. van een oudere
+pipeline-versie) zonder dat de huidige pipeline hem ooit vult — de kolom bestaat dus
+technisch, queries erop slagen, maar leveren altijd `null`. Dit zag je bij desktop's
+`gpu_apart`/`rgb`/`waterkoeling`: die velden stonden al in `supabase.js` maar geen regel
+code in `merge_publish.py` schreef er ooit iets naar, waardoor 97,5% van alle desktops
+altijd als "Budget"-GPU-tier werd geclassificeerd, ongeacht de daadwerkelijke videokaart.
+
+**Verplichte verificatiestap, vóór je een `spec_mapping`-entry schrijft (en sowieso
+elke keer dat je een bestaande matching-functie voor een nieuwe categorie hergebruikt):**
+
+1. Haal met de service-key (uit `keuzehulp-pipeline/.env`, nooit committen) een steekproef
+   van ~300-400 rijen op uit `icecat_cache.specs` voor de categorie:
+   ```js
+   const rows = await fetch(`${SUPABASE_URL}/rest/v1/icecat_cache?ean=in.(${eansCsv})&select=ean,specs`,
+     { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }).then(r => r.json());
+   ```
+   (`icecat_cache` heeft geen publieke leestoegang — de anon key uit `js/supabase.js` werkt
+   hier niet, alleen de service-key.) Als de Supabase-tabel voor de categorie nog niet
+   bestaat, haal de specs rechtstreeks op via de live Icecat-API voor een handvol
+   handmatig gekozen EAN's.
+2. Tel per kandidaat-veldnaam hoe vaak die **daadwerkelijk als key voorkomt**
+   (`rows.filter(r => "Veldnaam" in r.specs).length`) — niet alleen of de naam logisch
+   klinkt.
+3. Als de voor de hand liggende naam 0 of bijna 0 hits geeft: zoek met een
+   regex/substring-scan naar verwante velden (`/grafisch|gpu|graphics/i`,
+   `/usb|type-c/i`, `/ontdooi/i`) over alle keys van alle opgehaalde specs heen — Icecat's
+   eigen benaming vind je zo, in plaats van te blijven gokken.
+4. Kies het veld met de hoogste dekking dat het gevraagde concept dekt. Dekt geen los veld
+   het concept volledig, combineer meerdere velden met OR-logica (zie de USB-C/GPU-
+   voorbeelden in `merge_publish.py`'s `_bouw_rij()`) — en documenteer in een comment
+   welk percentage elk deelsignaal haalt, zodat een latere lezer niet opnieuw hoeft uit te
+   zoeken waarom het zo samengesteld is.
+5. **Test de gekozen velden ook nog los tegen realistische waarden** (bv. print een paar
+   `specs["Discreet grafische adapter model"]`-waardes uit) — een veld kan wél vaak
+   voorkomen maar toch de verkeerde soort waarde bevatten (categorie-naam i.p.v.
+   modelnaam, of een booleaanse vlag i.p.v. een telling).
 
 ## 4. Website: nieuwe map `{categorie}/`
 
@@ -188,7 +254,93 @@ Voeg ook een zin toe aan de "Hoe werkt het?"-uitleg (desktop én mobiel blok): "
 antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of
 duurdere (€€€) {categorie} leidt, puur ter indicatie, we filteren er niets mee weg."
 
-## 5. Matching-logica: verplichte eindfallback
+## 5. Matching-logica: ontwerpprincipes
+
+Een `match{Categorie}()`-functie bestaat meestal uit 3 lagen, in deze volgorde: (1) een
+harde partitie op een fysieke eigenschap die geen compromis toelaat (formaat, plaatsing,
+schermgrootte — "je koopt geen inbouwkoelkast als je vrijstaand zocht"), (2) een
+scoring-cascade die de resterende producten indeelt in tiers/types op basis van de
+gebruiksvraag-antwoorden, en (3) een reeks gracieus degraderende zachte
+voorkeursfilters (opslag, geluid, extra's) die alleen filteren als dat niet alles
+wegvaagt. Sommige categorieën hebben geen natuurlijke tier-as (koelkast, vriezer, printer)
+en slaan laag 2 over — dat is een bewuste, gedocumenteerde keuze, geen omissie (zie de
+comment bovenaan `koelkast/js/matching.js`).
+
+### 5.1 Tier-cascade: bij een gelijke stand NOOIT tiers samenvoegen
+
+**Dit is de meest voorkomende, meest impactvolle bug die dit project herhaaldelijk trof**
+(gevonden en gefixt bij monitor, laptop, soundbar én tv — allemaal onafhankelijk van
+elkaar ontstaan, wat erop wijst dat dit de "voor de hand liggende" manier is om een
+tier-cascade te schrijven, en dus extra oplettendheid verdient bij een nieuwe keuzehulp).
+
+De **foute** versie: bepaal de hoogst scorende tier(s), en als er een gelijke stand is
+tussen bv. "Mid" en "Krachtig", voeg beide tiers samen tot 1 grote pool:
+
+```js
+// FOUT — voegt tiers samen bij een gelijke stand
+const topScore = sortedTiers[0][1];
+const tiersWithTopScore = sortedTiers.filter(([, s]) => s === topScore).map(([t]) => t);
+let candidates = filtered.filter(item => tiersWithTopScore.includes(getTier(item)));
+```
+
+Dit lijkt onschuldig (er komt tenminste íets uit), maar doet precies het tegenovergestelde
+van wat een keuzehulp hoort te doen: hoe vaker antwoorden toevallig gelijk scoren, hoe
+**breder** de resultatenlijst wordt — terwijl het doel juist is om te versmallen. Bij tv
+bleek 15% van alle mogelijke antwoordcombinaties een gelijke stand te geven, met als
+ergste geval een volledige 4-weg-gelijkspel tussen alle paneeltypes (174 tv's zonder enige
+type-filtering). Bij soundbar gaf één enkel antwoord ("muziek": Allround en Premium scoren
+toevallig allebei 8) een pool van 45 op de 117 producten in de catalogus.
+
+De **juiste** versie: evalueer bij een gelijke stand elke getelde tier **apart** (incl.
+alle overige filters van die stap), en kies de tier met de **kleinste niet-lege**
+resultatenset — dat is de meest specifieke tier die nog steeds voorraad heeft:
+
+```js
+const sortedTiers = Object.entries(scores).sort((a, b) => Number(b[1]) - Number(a[1]));
+let matchedItems = [], bestType = null;
+
+for (const [, topScore] of sortedTiers) {
+  const tiersWithTopScore = sortedTiers
+    .filter(([, s]) => Number(s) === Number(topScore))
+    .map(([t]) => t);
+
+  let bestCandidates = null, bestTierName = null;
+  for (const tier of tiersWithTopScore) {
+    let candidates = filtered.filter(item => getTier(item) === tier);
+    candidates = applySubFilter1(candidates, ...);
+    candidates = applySubFilter2(candidates, ...);
+    if (candidates.length === 0) continue;
+    if (bestCandidates === null || candidates.length < bestCandidates.length) {
+      bestCandidates = candidates;
+      bestTierName = tier;
+    }
+  }
+  if (bestCandidates === null) continue; // val terug op de eerstvolgende score-groep
+  matchedItems = bestCandidates;
+  bestType = bestTierName;
+  break;
+}
+```
+
+Let op het verschil met de foute versie: de sub-filters (opslag/resolutie/Hz/etc.) worden
+nu **per kandidaat-tier apart** toegepast, niet pas nadat de tiers al samengevoegd zijn —
+anders zou je nog steeds een grote, samengevoegde kandidatenpool aan de sub-filters
+voeren. `bestType` wordt hierdoor ook altijd een enkele tier-naam i.p.v. een
+"A / B"-samengevoegde string — controleer bij het overzetten van dit patroon of ergens
+verderop in de code (resultaatpagina, filters) nog een `" / "`-split op `bestType`
+verwacht wordt (kwam bij tv niet voor, maar check het altijd).
+
+**Uitzondering — als het doel bewust "verbreden" is, niet versmallen:** desktop's
+matching wijkt hier bewust van af (`matchDesktops()` in `desktop/js/matching.js`) — die
+verbreedt juist tiers totdat een minimum van 5 resultaten is gehaald, omdat GPU-tiers bij
+sommige behuizingstypen (mini-pc, all-in-one) zo schaars zijn dat een strikte kleinste-
+tier-keuze een gebruiker op een niche-tier van 2 producten kan stranden terwijl er 35 prima
+alternatieven in de net-iets-lagere tier staan. Dit is een expliciete, gedocumenteerde
+ontwerpkeuze voor een categorie met een sterk scheve tier-verdeling — kopieer 'm niet
+klakkeloos, maar overweeg 'm als de nieuwe categorie een vergelijkbaar scheve verdeling
+heeft (zie 5.4 hieronder over hoe je dat vaststelt).
+
+### 5.2 Verplichte eindfallback
 
 Elke `match{Categorie}()`-functie moet, na de tier-cascade, een fallback hebben voor het
 geval geen enkele tier iets oplevert binnen de gekozen prijs/type-combinatie:
@@ -208,7 +360,48 @@ teruggeven. Elke sub-filter (opslag, extra's, formaat, …) moet zelf ook al gra
 degraderen: "als deze wens 0 resultaten oplevert, sla 'm over" — nooit hard filteren tot
 leeg.
 
-## 5b. `buildResultPoints()`: altijd 4 groene vinkjes garanderen (verplicht)
+### 5.3 Valideer de matching altijd tegen de live catalogus, niet alleen tegen handmatige voorbeelden
+
+De architectuur kan volledig correct zijn (geen tie-merge-bug, wel een eindfallback) en
+toch praktisch nutteloos matchen, puur omdat de **catalogus-samenstelling** een tier
+onevenredig groot maakt. Dit is geen bug om te "fixen" in de code — het is iets wat je met
+echte data moet meten voordat je kunt beoordelen of het een probleem is. Voorbeelden die
+dit project trof: laptop's "Mid" en "Krachtig" processor-tiers bleken allebei ~40% van de
+hele catalogus (i5/i7-klasse chips domineren de markt), waardoor zelfs een perfect
+werkende tier-cascade nog altijd 200+ resultaten opleverde voor de populairste
+antwoordcombinatie. Soundbar bleek voor 67% uit "Premium" (Atmos/DTS:X) te bestaan.
+
+Werkwijze om dit te meten (schrijf een eenmalig Node-scriptje in de scratchpad-map, niet
+in de repo): haal de volledige catalogus op via de anon-key, reproduceer
+`calculateScores()` + de matching-cascade 1-op-1 in het script, en loop dan **alle**
+realistische antwoordcombinaties door (geneste `for`-loops over elke vraag z'n
+mogelijke waarden) om te zien: (a) hoe vaak een tie optreedt (zie 5.1), en (b) wat de
+grootste resulterende resultatenset is over alle combinaties heen. Een paar honderd tot
+laag-duizendtal combinaties doorrekenen kost seconden en geeft een veel eerlijker beeld
+dan 3-4 handmatig gekozen scenario's, die het "typische" geval testen maar het "ergste"
+geval missen.
+
+Vind je hiermee een structureel te brede tier (zoals laptop's Mid/Krachtig): bespreek met
+de eigenaar of dit acceptabel is (bewust: geen prijsvraag in de quiz, verdere verfijning
+hoort bij het filtermenu — zie stap 6) of dat de vraag die op die tier scoort verfijnd
+moet worden (bv. van 3 naar 4 antwoordopties, zoals bij monitor's Hz-vraag en laptop's
+intensiteit-vraag) — voeg **niet blind een prijsvraag toe** om dit te compenseren, dat is
+een bewuste, sitebrede designkeuze (zie CLAUDE.md) die niet per-categorie omzeild wordt.
+
+### 5.4 Drempelwaardes altijd tegen live data valideren, nooit tegen aannames
+
+Een "voor de hand liggende" drempel kan voor de ene categorie kloppen en voor de andere
+volledig fout zijn. Concreet voorbeeld: een "energiezuinig"-extra die filtert op
+energielabel A of B werkte prima bij wasmachines (86% van de catalogus haalt A/B) maar gaf
+bij vriezers **0 resultaten, altijd** — de EU-energielabel-schaal is in 2021 verstrengd en
+vriezers halen op de nieuwe schaal in de praktijk zelden hoger dan C. De checkbox deed dus
+maandenlang niets, zonder ooit een fout te geven (gracieuze degradatie ving het stilletjes
+op). Tel bij elke drempel/bucket-grens die je verzint (dB-niveau voor "stil", Hz-grens voor
+"snel", RPM-grens voor "hoog toerental", energielabel-cutoff) hoeveel producten in de
+**live** catalogus er daadwerkelijk aan voldoen, vóór je 'm vastlegt — een drempel die 0%
+of 100% van de catalogus raakt, filtert in de praktijk niets.
+
+### 5.5 `buildResultPoints()`: altijd 4 groene vinkjes garanderen (verplicht)
 
 Elke resultaatkaart toont maximaal 4 USP-punten (groene vinkjes). `buildResultPoints()`
 mag **nooit** minder dan 4 teruggeven — ook niet als een product weinig specs heeft of de
@@ -237,11 +430,53 @@ verifiëren.
 
 ## 6. Filter-uitbreiding (pas ná livegang, met echte data)
 
-Volg dezelfde cyclus als bij de bestaande 4:
-1. Bevraag de Supabase-tabel op vullingspercentage en waarde-variatie per kolom.
+Volg dezelfde cyclus als bij de bestaande categorieën:
+1. Bevraag de Supabase-tabel (of, voor Icecat-brondata, `icecat_cache` — zie 3a) op
+   vullingspercentage en waarde-variatie per kolom.
 2. Stel kandidaten voor die "zo goed als volledig" zijn (~90%+) én genoeg variatie hebben
-   (een kolom die 95%+ van de tijd dezelfde waarde heeft is geen nuttig filter).
+   (een kolom die 95%+ van de tijd dezelfde waarde heeft is geen nuttig filter — zie 5.4,
+   hetzelfde principe geldt hier).
 3. Laat de eigenaar kiezen, implementeer daarna pas.
+
+### 6a. Elke nieuwe quizvraag/spec-fix moet ook het filtermenu bijwerken (verplichte check, geen losse taak)
+
+**Dit werd dit project herhaaldelijk gemist**: een nieuwe vraag toevoegen aan de quiz, of
+een kapot Icecat-veld repareren (zie 3a), levert waardevolle, nu-wél-betrouwbare data op —
+maar `result-filters.js` op de resultaatpagina wordt daar niet automatisch van op de
+hoogte gesteld. De quiz-matching en het filtermenu zijn twee losse plekken die hetzelfde
+product-veld gebruiken, en alleen de eerste denkt men vanzelf aan. **Check bij elke nieuwe
+of gerepareerde spec expliciet of `{categorie}/js/result-filters.js` er al een kaart voor
+heeft; zo niet, voeg die toe** — anders zit de data er wel, maar kan de bezoeker er nooit
+mee filteren.
+
+Twee herbruikbare UI-patronen voor nieuwe filters:
+
+- **"Functies"-consolidatie**: meerdere losse Ja/Nee-eigenschappen (bv. kinderslot,
+  AquaStop, uitgestelde start, inverter) horen als aparte checkboxes in **1** kaart, niet
+  als 1 losse kaart per eigenschap — dat laatste maakt het filterpaneel onnodig lang.
+  Patroon (zie `FUNCTIE_DEFINITIES` in `monitor/desktop/wasmachine/koelkast/js/result-filters.js`):
+  ```js
+  const FUNCTIE_DEFINITIES = [
+    { key: "kinderslot", label: "Kinderslot", check: item => item.kinderslot === "Ja" },
+    { key: "aquastop",   label: "AquaStop",   check: item => item.aquastop === "Ja" },
+  ];
+  ```
+  gecombineerd met AND-logica bij het filteren (alle aangevinkte functies moeten allemaal
+  kloppen) — gebruik dit patroon voor generieke "wat wil je nog meer"-eigenschappen. Een
+  eigenschap die specifiek is voor 1 vraag met veel variatie (zoals wasmachine's 6
+  specifieke wasprogramma's, of een GPU-tier) verdient wél een **eigen** kaart, geen plek
+  in "Functies" — de vuistregel: hoort de eigenschap bij de vraag "wat is verder nog fijn
+  om te hebben" (generiek, binair) → Functies; is het een eigen, herkenbare dimensie
+  (grootte, type, merk-achtig) → eigen kaart.
+- **Conditionele zichtbaarheid**: sommige eigenschappen zijn alleen relevant bij een
+  bepaald antwoord op een eerdere vraag (bv. een bovenlader-optie bestaat alleen bij
+  "kleine" wasmachines; waterdispenser/ijsmaker komen bij koelkasten vrijwel uitsluitend
+  voor bij het Amerikaanse/extra-brede type — **meet dit altijd eerst met live data** vóór
+  je een optie conditioneel verstopt, zie 5.4). Patroon: geef het `<label>` in
+  `vragen/index.html` een `data-{voorwaarde}-only`-attribuut, en verberg/toon die labels
+  in `quiz.js` op basis van het eerdere antwoord (zie `updateExtraOptionsVisibility()` in
+  `wasmachine/js/quiz.js` of `koelkast/js/quiz.js` voor het exacte patroon, inclusief het
+  leegmaken van de checkbox als hij verborgen wordt).
 
 **Prijscategorieën in het filtermenu:**
 - Alle prijsbuckets met minstens 1 match blijven altijd zichtbaar (nooit verbergen).
@@ -291,6 +526,14 @@ doen.
 - Test minstens één "geen voorkeur"-scenario voor prijs: klopt de default-selectie?
 - Test de zoekbalk met een paar synoniemen.
 - Check mobiele weergave van de (mogelijk lange) filter-sidebar.
+- **Draai de brute-force tie/resultaatgrootte-check uit 5.3** over alle antwoordcombinaties
+  — dit is de enige betrouwbare manier om een tie-merge-bug (5.1) of een structureel te
+  brede tier (te grote resultatenset) te vinden vóórdat een gebruiker het doet.
+- **Verifieer elke `spec_mapping`-entry tegen `icecat_cache`** zoals beschreven in 3a,
+  óók voor velden die "voor de hand liggend" leken — dit kost een paar minuten en heeft dit
+  project herhaaldelijk een pas-maanden-later-ontdekte bug bespaard.
+- **Loop het filtermenu-overzicht van stap 6a na**: heeft elke quizvraag/spec die je hebt
+  toegevoegd ook een bijpassende kaart in `result-filters.js`?
 
 ## 10. SEO-checklist (verplicht bij elke nieuwe categorie)
 
