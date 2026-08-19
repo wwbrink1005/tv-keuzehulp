@@ -62,6 +62,34 @@ export function applyAioFilter(printers, aio) {
   return printers;
 }
 
+// ─── Extra voorkeuren (ADF/display/bluetooth) ──────────────────────────────
+// adf/display/bluetooth stonden tot nu toe alleen als infobullet op de
+// resultaatpagina, zonder eigen vraag — nooit gebruikt om te filteren.
+export function applyExtraFilter(printers, extraAnswers) {
+  if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
+    return printers;
+  }
+
+  let filtered = [...printers];
+
+  if (extraAnswers.includes("adf")) {
+    const adf = filtered.filter(p => p.adf === "Ja");
+    if (adf.length > 0) filtered = adf;
+  }
+
+  if (extraAnswers.includes("display")) {
+    const display = filtered.filter(p => p.display === "Ja");
+    if (display.length > 0) filtered = display;
+  }
+
+  if (extraAnswers.includes("bluetooth")) {
+    const bt = filtered.filter(p => p.bluetooth === "Ja");
+    if (bt.length > 0) filtered = bt;
+  }
+
+  return filtered;
+}
+
 // ─── Main matching function ───────────────────────────────────────────────────
 
 export function matchPrinters(printers, gebruik, priceGroup, answers) {
@@ -94,6 +122,9 @@ export function matchPrinters(printers, gebruik, priceGroup, answers) {
   // 5. Apply inktsysteem voorkeur
   candidates = applyInktFilter(candidates, answers.inkt ?? "");
 
+  // 6. Apply extra voorkeuren (ADF/display/bluetooth)
+  candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
+
   const matchedPrinters = candidates.length > 0 ? candidates : filtered;
 
   // Best match = cheapest in the matched set
@@ -115,6 +146,7 @@ export function buildResultPoints(printer, answers) {
   const aio = answers?.aio ?? "";
   const volume = answers?.volume ?? "";
   const inkt = answers?.inkt ?? "";
+  const extraAnswers = answers?.extraAnswers ?? [];
 
   if (inkt === "tank" && isInktTankSysteem(printer.naam)) {
     points.push("Navulbaar inktsysteem: lage kosten per pagina op de lange termijn");
@@ -140,6 +172,16 @@ export function buildResultPoints(printer, answers) {
 
   if (aio === "ja" && printer.scannen === "Ja" && printer.kopieren === "Ja") {
     points.push("Scannen en kopiëren mogelijk (all-in-one)");
+  }
+
+  if (extraAnswers.includes("adf") && printer.adf === "Ja") {
+    points.push("Automatische documentinvoer voor meerdere pagina's tegelijk");
+  }
+  if (extraAnswers.includes("display") && printer.display === "Ja") {
+    points.push("Display voor eenvoudige bediening");
+  }
+  if (extraAnswers.includes("bluetooth") && printer.bluetooth === "Ja") {
+    points.push("Bluetooth voor draadloos printen zonder wifi");
   }
 
   if (printer.duplex === "Ja") {

@@ -30,7 +30,7 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
-const TOTAL_QUESTIONS = 5;
+const TOTAL_QUESTIONS = 6;
 
 // ─── Printer-visualisatie: silhouet per gebruiksdoel ───────────────────────────
 // Het printer-silhouet wisselt (met crossfade, dubbele buffer — zelfde patroon
@@ -255,17 +255,18 @@ function resetQuestionsFrom(questionNumber) {
 
 function buildAnswers() {
   return {
-    gebruik: qs('input[name="gebruik"]:checked')?.value ?? "",
-    volume:  qs('input[name="volume"]:checked')?.value ?? "",
-    aio:     qs('input[name="aio"]:checked')?.value ?? "",
-    kleur:   qs('input[name="kleur"]:checked')?.value ?? "",
-    inkt:    qs('input[name="inkt"]:checked')?.value ?? ""
+    gebruik:      qs('input[name="gebruik"]:checked')?.value ?? "",
+    volume:       qs('input[name="volume"]:checked')?.value ?? "",
+    aio:          qs('input[name="aio"]:checked')?.value ?? "",
+    kleur:        qs('input[name="kleur"]:checked')?.value ?? "",
+    inkt:         qs('input[name="inkt"]:checked')?.value ?? "",
+    extraAnswers: qsa('input[name="extra"]:checked').map(cb => cb.value)
   };
 }
 
 function handleStartMatching() {
-  const checked = qs('input[name="inkt"]:checked');
-  if (!checked) return alert("Kies een antwoord");
+  const checked = qs('input[name="extra"]:checked');
+  if (!checked) return alert("Kies minimaal 1 antwoord");
 
   const answers = buildAnswers();
 
@@ -366,7 +367,33 @@ export function initQuizPage() {
     showQuestion(4);
   });
 
-  // Q5 → Result
+  // Q5 → Q6
+  qs("#to-question-6")?.addEventListener("click", () => {
+    const checked = qs('input[name="inkt"]:checked');
+    if (!checked) return alert("Kies een antwoord");
+    showQuestion(6);
+  });
+
+  // Q6 → Q5
+  qs("#back-to-question-5")?.addEventListener("click", () => {
+    resetQuestionsFrom(6);
+    showQuestion(5);
+  });
+
+  // Vraag 6: "Geen extra wensen" sluit de overige opties uit en omgekeerd,
+  // zelfde exclusiviteitspatroon als bij monitor/laptop.
+  const geenCheckbox = qs('input[name="extra"][value="geen"]');
+  const overigeExtraCheckboxes = qsa('input[name="extra"]:not([value="geen"])');
+  geenCheckbox?.addEventListener("change", () => {
+    if (geenCheckbox.checked) overigeExtraCheckboxes.forEach(cb => { cb.checked = false; });
+  });
+  overigeExtraCheckboxes.forEach(cb => {
+    cb.addEventListener("change", () => {
+      if (cb.checked && geenCheckbox) geenCheckbox.checked = false;
+    });
+  });
+
+  // Q6 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
   window.addEventListener("resize", () => {

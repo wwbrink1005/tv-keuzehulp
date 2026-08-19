@@ -94,6 +94,8 @@ function collectFunctieOptions(matches) {
   if (matches.some(p => p.scannen === "Ja" && p.kopieren === "Ja")) opties.push("scan-kopieer");
   if (matches.some(p => p.wifi === "Ja")) opties.push("wifi");
   if (matches.some(p => p.display === "Ja")) opties.push("display");
+  if (matches.some(p => p.adf === "Ja")) opties.push("adf");
+  if (matches.some(p => p.bluetooth === "Ja")) opties.push("bluetooth");
   return opties;
 }
 
@@ -101,7 +103,9 @@ const FUNCTIE_LABELS = {
   "duplex": "Dubbelzijdig printen",
   "scan-kopieer": "Scannen en kopiëren",
   "wifi": "Wifi",
-  "display": "Display"
+  "display": "Display",
+  "adf": "Automatische documentinvoer (ADF)",
+  "bluetooth": "Bluetooth"
 };
 
 function collectAanbiederOptions(matches) {
@@ -148,6 +152,8 @@ function applyFilters() {
       if (filterState.functies.has("scan-kopieer") && p.scannen === "Ja" && p.kopieren === "Ja") return true;
       if (filterState.functies.has("wifi") && p.wifi === "Ja") return true;
       if (filterState.functies.has("display") && p.display === "Ja") return true;
+      if (filterState.functies.has("adf") && p.adf === "Ja") return true;
+      if (filterState.functies.has("bluetooth") && p.bluetooth === "Ja") return true;
       return false;
     });
   }

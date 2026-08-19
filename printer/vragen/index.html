@@ -6,7 +6,7 @@
   <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Start de Printer Keuzehulp en ontvang direct persoonlijk advies</title>
-  <meta name="description" content="Doe de gratis Printer Keuzehulp: beantwoord vier korte vragen over gebruik en printvolume en ontvang direct een persoonlijk printeradvies op maat.">
+  <meta name="description" content="Doe de gratis Printer Keuzehulp: beantwoord zes korte vragen over gebruik en printvolume en ontvang direct een persoonlijk printeradvies op maat.">
   <link rel="canonical" href="https://producthulp.nl/printer/vragen/" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -201,7 +201,7 @@ button.question-hint-btn-mobile {
 
 button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-active { background: rgba(235,244,255,.97); color: var(--c-accent); }
 
-#question-1, #question-2, #question-3, #question-4, #question-5 {
+#question-1, #question-2, #question-3, #question-4, #question-5, #question-6 {
   position: relative;
   opacity: 0;
   transform: translateY(6px);
@@ -210,7 +210,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 }
 
 #question-1.is-active, #question-2.is-active, #question-3.is-active,
-#question-4.is-active, #question-5.is-active {
+#question-4.is-active, #question-5.is-active, #question-6.is-active {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -273,7 +273,8 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 #question-2 input[type="radio"],
 #question-3 input[type="radio"],
 #question-4 input[type="radio"],
-#question-5 input[type="radio"] {
+#question-5 input[type="radio"],
+#question-6 input[type="checkbox"] {
   margin-right: calc(30px * var(--scale));
 }
 
@@ -281,14 +282,15 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 #question-2 .answer-info-icon,
 #question-3 .answer-info-icon,
 #question-4 .answer-info-icon,
-#question-5 .answer-info-icon {
+#question-5 .answer-info-icon,
+#question-6 .answer-info-icon {
   margin-left: calc(-20px * var(--scale));
   margin-right: calc(10px * var(--scale));
 }
 
 .button-container button:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
+#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4, #back-to-question-5 {
   background: rgba(255,255,255,.90);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -298,7 +300,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
   filter: none;
 }
 
-#back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover, #back-to-question-4:hover {
+#back-to-question-1:hover, #back-to-question-2:hover, #back-to-question-3:hover, #back-to-question-4:hover, #back-to-question-5:hover {
   background: rgba(232,242,255,.97);
   border-color: rgba(9,84,163,.50);
   box-shadow: 0 4px 14px rgba(9,84,163,.14);
@@ -310,7 +312,8 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 #question-2 .button-container,
 #question-3 .button-container,
 #question-4 .button-container,
-#question-5 .button-container {
+#question-5 .button-container,
+#question-6 .button-container {
   left: calc(26.2291px * var(--scale));
   width: calc(366.968px * var(--scale));
 }
@@ -362,9 +365,9 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 
 #question-1 .answer-info-icon, #question-2 .answer-info-icon,
 #question-3 .answer-info-icon, #question-4 .answer-info-icon,
-#question-5 .answer-info-icon { margin-left: 0; margin-right: 8px; }
+#question-5 .answer-info-icon, #question-6 .answer-info-icon { margin-left: 0; margin-right: 8px; }
 
-#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4 {
+#back-to-question-1, #back-to-question-2, #back-to-question-3, #back-to-question-4, #back-to-question-5 {
   border-width: 1.5px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
@@ -373,7 +376,7 @@ button.question-hint-btn-mobile:hover, button.question-hint-btn-mobile.hint-btn-
 
 #question-1 .button-container, #question-2 .button-container,
 #question-3 .button-container, #question-4 .button-container,
-#question-5 .button-container {
+#question-5 .button-container, #question-6 .button-container {
   left: auto;
   width: 100%;
   max-width: 100%;
@@ -430,7 +433,7 @@ button.question-hint-btn-mobile { display: grid; }
     </div>
     <div class="quiz-panel-content" id="how-content">
       <div class="quiz-panel-inner" style="max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto;">
-        <p>We stellen vier korte vragen over je gebruiksdoel, printvolume en wensen rond functies en kleur. Op basis van je antwoorden berekenen we welke printer het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) printer leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+        <p>We stellen zes korte vragen over je gebruiksdoel, printvolume en wensen rond functies en kleur. Op basis van je antwoorden berekenen we welke printer het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) printer leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
         <div class="quiz-how-steps">
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">1</span>
@@ -650,6 +653,47 @@ button.question-hint-btn-mobile { display: grid; }
             </div>
             <div class="button-container" style="top: calc((70.11px + 37.77px + (2 * 51.3935px) + (1 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-4">Terug</button>
+              <button id="to-question-6">Volgende</button>
+            </div>
+          </div>
+
+          <!-- VRAAG 6: Extra's -->
+          <div id="question-6" class="question-block" style="display:none;">
+            <div class="question-container">
+              <div class="question-heading-wrap"><h2>Wat is nog meer belangrijk voor jou?</h2></div>
+              <div class="question-popover" data-popover="6">
+                <h3 class="question-popover-title">Waarom deze vraag?</h3>
+                <p class="question-popover-text">Hier geef je extra wensen aan. Een automatische documentinvoer (ADF) is handig om meerdere pagina's achter elkaar te scannen of kopiëren zonder ze los in te leggen. Een display maakt de printer makkelijker te bedienen. Bluetooth laat je draadloos printen zonder wifi-netwerk. Je kunt meerdere opties aanvinken.</p>
+              </div>
+            </div>
+            <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
+              <label class="answer-option">
+                <input type="checkbox" name="extra" value="adf">
+                <svg class="answer-info-icon" data-icon="scan-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Automatische documentinvoer (ADF)</span>
+                <span class="price-indicator">€€</span>
+              </label>
+              <label class="answer-option">
+                <input type="checkbox" name="extra" value="display">
+                <svg class="answer-info-icon" data-icon="monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Display voor eenvoudige bediening</span>
+                <span class="price-indicator">€</span>
+              </label>
+              <label class="answer-option">
+                <input type="checkbox" name="extra" value="bluetooth">
+                <svg class="answer-info-icon" data-icon="bluetooth" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Bluetooth</span>
+                <span class="price-indicator">€€</span>
+              </label>
+              <label class="answer-option">
+                <input type="checkbox" name="extra" value="geen">
+                <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Geen extra wensen</span>
+                <span class="price-indicator">€</span>
+              </label>
+            </div>
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 15px) + 22px) * var(--scale));">
+              <button id="back-to-question-5">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>
           </div>
@@ -661,7 +705,7 @@ button.question-hint-btn-mobile { display: grid; }
         </button>
         <div class="quiz-panel-content how-content-below-image" id="how-content-mobile">
           <div class="quiz-panel-inner" style="width: 100%; max-width: calc(var(--base-width) * 1px); margin-left: auto; margin-right: auto; box-sizing: border-box;">
-        <p>We stellen vier korte vragen over je gebruiksdoel, printvolume en wensen rond functies en kleur. Op basis van je antwoorden berekenen we welke printer het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) printer leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
+        <p>We stellen zes korte vragen over je gebruiksdoel, printvolume en wensen rond functies en kleur. Op basis van je antwoorden berekenen we welke printer het beste bij je past. Bij sommige antwoorden zie je €-tekens: die geven aan of een keuze vaker naar een voordeliger (€) of duurdere (€€€) printer leidt, puur ter indicatie, we filteren er niets mee weg. Op de resultatenpagina zie je de beste opties en maak je je definitieve keuze. Je kunt op elk moment terug om je antwoorden aan te passen.</p>
         <div class="quiz-how-steps">
           <div class="quiz-how-step">
             <span class="quiz-how-step-num">1</span>
