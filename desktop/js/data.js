@@ -3,9 +3,28 @@
 // e.g. "RTX 5070 Ti" must be checked before "RTX 5070".
 export const TIER_ORDER = ["Budget", "Mid", "Krachtig", "Topklasse"];
 
-export function getGpuTier(gpu, gpuApart) {
-  if (!gpu || gpu === "Niet beschikbaar" || gpuApart === "Nee") return "Budget";
-  const raw = String(gpu).trim();
+// Herkent geïntegreerde (CPU-)graphics aan hun modelnaam — deze hebben geen
+// eigen videogeheugen en horen dus altijd in "Budget", ongeacht wat er verder
+// in de naam staat. Voorheen leunde dit op een aparte "gpuApart"-vlag, maar
+// die kolom bleek nergens door de pipeline geschreven te worden (altijd
+// "Nee"/leeg) — waardoor 97,5% van alle desktops als "Budget" werd
+// geclassificeerd, zelfs modellen met een RTX 5080 erin. Nu wordt dedicated-
+// vs-geïntegreerd puur uit de modelnaam zelf afgeleid.
+const GEINTEGREERDE_GPU_PATRONEN = [
+  /\bhd graphics\b/i,
+  /\buhd graphics\b/i,
+  /\biris\s*(xe)?\s*graphics\b/i,
+  /\bradeon(\(tm\))?\s+graphics\b/i,
+  /\bvega\s*\d*\s*graphics\b/i,
+];
+
+function isGeintegreerdeGpu(raw) {
+  return GEINTEGREERDE_GPU_PATRONEN.some(p => p.test(raw));
+}
+
+export function getGpuTier(gpu) {
+  const raw = String(gpu ?? "").trim();
+  if (!raw || raw === "Niet beschikbaar" || isGeintegreerdeGpu(raw)) return "Budget";
 
   const topkl = ["RTX 5070 Ti", "RTX 5080", "RTX 5090", "RTX 4070 Ti", "RTX 4080", "RTX 4090", "RX 7900 XT"];
   if (topkl.some(p => raw.includes(p))) return "Topklasse";
@@ -16,7 +35,7 @@ export function getGpuTier(gpu, gpuApart) {
   const mid = ["Arc B580", "RTX 4050", "RTX 4060", "RTX 3060", "RX 6700", "RX 6600", "GTX 1660", "GTX 1650"];
   if (mid.some(p => raw.includes(p))) return "Mid";
 
-  // Has discrete GPU but unrecognized model → default Mid
+  // Heeft een dedicated GPU maar onherkend model → default Mid
   return "Mid";
 }
 

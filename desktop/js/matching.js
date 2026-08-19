@@ -47,6 +47,22 @@ export function applyOpslagFilter(desktops, opslag) {
   return desktops;
 }
 
+// ─── Werkgeheugen (RAM) filter ─────────────────────────────────────────────
+// Geen eigen vraag — leunt op de al-bestaande "intensiteit"-vraag, zelfde
+// patroon als laptop. ram_gb werd tot nu toe alleen als infobullet gebruikt,
+// nooit om te filteren — waardoor bv. "intensief" + "gaming" een desktop met
+// een sterke GPU maar slechts 8 GB RAM als top-match kon opleveren.
+export function applyRamFilter(desktops, intensiteit) {
+  if (intensiteit === "gemiddeld" || intensiteit === "intensief") {
+    const medium = desktops.filter(d => d.ram >= 16);
+    if (medium.length > 0) return medium;
+    return desktops;
+  }
+
+  // "licht" → geen RAM-eis (8 GB is prima)
+  return desktops;
+}
+
 // ─── Extra preferences filter ─────────────────────────────────────────────────
 
 export function applyExtraFilter(desktops, extraAnswers) {
@@ -117,6 +133,9 @@ export function matchDesktops(desktops, behuizingType, priceGroup, answers, scor
     // 3. Apply opslag filter
     candidates = applyOpslagFilter(candidates, answers.opslag ?? "");
 
+    // 3b. Apply werkgeheugen (RAM) filter
+    candidates = applyRamFilter(candidates, answers.intensiteit ?? "");
+
     // 4. Apply extra preferences
     candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
 
@@ -133,6 +152,7 @@ export function matchDesktops(desktops, behuizingType, priceGroup, answers, scor
   // non-empty price bucket never results in an empty result set.
   if (matchedDesktops.length === 0) {
     let fallback = applyOpslagFilter(filtered, answers.opslag ?? "");
+    fallback = applyRamFilter(fallback, answers.intensiteit ?? "");
     fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
     if (fallback.length === 0) fallback = [...filtered];
     matchedDesktops = fallback;

@@ -80,7 +80,6 @@ export function normalizeProducts(rawProducts) {
       opslag,
       gpuTier:      product.gpuTier    ?? "Budget",
       gpu:          product.gpu        ?? "",
-      gpuApart:     product.gpuApart   ?? "Nee",
       behuizing:    product.behuizing  ?? null,
       behuizingCategory: classifyBehuizing(product.type_product, product.behuizing),
       wifi:         product.wifi       ?? "Nee",
