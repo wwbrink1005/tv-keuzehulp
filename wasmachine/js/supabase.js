@@ -64,6 +64,7 @@ function adaptRow(row) {
     uitgesteldeStart:    parseJaNee(row.uitgestelde_start),
     kinderslot:          parseJaNee(row.kinderslot),
     aquastop:            parseJaNee(row.aquastop),
+    wasprogrammas:       row.wasprogrammas ?? "",
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          adaptAanbieders(row),

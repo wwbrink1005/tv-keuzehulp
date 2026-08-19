@@ -49,7 +49,7 @@ function setQuestionExpanded(question, expanded) {
   if (toggle) toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
 }
 
-const TOTAL_QUESTIONS = 3;
+const TOTAL_QUESTIONS = 4;
 
 // Bovenladers komen in de catalogus uitsluitend voor bij de "klein"
 // capaciteitsgroep (1-2 personen) — bij gemiddeld/groot bestaat de optie
@@ -180,23 +180,24 @@ function resetQuestionsFrom(questionNumber) {
 
 function buildAnswers() {
   return {
-    geluid:       qs('input[name="geluid"]:checked')?.value ?? "",
-    extraAnswers: qsa('input[name="extra"]:checked').map(cb => cb.value)
+    geluid:           qs('input[name="geluid"]:checked')?.value ?? "",
+    extraAnswers:     qsa('input[name="extra"]:checked').map(cb => cb.value),
+    programmaAnswers: qsa('input[name="programma"]:checked').map(cb => cb.value)
   };
 }
 
-function setupExtraLimit() {
-  const geenCheckbox = qs('input[name="extra"][value="geen"]');
-  const otherExtraCheckboxes = qsa('input[name="extra"]:not([value="geen"])');
-  if (!geenCheckbox || otherExtraCheckboxes.length === 0) return;
+function setupGeenExclusiviteit(groepNaam) {
+  const geenCheckbox = qs(`input[name="${groepNaam}"][value="geen"]`);
+  const overigeCheckboxes = qsa(`input[name="${groepNaam}"]:not([value="geen"])`);
+  if (!geenCheckbox || overigeCheckboxes.length === 0) return;
 
   geenCheckbox.addEventListener("change", function() {
     if (this.checked) {
-      otherExtraCheckboxes.forEach(cb => { cb.checked = false; });
+      overigeCheckboxes.forEach(cb => { cb.checked = false; });
     }
   });
 
-  otherExtraCheckboxes.forEach(checkbox => {
+  overigeCheckboxes.forEach(checkbox => {
     checkbox.addEventListener("change", function() {
       if (this.checked) {
         geenCheckbox.checked = false;
@@ -206,8 +207,8 @@ function setupExtraLimit() {
 }
 
 function handleStartMatching() {
-  const extraChecked = qsa('input[name="extra"]:checked');
-  if (extraChecked.length === 0) return alert("Kies minimaal 1 antwoord");
+  const programmaChecked = qsa('input[name="programma"]:checked');
+  if (programmaChecked.length === 0) return alert("Kies minimaal 1 antwoord");
 
   const answers = buildAnswers();
 
@@ -277,9 +278,23 @@ export function initQuizPage() {
     showQuestion(2);
   });
 
-  setupExtraLimit();
+  // Q3 → Q4
+  qs("#to-question-4")?.addEventListener("click", () => {
+    const checked = qsa('input[name="extra"]:checked');
+    if (checked.length === 0) return alert("Kies minimaal 1 antwoord");
+    showQuestion(4);
+  });
 
-  // Q3 → Result
+  // Q4 → Q3
+  qs("#back-to-question-3")?.addEventListener("click", () => {
+    resetQuestionsFrom(4);
+    showQuestion(3);
+  });
+
+  setupGeenExclusiviteit("extra");
+  setupGeenExclusiviteit("programma");
+
+  // Q4 → Result
   qs("#start-matching")?.addEventListener("click", handleStartMatching);
 
   // Live-visualisatie bij het kiezen van een gezinsgrootte (Q1)

@@ -78,6 +78,7 @@ export function normalizeProducts(rawProducts) {
       uitgesteldeStart: product.uitgesteldeStart ?? "Nee",
       kinderslot:       product.kinderslot       ?? "Nee",
       aquastop:         product.aquastop         ?? "Nee",
+      wasprogrammas:    product.wasprogrammas    ?? "",
       afbeelding,
       afbeeldingen,
       aanbieders

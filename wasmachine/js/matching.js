@@ -1,4 +1,4 @@
-import { isCapaciteitInGroup } from "./data.js";
+import { heeftWasprogramma, isCapaciteitInGroup, WASPROGRAMMA_DEFINITIES } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 // Geen scoring-as meer voor "gebruik" (zie matchWasmachines) — behouden als
@@ -49,7 +49,7 @@ export function applyExtraFilter(wasmachines, extraAnswers) {
   }
 
   if (extraAnswers.includes("energiezuinig")) {
-    const zuinig = filtered.filter(w => w.energieLabel === "A" || w.energieLabel === "B");
+    const zuinig = filtered.filter(w => ["A", "B", "C"].includes(w.energieLabel));
     if (zuinig.length > 0) filtered = zuinig;
   }
 
@@ -71,6 +71,23 @@ export function applyExtraFilter(wasmachines, extraAnswers) {
   if (extraAnswers.includes("inverter")) {
     const inv = filtered.filter(w => w.inverter === "Ja");
     if (inv.length > 0) filtered = inv;
+  }
+
+  return filtered;
+}
+
+// ─── Specifieke wasprogramma's ──────────────────────────────────────────────
+
+export function applyProgrammaFilter(wasmachines, programmaAnswers) {
+  if (!Array.isArray(programmaAnswers) || programmaAnswers.includes("geen") || programmaAnswers.length === 0) {
+    return wasmachines;
+  }
+
+  let filtered = [...wasmachines];
+
+  for (const key of programmaAnswers) {
+    const match = filtered.filter(w => heeftWasprogramma(w.wasprogrammas, key));
+    if (match.length > 0) filtered = match;
   }
 
   return filtered;
@@ -102,6 +119,9 @@ export function matchWasmachines(wasmachines, capaciteitGroup, priceGroup, answe
   // 3. Apply extra preferences
   candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
 
+  // 4. Apply specifieke wasprogramma's
+  candidates = applyProgrammaFilter(candidates, answers.programmaAnswers ?? []);
+
   const matchedWasmachines = candidates.length > 0 ? candidates : filtered;
 
   // Best match = cheapest in the matched set
@@ -115,8 +135,17 @@ export function matchWasmachines(wasmachines, capaciteitGroup, priceGroup, answe
 export function buildResultPoints(wasmachine, answers) {
   const points = [];
   const geluid = answers?.geluid ?? "";
+  const programmaAnswers = answers?.programmaAnswers ?? [];
 
-  if (wasmachine.energieLabel === "A" || wasmachine.energieLabel === "B") {
+  const gevondenProgrammas = programmaAnswers
+    .filter(key => key !== "geen" && heeftWasprogramma(wasmachine.wasprogrammas, key))
+    .map(key => WASPROGRAMMA_DEFINITIES.find(d => d.key === key)?.label)
+    .filter(Boolean);
+  if (gevondenProgrammas.length > 0) {
+    points.push(`Programma's: ${gevondenProgrammas.join(", ")}`);
+  }
+
+  if (["A", "B", "C"].includes(wasmachine.energieLabel)) {
     points.push(`Laag energieverbruik dankzij energielabel ${wasmachine.energieLabel}`);
   }
 

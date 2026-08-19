@@ -1,4 +1,4 @@
-import { priceGroupsByCapaciteit, capaciteitGroupToAllowedCapaciteit } from "./data.js";
+import { priceGroupsByCapaciteit, capaciteitGroupToAllowedCapaciteit, heeftWasprogramma, WASPROGRAMMA_DEFINITIES } from "./data.js";
 import { matchWasmachines } from "./matching.js";
 import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
@@ -16,6 +16,7 @@ const filterState = {
   // Kinderslot/AquaStop/Uitgestelde start/Inverter waren 4 losse Ja/Nee-
   // kaarten — samengevoegd tot 1 "Functies"-kaart (zie FUNCTIE_DEFINITIES).
   functies:       new Set(),
+  programmas:     new Set(),
   aanbieder:      new Set(),
   baseMatches:    [],
   answers:        null,
@@ -120,6 +121,10 @@ function collectFunctieOptions(matches) {
   return FUNCTIE_DEFINITIES.filter(f => matches.some(f.check)).map(f => f.key);
 }
 
+function collectProgrammaOptions(matches) {
+  return WASPROGRAMMA_DEFINITIES.filter(d => matches.some(w => heeftWasprogramma(w.wasprogrammas, d.key))).map(d => d.key);
+}
+
 function collectAanbiederOptions(matches) {
   const set = new Set();
   matches.forEach(w => {
@@ -168,6 +173,12 @@ function applyFilters() {
     );
   }
 
+  if (filterState.programmas.size > 0) {
+    filtered = filtered.filter(w =>
+      Array.from(filterState.programmas).every(key => heeftWasprogramma(w.wasprogrammas, key))
+    );
+  }
+
   if (filterState.aanbieder.size > 0) {
     filtered = filtered.filter(w =>
       (w.aanbieders ?? []).some(a => filterState.aanbieder.has(a.winkel))
@@ -184,7 +195,7 @@ function updateClearFiltersBtn() {
   const hasActive = filterState.priceLabels.size > 0 || filterState.capaciteiten.size > 0 || filterState.brands.size > 0 ||
     filterState.typeLaders.size > 0 || filterState.energieLabels.size > 0 ||
     filterState.centrifugeRpms.size > 0 || filterState.kleuren.size > 0 ||
-    filterState.functies.size > 0 ||
+    filterState.functies.size > 0 || filterState.programmas.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
@@ -200,6 +211,7 @@ function renderAllFilters() {
   const rpmContainer        = qs("[data-filter-container='centrifuge-rpm']");
   const kleurContainer      = qs("[data-filter-container='kleur']");
   const functieContainer   = qs("[data-filter-container='functies']");
+  const programmaContainer = qs("[data-filter-container='programmas']");
   const aanbiederContainer  = qs("[data-filter-container='aanbieder']");
 
   const priceCard      = qs(".filter-card[data-filter='price']");
@@ -210,6 +222,7 @@ function renderAllFilters() {
   const rpmCard         = qs(".filter-card[data-filter='centrifuge-rpm']");
   const kleurCard       = qs(".filter-card[data-filter='kleur']");
   const functieCard    = qs(".filter-card[data-filter='functies']");
+  const programmaCard  = qs(".filter-card[data-filter='programmas']");
   const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
@@ -264,6 +277,12 @@ function renderAllFilters() {
     renderFilterOptions(functieContainer, functieCard, collectFunctieOptions(matches), matches, functieValueFn, "functies", labelFn);
   }
 
+  if (programmaContainer && programmaCard) {
+    const programmaValueFn = w => WASPROGRAMMA_DEFINITIES.filter(d => heeftWasprogramma(w.wasprogrammas, d.key)).map(d => d.key);
+    const labelFn = key => WASPROGRAMMA_DEFINITIES.find(d => d.key === key)?.label ?? key;
+    renderFilterOptions(programmaContainer, programmaCard, collectProgrammaOptions(matches), matches, programmaValueFn, "programmas", labelFn);
+  }
+
   if (aanbiederContainer && aanbiederCard) {
     renderFilterOptions(aanbiederContainer, aanbiederCard, collectAanbiederOptions(matches), matches, w => (w.aanbieders ?? []).map(a => a.winkel), "aanbieder");
   }
@@ -287,6 +306,7 @@ function handleFilterChange(event) {
     centrifugeRpms: { set: filterState.centrifugeRpms, parse: v => parseInt(v, 10) },
     kleuren:        { set: filterState.kleuren,        parse: v => v },
     functies:       { set: filterState.functies,       parse: v => v },
+    programmas:     { set: filterState.programmas,     parse: v => v },
     aanbieder:      { set: filterState.aanbieder,      parse: v => v }
   };
 
@@ -377,6 +397,7 @@ export async function initFilters() {
       filterState.centrifugeRpms.clear();
       filterState.kleuren.clear();
       filterState.functies.clear();
+      filterState.programmas.clear();
       filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();

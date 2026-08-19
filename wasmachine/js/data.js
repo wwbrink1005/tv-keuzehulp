@@ -34,6 +34,28 @@ export const priceGroupsByCapaciteit = {
   ]
 };
 
+// ─── Specifieke wasprogramma's (afgeleid uit Icecat's vrije-tekstlijst) ────
+// Icecat's "Wasprogramma's"-veld is een kommagescheiden lijst van
+// programmanamen (bv. "Katoen, Wol, Sport, Hygiëne/anti-allergie,
+// Delicaat/zijde, Stoom, ..."), met 98% dekking — veel completer dan losse
+// Ja/Nee-velden per programma (die Icecat voor wasmachines niet aanbiedt).
+// Detectie via keyword-match op de tekst, zelfde aanpak als isInktTankSysteem
+// bij printer.
+export const WASPROGRAMMA_DEFINITIES = [
+  { key: "wol",      label: "Wol",               patroon: /wol/i },
+  { key: "sport",    label: "Sport",              patroon: /sport/i },
+  { key: "stoom",    label: "Stoom",              patroon: /stoom/i },
+  { key: "allergie", label: "Allergie/hygiëne",   patroon: /allergie|hygi[eë]/i },
+  { key: "jeans",    label: "Jeans",              patroon: /jeans|denim/i },
+  { key: "baby",     label: "Babyverzorging",     patroon: /baby/i },
+];
+
+export function heeftWasprogramma(wasprogrammas, key) {
+  const definitie = WASPROGRAMMA_DEFINITIES.find(d => d.key === key);
+  if (!definitie) return false;
+  return definitie.patroon.test(String(wasprogrammas ?? ""));
+}
+
 // Geen Budget/Mid/Premium-tier-classificatie (meer) voor wasmachines — die
 // correleerde niet betrouwbaar met prijs bij kleine capaciteitssegmenten (een
 // functierijke machine kon toevallig goedkoper zijn dan een "simpele",
