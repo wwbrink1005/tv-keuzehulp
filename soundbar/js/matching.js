@@ -106,20 +106,29 @@ export function matchSoundbars(soundbars, breedteGroup, priceGroup, answers, sco
       .filter(([, s]) => Number(s) === Number(topScore))
       .map(([t]) => t);
 
-    let candidates = filtered.filter(sb => tiersWithTopScore.includes(getSoundbarTier(sb)));
+    // Bij een gelijke stand tussen tiers (bv. "muziek": Allround en Premium
+    // scoren allebei 8) voegen we ze niet samen — dat maakt de resultatenlijst
+    // juist breder (getest: 45 van de 117 soundbars bij zo'n samenvoeging).
+    // We evalueren elke getelde tier apart en kiezen de kleinste niet-lege
+    // resultatenset, zelfde patroon als monitor/laptop.
+    let bestTierCandidates = null;
+    let bestTierName = null;
 
-    if (candidates.length === 0) continue;
+    for (const tier of tiersWithTopScore) {
+      let tierCandidates = filtered.filter(sb => getSoundbarTier(sb) === tier);
+      tierCandidates = applySubwooferFilter(tierCandidates, answers.subwoofer ?? "");
+      tierCandidates = applyExtraFilter(tierCandidates, answers.extraAnswers ?? []);
+      if (tierCandidates.length === 0) continue;
+      if (bestTierCandidates === null || tierCandidates.length < bestTierCandidates.length) {
+        bestTierCandidates = tierCandidates;
+        bestTierName = tier;
+      }
+    }
 
-    // 3. Subwoofer-filter
-    candidates = applySubwooferFilter(candidates, answers.subwoofer ?? "");
-    if (candidates.length === 0) continue;
+    if (bestTierCandidates === null) continue;
 
-    // 4. Extra wensen
-    candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
-    if (candidates.length === 0) continue;
-
-    matchedSoundbars = [...candidates];
-    bestType = tiersWithTopScore.join(" / ");
+    matchedSoundbars = bestTierCandidates;
+    bestType = bestTierName;
     break;
   }
 
