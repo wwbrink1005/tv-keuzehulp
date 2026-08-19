@@ -163,29 +163,45 @@ export function matchTVs(tvs, sizeGroup, priceGroup, answers, scores) {
       .filter(([, s]) => Number(s) === Number(score))
       .map(([t]) => t);
 
-    let tvsOfTheseTypes = filteredTVs.filter(tv => {
-      if (typesWithSameScore.includes(tv.type)) return true;
-      if (tv.type === "Neo QLED" && (typesWithSameScore.includes("QLED") || typesWithSameScore.includes("Mini LED"))) return true;
-      return false;
-    });
+    // Bij een gelijke stand tussen types (kan bij tot 15% van alle
+    // antwoordcombinaties voorkomen, in het ergste geval een volledige
+    // 4-weg-gelijkspel tussen LED/Mini LED/QLED/OLED) voegen we ze niet meer
+    // samen — dat maakt de resultatenlijst juist breder in plaats van
+    // specifieker (getest: tot 174 tv's zonder enige type-filtering). We
+    // evalueren elk geteld type apart en kiezen de kleinste niet-lege set,
+    // zelfde patroon als monitor/laptop/soundbar.
+    let bestTypeCandidates = null;
+    let bestTypeName = null;
 
-    if (tvsOfTheseTypes.length === 0) continue;
+    for (const candidateType of typesWithSameScore) {
+      let tvsOfType = filteredTVs.filter(tv => {
+        if (tv.type === candidateType) return true;
+        if (tv.type === "Neo QLED" && (candidateType === "QLED" || candidateType === "Mini LED")) return true;
+        return false;
+      });
+      if (tvsOfType.length === 0) continue;
 
-    tvsOfTheseTypes = applyResolutionFilter(tvsOfTheseTypes, answers.quality ?? "");
-    if (tvsOfTheseTypes.length === 0) continue;
+      tvsOfType = applyResolutionFilter(tvsOfType, answers.quality ?? "");
+      tvsOfType = applyHzFilter(tvsOfType, answers.usageAnswers ?? [], answers.quality ?? "");
+      if (tvsOfType.length === 0) continue;
 
-    tvsOfTheseTypes = applyHzFilter(tvsOfTheseTypes, answers.usageAnswers ?? [], answers.quality ?? "");
-    if (tvsOfTheseTypes.length === 0) continue;
+      if (bestTypeCandidates === null || tvsOfType.length < bestTypeCandidates.length) {
+        bestTypeCandidates = tvsOfType;
+        bestTypeName = candidateType;
+      }
+    }
 
-    matchedTVs = [...tvsOfTheseTypes];
+    if (bestTypeCandidates === null) continue;
 
-    localBestMatch = tvsOfTheseTypes.reduce((cheapest, tv) => {
+    matchedTVs = bestTypeCandidates;
+
+    localBestMatch = matchedTVs.reduce((cheapest, tv) => {
       const tvPrice = parsePrice(tv.prijs);
       const cheapestPrice = parsePrice(cheapest.prijs);
       return tvPrice < cheapestPrice ? tv : cheapest;
     });
 
-    bestType = typesWithSameScore.join(" / ");
+    bestType = bestTypeName;
     break;
   }
 
