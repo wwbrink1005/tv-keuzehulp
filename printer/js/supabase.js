@@ -47,6 +47,19 @@ function adaptAanbieders(row) {
 }
 
 /**
+ * Of een printer daadwerkelijk in kleur kan PRINTEN — niet te verwarren met
+ * "kan in kleur scannen/kopiëren" (aparte, veelvoorkomende combinatie bij
+ * zwart-witprinters met een kleurenscanner). Alleen "printkleuren" (bevat
+ * cyaan/magenta/geel bij een kleurenprinter, alleen "Zwart" bij mono) en een
+ * ingevulde printsnelheid-kleur zeggen iets over het PRINTEN zelf.
+ */
+function heeftKleurenPrinten(row) {
+  const printkleuren = String(row.printkleuren ?? "").toLowerCase();
+  if (/cyaan|magenta|geel|colour|color/.test(printkleuren)) return "Ja";
+  return parseFirstInt(row.printsnelheid_kleur) !== null ? "Ja" : "Nee";
+}
+
+/**
  * Adapts a single printers row to the shape that normalizeProducts() expects.
  */
 function adaptRow(row) {
@@ -68,7 +81,7 @@ function adaptRow(row) {
     kleur:               row.kleur ?? "",
     display:             parseJaNee(row.display),
     printkleuren:        row.printkleuren ?? "",
-    kanKleurenPrinten:   /kleur/i.test(String(row.kopieren ?? "")) || /kleur/i.test(String(row.scannen ?? "")) || parseFirstInt(row.printsnelheid_kleur) !== null ? "Ja" : "Nee",
+    kanKleurenPrinten:   heeftKleurenPrinten(row),
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          adaptAanbieders(row),

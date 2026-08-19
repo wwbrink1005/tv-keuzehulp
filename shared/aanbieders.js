@@ -21,6 +21,9 @@ export const AANBIEDER_LOGOS = {
   // Sleutel moet exact matchen met AANBIEDERS["ep"]["weergavenaam"] in de
   // pipeline-config ("EP.").
   "EP.":        "shared/images/aanbieder-logos/ep.svg",
+  // Sleutel moet exact matchen met AANBIEDERS["acer"]["weergavenaam"] in de
+  // pipeline-config ("Acer"). Logo van Wikimedia Commons (Acer_2011.svg).
+  "Acer":       "shared/images/aanbieder-logos/acer.svg",
 };
 
 const MAX_ZICHTBAAR = 2;
