@@ -46,7 +46,7 @@ export function applyExtraFilter(vriezers, extraAnswers) {
   let filtered = [...vriezers];
 
   if (extraAnswers.includes("energiezuinig")) {
-    const zuinig = filtered.filter(v => v.energielabel === "A" || v.energielabel === "B");
+    const zuinig = filtered.filter(v => ["A", "B", "C"].includes(v.energielabel));
     if (zuinig.length > 0) filtered = zuinig;
   }
 
@@ -144,7 +144,7 @@ export function buildResultPoints(vriezer, answers) {
     points.push("Geschikt voor een garage of schuur");
   }
 
-  if (vriezer.energielabel === "A" || vriezer.energielabel === "B") {
+  if (["A", "B", "C"].includes(vriezer.energielabel)) {
     points.push(`Energiezuinig dankzij energielabel ${vriezer.energielabel}`);
   }
 
