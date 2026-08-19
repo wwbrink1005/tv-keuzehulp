@@ -98,9 +98,10 @@ export const scoringSystem = {
     allround:  { Budget: 5, Mid: 8, Krachtig: 7, Topklasse: 4 }
   },
   intensiteit: {
-    licht:     { Budget: 10, Mid: 7,  Krachtig: 4, Topklasse: 2  },
-    gemiddeld: { Budget: 5,  Mid: 10, Krachtig: 8, Topklasse: 4  },
-    intensief: { Budget: 2,  Mid: 5,  Krachtig: 9, Topklasse: 10 }
+    licht:   { Budget: 10, Mid: 7,  Krachtig: 3,  Topklasse: 1  },
+    normaal: { Budget: 6,  Mid: 10, Krachtig: 6,  Topklasse: 3  },
+    zwaar:   { Budget: 2,  Mid: 6,  Krachtig: 10, Topklasse: 6  },
+    extreem: { Budget: 1,  Mid: 3,  Krachtig: 7,  Topklasse: 10 }
   },
   formaat: {
     "licht-compact":  { Budget: 8, Mid: 7, Krachtig: 4, Topklasse: 2 },

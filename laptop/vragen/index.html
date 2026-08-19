@@ -726,30 +726,36 @@ button.question-hint-btn-mobile { display: grid; }
               <h2>Hoe zwaar ga je de laptop gebruiken?</h2>
               <div class="question-popover" data-popover="3">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Licht gebruik zoals surfen en e-mailen vraagt weinig rekenkracht. Intensief gebruik zoals videobewerking, 3D-rendering of gamen vereist een krachtigere processor en meer werkgeheugen. Hoe zwaarder je de laptop gebruikt, hoe belangrijker snelle hardware is.</p>
+                <p class="question-popover-text">Licht gebruik zoals surfen en e-mailen vraagt weinig rekenkracht. Normaal gebruik zoals kantoorwerk met meerdere tabbladen vraagt om een vlotte, energiezuinige laptop. Zwaar gebruik zoals multitasken of lichte fotobewerking vraagt om meer kracht. Zeer zwaar gebruik zoals videobewerking, 3D-rendering of gamen vereist de krachtigste processor en het meeste werkgeheugen.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
               <label class="answer-option">
                 <input type="radio" name="intensiteit" value="licht">
                 <svg class="answer-info-icon" data-icon="coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Licht gebruik</span>
+                <span>Licht, zoals surfen en mailen</span>
                 <span class="price-indicator">€</span>
               </label>
               <label class="answer-option">
-                <input type="radio" name="intensiteit" value="gemiddeld">
+                <input type="radio" name="intensiteit" value="normaal">
                 <svg class="answer-info-icon" data-icon="layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Gemiddeld gebruik</span>
+                <span>Normaal, zoals kantoorwerk</span>
                 <span class="price-indicator">€€</span>
               </label>
               <label class="answer-option">
-                <input type="radio" name="intensiteit" value="intensief">
+                <input type="radio" name="intensiteit" value="zwaar">
+                <svg class="answer-info-icon" data-icon="layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Zwaar, zoals multitasken</span>
+                <span class="price-indicator">€€</span>
+              </label>
+              <label class="answer-option">
+                <input type="radio" name="intensiteit" value="extreem">
                 <svg class="answer-info-icon" data-icon="zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
-                <span>Intensief gebruik</span>
+                <span>Zeer zwaar, zoals videobewerking of gamen</span>
                 <span class="price-indicator">€€€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 51.3935px) + (2 * 8px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (4 * 51.3935px) + (3 * 8px) + 22px) * var(--scale));">
               <button id="back-to-question-2">Terug</button>
               <button id="to-question-4">Volgende</button>
             </div>

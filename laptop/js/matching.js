@@ -94,13 +94,70 @@ export function applyOpslagFilter(laptops, opslag) {
 // "gemiddeld" als "intensief" verwijdert vooral de paar 4/8 GB-uitschieters
 // die in hogere tiers lekken, zonder overig goed aanbod weg te filteren.
 export function applyRamFilter(laptops, intensiteit) {
-  if (intensiteit === "gemiddeld" || intensiteit === "intensief") {
+  if (intensiteit === "extreem") {
+    const hoog = laptops.filter(l => l.werkgeheugen >= 32);
+    if (hoog.length > 0) return hoog;
+    const medium = laptops.filter(l => l.werkgeheugen >= 16);
+    if (medium.length > 0) return medium;
+    return laptops;
+  }
+
+  if (intensiteit === "normaal" || intensiteit === "zwaar") {
     const medium = laptops.filter(l => l.werkgeheugen >= 16);
     if (medium.length > 0) return medium;
     return laptops;
   }
 
   // "licht" → geen RAM-eis (8 GB is prima)
+  return laptops;
+}
+
+// ─── Processorklasse (H/HX/HS vs U/P/V) ────────────────────────────────────
+// Los van de processor-tier (Budget/Mid/Krachtig/Topklasse, gebaseerd op de
+// lijn-cijfers zoals i5/i7) geeft het achtervoegsel in het modelnummer aan of
+// een chip vermogen- of efficiëntiegericht is (bv. "i7-13620H" vs
+// "7430U"). Dat correleert sterk met "intensiteit", maar was tot nu toe
+// volledig ongebruikt — waardoor bv. Mid-tier "normaal gebruik" een pool van
+// 345 laptops binnen middenweg opleverde zonder enig onderscheid tussen een
+// dun-lichte U-serie en een zwaardere H-serie chip. ~70% van de laptops heeft
+// een herkenbaar achtervoegsel; de rest (bv. MediaTek/Snapdragon-modellen
+// zonder H/U-letter) blijft ongemoeid in beide richtingen.
+function processorSuffixKlasse(processor) {
+  const match = String(processor ?? "").match(/\b\d{3,5}(HX|HS|H|U|P|V)\b/i);
+  if (!match) return null;
+  const suffix = match[1].toUpperCase();
+  return (suffix === "HX" || suffix === "HS" || suffix === "H") ? "performance" : "efficient";
+}
+
+export function applyProcessorClassFilter(laptops, intensiteit) {
+  if (intensiteit === "zwaar" || intensiteit === "extreem") {
+    const nietZuinig = laptops.filter(l => processorSuffixKlasse(l.processor) !== "efficient");
+    if (nietZuinig.length > 0) return nietZuinig;
+    return laptops;
+  }
+
+  if (intensiteit === "licht" || intensiteit === "normaal") {
+    const nietZwaar = laptops.filter(l => processorSuffixKlasse(l.processor) !== "performance");
+    if (nietZwaar.length > 0) return nietZwaar;
+    return laptops;
+  }
+
+  return laptops;
+}
+
+// ─── Dedicated GPU (afgeleid uit Icecat's "gpu"-veld) ──────────────────────
+// Voor gaming/creatief werk maakt een dedicated videokaart (i.p.v. alleen
+// geïntegreerde graphics) een groot verschil, maar dit werd tot nu toe
+// nergens gefilterd — de processor-tier alleen zegt niets over de GPU. Het
+// "gpu"-veld bevat het model van de dedicated kaart (bv. "NVIDIA GeForce RTX
+// 4070") en is leeg bij alleen geïntegreerde graphics.
+export function applyGpuFilter(laptops, gebruikAnswers) {
+  const wilDedicatedGpu = Array.isArray(gebruikAnswers)
+    && (gebruikAnswers.includes("gaming") || gebruikAnswers.includes("creatief"));
+  if (!wilDedicatedGpu) return laptops;
+
+  const metGpu = laptops.filter(l => String(l.gpu ?? "").trim() !== "");
+  if (metGpu.length > 0) return metGpu;
   return laptops;
 }
 
@@ -203,6 +260,14 @@ export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
       poging = applyRamFilter(poging, answers.intensiteit ?? "");
       if (poging.length === 0) continue;
 
+      // 5b. Apply processorklasse filter (H/HX/HS vs U/P/V)
+      poging = applyProcessorClassFilter(poging, answers.intensiteit ?? "");
+      if (poging.length === 0) continue;
+
+      // 5c. Apply dedicated-GPU filter (gaming/creatief)
+      poging = applyGpuFilter(poging, answers.gebruik ?? []);
+      if (poging.length === 0) continue;
+
       // 6. Apply extra preferences
       poging = applyExtraFilter(poging, answers.extraAnswers ?? []);
       if (poging.length === 0) continue;
@@ -226,6 +291,8 @@ export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
     let fallback = applyFormaatFilter(filtered, answers.formaat ?? "");
     fallback = applyOpslagFilter(fallback, answers.opslag ?? "");
     fallback = applyRamFilter(fallback, answers.intensiteit ?? "");
+    fallback = applyProcessorClassFilter(fallback, answers.intensiteit ?? "");
+    fallback = applyGpuFilter(fallback, answers.gebruik ?? []);
     fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
     if (fallback.length === 0) fallback = [...filtered];
     matchedLaptops = fallback;
@@ -271,19 +338,24 @@ export function buildResultPoints(laptop, answers) {
   const extraAnswers = answers.extraAnswers ?? [];
   const tier         = getProcessorTier(laptop.processor, laptop.processor_familie);
 
+  // Dedicated GPU (alleen relevant als daadwerkelijk gevraagd via gaming/creatief)
+  if ((gebruik.includes("gaming") || gebruik.includes("creatief")) && String(laptop.gpu ?? "").trim() !== "") {
+    addPoint(`Dedicated ${laptop.gpu} videokaart`);
+  }
+
   // Processor tier points
   if (tier === "Topklasse") {
     if (gebruik.includes("gaming"))   addPoint("Top rekenkracht voor veeleisende games");
     if (gebruik.includes("creatief")) addPoint("Maximale prestaties voor video- en fotobewerking");
-    if (intensiteit === "intensief")  addPoint("Hoge rekenkracht voor zware taken");
+    if (intensiteit === "extreem")    addPoint("Hoge rekenkracht voor zeer zware taken");
   } else if (tier === "Krachtig") {
     if (gebruik.includes("gaming"))   addPoint("Voldoende krachtig voor gamen");
     if (gebruik.includes("creatief")) addPoint("Prima voor creatief en productief werk");
-    if (intensiteit === "intensief")  addPoint("Krachtige processor voor zware taken");
+    if (intensiteit === "zwaar" || intensiteit === "extreem") addPoint("Krachtige processor voor zware taken");
   } else if (tier === "Mid") {
     if (gebruik.includes("werk"))      addPoint("Prima geschikt voor thuiswerken en kantoor");
     if (gebruik.includes("dagelijks")) addPoint("Meer dan voldoende voor dagelijks gebruik");
-    if (intensiteit === "gemiddeld")   addPoint("Goede balans tussen kracht en efficiëntie");
+    if (intensiteit === "normaal")     addPoint("Goede balans tussen kracht en efficiëntie");
   } else {
     addPoint("Energiezuinig en betaalbaar voor dagelijks gebruik");
   }
