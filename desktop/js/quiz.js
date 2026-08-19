@@ -181,8 +181,8 @@ function updateProgressBar(questionNum) {
   if (!progressBar) return;
   if (questionNum === "result") {
     progressBar.style.width = "100%";
-  } else if (questionNum === 4 && quizState.selectedBehuizingType === "all-in-one") {
-    // Bij all-in-one is Q5 overgeslagen (zie updateExtraOptionsVisibility/
+  } else if (questionNum === 4 && quizState.selectedBehuizingType !== "tower") {
+    // Bij mini-pc/all-in-one is Q5 overgeslagen (zie updateExtraOptionsVisibility/
     // handleStartMatching), dus Q4 is dan de laatste stap.
     progressBar.style.width = "100%";
   } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 5) {
@@ -216,13 +216,18 @@ function positionElements(questionNum) {
 // tower-behuizing (mini-pc/all-in-one hebben dit nooit), of nauwelijks
 // onderscheidend buiten tower (wifi: 83% Ja bij tower vs. 95-100% Ja bij
 // mini-pc/all-in-one — daar filtert de optie dus vrijwel niets) — verberg
-// die opties dus zodra een andere behuizing is gekozen. "Compleet pakket"
-// (muis + toetsenbord) is wél onderscheidend bij mini-pc (59/41-verdeling),
-// alleen bij all-in-one niet (99% Ja, die zijn per definitie altijd
-// compleet) — die optie krijgt dus een eigen, ruimere zichtbaarheidsregel.
+// die opties dus zodra een andere behuizing is gekozen.
+//
+// "Compleet pakket" (muis + toetsenbord) is bewust NIET toegevoegd: Icecat's
+// "Inclusief muis"/"Toetsenbord inbegrepen" bleek bij steekproef tegen de
+// echte productomschrijving van de aanbieder ronduit fout (Icecat zei "Ja",
+// de bol.com-omschrijving zegt expliciet dat je zelf een muis/toetsenbord
+// moet aansluiten) — vermoedelijk omdat Icecat specs aan de basis-SKU/
+// productfamilie koppelt i.p.v. de specifieke aanbieding die wij tonen. Te
+// onbetrouwbaar om een filter/USP op te baseren voor een site die naar een
+// concrete aanbieding doorlinkt.
 function updateExtraOptionsVisibility() {
   const isTower = quizState.selectedBehuizingType === "tower";
-  const isAllInOne = quizState.selectedBehuizingType === "all-in-one";
 
   qsa('[data-tower-only]').forEach(label => {
     label.style.display = isTower ? "" : "none";
@@ -231,24 +236,15 @@ function updateExtraOptionsVisibility() {
       if (input) input.checked = false;
     }
   });
-
-  qsa('[data-not-aio-only]').forEach(label => {
-    label.style.display = isAllInOne ? "none" : "";
-    if (isAllInOne) {
-      const input = label.querySelector("input");
-      if (input) input.checked = false;
-    }
-  });
 }
 
-// Bij mini-pc/all-in-one slaat de "Volgende"-knop op Q4 direct door naar het
-// resultaat (zie handleStartMatching in de #to-question-5 listener), dus
-// laat de knop dat ook zeggen i.p.v. "Volgende" te tonen voor een vraag die
-// niet meer komt.
+// Bij mini-pc/all-in-one blijft er in Q5 alleen "Geen extra wensen" over
+// (RGB/waterkoeling/wifi zijn allemaal tower-only), dus die vraag heeft dan
+// geen functie meer: sla 'm over en ga direct naar het resultaat.
 function updateQuestion4AsLastStep() {
   const btn = qs("#to-question-5");
   if (!btn) return;
-  btn.textContent = quizState.selectedBehuizingType === "all-in-one" ? "Resultaat" : "Volgende";
+  btn.textContent = quizState.selectedBehuizingType === "tower" ? "Volgende" : "Resultaat";
 }
 
 // Mini-pc's in de catalogus gaan nooit boven 1 TB (geen enkele met 2 TB+),
@@ -413,16 +409,14 @@ export function initQuizPage() {
     showQuestion(3);
   });
 
-  // Q4 → Q5 (extra's) — bij all-in-one blijft er in Q5 alleen "Geen extra
-  // wensen" over (geen enkele extra-optie is daar onderscheidend), dus die
-  // vraag heeft dan geen functie meer: sla 'm over en ga direct naar het
-  // resultaat. Bij mini-pc blijft "Compleet pakket" wél relevant, dus die
-  // behuizing krijgt Q5 gewoon te zien.
+  // Q4 → Q5 (extra's) — bij mini-pc/all-in-one blijft er in Q5 alleen "Geen
+  // extra wensen" over (RGB/waterkoeling/wifi zijn tower-only), dus die vraag
+  // heeft dan geen functie meer: sla 'm over en ga direct naar het resultaat.
   qs("#to-question-5")?.addEventListener("click", () => {
     const checked = qs('input[name="opslag"]:checked');
     if (!checked) return alert("Kies een antwoord");
 
-    if (quizState.selectedBehuizingType === "all-in-one") {
+    if (quizState.selectedBehuizingType !== "tower") {
       const geenCheckbox = qs('input[name="extra"][value="geen"]');
       if (geenCheckbox) geenCheckbox.checked = true;
       handleStartMatching();

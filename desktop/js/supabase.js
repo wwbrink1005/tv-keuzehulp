@@ -39,8 +39,6 @@ function adaptRow(row) {
     kleur:               row.kleur           ?? "",
     rgb:                 row.rgb             ?? "Nee",
     waterkoeling:        row.waterkoeling    ?? "Nee",
-    muisInbegrepen:      row.muis_inbegrepen ?? "Nee",
-    toetsenbordInbegrepen: row.toetsenbord_inbegrepen ?? "Nee",
     hdmiPoorten:         parseFirstInt(row.hdmi_poorten),
     displayport:         parseFirstInt(row.displayport_poorten),
     usbC:                parseFirstInt(row.usb32_gen2_type_c),

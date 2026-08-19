@@ -86,8 +86,6 @@ export function normalizeProducts(rawProducts) {
       kleur:        product.kleur      ?? "",
       rgb:          product.rgb        ?? "Nee",
       waterkoeling: product.waterkoeling ?? "Nee",
-      muisInbegrepen:        product.muisInbegrepen        ?? "Nee",
-      toetsenbordInbegrepen: product.toetsenbordInbegrepen ?? "Nee",
       hdmiPoorten:  product.hdmiPoorten ?? 0,
       displayport:  product.displayport ?? 0,
       usbC:         product.usbC       ?? 0,
