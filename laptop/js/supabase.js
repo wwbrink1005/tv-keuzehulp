@@ -97,7 +97,10 @@ function adaptRow(row) {
     werkgeheugen:    parseFirstInt(row.ram),
     opslag:          parseOpslag(row.opslag),
     touchscreen:         row.touchscreen ?? "Nee",
-    usb_c:               parseInt(row.usb_c, 10) > 0 ? "Ja" : "Nee",
+    // usb_c wordt door de pipeline al als "Ja"/"Nee" opgeslagen (afgeleid uit
+    // meerdere Icecat-velden — het kale "Aantal USB Type-C-poorten"-veld is
+    // vrijwel altijd leeg, zie merge_publish.py in de pipeline-repo).
+    usb_c:               row.usb_c === "Ja" ? "Ja" : "Nee",
     hdmi:                row.hdmi ?? "0",
     resolutie:           parseResolutieLabel(row.scherm_resolutie),
     paneeltype:          row.scherm_type ?? "",
