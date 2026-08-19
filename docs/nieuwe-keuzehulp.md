@@ -568,6 +568,12 @@ AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
   lichtgrijze achtergrond, blauw/groen accent, geen tekst) — de afbeelding wordt zelf
   gegenereerd en later toegevoegd; tot die tijd toont een ingebouwde SVG-placeholder
   (`onerror`-fallback) netjes iets in plaats van een kapotte afbeelding.
+- **"Lees ook"-blok op `resultaat/index.html`** (sinds augustus 2026 standaard, niet
+  optioneel): voeg direct vóór de sluitende `</aside>`, na de laatste `.filter-card`, een
+  `.filters-blog-block` toe met links naar alle 3 blogartikelen. Styling zit al gedeeld in
+  `shared/resultaat.css` (`.filters-blog-block`/`.filters-blog-eyebrow`/`.filters-blog-link`/
+  `.filters-blog-link-icon`), dus alleen de HTML-markup toevoegen — kopieer het patroon 1-op-1
+  uit een recente categorie zoals koelkast of soundbar.
 - **`sitemap.xml`**: nieuwe `<url>`-entries voor de gidspagina (`https://producthulp.nl/{categorie}/`,
   prioriteit 0.9), de keuzehulp (`.../{categorie}/vragen/`, prioriteit 0.7) en elk
   blogartikel (`.../{categorie}/blog/{slug}/`, prioriteit 0.6). De `resultaat/`-pagina hoort

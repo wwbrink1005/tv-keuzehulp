@@ -37,26 +37,37 @@ export function classifyNishoogte(nisHoogteCm, hoogteMm) {
  * size bucket, derived from netto inhoud (liters) — mirrors how vrijstaande
  * koelkasten zijn onderverdeeld, maar op inhoud i.p.v. breedte, omdat
  * vrieskasten qua breedte veel minder variëren dan hun inhoud.
+ *
+ * Grenzen herijkt tegen de live catalogus (82 producten): de oude grens van
+ * 200L voor "groot" gaf een sterk scheve verdeling (14/8/60 — "groot" was
+ * 73% van alle vrijstaande vriezers). 150L/280L geeft een veel gelijkmatiger
+ * verdeling (15/33/33) en valt samen met een natuurlijke dichtheidssprong in
+ * de data.
  */
 export function classifyVrijstaandGrootte(nettoInhoudL) {
   const l = parseFloat(nettoInhoudL);
   if (!Number.isFinite(l)) return "middel";
-  if (l < 100) return "mini";
-  if (l < 200) return "middel";
+  if (l < 150) return "klein";
+  if (l < 280) return "middel";
   return "groot";
 }
 
 /**
  * Classifies a vrieskist (chest freezer) into a size bucket, derived from
- * netto inhoud (liters) — vrieskisten zijn gemiddeld veel groter dan
- * vrieskasten, vandaar eigen, hogere grenzen.
+ * netto inhoud (liters) — vrieskisten zijn gemiddeld groter dan vrieskasten,
+ * vandaar eigen, hogere grenzen.
+ *
+ * Grenzen herijkt tegen de live catalogus (24 producten): er zit een
+ * natuurlijke kloof tussen 142L en 196L (geen enkel product daartussen) en
+ * tussen 254L en 308L — 150L/300L volgt die kloven en geeft een gebalanceerde
+ * verdeling (5/10/9).
  */
 export function classifyVrieskistGrootte(nettoInhoudL) {
   const l = parseFloat(nettoInhoudL);
-  if (!Number.isFinite(l)) return "groot";
-  if (l < 250) return "middel";
-  if (l < 400) return "groot";
-  return "extra-groot";
+  if (!Number.isFinite(l)) return "middel";
+  if (l < 150) return "klein";
+  if (l < 300) return "middel";
+  return "groot";
 }
 
 /**
@@ -74,27 +85,27 @@ export function classifyPlaatsing(apparaatplaatsing, typeProduct) {
 }
 
 export const vrijstaandGrootteLabels = {
-  "mini":   "Mini/compact vrieskast",
+  "klein":  "Kleine vrieskast",
   "middel": "Middelgrote vrieskast",
   "groot":  "Grote vrieskast",
 };
 
 export const vrijstaandGrootteInhoud = {
-  "mini":   "tot circa 100 liter",
-  "middel": "circa 100-200 liter",
-  "groot":  "200 liter of meer",
+  "klein":  "tot circa 150 liter",
+  "middel": "circa 150-280 liter",
+  "groot":  "280 liter of meer",
 };
 
 export const vrieskistGrootteLabels = {
-  "middel":       "Middelgrote vrieskist",
-  "groot":        "Grote vrieskist",
-  "extra-groot":  "Extra grote vrieskist",
+  "klein":  "Kleine vrieskist",
+  "middel": "Middelgrote vrieskist",
+  "groot":  "Grote vrieskist",
 };
 
 export const vrieskistGrootteInhoud = {
-  "middel":      "tot circa 250 liter",
-  "groot":       "circa 250-400 liter",
-  "extra-groot": "400 liter of meer",
+  "klein":  "tot circa 150 liter",
+  "middel": "circa 150-300 liter",
+  "groot":  "300 liter of meer",
 };
 
 // ─── Gezinsgrootte → minimale netto inhoud (soft preference) ──────────────────

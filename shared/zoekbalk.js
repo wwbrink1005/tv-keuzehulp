@@ -54,6 +54,17 @@ const keuzehulpen = [
     ],
     url: "soundbar/vragen",
   },
+  {
+    title: "Vriezer keuzehulp",
+    keywords: [
+      "vriezer", "vriezers", "diepvries", "diepvriezer", "diepvrieskist",
+      "vrieskist", "vrieskast", "vrieskasten",
+      "vrijstaande vriezer", "vrijstaand",
+      "kastvriezer", "tafelmodel vriezer", "tafelmodel",
+      "no frost", "no-frost",
+    ],
+    url: "vriezer/vragen",
+  },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();

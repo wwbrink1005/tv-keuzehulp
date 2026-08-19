@@ -244,6 +244,8 @@ function renderAllFilters() {
       if (p.scannen === "Ja" && p.kopieren === "Ja") opties.push("scan-kopieer");
       if (p.wifi === "Ja") opties.push("wifi");
       if (p.display === "Ja") opties.push("display");
+      if (p.adf === "Ja") opties.push("adf");
+      if (p.bluetooth === "Ja") opties.push("bluetooth");
       return opties;
     };
     renderFilterOptions(functieContainer, functieCard, collectFunctieOptions(matches), matches, functieValueFn, "functies", f => FUNCTIE_LABELS[f] ?? f);

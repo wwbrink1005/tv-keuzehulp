@@ -150,13 +150,24 @@ export function applyProcessorClassFilter(laptops, intensiteit) {
 // geïntegreerde graphics) een groot verschil, maar dit werd tot nu toe
 // nergens gefilterd — de processor-tier alleen zegt niets over de GPU. Het
 // "gpu"-veld bevat het model van de dedicated kaart (bv. "NVIDIA GeForce RTX
-// 4070") en is leeg bij alleen geïntegreerde graphics.
+// 4070") en is leeg bij alleen geïntegreerde graphics — maar Icecat vult het
+// bij sommige modellen niet leeg, maar met de letterlijke placeholder-tekst
+// "Niet beschikbaar" (zelfde patroon als bij desktop's gpu_model). Zonder
+// deze check werd "Niet beschikbaar" behandeld als een geldig GPU-model,
+// zowel in de filter (liet laptops zonder dedicated GPU gewoon toe bij
+// gaming/creatief) als in het resultaatpunt ("Dedicated Niet beschikbaar
+// videokaart").
+export function heeftDedicatedGpu(gpu) {
+  const raw = String(gpu ?? "").trim();
+  return raw !== "" && raw.toLowerCase() !== "niet beschikbaar";
+}
+
 export function applyGpuFilter(laptops, gebruikAnswers) {
   const wilDedicatedGpu = Array.isArray(gebruikAnswers)
     && (gebruikAnswers.includes("gaming") || gebruikAnswers.includes("creatief"));
   if (!wilDedicatedGpu) return laptops;
 
-  const metGpu = laptops.filter(l => String(l.gpu ?? "").trim() !== "");
+  const metGpu = laptops.filter(l => heeftDedicatedGpu(l.gpu));
   if (metGpu.length > 0) return metGpu;
   return laptops;
 }
@@ -339,7 +350,7 @@ export function buildResultPoints(laptop, answers) {
   const tier         = getProcessorTier(laptop.processor, laptop.processor_familie);
 
   // Dedicated GPU (alleen relevant als daadwerkelijk gevraagd via gaming/creatief)
-  if ((gebruik.includes("gaming") || gebruik.includes("creatief")) && String(laptop.gpu ?? "").trim() !== "") {
+  if ((gebruik.includes("gaming") || gebruik.includes("creatief")) && heeftDedicatedGpu(laptop.gpu)) {
     addPoint(`Dedicated ${laptop.gpu} videokaart`);
   }
 

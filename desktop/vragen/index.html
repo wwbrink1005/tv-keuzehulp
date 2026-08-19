@@ -705,7 +705,7 @@ button.question-hint-btn-mobile { display: grid; }
               </div>
               <div class="question-popover" data-popover="5">
                 <h3 class="question-popover-title">Waarom deze vraag?</h3>
-                <p class="question-popover-text">Hier geef je extra wensen aan. RGB-verlichting geeft je setup een stijlvolle uitstraling. Waterkoeling zorgt voor lagere temperaturen bij intensief gebruik.</p>
+                <p class="question-popover-text">Hier geef je extra wensen aan. RGB-verlichting geeft je setup een stijlvolle uitstraling. Waterkoeling zorgt voor lagere temperaturen bij intensief gebruik. Wifi is handig als je geen kabel naar je router wilt trekken. Een compleet pakket met muis en toetsenbord erbij scheelt een aparte aankoop.</p>
               </div>
             </div>
             <div class="answers-container" style="top: calc((70.11px + 37.77px + 22px) * var(--scale));">
@@ -721,6 +721,18 @@ button.question-hint-btn-mobile { display: grid; }
                 <span>Waterkoeling</span>
                 <span class="price-indicator">€€€</span>
               </label>
+              <label class="answer-option" data-tower-only>
+                <input type="checkbox" name="extra" value="wifi">
+                <svg class="answer-info-icon" data-icon="wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Ingebouwde wifi</span>
+                <span class="price-indicator">€</span>
+              </label>
+              <label class="answer-option" data-not-aio-only>
+                <input type="checkbox" name="extra" value="compleet-pakket">
+                <svg class="answer-info-icon" data-icon="package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
+                <span>Muis en toetsenbord inbegrepen</span>
+                <span class="price-indicator">€€</span>
+              </label>
               <label class="answer-option">
                 <input type="checkbox" name="extra" value="geen">
                 <svg class="answer-info-icon" data-icon="minus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></svg>
@@ -728,7 +740,7 @@ button.question-hint-btn-mobile { display: grid; }
                 <span class="price-indicator">€</span>
               </label>
             </div>
-            <div class="button-container" style="top: calc((70.11px + 37.77px + (3 * 58px) + (2 * 15px) + 22px) * var(--scale));">
+            <div class="button-container" style="top: calc((70.11px + 37.77px + (5 * 58px) + (4 * 15px) + 22px) * var(--scale));">
               <button id="back-to-question-4">Terug</button>
               <button id="start-matching">Resultaat</button>
             </div>

@@ -181,8 +181,8 @@ function updateProgressBar(questionNum) {
   if (!progressBar) return;
   if (questionNum === "result") {
     progressBar.style.width = "100%";
-  } else if (questionNum === 4 && quizState.selectedBehuizingType !== "tower") {
-    // Bij mini-pc/all-in-one is Q5 overgeslagen (zie updateExtraOptionsVisibility/
+  } else if (questionNum === 4 && quizState.selectedBehuizingType === "all-in-one") {
+    // Bij all-in-one is Q5 overgeslagen (zie updateExtraOptionsVisibility/
     // handleStartMatching), dus Q4 is dan de laatste stap.
     progressBar.style.width = "100%";
   } else if (typeof questionNum === "number" && questionNum >= 1 && questionNum <= 5) {
@@ -212,15 +212,29 @@ function positionElements(questionNum) {
   }
 }
 
-// RGB-verlichting en waterkoeling zijn fysiek gebonden aan een tower-
-// behuizing (mini-pc/all-in-one hebben dit nooit) — verberg die opties dus
-// zodra een andere behuizing is gekozen, i.p.v. een checkbox te tonen die
-// toch nooit een match beïnvloedt.
+// RGB-verlichting, waterkoeling en wifi zijn ofwel fysiek gebonden aan een
+// tower-behuizing (mini-pc/all-in-one hebben dit nooit), of nauwelijks
+// onderscheidend buiten tower (wifi: 83% Ja bij tower vs. 95-100% Ja bij
+// mini-pc/all-in-one — daar filtert de optie dus vrijwel niets) — verberg
+// die opties dus zodra een andere behuizing is gekozen. "Compleet pakket"
+// (muis + toetsenbord) is wél onderscheidend bij mini-pc (59/41-verdeling),
+// alleen bij all-in-one niet (99% Ja, die zijn per definitie altijd
+// compleet) — die optie krijgt dus een eigen, ruimere zichtbaarheidsregel.
 function updateExtraOptionsVisibility() {
   const isTower = quizState.selectedBehuizingType === "tower";
+  const isAllInOne = quizState.selectedBehuizingType === "all-in-one";
+
   qsa('[data-tower-only]').forEach(label => {
     label.style.display = isTower ? "" : "none";
     if (!isTower) {
+      const input = label.querySelector("input");
+      if (input) input.checked = false;
+    }
+  });
+
+  qsa('[data-not-aio-only]').forEach(label => {
+    label.style.display = isAllInOne ? "none" : "";
+    if (isAllInOne) {
       const input = label.querySelector("input");
       if (input) input.checked = false;
     }
@@ -234,7 +248,7 @@ function updateExtraOptionsVisibility() {
 function updateQuestion4AsLastStep() {
   const btn = qs("#to-question-5");
   if (!btn) return;
-  btn.textContent = quizState.selectedBehuizingType === "tower" ? "Volgende" : "Resultaat";
+  btn.textContent = quizState.selectedBehuizingType === "all-in-one" ? "Resultaat" : "Volgende";
 }
 
 // Mini-pc's in de catalogus gaan nooit boven 1 TB (geen enkele met 2 TB+),
@@ -399,14 +413,16 @@ export function initQuizPage() {
     showQuestion(3);
   });
 
-  // Q4 → Q5 (extra's) — bij mini-pc/all-in-one blijft er in Q5 alleen "Geen
-  // extra wensen" over (RGB/waterkoeling zijn tower-only), dus die vraag
-  // heeft dan geen functie meer: sla 'm over en ga direct naar het resultaat.
+  // Q4 → Q5 (extra's) — bij all-in-one blijft er in Q5 alleen "Geen extra
+  // wensen" over (geen enkele extra-optie is daar onderscheidend), dus die
+  // vraag heeft dan geen functie meer: sla 'm over en ga direct naar het
+  // resultaat. Bij mini-pc blijft "Compleet pakket" wél relevant, dus die
+  // behuizing krijgt Q5 gewoon te zien.
   qs("#to-question-5")?.addEventListener("click", () => {
     const checked = qs('input[name="opslag"]:checked');
     if (!checked) return alert("Kies een antwoord");
 
-    if (quizState.selectedBehuizingType !== "tower") {
+    if (quizState.selectedBehuizingType === "all-in-one") {
       const geenCheckbox = qs('input[name="extra"][value="geen"]');
       if (geenCheckbox) geenCheckbox.checked = true;
       handleStartMatching();

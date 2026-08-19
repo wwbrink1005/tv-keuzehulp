@@ -82,6 +82,16 @@ export function applyExtraFilter(desktops, extraAnswers) {
     if (wk.length > 0) filtered = wk;
   }
 
+  if (extraAnswers.includes("wifi")) {
+    const w = filtered.filter(d => d.wifi === "Ja");
+    if (w.length > 0) filtered = w;
+  }
+
+  if (extraAnswers.includes("compleet-pakket")) {
+    const c = filtered.filter(d => d.muisInbegrepen === "Ja" && d.toetsenbordInbegrepen === "Ja");
+    if (c.length > 0) filtered = c;
+  }
+
   return filtered;
 }
 
@@ -220,6 +230,12 @@ export function buildResultPoints(desktop, answers) {
   }
   if (extraAnswers.includes("waterkoeling") && desktop.waterkoeling === "Ja") {
     addPoint("Waterkoeling voor optimale temperaturen onder belasting");
+  }
+  if (extraAnswers.includes("wifi") && desktop.wifi === "Ja") {
+    addPoint("Ingebouwde wifi, geen kabel naar de router nodig");
+  }
+  if (extraAnswers.includes("compleet-pakket") && desktop.muisInbegrepen === "Ja" && desktop.toetsenbordInbegrepen === "Ja") {
+    addPoint("Compleet pakket, muis en toetsenbord inbegrepen");
   }
 
   // Opslag

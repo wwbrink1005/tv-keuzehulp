@@ -30,6 +30,8 @@ const filterState = {
 const FUNCTIE_DEFINITIES = [
   { key: "rgb", label: "RGB-verlichting", check: d => d.rgb === "Ja" },
   { key: "waterkoeling", label: "Waterkoeling", check: d => d.waterkoeling === "Ja" },
+  { key: "wifi", label: "Ingebouwde wifi", check: d => d.wifi === "Ja" },
+  { key: "compleet-pakket", label: "Muis en toetsenbord inbegrepen", check: d => d.muisInbegrepen === "Ja" && d.toetsenbordInbegrepen === "Ja" },
 ];
 
 // Price buckets are recomputed fresh from the live-fetched catalog on every

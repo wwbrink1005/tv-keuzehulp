@@ -8,11 +8,6 @@ import { getContainerScale, normalizeProducts, qs, qsa } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 import { initLucideIcons } from "./icons.js";
 
-// Geen achtergrond-visualisatie (crossfade-lagen per type/formaat) zoals bij
-// koelkast — dat komt pas later zodra er scene-foto's zijn (zie CLAUDE.md:
-// eerst quiz+resultaat, visuals volgen apart). Deze pagina heeft nu gewoon 1
-// vaste achtergrond.
-
 const quizState = {
   plaatsing: null
 };
@@ -38,24 +33,29 @@ function getMenuOffset() {
 // fade (of bij vrieskist: schuift) een eigen volledige scène-foto erover:
 // "inbouw" toont de kast erbij; "vrijstaand" en "vrieskist" hebben elk eigen
 // formaat-varianten die op Q2 verder verfijnen — vóór die keuze (nog op Q1)
-// toont het grootste formaat als redelijk standaard-voorbeeld. Vrieskist
-// heeft nog geen apart "extra-groot"-beeld — die valt terug op "groot".
-// "vrieskist" is bewust een andere ruimte (berging i.p.v. keuken), dus die
-// schuift in i.p.v. te faden (zie .background-layer--vrieskist-* in
-// vragen/index.html) — voelt als naar de kamer ernaast gaan.
+// toont het grootste formaat als redelijk standaard-voorbeeld. De
+// grootte-buckets zijn na herijking tegen de live catalogus klein/middel/
+// groot geworden (was middel/groot/extra-groot) — de bestaande 3 vrieskist-
+// foto's (middel/groot/extra-groot) zijn dus 1 stap opgeschoven: het oude
+// "middel"-beeld toont nu bij "klein", "groot" bij "middel", en
+// "extra-groot" bij "groot" (geen nieuwe assets nodig, wel een nieuwe
+// koppeling). "vrieskist" is bewust een andere ruimte (berging i.p.v.
+// keuken), dus die schuift in i.p.v. te faden (zie
+// .background-layer--vrieskist-* in vragen/index.html) — voelt als naar de
+// kamer ernaast gaan.
 function updateBackgroundLayer(plaatsing, grootte) {
   let active = null;
   if (plaatsing === "inbouw") {
     active = "inbouw";
   } else if (plaatsing === "vrijstaand") {
-    active = grootte === "mini" ? "vrijstaand-mini"
+    active = grootte === "klein" ? "vrijstaand-mini"
            : grootte === "middel" ? "vrijstaand-middel"
            : "vrijstaand-groot"; // standaard / nog niet gekozen
   } else if (plaatsing === "vrieskist") {
-    active = grootte === "middel" ? "vrieskist-middel"
-           : grootte === "groot" ? "vrieskist-groot"
-           : grootte === "extra-groot" ? "vrieskist-extra-groot"
-           : "vrieskist-groot"; // standaard / nog niet gekozen
+    active = grootte === "klein" ? "vrieskist-middel"
+           : grootte === "middel" ? "vrieskist-groot"
+           : grootte === "groot" ? "vrieskist-extra-groot"
+           : "vrieskist-extra-groot"; // standaard / nog niet gekozen -> grootste beeld
   }
 
   const layers = {
@@ -171,7 +171,30 @@ function resetQuestionsFrom(questionNumber) {
 // ─── Q2: dynamically rendered based on Q1's answer ─────────────────────────────
 // Mirrors koelkast's renderQ2Options() patroon, nu met 3 takken i.p.v. 2.
 
-function renderQ2Options(plaatsing) {
+// Nishoogtes worden alleen getoond als er daadwerkelijk voorraad in die maat
+// is — 140cm en 194cm zijn legitieme standaard keukennis-maten (gedeeld met
+// koelkast), maar de (nog kleine, 22 producten) vriezer-catalogus heeft er nu
+// niets in staan. Zodra de pipeline een product in die maat toevoegt,
+// verschijnt de optie vanzelf weer (geen code-wijziging nodig) — zie
+// getAvailableNishoogteGroups().
+async function getAvailableNishoogteGroups() {
+  try {
+    const rawProducts = await prefetchProducts();
+    const vriezers = normalizeProducts(rawProducts ?? []);
+    const beschikbaar = new Set(
+      vriezers.filter(v => v.plaatsing === "inbouw" && v.nishoogteGroup).map(v => v.nishoogteGroup)
+    );
+    const gefilterd = nishoogteGroups.filter(cm => beschikbaar.has(cm));
+    // Gracieuze fallback: als er (tijdelijk) geen enkele match is — bv. de
+    // fetch faalt of alle inbouw-producten missen hoogtedata — toon dan
+    // liever alle standaardmaten dan een lege lijst.
+    return gefilterd.length > 0 ? gefilterd : nishoogteGroups;
+  } catch {
+    return nishoogteGroups;
+  }
+}
+
+async function renderQ2Options(plaatsing) {
   const container = qs("#question-2-options");
   const heading   = qs("#question-2-heading");
   const popoverText = qs("#question-2-popover-text");
@@ -185,7 +208,8 @@ function renderQ2Options(plaatsing) {
       popoverText.textContent = "De hoogte van de nis bepaalt welke inbouwvriezers fysiek in je keukenkast passen. Meet de binnenhoogte van de nis waar de vriezer moet komen, van vloer tot bovenkant van de opening. Weet je het niet precies? Kies de dichtstbijzijnde maat.";
     }
 
-    nishoogteGroups.forEach(cm => {
+    const beschikbareNishoogtes = await getAvailableNishoogteGroups();
+    beschikbareNishoogtes.forEach(cm => {
       const label = document.createElement("label");
       label.className = "answer-option";
       label.innerHTML = `
@@ -208,13 +232,13 @@ function renderQ2Options(plaatsing) {
     const isVrieskist = plaatsing === "vrieskist";
     const labels = isVrieskist ? vrieskistGrootteLabels : vrijstaandGrootteLabels;
     const inhoud = isVrieskist ? vrieskistGrootteInhoud : vrijstaandGrootteInhoud;
-    const order = isVrieskist ? ["middel", "groot", "extra-groot"] : ["mini", "middel", "groot"];
+    const order = ["klein", "middel", "groot"];
 
     if (heading) heading.textContent = isVrieskist ? "Welke inhoud heb je nodig?" : "Welk formaat zoek je?";
     if (popoverText) {
       popoverText.textContent = isVrieskist
-        ? "Vrieskisten variëren sterk in inhoud. Een middelgrote kist is prima voor incidenteel grote of onregelmatig gevormde etenswaren; een grote of extra grote kist is handig als je structureel veel wilt invriezen."
-        : "Een mini/compacte vrieskast past ook in een kleine ruimte, zoals een bijkeuken of studio. Een middelgrote of grote vrieskast biedt meer opbergruimte voor een gezin.";
+        ? "Vrieskisten variëren sterk in inhoud. Een kleine kist is prima voor incidenteel invriezen; een middelgrote of grote kist is handig als je structureel veel wilt invriezen of grote, onregelmatig gevormde etenswaren wilt bewaren."
+        : "Een kleine/compacte vrieskast past ook in een kleine ruimte, zoals een bijkeuken of studio. Een middelgrote of grote vrieskast biedt meer opbergruimte voor een gezin.";
     }
 
     order.forEach(value => {
@@ -314,13 +338,13 @@ export function initQuizPage() {
   prefetchProducts();
 
   // Q1 → Q2 (Q1 is hard/required)
-  qs("#to-question-2")?.addEventListener("click", () => {
+  qs("#to-question-2")?.addEventListener("click", async () => {
     const checked = qs('input[name="plaatsing"]:checked');
     if (!checked) return alert("Kies welk type vriezer je zoekt");
 
     quizState.plaatsing = checked.value;
     updateBackgroundLayer(quizState.plaatsing);
-    renderQ2Options(quizState.plaatsing);
+    await renderQ2Options(quizState.plaatsing);
     showQuestion(2);
   });
 
@@ -345,9 +369,9 @@ export function initQuizPage() {
 
   // Q3 → Q2 (re-render Q2 voor de huidige plaatsing zodat teruggaan en dan
   // Q1 wijzigen geen verouderde opties van de andere tak achterlaat)
-  qs("#back-to-question-2")?.addEventListener("click", () => {
+  qs("#back-to-question-2")?.addEventListener("click", async () => {
     resetQuestionsFrom(3);
-    if (quizState.plaatsing) renderQ2Options(quizState.plaatsing);
+    if (quizState.plaatsing) await renderQ2Options(quizState.plaatsing);
     showQuestion(2);
   });
 
