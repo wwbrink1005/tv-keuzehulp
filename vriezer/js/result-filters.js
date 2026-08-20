@@ -1,6 +1,6 @@
 import { matchVriezers } from "./matching.js";
 import { GESCHIKT_VOOR_GARAGE_KLASSEN } from "./data.js";
-import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
+import { computeDynamicPriceGroups, computeDynamicDimensionGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 import { computeCounts, renderFilterList } from "../../shared/filters.js";
@@ -20,9 +20,15 @@ const filterState = {
   nofrost:       new Set(),
   geluid:        new Set(),
   garage:        new Set(),
+  breedteLabels: new Set(),
+  diepteLabels:  new Set(),
+  hoogteLabels:  new Set(),
   aanbieder:     new Set(),
   baseMatches:   [],
   priceGroups:   [],
+  breedteGroups: [],
+  diepteGroups:  [],
+  hoogteGroups:  [],
   answers:       null,
   bestType:      ""
 };
@@ -173,6 +179,21 @@ function applyFilters() {
     });
   }
 
+  if (filterState.breedteLabels.size > 0) {
+    const groups = filterState.breedteGroups.filter(g => filterState.breedteLabels.has(g.label));
+    filtered = filtered.filter(v => Number.isFinite(v.breedteMm) && groups.some(g => v.breedteMm / 10 >= g.min && v.breedteMm / 10 < g.max));
+  }
+
+  if (filterState.diepteLabels.size > 0) {
+    const groups = filterState.diepteGroups.filter(g => filterState.diepteLabels.has(g.label));
+    filtered = filtered.filter(v => Number.isFinite(v.diepteMm) && groups.some(g => v.diepteMm / 10 >= g.min && v.diepteMm / 10 < g.max));
+  }
+
+  if (filterState.hoogteLabels.size > 0) {
+    const groups = filterState.hoogteGroups.filter(g => filterState.hoogteLabels.has(g.label));
+    filtered = filtered.filter(v => Number.isFinite(v.hoogteMm) && groups.some(g => v.hoogteMm / 10 >= g.min && v.hoogteMm / 10 < g.max));
+  }
+
   if (filterState.aanbieder.size > 0) {
     filtered = filtered.filter(v =>
       (v.aanbieders ?? []).some(a => filterState.aanbieder.has(a.winkel))
@@ -189,8 +210,29 @@ function updateClearFiltersBtn() {
   const hasActive = filterState.priceLabels.size > 0 || filterState.plaatsingen.size > 0 ||
     filterState.brands.size > 0 || filterState.capaciteiten.size > 0 ||
     filterState.energielabels.size > 0 || filterState.nofrost.size > 0 || filterState.geluid.size > 0 ||
-    filterState.garage.size > 0 || filterState.aanbieder.size > 0;
+    filterState.garage.size > 0 ||
+    filterState.breedteLabels.size > 0 || filterState.diepteLabels.size > 0 || filterState.hoogteLabels.size > 0 ||
+    filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
+}
+
+// Zelfde patroon als de prijs-kaart hierboven: buckets 1x per catalogus
+// berekend (zie initFilters), tellingen per bucket elke render opnieuw.
+function renderDimensionFilter(container, card, groups, veld, stateSet, filterName) {
+  if (!container || !card) return;
+  if (groups.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
+
+  const base = getBaseMatches();
+  const groupForMm = mm => Number.isFinite(mm) ? groups.find(g => mm / 10 >= g.min && mm / 10 < g.max) : undefined;
+  const counts = computeCounts(base, v => groupForMm(v[veld])?.label);
+  const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
+
+  if (labels.length <= 1) {
+    container.innerHTML = "";
+    card.hidden = true;
+  } else {
+    renderFilterList(container, card, { items: labels, counts, filterName, stateSet, allLabel: "Alle" });
+  }
 }
 
 function renderAllFilters() {
@@ -204,6 +246,9 @@ function renderAllFilters() {
   const nofrostContainer      = qs("[data-filter-container='nofrost']");
   const geluidContainer       = qs("[data-filter-container='geluid']");
   const garageContainer       = qs("[data-filter-container='garage']");
+  const breedteContainer      = qs("[data-filter-container='breedte']");
+  const diepteContainer       = qs("[data-filter-container='diepte']");
+  const hoogteContainer       = qs("[data-filter-container='hoogte']");
   const aanbiederContainer    = qs("[data-filter-container='aanbieder']");
 
   const priceCard        = qs(".filter-card[data-filter='price']");
@@ -214,6 +259,9 @@ function renderAllFilters() {
   const nofrostCard      = qs(".filter-card[data-filter='nofrost']");
   const geluidCard       = qs(".filter-card[data-filter='geluid']");
   const garageCard       = qs(".filter-card[data-filter='garage']");
+  const breedteCard      = qs(".filter-card[data-filter='breedte']");
+  const diepteCard       = qs(".filter-card[data-filter='diepte']");
+  const hoogteCard       = qs(".filter-card[data-filter='hoogte']");
   const aanbiederCard    = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
@@ -267,6 +315,10 @@ function renderAllFilters() {
     renderFilterOptions(garageContainer, garageCard, collectGarageOptions(matches), matches, v => v.klimaatklasse ? (GESCHIKT_VOOR_GARAGE_KLASSEN.includes(v.klimaatklasse) ? "Geschikt voor garage/schuur" : "Voor binnenshuis") : null, "garage");
   }
 
+  renderDimensionFilter(breedteContainer, breedteCard, filterState.breedteGroups, "breedteMm", filterState.breedteLabels, "breedteLabels");
+  renderDimensionFilter(diepteContainer, diepteCard, filterState.diepteGroups, "diepteMm", filterState.diepteLabels, "diepteLabels");
+  renderDimensionFilter(hoogteContainer, hoogteCard, filterState.hoogteGroups, "hoogteMm", filterState.hoogteLabels, "hoogteLabels");
+
   if (aanbiederContainer && aanbiederCard) {
     renderFilterOptions(aanbiederContainer, aanbiederCard, collectAanbiederOptions(matches), matches, v => (v.aanbieders ?? []).map(a => a.winkel), "aanbieder");
   }
@@ -290,6 +342,9 @@ function handleFilterChange(event) {
     nofrost:       { set: filterState.nofrost,       parse: v => v, exclusive: true },
     geluid:        { set: filterState.geluid,        parse: v => v, exclusive: true },
     garage:        { set: filterState.garage,        parse: v => v, exclusive: true },
+    breedteLabels: { set: filterState.breedteLabels, parse: v => v },
+    diepteLabels:  { set: filterState.diepteLabels,  parse: v => v },
+    hoogteLabels:  { set: filterState.hoogteLabels,  parse: v => v },
     aanbieder:     { set: filterState.aanbieder,      parse: v => v }
   };
 
@@ -350,7 +405,10 @@ export async function initFilters() {
   }
 
   filterState.baseMatches = baseMatches;
-  filterState.priceGroups = computeDynamicPriceGroups(baseMatches);
+  filterState.priceGroups   = computeDynamicPriceGroups(baseMatches);
+  filterState.breedteGroups = computeDynamicDimensionGroups(baseMatches, "breedteMm");
+  filterState.diepteGroups  = computeDynamicDimensionGroups(baseMatches, "diepteMm");
+  filterState.hoogteGroups  = computeDynamicDimensionGroups(baseMatches, "hoogteMm");
 
   renderAllFilters();
 
@@ -367,6 +425,9 @@ export async function initFilters() {
       filterState.nofrost.clear();
       filterState.geluid.clear();
       filterState.garage.clear();
+      filterState.breedteLabels.clear();
+      filterState.diepteLabels.clear();
+      filterState.hoogteLabels.clear();
       filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();

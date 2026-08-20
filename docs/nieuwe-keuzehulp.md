@@ -488,6 +488,32 @@ Twee herbruikbare UI-patronen voor nieuwe filters:
   catalogus (`computeDynamicPriceGroups(items, ...)`), vertrouw nooit blind op de
   `localStorage`-snapshot van het quiz-moment — die kan te smal zijn geweest door een
   trage/gedeeltelijke fetch tijdens de quiz.
+- Levert de bucket-berekening voor de huidige matches 1 of 0 buckets op (dus niks om mee
+  te verfijnen), verberg dan de **hele kaart** (`card.hidden = true`) i.p.v. een kaart met
+  1 zinloze checkbox te tonen — geldt hieronder ook voor de afmetingen-buckets.
+
+**Afmetingen (Breedte/Diepte/Hoogte) in het filtermenu — alleen wanneer relevant:**
+- Voeg dit alléén toe bij categorieën waar de fysieke maat er echt toe doet voor de koper
+  (koelkast, vriezer, wasmachine — "past het in mijn nis/hoek"). Bij twijfel of een nieuwe
+  categorie dit nodig heeft: **vraag het de eigenaar** i.p.v. het zelfstandig toe te voegen
+  of over te slaan. Sla het over bij categorieën waar iets anders al de fysieke maat dekt
+  (tv/monitor/laptop/desktop/printer — schermgrootte of formaat-vraag is daar het
+  eigenlijke signaal) of waar het te verwaarlozen is (bv. bij soundbars is alleen Breedte
+  relevant — die bepaalt of hij onder de tv past — Diepte/Hoogte van een soundbar maakt in
+  de praktijk niemand uit, dus die 2 zijn daar bewust weggelaten).
+- Zelfde dynamische-bucket-aanpak als prijs, niet handmatig vaste cm-grenzen verzinnen (zie
+  5.4): `computeDynamicDimensionGroups(items, "breedteMm")` in `{categorie}/js/utils.js`
+  (kwantielen op de live catalogus, output in hele cm) — zie `wasmachine/koelkast/vriezer/
+  soundbar/js/utils.js` voor de referentie-implementatie. Vereist dat de mm-waarde al
+  genormaliseerd is als getal op het product-object (`breedteMm`/`diepteMm`/`hoogteMm`,
+  of `breedte_mm` bij soundbar) — check eerst of dat al gebeurt in `normalizeProducts()`
+  vóór je deze filter toevoegt; zo niet, voeg dat eerst toe (zie wasmachine, waar dit nog
+  niet gebeurde en dus zowel `supabase.js`'s `adaptRow()` als `normalizeProducts()` een
+  regel nodig hadden).
+- Rendering/filteren volgt exact het prijsbucket-patroon: 1x per catalogus de buckets
+  berekenen (in `initFilters()`), per render de tellingen opnieuw op de actuele matches
+  (zelfde reden als bij prijs: buckets zelf hoeven niet bij elke klik te verschuiven, de
+  tellingen erachter wel).
 
 ## 7. Homepage-integratie (`index.html`, `shared/menu.js`, `shared/footer.js`)
 

@@ -1,6 +1,6 @@
 import { priceGroupsBySize, breedteGroupToRange, getKanalenGroep, KANALEN_GROEP_ORDER } from "./data.js";
 import { matchSoundbars } from "./matching.js";
-import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
+import { computeDynamicPriceGroups, computeDynamicDimensionGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 import { computeCounts, renderFilterList } from "../../shared/filters.js";
@@ -13,8 +13,10 @@ const filterState = {
   // Nee-kaarten — samengevoegd tot 1 "Functies"-kaart (zie FUNCTIE_DEFINITIES).
   functies:     new Set(),
   hdmiOptions:  new Set(),
+  breedteLabels: new Set(),
   aanbieder:    new Set(),
   baseMatches:  [],
+  breedteGroups: [],
   answers:      null,
   scores:       null,
   bestType:     "",
@@ -116,6 +118,11 @@ function applyFilters() {
     filtered = filtered.filter(sb => filterState.hdmiOptions.has(sb.hdmi_poorten));
   }
 
+  if (filterState.breedteLabels.size > 0) {
+    const groups = filterState.breedteGroups.filter(g => filterState.breedteLabels.has(g.label));
+    filtered = filtered.filter(sb => Number.isFinite(sb.breedte_mm) && groups.some(g => sb.breedte_mm / 10 >= g.min && sb.breedte_mm / 10 < g.max));
+  }
+
   if (filterState.aanbieder.size > 0) {
     filtered = filtered.filter(sb =>
       (sb.aanbieders ?? []).some(a => filterState.aanbieder.has(a.winkel))
@@ -132,8 +139,16 @@ function updateClearFiltersBtn() {
   const hasActive = filterState.priceLabels.size > 0 || filterState.brands.size > 0 ||
     filterState.kanalen.size > 0 || filterState.functies.size > 0 ||
     filterState.hdmiOptions.size > 0 ||
+    filterState.breedteLabels.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
+}
+
+// Bucket-groep-behorend-tot-mm-waarde, gedeeld door breedte/diepte/hoogte
+// hieronder in de generieke `filters`-array.
+function dimensieLabelFn(groups, mm) {
+  if (!Number.isFinite(mm)) return undefined;
+  return groups.find(g => mm / 10 >= g.min && mm / 10 < g.max)?.label;
 }
 
 function renderAllFilters() {
@@ -147,6 +162,7 @@ function renderAllFilters() {
     { key: "kanalen",     filter: "kanalen",     matches, valueFn: sb => getKanalenGroep(sb), collect: () => collectKanalenOptions(matches) },
     { key: "functies",    filter: "functies",    matches, valueFn: functieValueFn, collect: () => collectFunctieOptions(matches), labelFn: functieLabelFn },
     { key: "hdmiOptions", filter: "hdmi",        matches, valueFn: sb => sb.hdmi_poorten, collect: () => collectHdmiOptions(matches), labelFn: n => `${n} HDMI` },
+    { key: "breedteLabels", filter: "breedte", matches: getBaseMatches(), valueFn: sb => dimensieLabelFn(filterState.breedteGroups, sb.breedte_mm), collect: (counts) => filterState.breedteGroups.filter(g => counts.has(g.label)).map(g => g.label), allLabel: "Alle" },
     { key: "aanbieder",   filter: "aanbieder",   matches, valueFn: sb => (sb.aanbieders ?? []).map(a => a.winkel), collect: () => collectAanbiederOptions(matches) },
   ];
 
@@ -157,7 +173,8 @@ function renderAllFilters() {
 
     const counts = computeCounts(source, valueFn);
     const items = collect(counts);
-    if (items.length === 0 || (key === "priceLabels" && items.length <= 1)) {
+    const isBucketFilter = key === "priceLabels" || key === "breedteLabels";
+    if (items.length === 0 || (isBucketFilter && items.length <= 1)) {
       container.innerHTML = "";
       card.hidden = true;
       return;
@@ -181,6 +198,7 @@ function handleFilterChange(event) {
     kanalen:     { set: filterState.kanalen,      parse: v => v },
     functies:    { set: filterState.functies,     parse: v => v },
     hdmiOptions: { set: filterState.hdmiOptions,  parse: v => parseInt(v, 10) },
+    breedteLabels: { set: filterState.breedteLabels, parse: v => v },
     aanbieder:   { set: filterState.aanbieder,    parse: v => v }
   };
 
@@ -229,7 +247,8 @@ export async function initFilters() {
     allSoundbars = [];
   }
 
-  filterState.priceGroups = computeDynamicPriceGroups(allSoundbars, filterState.breedteGroup, breedteGroupToRange);
+  filterState.priceGroups   = computeDynamicPriceGroups(allSoundbars, filterState.breedteGroup, breedteGroupToRange);
+  filterState.breedteGroups = computeDynamicDimensionGroups(allSoundbars, "breedte_mm");
   const liveResult = matchSoundbars(allSoundbars, filterState.breedteGroup, null, filterState.answers, filterState.scores);
   let baseMatches = Array.isArray(liveResult.filteredMatchedSoundbars) ? liveResult.filteredMatchedSoundbars : [];
 
@@ -261,6 +280,7 @@ export async function initFilters() {
       filterState.kanalen.clear();
       filterState.functies.clear();
       filterState.hdmiOptions.clear();
+      filterState.breedteLabels.clear();
       filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();

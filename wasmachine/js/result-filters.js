@@ -1,6 +1,6 @@
 import { priceGroupsByCapaciteit, capaciteitGroupToAllowedCapaciteit, heeftWasprogramma, WASPROGRAMMA_DEFINITIES } from "./data.js";
 import { matchWasmachines } from "./matching.js";
-import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
+import { computeDynamicPriceGroups, computeDynamicDimensionGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 import { computeCounts, renderFilterList } from "../../shared/filters.js";
@@ -17,6 +17,9 @@ const filterState = {
   // kaarten — samengevoegd tot 1 "Functies"-kaart (zie FUNCTIE_DEFINITIES).
   functies:       new Set(),
   programmas:     new Set(),
+  breedteLabels:  new Set(),
+  diepteLabels:   new Set(),
+  hoogteLabels:   new Set(),
   aanbieder:      new Set(),
   baseMatches:    [],
   answers:        null,
@@ -179,6 +182,21 @@ function applyFilters() {
     );
   }
 
+  if (filterState.breedteLabels.size > 0) {
+    const groups = filterState.breedteGroups.filter(g => filterState.breedteLabels.has(g.label));
+    filtered = filtered.filter(w => Number.isFinite(w.breedteMm) && groups.some(g => w.breedteMm / 10 >= g.min && w.breedteMm / 10 < g.max));
+  }
+
+  if (filterState.diepteLabels.size > 0) {
+    const groups = filterState.diepteGroups.filter(g => filterState.diepteLabels.has(g.label));
+    filtered = filtered.filter(w => Number.isFinite(w.diepteMm) && groups.some(g => w.diepteMm / 10 >= g.min && w.diepteMm / 10 < g.max));
+  }
+
+  if (filterState.hoogteLabels.size > 0) {
+    const groups = filterState.hoogteGroups.filter(g => filterState.hoogteLabels.has(g.label));
+    filtered = filtered.filter(w => Number.isFinite(w.hoogteMm) && groups.some(g => w.hoogteMm / 10 >= g.min && w.hoogteMm / 10 < g.max));
+  }
+
   if (filterState.aanbieder.size > 0) {
     filtered = filtered.filter(w =>
       (w.aanbieders ?? []).some(a => filterState.aanbieder.has(a.winkel))
@@ -196,8 +214,30 @@ function updateClearFiltersBtn() {
     filterState.typeLaders.size > 0 || filterState.energieLabels.size > 0 ||
     filterState.centrifugeRpms.size > 0 || filterState.kleuren.size > 0 ||
     filterState.functies.size > 0 || filterState.programmas.size > 0 ||
+    filterState.breedteLabels.size > 0 || filterState.diepteLabels.size > 0 || filterState.hoogteLabels.size > 0 ||
     filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
+}
+
+// Afmetingen-buckets (breedte/diepte/hoogte) worden 1x per catalogus berekend
+// (zie initFilters), maar de tellingen per bucket wél elke render opnieuw op
+// de actuele matches — zelfde patroon als de prijs-kaart hierboven, alleen
+// hergebruikt voor 3 velden i.p.v. eenmalig uitgeschreven.
+function renderDimensionFilter(container, card, groups, veld, stateSet, filterName) {
+  if (!container || !card) return;
+  if (groups.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
+
+  const base = getBaseMatches();
+  const groupForMm = mm => Number.isFinite(mm) ? groups.find(g => mm / 10 >= g.min && mm / 10 < g.max) : undefined;
+  const counts = computeCounts(base, w => groupForMm(w[veld])?.label);
+  const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
+
+  if (labels.length <= 1) {
+    container.innerHTML = "";
+    card.hidden = true;
+  } else {
+    renderFilterList(container, card, { items: labels, counts, filterName, stateSet, allLabel: "Alle" });
+  }
 }
 
 function renderAllFilters() {
@@ -212,6 +252,9 @@ function renderAllFilters() {
   const kleurContainer      = qs("[data-filter-container='kleur']");
   const functieContainer   = qs("[data-filter-container='functies']");
   const programmaContainer = qs("[data-filter-container='programmas']");
+  const breedteContainer   = qs("[data-filter-container='breedte']");
+  const diepteContainer    = qs("[data-filter-container='diepte']");
+  const hoogteContainer    = qs("[data-filter-container='hoogte']");
   const aanbiederContainer  = qs("[data-filter-container='aanbieder']");
 
   const priceCard      = qs(".filter-card[data-filter='price']");
@@ -223,6 +266,9 @@ function renderAllFilters() {
   const kleurCard       = qs(".filter-card[data-filter='kleur']");
   const functieCard    = qs(".filter-card[data-filter='functies']");
   const programmaCard  = qs(".filter-card[data-filter='programmas']");
+  const breedteCard     = qs(".filter-card[data-filter='breedte']");
+  const diepteCard      = qs(".filter-card[data-filter='diepte']");
+  const hoogteCard      = qs(".filter-card[data-filter='hoogte']");
   const aanbiederCard   = qs(".filter-card[data-filter='aanbieder']");
 
   if (priceContainer && priceCard) {
@@ -283,6 +329,10 @@ function renderAllFilters() {
     renderFilterOptions(programmaContainer, programmaCard, collectProgrammaOptions(matches), matches, programmaValueFn, "programmas", labelFn);
   }
 
+  renderDimensionFilter(breedteContainer, breedteCard, filterState.breedteGroups, "breedteMm", filterState.breedteLabels, "breedteLabels");
+  renderDimensionFilter(diepteContainer, diepteCard, filterState.diepteGroups, "diepteMm", filterState.diepteLabels, "diepteLabels");
+  renderDimensionFilter(hoogteContainer, hoogteCard, filterState.hoogteGroups, "hoogteMm", filterState.hoogteLabels, "hoogteLabels");
+
   if (aanbiederContainer && aanbiederCard) {
     renderFilterOptions(aanbiederContainer, aanbiederCard, collectAanbiederOptions(matches), matches, w => (w.aanbieders ?? []).map(a => a.winkel), "aanbieder");
   }
@@ -307,6 +357,9 @@ function handleFilterChange(event) {
     kleuren:        { set: filterState.kleuren,        parse: v => v },
     functies:       { set: filterState.functies,       parse: v => v },
     programmas:     { set: filterState.programmas,     parse: v => v },
+    breedteLabels:  { set: filterState.breedteLabels,  parse: v => v },
+    diepteLabels:   { set: filterState.diepteLabels,   parse: v => v },
+    hoogteLabels:   { set: filterState.hoogteLabels,   parse: v => v },
     aanbieder:      { set: filterState.aanbieder,      parse: v => v }
   };
 
@@ -355,7 +408,10 @@ export async function initFilters() {
     allWasmachines = [];
   }
 
-  filterState.priceGroups = computeDynamicPriceGroups(allWasmachines, filterState.capaciteitGroup, capaciteitGroupToAllowedCapaciteit);
+  filterState.priceGroups   = computeDynamicPriceGroups(allWasmachines, filterState.capaciteitGroup, capaciteitGroupToAllowedCapaciteit);
+  filterState.breedteGroups = computeDynamicDimensionGroups(allWasmachines, "breedteMm");
+  filterState.diepteGroups  = computeDynamicDimensionGroups(allWasmachines, "diepteMm");
+  filterState.hoogteGroups  = computeDynamicDimensionGroups(allWasmachines, "hoogteMm");
 
   // No budget question was asked during the quiz, so the base match set is
   // computed with priceGroup = null (the full, price-unrestricted result).
@@ -398,6 +454,9 @@ export async function initFilters() {
       filterState.kleuren.clear();
       filterState.functies.clear();
       filterState.programmas.clear();
+      filterState.breedteLabels.clear();
+      filterState.diepteLabels.clear();
+      filterState.hoogteLabels.clear();
       filterState.aanbieder.clear();
       renderAllFilters();
       applyFilters();

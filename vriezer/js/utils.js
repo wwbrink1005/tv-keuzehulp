@@ -160,3 +160,47 @@ export function computeDynamicPriceGroups(vriezers) {
 
   return buckets;
 }
+
+/**
+ * Dynamically computes 2–3 buckets (in cm) for a mm-based dimension field
+ * (breedteMm/diepteMm/hoogteMm), from de actuele live catalogus — zelfde
+ * kwantiel-aanpak als computeDynamicPriceGroups, alleen op hele cm i.p.v.
+ * de grovere prijs-afrondstappen.
+ */
+export function computeDynamicDimensionGroups(products, veld) {
+  const waarden = (products || [])
+    .map(p => p[veld])
+    .filter(v => Number.isFinite(v) && v > 0)
+    .map(mm => mm / 10)
+    .sort((a, b) => a - b);
+
+  if (waarden.length === 0) return [];
+
+  const n = waarden.length;
+  if (n <= 2) {
+    const displayMin = Math.floor(waarden[0]);
+    return [{ label: `${displayMin}+ cm`, min: 0, max: Number.POSITIVE_INFINITY }];
+  }
+
+  const numBuckets = n < 6 ? 2 : 3;
+  const rawSplits = [];
+  for (let i = 1; i < numBuckets; i++) {
+    const idx = Math.floor(n * i / numBuckets);
+    rawSplits.push(Math.round((waarden[idx - 1] + waarden[idx]) / 2));
+  }
+  const splits = [...new Set(rawSplits)].sort((a, b) => a - b);
+
+  const buckets = [];
+  let prevMax = 0;
+
+  splits.forEach((split, i) => {
+    const displayMin = i === 0 ? Math.floor(waarden[0]) : prevMax;
+    buckets.push({ label: `${displayMin}-${split} cm`, min: prevMax, max: split });
+    prevMax = split;
+  });
+
+  const lastDisplayMin = prevMax;
+  buckets.push({ label: `${lastDisplayMin}+ cm`, min: prevMax, max: Number.POSITIVE_INFINITY });
+
+  return buckets;
+}
