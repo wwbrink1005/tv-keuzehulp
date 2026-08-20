@@ -19,6 +19,7 @@
     <script src="shared/footer.js" defer></script>
     <script src="shared/consent.js" defer></script>
     <script src="shared/analytics.js" defer></script>
+    <script src="shared/mobile-filter-fab.js" defer></script>
     <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -156,7 +157,7 @@
 .result-title { text-align: center; }
 
 .filters-panel {
-          position: fixed; top: var(--menu-height, 64px); left: 0; bottom: 0;
+          position: fixed; top: 0; left: 0; bottom: 0;
           width: min(78vw, 280px); background: var(--page-bg);
           padding: 16px 14px 24px; box-shadow: 10px 0 30px rgba(0,0,0,0.12);
           transform: translateX(-105%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);

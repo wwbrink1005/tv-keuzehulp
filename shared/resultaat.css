@@ -1415,3 +1415,53 @@ body.has-menu {
 					top: 120px;
 				}
 }
+
+/* Zwevende "Filters"-knop op mobiel: verschijnt zodra de originele
+   filterknop in de title-bar buiten beeld is gescrolld (zie
+   shared/mobile-filter-fab.js), zodat filteren altijd binnen handbereik
+   blijft zonder terug naar boven te hoeven scrollen. Positie tegenover
+   de bestaande #scroll-top-btn (die staat rechtsonder) zodat ze niet
+   overlappen; de filters-drawer (z-index 900) dekt 'm visueel af zodra
+   hij openstaat. */
+.mobile-filter-fab {
+				display: none;
+			}
+
+@media (max-width: 700px) {
+.mobile-filter-fab {
+					display: inline-flex;
+					align-items: center;
+					gap: 8px;
+					position: fixed;
+					left: 20px;
+					bottom: 28px;
+					z-index: 850;
+					height: 46px;
+					padding: 0 20px;
+					border: none;
+					border-radius: 999px;
+					background: var(--accent);
+					color: #fff;
+					font-family: "Inter", sans-serif;
+					font-size: 14px;
+					font-weight: 700;
+					cursor: pointer;
+					box-shadow: 0 4px 16px rgba(9, 84, 163, 0.35);
+					opacity: 0;
+					transform: translateY(10px);
+					pointer-events: none;
+					transition: opacity 0.25s ease, transform 0.25s ease;
+				}
+
+.mobile-filter-fab.is-visible {
+					opacity: 1;
+					transform: translateY(0);
+					pointer-events: auto;
+				}
+
+.mobile-filter-fab svg {
+					width: 17px;
+					height: 17px;
+					flex-shrink: 0;
+				}
+}
