@@ -23,21 +23,26 @@ const TABEL_PER_CATEGORIE = {
   koelkasten:  "koelkasten",
   vriezers:    "vriezers",
   soundbars:   "soundbars",
+  wasdrogers:  "wasdrogers",
 };
 
 /**
  * Rondt een aantal naar beneden af tot een "mooi" marketing-getal, altijd met
- * een "+"-suffix (nooit meer beloven dan er echt is):
- * < 100 → dichtstbijzijnde 10, 100-9999 → dichtstbijzijnde 100, 10.000+ →
- * dichtstbijzijnde 1000. Bijvoorbeeld 932 → "900+", 47 → "40+", 1748 →
- * "1700+", 12345 → "12000+". Pas vanaf 10.000 naar duizendtallen i.p.v. al
- * bij 1000 — anders verdwijnt bij bv. 1748 bijna 750 producten in de
- * afronding, wat de catalogus onnodig tekortdoet.
+ * een "+"-suffix (nooit meer beloven dan er echt is): < 1000 → dichtstbijzijnde
+ * 10, 1000-9999 → dichtstbijzijnde 100, 10.000+ → dichtstbijzijnde 1000.
+ * Bijvoorbeeld 161 → "160+", 897 → "890+", 1748 → "1700+", 12345 → "12000+".
+ *
+ * De vorige grens bij 100 (i.p.v. 1000) rondde een categorie die net boven de
+ * 100 zit veel te zwaar af: 161 wasdrogers werd "100+" (61 producten, 38% van
+ * de catalogus, verdwenen in de afronding) — trof ook vriezers (122→"100+",
+ * 18%) en soundbars (128→"100+", 22%). Onder de 1000 producten is een
+ * tiental-afronding nog steeds "mooi" genoeg voor een marketing-getal en
+ * houdt het verlies bij elke live categorie onder de 1%.
  */
 export function roundNiceCount(n) {
   if (!Number.isFinite(n) || n <= 0) return null;
   let step;
-  if (n < 100) step = 10;
+  if (n < 1000) step = 10;
   else if (n < 10000) step = 100;
   else step = 1000;
   const rounded = Math.floor(n / step) * step;

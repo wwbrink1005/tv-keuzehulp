@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h4>Huishouden &amp; Wonen</h4>
                 <ul>
                   <li><a href="wasmachine/vragen">Wasmachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><span>Wasdrogers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><a href="wasdroger/vragen">Wasdrogers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><span>Robotstofzuigers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
                 </ul>
               </div>
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <h4>Huishouden &amp; Wonen</h4>
             <ul>
               <li><a href="wasmachine/vragen">Wasmachines <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
-              <li><span>Wasdrogers</span></li>
+              <li><a href="wasdroger/vragen">Wasdrogers</a></li>
               <li><span>Robotstofzuigers</span></li>
             </ul>
           </div>
