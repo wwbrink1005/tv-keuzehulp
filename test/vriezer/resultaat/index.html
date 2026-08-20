@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../../../">
+    <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow">
+    <title>TEST — Bredere filter-sidebar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.icecat.biz" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="stylesheet" href="shared/menu.css" />
+    <link rel="stylesheet" href="shared/footer.css" />
+    <link rel="stylesheet" href="shared/resultaat.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="shared/menu.js" defer></script>
+    <script src="shared/footer.js" defer></script>
+    <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+.test-banner { background: #073d7a; color: #fff; font-size: 13px; font-weight: 600; text-align: center; padding: 8px 16px; }
+
+.restart-link { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 999px; background: var(--card-bg); border: 1px solid var(--line); font-size: 14px; font-weight: 500; color: var(--text-secondary); text-decoration: none; }
+.sort-button { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card-bg); color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; }
+.icon-button { width: 36px; height: 36px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--card-bg); display: inline-flex; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; }
+.clear-filters-btn { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border: 1.5px solid rgba(9,84,163,0.28); border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.tv-card { width: 100%; background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--line); padding: 20px 26px; display: flex; flex-direction: row; align-items: center; gap: 22px; box-shadow: var(--shadow-card); position: relative; overflow: hidden; animation: fadeUp 0.4s ease-out backwards; }
+.tv-card:hover { border-color: rgba(9,84,163,0.55); }
+
+/* ── VOORSTEL: bredere sidebar + labels mogen naar een 2e regel i.p.v.
+   afgekapt worden met "...". Alleen deze 2 regels zijn de eigenlijke
+   wijziging — de rest van dit blok is ongewijzigde structuur/responsive
+   CSS, gekopieerd van de echte pagina zodat dit exact zo aanvoelt. ── */
+:root { --filter-width: 280px; }
+.filter-label { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.35; }
+
+.label-tag { font-size: 12px; font-weight: 700; color: #0a7a4a; background: #e3f6ec; border: 1px solid #a8e0c2; padding: 4px 10px; border-radius: 999px; display: inline-block; margin: 14px 0 0 50px; }
+
+@media (max-width: 1200px) { .title-bar { padding: 16px 24px; } }
+@media (max-width: 1050px) { .tv-card-image { width: 155px; min-width: 155px; height: 122px; } .tv-card-providers { width: 270px; } }
+
+@media (max-width: 700px) {
+  .title-bar { padding: 12px 16px; }
+  .mobile-actions { display: flex; }
+  .title-left-wrap { display: none; }
+  .results-section { padding: 16px 16px var(--container-padding); }
+  .results-layout { display: block; gap: 0; }
+  .results-heading { padding-bottom: 1rem; }
+  .result-title { text-align: center; }
+  .filters-panel { position: fixed; top: 0; left: 0; bottom: 0; width: min(78vw, 300px); background: var(--page-bg); padding: 16px 14px 24px; box-shadow: 10px 0 30px rgba(0,0,0,0.12); transform: translateX(-105%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); z-index: 900; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+  .filters-panel.is-open { transform: translateX(0); }
+  .filter-drawer-close { display: inline-flex; }
+  .filters-panel-header { padding-bottom: 14px; margin-bottom: 4px; }
+  .mobile-actions { flex: 1; min-width: 0; }
+  .filter-toggle { flex: 1; width: auto; min-width: 0; gap: 7px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); color: var(--text-secondary); font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .restart-trigger, #infoTriggerMobile { width: 30px; height: 30px; border: none; background: none; color: var(--text-tertiary); flex-shrink: 0; }
+  .results-section-label { display: none; }
+  .results-heading { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 6px 8px; padding-bottom: 0.5rem; }
+  .result-title { font-size: 15.5px; }
+}
+
+@media (max-width: 1100px) {
+  .tv-card { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "badge badge" "image name" "points points" "specs specs" "providers providers"; column-gap: 14px; row-gap: 10px; padding: 16px; }
+  .tv-card-image { grid-area: image; width: 72px; min-width: 72px; height: 72px; margin-right: 0; }
+  .tv-card-body { display: contents; }
+  .tv-card-name { grid-area: name; align-self: center; }
+  .tv-card-points { grid-area: points; }
+  .tv-card-specs { grid-area: specs; padding-top: 10px; border-top: 1px solid var(--line); }
+  .tv-card-price { display: none; }
+  .tv-card-providers { grid-area: providers; width: auto; border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-top: 10px; }
+}
+    </style>
+  </head>
+  <body>
+
+    <div class="test-banner">TEST — filter-sidebar 230px → 280px + labels wrappen i.p.v. afkappen met "...". Niet live, alleen voor beoordeling.</div>
+
+    <!-- ── Title Bar ── -->
+    <div class="title-bar">
+      <div class="mobile-actions" aria-label="Snelle acties">
+        <button class="icon-button filter-toggle" type="button" aria-label="Open filters">
+          <i data-lucide="sliders-horizontal"></i>
+          <span>Filters</span>
+        </button>
+        <div class="restart-toggle">
+          <button class="icon-button restart-trigger" type="button" aria-label="Begin opnieuw">
+            <i data-lucide="rotate-ccw"></i>
+          </button>
+        </div>
+        <button class="icon-button" id="infoTriggerMobile" type="button" aria-label="Hoe werkt het?">
+          <i data-lucide="info"></i>
+        </button>
+      </div>
+
+      <div class="title-left-wrap">
+        <a class="restart-link" href="vriezer/vragen">
+          <i data-lucide="arrow-left"></i>
+          <span>Opnieuw beginnen</span>
+        </a>
+        <button class="info-btn" id="infoTriggerDesktop" type="button" aria-label="Hoe werkt het?">
+          <i data-lucide="info"></i>
+        </button>
+      </div>
+
+      <div class="results-toolbar">
+        <div class="sort-control">
+          <span class="sort-label">Sorteer:</span>
+          <button class="sort-button" type="button">
+            <span>Prijs (laag-hoog)</span>
+            <i data-lucide="chevrons-up-down"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Main Results ── -->
+    <main class="results-section">
+      <div class="results-layout">
+
+        <!-- Filters Sidebar -->
+        <aside id="filtersPanel" class="filters-panel" aria-label="Filters">
+          <div class="filters-panel-header">
+            <span class="filters-panel-label">Filters</span>
+            <button class="clear-filters-btn" type="button">Wis filters</button>
+            <button class="filter-drawer-close" type="button" aria-label="Sluit filters">
+              <i data-lucide="chevron-left"></i>
+            </button>
+          </div>
+
+          <div class="filter-card" data-filter="energielabel">
+            <h3 class="filter-title">Energielabel</h3>
+            <div class="filter-options">
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Label E</span><span class="filter-count">9</span></label>
+            </div>
+          </div>
+
+          <div class="filter-card" data-filter="nofrost">
+            <h3 class="filter-title">No Frost</h3>
+            <div class="filter-options">
+              <label class="filter-row"><input type="checkbox" class="filter-row-input" checked><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Alle</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Ja</span><span class="filter-count">19</span></label>
+            </div>
+          </div>
+
+          <div class="filter-card" data-filter="geluid">
+            <h3 class="filter-title">Geluidsniveau</h3>
+            <div class="filter-options">
+              <label class="filter-row"><input type="checkbox" class="filter-row-input" checked><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Alle</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Stil (&le; 38 dB)</span><span class="filter-count">18</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Normaal</span><span class="filter-count">1</span></label>
+            </div>
+          </div>
+
+          <div class="filter-card" data-filter="garage">
+            <h3 class="filter-title">Garage/schuur</h3>
+            <div class="filter-options">
+              <label class="filter-row"><input type="checkbox" class="filter-row-input" checked><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Alle</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Geschikt voor garage of schuur</span><span class="filter-count">17</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Voor binnenshuis</span><span class="filter-count">1</span></label>
+            </div>
+          </div>
+
+          <div class="filter-card" data-filter="aanbieder">
+            <h3 class="filter-title">Winkel</h3>
+            <div class="filter-options">
+              <label class="filter-row"><input type="checkbox" class="filter-row-input" checked><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Alle</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Coolblue</span><span class="filter-count">2</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">EP.</span><span class="filter-count">1</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">Expert</span><span class="filter-count">6</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">MediaMarkt</span><span class="filter-count">1</span></label>
+              <label class="filter-row"><input type="checkbox" class="filter-row-input"><span class="filter-check"><i data-lucide="check"></i></span><span class="filter-label">bol</span><span class="filter-count">18</span></label>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Results Heading -->
+        <div class="results-heading">
+          <p class="results-section-label">Jouw resultaten</p>
+          <h1 class="result-title">
+            <span>De vriezer die het beste bij je past!</span><span class="result-count-badge">28</span>
+          </h1>
+        </div>
+
+        <!-- Results Content -->
+        <div class="results-content">
+          <section class="other-matches">
+            <div class="other-matches-grid" style="display:flex;flex-direction:column;gap:18px;">
+
+              <div class="tv-card">
+                <div class="tv-card-image"><img src="https://images.icecat.biz/img/gallery/9412765_2560.jpg" alt="Whirlpool WVA35632 NFW" onerror="this.style.display='none'"></div>
+                <div class="tv-card-body">
+                  <p class="tv-card-name">Whirlpool WVA35632 NFW Vrieskast Vrijstaand 340 l Wit</p>
+                  <ul class="tv-card-points">
+                    <li><i data-lucide="check" class="tv-card-check"></i>340 liter inhoud, goed voor een gezin van 3 tot 4 personen</li>
+                    <li><i data-lucide="check" class="tv-card-check"></i>Nooit meer ontdooien dankzij No Frost</li>
+                    <li><i data-lucide="check" class="tv-card-check"></i>Vrijstaand model, overal in huis te plaatsen</li>
+                    <li><i data-lucide="check" class="tv-card-check"></i>Geluidsniveau van 40 dB</li>
+                  </ul>
+                  <p class="tv-card-specs">Vrijstaand kastmodel &middot; 340 L &middot; Energielabel E &middot; 40 dB</p>
+                  <p class="tv-card-price">v.a. &euro;&nbsp;699</p>
+                </div>
+                <div class="tv-card-providers">
+                  <div class="tv-providers-list">
+                    <a href="#" class="tv-provider-row">
+                      <div class="tv-provider-left">
+                        <div class="tv-provider-name-line"><span class="tv-provider-name">bol</span><span class="tv-provider-fast-chip">Snelst</span></div>
+                        <div class="tv-provider-badges">
+                          <span class="tv-provider-badge"><i data-lucide="truck" class="tv-provider-badge-icon"></i>Morgen in huis</span>
+                          <span class="tv-provider-badge is-free"><i data-lucide="euro" class="tv-provider-badge-icon"></i>Gratis verzending</span>
+                        </div>
+                      </div>
+                      <div class="tv-provider-right"><span class="tv-provider-price">&euro;&nbsp;699</span><span class="tv-provider-arrow"><i data-lucide="chevron-right"></i></span></div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tv-card">
+                <div class="tv-card-image"><img src="https://images.icecat.biz/img/gallery/9548833_2560.jpg" alt="Samsung 1-deursvriezer Smart Conversion" onerror="this.style.display='none'"></div>
+                <div class="tv-card-body">
+                  <p class="tv-card-name">Samsung 1-deursvriezer Smart Conversion 323L</p>
+                  <ul class="tv-card-points">
+                    <li><i data-lucide="check" class="tv-card-check"></i>323 liter inhoud, goed voor een gezin van 3 tot 4 personen</li>
+                    <li><i data-lucide="check" class="tv-card-check"></i>Stil in gebruik (36 dB)</li>
+                    <li><i data-lucide="check" class="tv-card-check"></i>Nooit meer ontdooien dankzij No Frost</li>
+                    <li><i data-lucide="check" class="tv-card-check"></i>Geschikt voor een garage of schuur</li>
+                  </ul>
+                  <p class="tv-card-specs">Vrijstaand kastmodel &middot; 323 L &middot; Energielabel E &middot; 36 dB</p>
+                  <p class="tv-card-price">v.a. &euro;&nbsp;699</p>
+                </div>
+                <div class="tv-card-providers">
+                  <div class="tv-providers-list">
+                    <a href="#" class="tv-provider-row">
+                      <div class="tv-provider-left">
+                        <div class="tv-provider-name-line"><span class="tv-provider-name">bol</span><span class="tv-provider-fast-chip">Snelst</span></div>
+                        <div class="tv-provider-badges">
+                          <span class="tv-provider-badge"><i data-lucide="truck" class="tv-provider-badge-icon"></i>Morgen in huis</span>
+                          <span class="tv-provider-badge is-free"><i data-lucide="euro" class="tv-provider-badge-icon"></i>Gratis verzending</span>
+                        </div>
+                      </div>
+                      <div class="tv-provider-right"><span class="tv-provider-price">&euro;&nbsp;699</span><span class="tv-provider-arrow"><i data-lucide="chevron-right"></i></span></div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+        </div>
+
+      </div>
+    </main>
+
+    <script>
+      if (window.lucide) window.lucide.createIcons();
+    </script>
+
+  </body>
+</html>

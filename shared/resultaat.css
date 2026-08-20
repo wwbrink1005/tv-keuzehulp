@@ -15,7 +15,7 @@
   --text-tertiary: #86868b;
   --line: #e8eaed;
   --container-max: 1100px;
-  --filter-width: 230px;
+  --filter-width: 280px;
   --filter-gap: 28px;
   --container-padding: clamp(16px, 4vw, 48px);
   --radius-sm: 10px;
@@ -299,9 +299,7 @@ body.filter-drawer-open {
 				font-size: 13.5px;
 				font-weight: 500;
 				color: var(--text-secondary);
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
+				line-height: 1.35;
 			}
 
 .filter-row:has(input:checked) .filter-label {
