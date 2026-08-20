@@ -31,10 +31,17 @@ bestaande tabellen (`televisies`, `laptops`, `monitoren`, `desktops`):
 
 - `ean` (primary key-achtig, tekst)
 - `merk`
-- `coolblue_naam`, `coolblue_prijs`, `coolblue_affiliate_link`, `coolblue_levertijd`,
-  `coolblue_bezorgkosten`, `coolblue_afbeelding`
-- `expert_naam`, `expert_prijs`, `expert_affiliate_link`, `expert_levertijd`,
-  `expert_bezorgkosten`, `expert_afbeelding`
+- `titel` — **verplicht, wordt gemist als je 'm vergeet.** `merge_publish.py`'s `_bouw_rij()`
+  schrijft altijd een generieke `titel`-kolom (prioriteit: winkel-naam > Icecat-titel > ruwe
+  naam) naar **elke** tabel, los van `spec_mapping` — ontbreekt de kolom, dan faalt de
+  eerste pipeline-run met `Could not find the 'titel' column ... in the schema cache`
+  (echt gebeurd bij wasdroger's eerste run). Voeg 'm dus altijd toe aan een nieuwe tabel,
+  ook al staat hij nergens in `spec_mapping`.
+- `aanbieders` (jsonb, default `'[]'::jsonb`) — generieke kolom voor alle affiliate-
+  aanbieders (Coolblue/Expert/EP/MediaMarkt/bol/...), zie `migrations/aanbieders_jsonb.sql`.
+  Nieuwe tabellen hebben **geen** losse `coolblue_naam`/`expert_naam`-kolommen meer nodig —
+  dat was het oude patroon vóór deze migratie, gebruik voor een nieuwe categorie altijd de
+  jsonb-kolom (zie `vriezers_create_table.sql`/`wasdrogers_create_table.sql` als sjabloon).
 - `icecat_afbeelding`, `icecat_afbeeldingen` (array)
 - Categorie-specifieke spec-kolommen — bepaal deze via Icecat (zie stap 3), niet vooraf
   verzinnen.
