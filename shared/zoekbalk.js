@@ -65,6 +65,33 @@ const keuzehulpen = [
     ],
     url: "vriezer/vragen",
   },
+  {
+    title: "Wasdroger keuzehulp",
+    keywords: [
+      "wasdroger", "wasdrogers", "droger", "drogers", "droogtrommel",
+      "condensdroger", "warmtepompdroger", "afvoerdroger",
+    ],
+    url: "wasdroger/vragen",
+  },
+  {
+    title: "Vaatwasser keuzehulp",
+    keywords: [
+      "vaatwasser", "vaatwassers", "afwasmachine", "afwasautomaat",
+      "inbouwvaatwasser", "inbouw vaatwasser",
+      "vrijstaande vaatwasser", "vrijstaand",
+      "onderbouwvaatwasser", "onderbouw",
+    ],
+    url: "vaatwasser/vragen",
+  },
+  {
+    title: "Robotstofzuiger keuzehulp",
+    keywords: [
+      "robotstofzuiger", "robotstofzuigers", "robot stofzuiger",
+      "stofzuigerrobot", "robotstofzuig",
+      "dweilrobot", "dweilfunctie", "zelfledigend",
+    ],
+    url: "robotstofzuiger/vragen",
+  },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();

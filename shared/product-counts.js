@@ -25,6 +25,7 @@ const TABEL_PER_CATEGORIE = {
   soundbars:   "soundbars",
   wasdrogers:  "wasdrogers",
   vaatwassers: "vaatwassers",
+  robotstofzuigers: "robotstofzuigers",
 };
 
 /**

@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <ul>
                   <li><a href="wasmachine/vragen">Wasmachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><a href="wasdroger/vragen">Wasdrogers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><span>Robotstofzuigers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></li>
+                  <li><a href="robotstofzuiger/vragen">Robotstofzuigers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                 </ul>
               </div>
               <div class="menu-dropdown-col">
@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <ul>
               <li><a href="wasmachine/vragen">Wasmachines <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><a href="wasdroger/vragen">Wasdrogers</a></li>
-              <li><span>Robotstofzuigers</span></li>
+              <li><a href="robotstofzuiger/vragen">Robotstofzuigers</a></li>
             </ul>
           </div>
           <div class="mobile-cat-group">
