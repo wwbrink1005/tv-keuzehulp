@@ -607,6 +607,20 @@ AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
   `shared/resultaat.css` (`.filters-blog-block`/`.filters-blog-eyebrow`/`.filters-blog-link`/
   `.filters-blog-link-icon`), dus alleen de HTML-markup toevoegen — kopieer het patroon 1-op-1
   uit een recente categorie zoals koelkast of soundbar.
+- **Top-CTA-kaart + sticky CTA-balk in elk blogartikel** (sinds augustus 2026 standaard,
+  niet optioneel): elk `{categorie}/blog/{slug}/index.html` krijgt (1) een compacte
+  `.article-top-cta`-kaart direct na de intro-alinea, vóór de hero-afbeelding — kort tekstje
+  + "Start de keuzehulp"-knop, zodat een bezoeker die zomaar binnenkomt via Google de CTA
+  meteen ziet zonder te hoeven scrollen, en (2) een `.sticky-cta`-balk die onderin het scherm
+  vastplakt zodra je voorbij die kaart scrolt en weer verdwijnt zodra de bestaande CTA
+  onderaan het artikel (`.article-cta`) in beeld komt (voorkomt twee zichtbare CTA's
+  tegelijk). Reden: bezoekers die het hele artikel lazen kwamen de CTA voorheen pas
+  helemaal onderaan tegen. Werkt met een kleine `IntersectionObserver`-script (geen
+  dependency) die kijkt of de top-kaart en de onderste CTA in beeld zijn. Kopieer de CSS
+  (`.article-top-cta*`/`.sticky-cta*`), de HTML (`#articleTopCta`/`#stickyCta`) en het
+  script 1-op-1 uit een bestaand artikel, bijvoorbeeld `tv/blog/oled-vs-qled/index.html` —
+  alleen de `href` (`{categorie}/vragen`) en de sticky-tekst (dezelfde zin als de `<h3>` in
+  de bestaande onderste `.article-cta`) hoeven per artikel aangepast te worden.
 - **`sitemap.xml`**: nieuwe `<url>`-entries voor de gidspagina (`https://producthulp.nl/{categorie}/`,
   prioriteit 0.9), de keuzehulp (`.../{categorie}/vragen/`, prioriteit 0.7) en elk
   blogartikel (`.../{categorie}/blog/{slug}/`, prioriteit 0.6). De `resultaat/`-pagina hoort

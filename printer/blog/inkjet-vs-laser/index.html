@@ -217,6 +217,107 @@
         box-shadow: 0 12px 32px rgba(9, 84, 163, 0.32);
       }
       .article-cta-btn svg { width: 18px; height: 18px; }
+      /* ── Top CTA card (compact, direct onder de intro) ── */
+      .article-top-cta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        background: var(--color-primary);
+        border-radius: var(--radius-lg);
+        padding: 20px 26px;
+        margin: 24px 0;
+      }
+      .article-top-cta-text {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #fff;
+      }
+      .article-top-cta-text svg {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        opacity: 0.9;
+      }
+      .article-top-cta-text span {
+        font-size: 14.5px;
+        font-weight: 600;
+        line-height: 1.4;
+      }
+      .article-top-cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        color: var(--color-primary);
+        font-size: 14.5px;
+        font-weight: 700;
+        padding: 12px 22px;
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .article-top-cta-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+      }
+      .article-top-cta-btn svg { width: 15px; height: 15px; }
+
+      @media (max-width: 560px) {
+        .article-top-cta {
+          flex-direction: column;
+          align-items: stretch;
+          text-align: center;
+        }
+        .article-top-cta-text { justify-content: center; }
+        .article-top-cta-btn { justify-content: center; }
+      }
+
+      /* ── Sticky CTA-balk (verschijnt bij scrollen, verdwijnt bij de echte CTA onderaan) ── */
+      .sticky-cta {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 40;
+        background: var(--color-primary);
+        padding: 14px clamp(20px, 5vw, 32px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+      }
+      .sticky-cta.is-visible { transform: translateY(0); }
+      .sticky-cta span {
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        display: none;
+      }
+      .sticky-cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        color: var(--color-primary);
+        font-size: 14.5px;
+        font-weight: 700;
+        padding: 12px 26px;
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .sticky-cta-btn svg { width: 15px; height: 15px; }
+
+      @media (min-width: 560px) {
+        .sticky-cta span { display: inline; }
+      }
     </style>
   </head>
   <body>
@@ -238,6 +339,19 @@
           <h1>Inkjet of laser: welke printer past bij jou?</h1>
           <p class="article-intro">Inkjet en laser zijn de twee belangrijkste printertechnologieën, elk met hun eigen sterke punten. De juiste keuze hangt vooral af van wat en hoeveel je print.</p>
         </header>
+
+        <div class="wrap">
+          <div class="article-top-cta" id="articleTopCta">
+            <div class="article-top-cta-text">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/></svg>
+              <span>Liever meteen persoonlijk advies dan zelf uitzoeken? Doe de gratis keuzehulp.</span>
+            </div>
+            <a class="article-top-cta-btn guide-cta" href="printer/vragen">
+              Start de keuzehulp
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+        </div>
 
         <div class="wrap">
           <div class="article-hero-img">
@@ -289,8 +403,41 @@
             </a>
           </div>
         </div>
-      </article>
+
+      <div class="sticky-cta" id="stickyCta">
+        <span>Twijfel je nog welke printer bij jou past?</span>
+        <a class="sticky-cta-btn guide-cta" href="printer/vragen">
+          Start de keuzehulp
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
 
     </main>
+
+    <script>
+      (function () {
+        var topCta = document.getElementById("articleTopCta");
+        var bottomCta = document.querySelector(".article-cta");
+        var stickyCta = document.getElementById("stickyCta");
+        if (!topCta || !bottomCta || !stickyCta || !("IntersectionObserver" in window)) return;
+
+        var pastTopCta = false;
+        var pastBottomCta = false;
+
+        function update() {
+          stickyCta.classList.toggle("is-visible", pastTopCta && !pastBottomCta);
+        }
+
+        new IntersectionObserver(function (entries) {
+          pastTopCta = !entries[0].isIntersecting && entries[0].boundingClientRect.top < 0;
+          update();
+        }, { threshold: 0 }).observe(topCta);
+
+        new IntersectionObserver(function (entries) {
+          pastBottomCta = entries[0].isIntersecting;
+          update();
+        }, { threshold: 0.2 }).observe(bottomCta);
+      })();
+    </script>
   </body>
 </html>

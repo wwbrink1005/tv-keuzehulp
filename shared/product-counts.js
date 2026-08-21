@@ -24,6 +24,7 @@ const TABEL_PER_CATEGORIE = {
   vriezers:    "vriezers",
   soundbars:   "soundbars",
   wasdrogers:  "wasdrogers",
+  vaatwassers: "vaatwassers",
 };
 
 /**
