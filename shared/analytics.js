@@ -3,7 +3,7 @@
 // aanpassingen nodig zijn in de per-categorie quiz.js/result.js bestanden.
 (function () {
   // Houd in sync met de categorieen in shared/zoekbalk.js en blog/index.html.
-  const CATEGORIES = ["tv", "laptop", "monitor", "desktop", "printer", "wasmachine", "koelkast"];
+  const CATEGORIES = ["tv", "laptop", "monitor", "desktop", "printer", "wasmachine", "koelkast", "soundbar", "vriezer", "wasdroger", "vaatwasser", "robotstofzuiger"];
 
   function getCategoryAndStage() {
     const match = window.location.pathname.match(/^\/([^/]+)\/(vragen|resultaat)\/?/);

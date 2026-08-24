@@ -154,8 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
             <h4>Huishouden &amp; Wonen</h4>
             <ul>
               <li><a href="wasmachine/vragen">Wasmachines <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
-              <li><a href="wasdroger/vragen">Wasdrogers</a></li>
-              <li><a href="robotstofzuiger/vragen">Robotstofzuigers</a></li>
+              <li><a href="wasdroger/vragen">Wasdrogers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="robotstofzuiger/vragen">Robotstofzuigers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
             </ul>
           </div>
           <div class="mobile-cat-group">
@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <ul>
               <li><a href="koelkast/vragen">Koelkasten <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><a href="vriezer/vragen">Vriezers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
-              <li><a href="vaatwasser/vragen">Vaatwassers</a></li>
+              <li><a href="vaatwasser/vragen">Vaatwassers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
             </ul>
           </div>
         </div>
