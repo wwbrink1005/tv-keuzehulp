@@ -27,6 +27,7 @@ const TABEL_PER_CATEGORIE = {
   vaatwassers: "vaatwassers",
   robotstofzuigers: "robotstofzuigers",
   airfryers: "airfryers",
+  beamers: "beamers",
 };
 
 /**

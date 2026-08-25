@@ -101,6 +101,15 @@ const keuzehulpen = [
     ],
     url: "airfryer/vragen",
   },
+  {
+    title: "Beamer keuzehulp",
+    keywords: [
+      "beamer", "beamers", "projector", "projectoren", "beamerscherm",
+      "mini beamer", "mini-beamer", "draagbare beamer",
+      "korte projectieafstand", "short throw",
+    ],
+    url: "beamer/vragen",
+  },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();

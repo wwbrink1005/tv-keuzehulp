@@ -56,7 +56,7 @@
         --max-width: 1200px;
       }
 
-      * { box-sizing: border-box; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
 
       body {
         font-family: var(--font-body);
@@ -263,6 +263,55 @@
       .blog-empty svg { width: 40px; height: 40px; opacity: 0.35; margin: 0 auto 16px; }
       .blog-empty p { margin: 0; font-size: 15px; }
 
+      /* ── Pagination ── */
+      .blog-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        padding-top: 40px;
+      }
+      .blog-pagination.is-hidden { display: none; }
+      .blog-page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 38px;
+        height: 38px;
+        padding: 0 10px;
+        border-radius: var(--radius-full);
+        border: 1.5px solid var(--color-border);
+        background: #fff;
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+      }
+      .blog-page-btn:hover:not(:disabled) {
+        border-color: rgba(9, 84, 163, 0.4);
+        color: var(--color-primary);
+      }
+      .blog-page-btn.is-active {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: #fff;
+      }
+      .blog-page-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .blog-page-btn svg { width: 16px; height: 16px; }
+      .blog-page-ellipsis {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        color: var(--color-text-secondary);
+        font-size: 14px;
+      }
+
       @media (max-width: 900px) {
         .blog-grid { grid-template-columns: repeat(2, 1fr); }
       }
@@ -316,6 +365,7 @@
         <button class="blog-filter-chip" type="button" data-category="vaatwasser" role="tab" aria-selected="false">Vaatwasser</button>
         <button class="blog-filter-chip" type="button" data-category="robotstofzuiger" role="tab" aria-selected="false">Robotstofzuiger</button>
         <button class="blog-filter-chip" type="button" data-category="airfryer" role="tab" aria-selected="false">Airfryer</button>
+        <button class="blog-filter-chip" type="button" data-category="beamer" role="tab" aria-selected="false">Beamer</button>
       </div>
 
       <p class="blog-results-status" id="blogResultsStatus"></p>
@@ -326,6 +376,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <p>Geen artikelen gevonden. Probeer een andere zoekterm of categorie.</p>
         </div>
+        <nav class="blog-pagination" id="blogPagination" aria-label="Paginering"></nav>
       </section>
 
     </main>
@@ -648,6 +699,30 @@
           category: "airfryer",
           categoryLabel: "Airfryer",
         },
+        {
+          title: "Hoeveel lumen heeft jouw beamer nodig?",
+          excerpt: "Wat lumen betekent, en hoeveel je nodig hebt afhankelijk van de lichtomstandigheden in je kamer.",
+          url: "beamer/blog/beamer-lumen-uitgelegd/",
+          image: "beamer/blog/beamer-lumen-uitgelegd/images/beamer-lumen-uitgelegd.png",
+          category: "beamer",
+          categoryLabel: "Beamer",
+        },
+        {
+          title: "Hoeveel ruimte heb je nodig voor een beamer?",
+          excerpt: "Wat de projectieafstand betekent, en wanneer een model met korte projectieafstand handiger is.",
+          url: "beamer/blog/beamer-projectieafstand-bepalen/",
+          image: "beamer/blog/beamer-projectieafstand-bepalen/images/beamer-projectieafstand-bepalen.png",
+          category: "beamer",
+          categoryLabel: "Beamer",
+        },
+        {
+          title: "Kun je een beamer overdag gebruiken?",
+          excerpt: "Waar je op moet letten om ook bij daglicht een helder beeld te krijgen.",
+          url: "beamer/blog/beamer-overdag-gebruiken/",
+          image: "beamer/blog/beamer-overdag-gebruiken/images/beamer-overdag-gebruiken.png",
+          category: "beamer",
+          categoryLabel: "Beamer",
+        },
       ];
 
       const FALLBACK_IMG = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect width=%22400%22 height=%22300%22 fill=%22%23f5f5f7%22/%3E%3Cg transform=%22translate(183,133)%22%3E%3Cpath d=%22m17 2-5 5-5-5%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3Crect width=%2220%22 height=%2215%22 x=%222%22 y=%227%22 rx=%222%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3C/g%3E%3C/svg%3E";
@@ -674,18 +749,35 @@
         `;
       }
 
+      const ARTICLES_PER_PAGE = 12;
+
+      function renderPageBtn(label, { page = null, isActive = false, isDisabled = false, ariaLabel = null } = {}) {
+        const attrs = [
+          `class="blog-page-btn${isActive ? " is-active" : ""}"`,
+          `type="button"`,
+          page !== null ? `data-page="${page}"` : "",
+          isDisabled ? "disabled" : "",
+          isActive ? `aria-current="page"` : "",
+          ariaLabel ? `aria-label="${ariaLabel}"` : "",
+        ].filter(Boolean).join(" ");
+        return `<button ${attrs}>${label}</button>`;
+      }
+
       function init() {
         const grid = document.getElementById("blogGrid");
         const empty = document.getElementById("blogEmpty");
         const status = document.getElementById("blogResultsStatus");
         const searchInput = document.getElementById("blogSearchInput");
         const filterChips = Array.from(document.querySelectorAll(".blog-filter-chip"));
+        const pagination = document.getElementById("blogPagination");
+        const blogSection = document.querySelector(".blog-section");
 
         let activeCategory = "alle";
+        let currentPage = 1;
 
-        function applyFilters() {
+        function getFilteredResults() {
           const query = searchInput.value.trim().toLowerCase();
-          const results = BLOG_ARTICLES.filter((article) => {
+          return BLOG_ARTICLES.filter((article) => {
             const matchesCategory = activeCategory === "alle" || article.category === activeCategory;
             const matchesQuery =
               !query ||
@@ -695,12 +787,70 @@
               article.category.toLowerCase().includes(query);
             return matchesCategory && matchesQuery;
           });
+        }
 
-          grid.innerHTML = results.map(renderCard).join("");
+        function renderPagination(totalPages) {
+          if (totalPages <= 1) {
+            pagination.innerHTML = "";
+            pagination.classList.add("is-hidden");
+            return;
+          }
+          pagination.classList.remove("is-hidden");
+
+          const prevArrow = `<polyline points="15 18 9 12 15 6"/>`;
+          const nextArrow = `<polyline points="9 18 15 12 9 6"/>`;
+          const parts = [];
+
+          parts.push(renderPageBtn(
+            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${prevArrow}</svg>`,
+            { page: currentPage - 1, isDisabled: currentPage === 1, ariaLabel: "Vorige pagina" }
+          ));
+
+          const pages = new Set([1, totalPages, currentPage, currentPage - 1, currentPage + 1]);
+          let prevShown = 0;
+          for (let p = 1; p <= totalPages; p++) {
+            if (!pages.has(p)) continue;
+            if (p - prevShown > 1) parts.push(`<span class="blog-page-ellipsis">…</span>`);
+            parts.push(renderPageBtn(String(p), { page: p, isActive: p === currentPage }));
+            prevShown = p;
+          }
+
+          parts.push(renderPageBtn(
+            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${nextArrow}</svg>`,
+            { page: currentPage + 1, isDisabled: currentPage === totalPages, ariaLabel: "Volgende pagina" }
+          ));
+
+          pagination.innerHTML = parts.join("");
+
+          pagination.querySelectorAll(".blog-page-btn[data-page]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              currentPage = parseInt(btn.dataset.page, 10);
+              renderResults();
+              blogSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+          });
+        }
+
+        function renderResults() {
+          const results = getFilteredResults();
+          const totalPages = Math.max(1, Math.ceil(results.length / ARTICLES_PER_PAGE));
+          currentPage = Math.min(currentPage, totalPages);
+
+          const start = (currentPage - 1) * ARTICLES_PER_PAGE;
+          const pageResults = results.slice(start, start + ARTICLES_PER_PAGE);
+
+          grid.innerHTML = pageResults.map(renderCard).join("");
           empty.classList.toggle("is-visible", results.length === 0);
           status.textContent = results.length === 1
             ? "1 artikel gevonden"
             : `${results.length} artikelen gevonden`;
+
+          renderPagination(totalPages);
+        }
+
+        function applyFilters() {
+          currentPage = 1;
+          renderResults();
         }
 
         filterChips.forEach((chip) => {
