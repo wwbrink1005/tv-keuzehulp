@@ -92,6 +92,15 @@ const keuzehulpen = [
     ],
     url: "robotstofzuiger/vragen",
   },
+  {
+    title: "Airfryer keuzehulp",
+    keywords: [
+      "airfryer", "airfryers", "air fryer", "heteluchtfriteuse",
+      "friteuse", "hetelucht friteuse",
+      "dubbele lade", "dubbele airfryer",
+    ],
+    url: "airfryer/vragen",
+  },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();

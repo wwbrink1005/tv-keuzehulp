@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <li><a href="koelkast/vragen">Koelkasten <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><a href="vriezer/vragen">Vriezers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                   <li><a href="vaatwasser/vragen">Vaatwassers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  <li><a href="airfryer/vragen">Airfryers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
                 </ul>
               </div>
             </div>
@@ -164,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <li><a href="koelkast/vragen">Koelkasten <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><a href="vriezer/vragen">Vriezers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><a href="vaatwasser/vragen">Vaatwassers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="airfryer/vragen">Airfryers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
             </ul>
           </div>
         </div>

@@ -26,6 +26,7 @@ const TABEL_PER_CATEGORIE = {
   wasdrogers:  "wasdrogers",
   vaatwassers: "vaatwassers",
   robotstofzuigers: "robotstofzuigers",
+  airfryers: "airfryers",
 };
 
 /**
