@@ -28,6 +28,7 @@ const TABEL_PER_CATEGORIE = {
   robotstofzuigers: "robotstofzuigers",
   airfryers: "airfryers",
   beamers: "beamers",
+  koffiemachines: "koffiemachines",
 };
 
 /**

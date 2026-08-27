@@ -575,8 +575,8 @@ dit hoort er standaard bij, niet als los, later toe te voegen werk. Titels/besch
 altijd als natuurlijke zin schrijven, **geen streepje (–) als verbindingsteken** (leest als
 AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
 
-- **`<title>`** op `vragen/index.html`: actiegericht, patroon `"Start de {Categorie}
-  Keuzehulp en ontvang direct persoonlijk advies"`.
+- **`<title>`** op `vragen/index.html`: actiegericht, patroon `"{Categorie}
+  Keuzehulp - ontvang direct persoonlijk advies"`.
 - **`<meta name="description">`** op `vragen/index.html`: actiegericht, sluit aan bij de
   titel (bijv. "Doe de gratis {Categorie} Keuzehulp: beantwoord een paar korte vragen over
   ... en ontvang direct een persoonlijk advies op maat.").

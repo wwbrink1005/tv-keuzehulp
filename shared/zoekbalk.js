@@ -110,6 +110,15 @@ const keuzehulpen = [
     ],
     url: "beamer/vragen",
   },
+  {
+    title: "Koffiemachine keuzehulp",
+    keywords: [
+      "koffiemachine", "koffiemachines", "koffiezetapparaat", "espressomachine",
+      "volautomaat", "halfautomaat", "koffiecupmachine", "koffiepadmachine",
+      "filterkoffiezetapparaat", "capsulemachine", "nespresso", "dolce gusto",
+    ],
+    url: "koffiemachine/vragen",
+  },
 ];
 
 const normalize = (value) => value.trim().toLowerCase();
