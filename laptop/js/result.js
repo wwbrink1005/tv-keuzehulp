@@ -1,4 +1,4 @@
-import { buildResultPoints } from "./matching.js";
+import { applyMinAanbiedersCascade, buildResultPoints } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { buildProvidersHtml, resetProvidersRegistry } from "../../shared/aanbieders.js";
 
@@ -219,10 +219,14 @@ export function initResultPage() {
 
   const bestMatch           = JSON.parse(bestMatchData);
   const answers             = answersData ? JSON.parse(answersData) : null;
-  const filteredMatchedLaptops = filteredData ? JSON.parse(filteredData) : [];
+  const rawFilteredMatchedLaptops = filteredData ? JSON.parse(filteredData) : [];
+
+  const { result: filteredMatchedLaptops } = applyMinAanbiedersCascade(
+    Array.isArray(rawFilteredMatchedLaptops) ? rawFilteredMatchedLaptops : []
+  );
 
   currentAnswers = answers;
-  baseMatches    = Array.isArray(filteredMatchedLaptops) ? filteredMatchedLaptops : [];
+  baseMatches    = filteredMatchedLaptops;
 
   initSortControl();
   applySortAndRender("price-asc");

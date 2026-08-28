@@ -1,11 +1,9 @@
 import { priceGroupsFallback } from "./data.js";
-import { matchKoffiemachines, classificeerType, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
+import { matchKoffiemachines, classificeerType } from "./matching.js";
 import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
-import { updateResultMatches } from "./result.js";
+import { updateResultMatches } from "./result-test.js";
 import { fetchProducts } from "./supabase.js";
 import { computeCounts, renderFilterList } from "../../shared/filters.js";
-
-const MIN_AANBIEDERS_OPTIONS = [1, 2, 3, 4, 5];
 
 const filterState = {
   priceLabels:      new Set(),
@@ -17,7 +15,6 @@ const filterState = {
   functies:         new Set(),
   varianten:        new Set(),
   aanbieder:        new Set(),
-  minAanbieders:    DEFAULT_MIN_AANBIEDERS,
   baseMatches:      [],
   answers:          null,
   bestType:         "",
@@ -74,19 +71,6 @@ function getPriceScopedMatches() {
     const price = parsePrice(b.prijs);
     return groups.some(g => price >= g.min && price <= g.max);
   });
-}
-
-// Basis voor de tellingen op alle secundaire filterkaarten: prijs-gescoped
-// én al beperkt tot de huidige "aantal winkels"-drempel, zodat de getoonde
-// aantallen kloppen met wat er na alle filters daadwerkelijk overblijft.
-function getSecondaryScopedMatches() {
-  return getPriceScopedMatches().filter(b => (b.aanbieders ?? []).length >= filterState.minAanbieders);
-}
-
-// Voor de prijsfilter-kaart zelf: die rekent zijn eigen buckets uit de
-// ongescoopte basis, dus alleen de winkel-drempel toepassen, niet prijs zelf.
-function getBaseScopedByMinAanbieders() {
-  return getBaseMatches().filter(b => (b.aanbieders ?? []).length >= filterState.minAanbieders);
 }
 
 function formatBrandLabel(brand) {
@@ -205,18 +189,8 @@ function applyFilters() {
     );
   }
 
-  // "Aantal winkels" als allerlaatste stap toepassen, met cascade-fallback:
-  // levert de gekozen (of standaard) drempel 0 resultaten op in combinatie
-  // met de overige filters, dan automatisch verlagen tot en met 1. Als dat
-  // de selectie wijzigt, opnieuw renderen zodat de zijbalk het laat zien.
-  const { effectiveMin, result: final } = applyMinAanbiedersCascade(filtered, filterState.minAanbieders);
-  const cascaded = effectiveMin !== filterState.minAanbieders;
-  if (cascaded) filterState.minAanbieders = effectiveMin;
-
   updateClearFiltersBtn();
-  updateResultMatches(final, filterState.answers, filterState.bestType);
-
-  if (cascaded) renderAllFilters();
+  updateResultMatches(filtered, filterState.answers, filterState.bestType);
 }
 
 function updateClearFiltersBtn() {
@@ -224,75 +198,14 @@ function updateClearFiltersBtn() {
   if (!btn) return;
   const hasActive = filterState.priceLabels.size > 0 || filterState.typeProducts.size > 0 ||
     filterState.koffieInvoertypes.size > 0 || filterState.capsuleSystemen.size > 0 || filterState.brands.size > 0 || filterState.kleuren.size > 0 ||
-    filterState.functies.size > 0 || filterState.varianten.size > 0 || filterState.aanbieder.size > 0 ||
-    filterState.minAanbieders !== DEFAULT_MIN_AANBIEDERS;
+    filterState.functies.size > 0 || filterState.varianten.size > 0 || filterState.aanbieder.size > 0;
   btn.hidden = !hasActive;
 }
 
-function renderMinAanbiedersOptions(container, card) {
-  if (!container || !card) return;
-  const matches = getPriceScopedMatches();
-  const options = MIN_AANBIEDERS_OPTIONS.map(n => ({
-    n,
-    count: matches.filter(b => (b.aanbieders ?? []).length >= n).length,
-  })).filter(o => o.count > 0);
-
-  // Corrigeer de drempel naar een geldige optie VOORDAT de kaart eventueel
-  // wordt verborgen — anders blijft filterState.minAanbieders op een
-  // onhaalbare waarde staan en gaan de kaarten hieronder (die via
-  // getSecondaryScopedMatches()/getBaseScopedByMinAanbieders() dezelfde
-  // drempel gebruiken) ten onrechte allemaal leeg renderen.
-  if (options.length > 0 && !options.some(o => o.n === filterState.minAanbieders)) {
-    const fallback = options.find(o => o.n === DEFAULT_MIN_AANBIEDERS) || options[options.length - 1];
-    filterState.minAanbieders = fallback.n;
-  }
-
-  if (options.length <= 1) { container.innerHTML = ""; card.hidden = true; return; }
-  card.hidden = false;
-
-  container.innerHTML = "";
-  const list = document.createElement("div");
-  list.className = "filter-list";
-  container.appendChild(list);
-
-  options.forEach(({ n, count }) => {
-    const label = document.createElement("label");
-    label.className = "filter-row";
-
-    const input = document.createElement("input");
-    input.type = "radio";
-    input.name = "minAanbiedersFilter";
-    input.value = String(n);
-    input.checked = filterState.minAanbieders === n;
-    input.className = "filter-row-input";
-
-    const check = document.createElement("span");
-    check.className = "filter-check";
-    check.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>';
-
-    const labelText = document.createElement("span");
-    labelText.className = "filter-label";
-    labelText.append(document.createTextNode(n === 1 ? "Alle winkels" : `${n}+ winkels`));
-    if (n === DEFAULT_MIN_AANBIEDERS) {
-      labelText.classList.add("has-badge");
-      const recommended = document.createElement("span");
-      recommended.className = "filter-recommended-badge";
-      recommended.textContent = "Aanbevolen";
-      labelText.appendChild(recommended);
-    }
-
-    const countEl = document.createElement("span");
-    countEl.className = "filter-count";
-    countEl.textContent = String(count);
-
-    label.append(input, check, labelText, countEl);
-    list.appendChild(label);
-  });
-}
-
 function renderAllFilters() {
+  const matches = getPriceScopedMatches();
+
   const priceContainer      = qs("[data-filter-container='price']");
-  const minAanbiedersContainer = qs("[data-filter-container='min-aanbieders']");
   const typeContainer       = qs("[data-filter-container='type']");
   const invoerContainer     = qs("[data-filter-container='invoertype']");
   const capsuleContainer    = qs("[data-filter-container='capsulesysteem']");
@@ -303,7 +216,6 @@ function renderAllFilters() {
   const aanbiederContainer  = qs("[data-filter-container='aanbieder']");
 
   const priceCard      = qs(".filter-card[data-filter='price']");
-  const minAanbiedersCard = qs(".filter-card[data-filter='min-aanbieders']");
   const typeCard       = qs(".filter-card[data-filter='type']");
   const invoerCard     = qs(".filter-card[data-filter='invoertype']");
   const capsuleCard    = qs(".filter-card[data-filter='capsulesysteem']");
@@ -313,14 +225,9 @@ function renderAllFilters() {
   const variantenCard  = qs(".filter-card[data-filter='varianten']");
   const aanbiederCard  = qs(".filter-card[data-filter='aanbieder']");
 
-  // Vóór de andere kaarten: bepaalt/valideert filterState.minAanbieders,
-  // zodat `matches` hieronder de juiste drempel gebruikt.
-  renderMinAanbiedersOptions(minAanbiedersContainer, minAanbiedersCard);
-  const matches = getSecondaryScopedMatches();
-
   if (priceContainer && priceCard) {
     const groups = getDynamicPriceGroups();
-    const base = getBaseScopedByMinAanbieders();
+    const base = getBaseMatches();
     const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
     const counts = computeCounts(base, b => groupForPrice(parsePrice(b.prijs))?.label);
     const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
@@ -380,14 +287,6 @@ function handleFilterChange(event) {
 
   const name  = input.name;
   const value = input.value;
-
-  // Enkelvoudige drempel-keuze (radio), geen Set — apart afgehandeld.
-  if (name === "minAanbiedersFilter") {
-    filterState.minAanbieders = parseInt(value, 10);
-    renderAllFilters();
-    applyFilters();
-    return;
-  }
 
   const setMap = {
     priceFilter:       { set: filterState.priceLabels },
@@ -472,7 +371,6 @@ export async function initFilters() {
       filterState.functies.clear();
       filterState.varianten.clear();
       filterState.aanbieder.clear();
-      filterState.minAanbieders = DEFAULT_MIN_AANBIEDERS;
       renderAllFilters();
       applyFilters();
     });

@@ -1,6 +1,21 @@
 import { gezinsgrootteMinCouverts, GELUID_BELANGRIJK_DB, GELUID_BELANGRIJK_FALLBACK_DB, GELUID_GEMIDDELD_DB } from "./data.js";
 import { parsePrice } from "./utils.js";
 
+export const DEFAULT_MIN_AANBIEDERS = 2;
+
+export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
+  const countAanbieders = item => (item.aanbieders ?? []).length;
+  let effectiveMin = startThreshold;
+  let result = matches.filter(item => countAanbieders(item) >= effectiveMin);
+
+  while (result.length === 0 && effectiveMin > 1) {
+    effectiveMin -= 1;
+    result = matches.filter(item => countAanbieders(item) >= effectiveMin);
+  }
+
+  return { effectiveMin, result };
+}
+
 // Een vaatwasser heeft geen natuurlijke prestatie-tier-as (net als koelkast/
 // vriezer) — wél een echte harde partitie (inbouw vs vrijstaand, in
 // tegenstelling tot wasdroger waar die niet bestond). Structuur: harde

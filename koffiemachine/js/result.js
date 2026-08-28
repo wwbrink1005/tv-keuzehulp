@@ -1,4 +1,4 @@
-import { buildResultPoints } from "./matching.js";
+import { applyMinAanbiedersCascade, buildResultPoints } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { buildProvidersHtml, resetProvidersRegistry } from "../../shared/aanbieders.js";
 
@@ -195,11 +195,18 @@ export function initResultPage() {
 
   if (!bestMatchData) return;
 
-  const filteredMatchedKoffiemachines = filteredData ? JSON.parse(filteredData) : [];
-  const answers                       = answersData  ? JSON.parse(answersData)  : null;
+  const rawFilteredMatchedKoffiemachines = filteredData ? JSON.parse(filteredData) : [];
+  const answers                          = answersData  ? JSON.parse(answersData)  : null;
+
+  // Past de "aantal winkels"-drempel al toe op de allereerste render, zodat
+  // de bezoeker niet heel kort de ongefilterde telling/lijst ziet flitsen
+  // voordat result-filters.js de live herberekening heeft afgerond.
+  const { result: filteredMatchedKoffiemachines } = applyMinAanbiedersCascade(
+    Array.isArray(rawFilteredMatchedKoffiemachines) ? rawFilteredMatchedKoffiemachines : []
+  );
 
   currentAnswers = answers;
-  baseMatches    = Array.isArray(filteredMatchedKoffiemachines) ? filteredMatchedKoffiemachines : [];
+  baseMatches    = filteredMatchedKoffiemachines;
 
   initSortControl();
   applySortAndRender("price-asc");

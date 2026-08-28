@@ -1,6 +1,21 @@
 import { helderheidMin, GEWICHT_DRAAGBAAR_MAX_KG, GEBRUIK_MARKT_POSITIES, RESOLUTIE_HOOG, RESOLUTIE_LAAG, GELUID_STIL_MAX_DB, KORTE_WORP_TYPES } from "./data.js";
 import { parsePrice } from "./utils.js";
 
+export const DEFAULT_MIN_AANBIEDERS = 2;
+
+export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
+  const countAanbieders = item => (item.aanbieders ?? []).length;
+  let effectiveMin = startThreshold;
+  let result = matches.filter(item => countAanbieders(item) >= effectiveMin);
+
+  while (result.length === 0 && effectiveMin > 1) {
+    effectiveMin -= 1;
+    result = matches.filter(item => countAanbieders(item) >= effectiveMin);
+  }
+
+  return { effectiveMin, result };
+}
+
 // Beamers hebben geen fysieke pasvorm-eis zoals vaatwasser (inbouw/
 // vrijstaand) of wasmachine (capaciteit) — dus geen harde eerste filter.
 // Alle vragen zijn zachte, gracieus degraderende voorkeursfilters die in

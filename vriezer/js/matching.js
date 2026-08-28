@@ -1,6 +1,21 @@
 import { gezinsgrootteMinCapaciteit, STIL_DB_THRESHOLD, GESCHIKT_VOOR_GARAGE_KLASSEN } from "./data.js";
 import { parsePrice } from "./utils.js";
 
+export const DEFAULT_MIN_AANBIEDERS = 2;
+
+export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
+  const countAanbieders = item => (item.aanbieders ?? []).length;
+  let effectiveMin = startThreshold;
+  let result = matches.filter(item => countAanbieders(item) >= effectiveMin);
+
+  while (result.length === 0 && effectiveMin > 1) {
+    effectiveMin -= 1;
+    result = matches.filter(item => countAanbieders(item) >= effectiveMin);
+  }
+
+  return { effectiveMin, result };
+}
+
 // Net als koelkast: geen Budget/Mid/Premium tier-cascade (geen natuurlijke
 // prestatie-as), maar een hard plaatsing-filter, een gracieus degraderend
 // sub-type-filter, en zachte voorkeursfilters.

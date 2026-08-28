@@ -7,6 +7,30 @@ import {
   parsePrice
 } from "./utils.js";
 
+// Standaarddrempel voor het "aantal winkels"-filter op de resultaatpagina.
+// Gedeeld tussen result.js (eerste render, vanuit de quiz-tijd localStorage-
+// snapshot) en result-filters.js (live herberekening + het filter zelf),
+// zodat de eerste paint al meteen de juiste, gefilterde telling toont i.p.v.
+// heel kort de ongefilterde (incl. 1-winkel-producten) telling te flashen.
+export const DEFAULT_MIN_AANBIEDERS = 2;
+
+// Filtert op minimaal `startThreshold` winkels, met een cascade-fallback:
+// levert dat 0 resultaten op, dan wordt de drempel stap voor stap verlaagd
+// tot en met 1 (waar het altijd gelijk is aan `matches` zelf). Zo kan dit
+// filter nooit op zichzelf een lege resultatenlijst veroorzaken.
+export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
+  const countAanbieders = tv => (tv.aanbieders ?? []).length;
+  let effectiveMin = startThreshold;
+  let result = matches.filter(tv => countAanbieders(tv) >= effectiveMin);
+
+  while (result.length === 0 && effectiveMin > 1) {
+    effectiveMin -= 1;
+    result = matches.filter(tv => countAanbieders(tv) >= effectiveMin);
+  }
+
+  return { effectiveMin, result };
+}
+
 export function calculateScores(answers) {
   const scores = {
     "LED": 0,

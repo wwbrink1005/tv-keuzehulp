@@ -1,4 +1,4 @@
-import { buildResultPoints } from "./matching.js";
+import { applyMinAanbiedersCascade, buildResultPoints } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { buildProvidersHtml, resetProvidersRegistry } from "../../shared/aanbieders.js";
 
@@ -199,11 +199,15 @@ export function initResultPage() {
 
   if (!bestMatchData) return;
 
-  const filteredMatchedKoelkasten = filteredData ? JSON.parse(filteredData) : [];
-  const answers                   = answersData  ? JSON.parse(answersData)  : null;
+  const rawFilteredMatchedKoelkasten = filteredData ? JSON.parse(filteredData) : [];
+  const answers                      = answersData  ? JSON.parse(answersData)  : null;
+
+  const { result: filteredMatchedKoelkasten } = applyMinAanbiedersCascade(
+    Array.isArray(rawFilteredMatchedKoelkasten) ? rawFilteredMatchedKoelkasten : []
+  );
 
   currentAnswers = answers;
-  baseMatches    = Array.isArray(filteredMatchedKoelkasten) ? filteredMatchedKoelkasten : [];
+  baseMatches    = filteredMatchedKoelkasten;
 
   initSortControl();
   applySortAndRender("price-asc");

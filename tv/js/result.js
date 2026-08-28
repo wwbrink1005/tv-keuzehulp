@@ -1,4 +1,4 @@
-import { buildResultPoints, isPerfectMatch } from "./matching.js";
+import { applyMinAanbiedersCascade, buildResultPoints, isPerfectMatch } from "./matching.js";
 import { formatPriceLabel, formatScherpte, parsePrice, qs } from "./utils.js";
 import { buildProvidersHtml, normaliseVerzendkosten, resetProvidersRegistry } from "../../shared/aanbieders.js";
 
@@ -526,7 +526,13 @@ export function initResultPage() {
   const bestMatch = JSON.parse(bestMatchData);
   const scores = scoresData ? JSON.parse(scoresData) : {};
   const answers = answersData ? JSON.parse(answersData) : null;
-  const filteredMatchedTVs = filteredTVsData ? JSON.parse(filteredTVsData) : [];
+  const rawFilteredMatchedTVs = filteredTVsData ? JSON.parse(filteredTVsData) : [];
+
+  // Past de "aantal winkels"-drempel al toe op de allereerste render (vanuit
+  // de quiz-tijd snapshot), zodat de bezoeker niet heel kort de ongefilterde
+  // telling/lijst ziet flitsen voordat result-filters.js de live herberekening
+  // heeft afgerond en dezelfde drempel toepast.
+  const { result: filteredMatchedTVs } = applyMinAanbiedersCascade(rawFilteredMatchedTVs);
 
   const sizeGroup = localStorage.getItem("selectedSizeGroup") || "";
 

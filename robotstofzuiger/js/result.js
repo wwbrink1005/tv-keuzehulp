@@ -1,4 +1,4 @@
-import { buildResultPoints } from "./matching.js";
+import { applyMinAanbiedersCascade, buildResultPoints } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { buildProvidersHtml, resetProvidersRegistry } from "../../shared/aanbieders.js";
 
@@ -199,11 +199,15 @@ export function initResultPage() {
 
   if (!bestMatchData) return;
 
-  const filteredMatchedRobotstofzuigers = filteredData ? JSON.parse(filteredData) : [];
-  const answers                         = answersData  ? JSON.parse(answersData)  : null;
+  const rawFilteredMatchedRobotstofzuigers = filteredData ? JSON.parse(filteredData) : [];
+  const answers                            = answersData  ? JSON.parse(answersData)  : null;
+
+  const { result: filteredMatchedRobotstofzuigers } = applyMinAanbiedersCascade(
+    Array.isArray(rawFilteredMatchedRobotstofzuigers) ? rawFilteredMatchedRobotstofzuigers : []
+  );
 
   currentAnswers = answers;
-  baseMatches    = Array.isArray(filteredMatchedRobotstofzuigers) ? filteredMatchedRobotstofzuigers : [];
+  baseMatches    = filteredMatchedRobotstofzuigers;
 
   initSortControl();
   applySortAndRender("price-asc");

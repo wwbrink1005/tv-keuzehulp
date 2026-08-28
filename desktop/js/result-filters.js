@@ -1,12 +1,15 @@
 import { priceGroupsByType } from "./data.js";
-import { computeMatchForPriceGroup } from "./matching.js";
+import { computeMatchForPriceGroup, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
 import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
+const MIN_AANBIEDERS_OPTIONS = [1, 2, 3, 4, 5];
+
 const filterState = {
   priceLabels:   new Set(),
+  minAanbieders: DEFAULT_MIN_AANBIEDERS,
   behuizingTypes: new Set(),
   brands:        new Set(),
   gpuTiers:      new Set(),
@@ -59,6 +62,14 @@ function getPriceScopedMatches() {
     const price = parsePrice(d.prijs);
     return groups.some(g => price >= g.min && price <= g.max);
   });
+}
+
+function getSecondaryScopedMatches() {
+  return getPriceScopedMatches().filter(d => (d.aanbieders ?? []).length >= filterState.minAanbieders);
+}
+
+function getBaseScopedByMinAanbieders() {
+  return getBaseMatches().filter(d => (d.aanbieders ?? []).length >= filterState.minAanbieders);
 }
 
 function formatBrandLabel(brand) {
@@ -148,7 +159,7 @@ function renderPriceOptions(container, card, behuizingType) {
   // current quiz answers — otherwise users click a bucket that can never
   // show a result. If there's only one (or zero) non-empty bucket there's
   // nothing meaningful to narrow, so hide the whole filter card.
-  const base = getBaseMatches();
+  const base = getBaseScopedByMinAanbieders();
   const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
   const counts = computeCounts(base, d => groupForPrice(parsePrice(d.prijs))?.label);
   const relevant = groups.filter(g => counts.has(g.label)).map(g => g.label);
@@ -162,6 +173,66 @@ function renderPriceOptions(container, card, behuizingType) {
     stateSet: filterState.priceLabels,
     labelFn: label => `€ ${label}`,
     allLabel: "Alle prijzen",
+  });
+}
+
+function renderMinAanbiedersOptions(container, card) {
+  const matches = getPriceScopedMatches();
+  const options = MIN_AANBIEDERS_OPTIONS.map(n => ({
+    n,
+    count: matches.filter(d => (d.aanbieders ?? []).length >= n).length,
+  })).filter(o => o.count > 0);
+
+  // Corrigeer de drempel naar een geldige optie VOORDAT de kaart eventueel
+  // wordt verborgen — anders blijft filterState.minAanbieders op een
+  // onhaalbare waarde staan en gaan de kaarten hieronder (die via
+  // getSecondaryScopedMatches()/getBaseScopedByMinAanbieders() dezelfde
+  // drempel gebruiken) ten onrechte allemaal leeg renderen.
+  if (options.length > 0 && !options.some(o => o.n === filterState.minAanbieders)) {
+    const fallback = options.find(o => o.n === DEFAULT_MIN_AANBIEDERS) || options[options.length - 1];
+    filterState.minAanbieders = fallback.n;
+  }
+
+  if (options.length <= 1) { container.innerHTML = ""; card.hidden = true; return; }
+  card.hidden = false;
+
+  container.innerHTML = "";
+  const list = document.createElement("div");
+  list.className = "filter-list";
+  container.appendChild(list);
+
+  options.forEach(({ n, count }) => {
+    const label = document.createElement("label");
+    label.className = "filter-row";
+
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "minAanbiedersFilter";
+    input.value = String(n);
+    input.checked = filterState.minAanbieders === n;
+    input.className = "filter-row-input";
+
+    const check = document.createElement("span");
+    check.className = "filter-check";
+    check.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>';
+
+    const labelText = document.createElement("span");
+    labelText.className = "filter-label";
+    labelText.append(document.createTextNode(n === 1 ? "Alle winkels" : `${n}+ winkels`));
+    if (n === DEFAULT_MIN_AANBIEDERS) {
+      labelText.classList.add("has-badge");
+      const recommended = document.createElement("span");
+      recommended.className = "filter-recommended-badge";
+      recommended.textContent = "Aanbevolen";
+      labelText.appendChild(recommended);
+    }
+
+    const countEl = document.createElement("span");
+    countEl.className = "filter-count";
+    countEl.textContent = String(count);
+
+    label.append(input, check, labelText, countEl);
+    list.appendChild(label);
   });
 }
 
@@ -229,7 +300,8 @@ function updateClearFiltersBtn() {
     filterState.processorFabrikanten.size > 0 ||
     filterState.functies.size > 0 ||
     filterState.kleuren.size > 0 ||
-    filterState.aanbieder.size > 0;
+    filterState.aanbieder.size > 0 ||
+    filterState.minAanbieders !== DEFAULT_MIN_AANBIEDERS;
   btn.hidden = !hasActive;
 }
 
@@ -280,13 +352,29 @@ function applyFilters() {
     );
   }
 
+  const { effectiveMin, result: final } = applyMinAanbiedersCascade(filtered, filterState.minAanbieders);
+  if (effectiveMin !== filterState.minAanbieders) {
+    syncMinAanbiedersUI(effectiveMin);
+  }
+
   updateClearFiltersBtn();
-  updateResultMatches(filtered, filterState.answers, filterState.bestType);
+  updateResultMatches(final, filterState.answers, filterState.bestType);
 }
 
-function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, functieContainer, kleurContainer, aanbiederContainer) {
+// Zet de zichtbare selectie gelijk aan `n` zonder een change-event te vuren
+// (gebruikt door de cascade-fallback in applyFilters()).
+function syncMinAanbiedersUI(n) {
+  filterState.minAanbieders = n;
+  const container = qs("#minAanbiedersFilterOptions");
+  if (!container) return;
+  container.querySelectorAll('input[name="minAanbiedersFilter"]').forEach(input => {
+    input.checked = Number(input.value) === n;
+  });
+}
+
+function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, functieContainer, kleurContainer, aanbiederContainer, minAanbiedersContainer) {
   function renderAllSecondary() {
-    const matches = getPriceScopedMatches();
+    const matches = getSecondaryScopedMatches();
     renderBehuizingOptions(behuizingContainer, qs(".filter-card[data-filter='behuizing']"), matches);
     renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), matches);
     renderGpuTierOptions(gpuTierContainer, qs(".filter-card[data-filter='gpu-tier']"), matches);
@@ -297,7 +385,17 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
     renderFunctieOptions(functieContainer, qs(".filter-card[data-filter='functies']"), matches);
     renderKleurOptions(kleurContainer, qs(".filter-card[data-filter='kleur']"), matches);
     renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), matches);
+    renderMinAanbiedersOptions(minAanbiedersContainer, qs(".filter-card[data-filter='min-aanbieders']"));
+    renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.behuizingType);
   }
+
+  minAanbiedersContainer.addEventListener("change", event => {
+    const input = event.target.closest("input[type=radio]");
+    if (!input) return;
+    filterState.minAanbieders = parseInt(input.value, 10);
+    applyFilters();
+    renderAllSecondary();
+  });
 
   priceContainer.addEventListener("change", event => {
     const input = event.target.closest("input[type=checkbox]");
@@ -324,8 +422,8 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
       }
     }
 
-    renderAllSecondary();
     applyFilters();
+    renderAllSecondary();
   });
 
   function handleCheckboxSet(container, stateSet, card, renderFn, valueFn = v => v, exclusive = false) {
@@ -333,7 +431,7 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
       const input = event.target.closest("input[type=checkbox]");
       if (!input) return;
       if (input.value === "all") {
-        if (input.checked) { stateSet.clear(); renderFn(container, card, getPriceScopedMatches()); }
+        if (input.checked) { stateSet.clear(); renderFn(container, card, getSecondaryScopedMatches()); }
         else if (stateSet.size === 0) { input.checked = true; }
       } else {
         const val = valueFn(input.value);
@@ -345,7 +443,7 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
         } else {
           stateSet.delete(val);
         }
-        if (stateSet.size === 0) renderFn(container, card, getPriceScopedMatches());
+        if (stateSet.size === 0) renderFn(container, card, getSecondaryScopedMatches());
         else {
           const allInput = container.querySelector('input[value="all"]');
           if (allInput) allInput.checked = false;
@@ -391,6 +489,7 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
       filterState.functies.clear();
       filterState.kleuren.clear();
       filterState.aanbieder.clear();
+      filterState.minAanbieders = DEFAULT_MIN_AANBIEDERS;
       renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.behuizingType);
       renderAllSecondary();
       applyFilters();
@@ -410,6 +509,7 @@ function initResultFilters() {
   const functieContainer = qs("#functiesFilterOptions");
   const kleurContainer = qs("#kleurFilterOptions");
   const aanbiederContainer = qs("#aanbiederFilterOptions");
+  const minAanbiedersContainer = qs("#minAanbiedersFilterOptions");
 
   const priceCard     = qs(".filter-card[data-filter='price']");
   const behuizingCard = qs(".filter-card[data-filter='behuizing']");
@@ -422,14 +522,15 @@ function initResultFilters() {
   const functieCard = qs(".filter-card[data-filter='functies']");
   const kleurCard = qs(".filter-card[data-filter='kleur']");
   const aanbiederCard = qs(".filter-card[data-filter='aanbieder']");
+  const minAanbiedersCard = qs(".filter-card[data-filter='min-aanbieders']");
 
   if (!priceContainer || !behuizingContainer || !brandContainer || !gpuTierContainer ||
       !ramContainer || !opslagContainer || !osContainer || !processorFabrikantContainer ||
       !functieContainer || !kleurContainer ||
-      !aanbiederContainer) return;
+      !aanbiederContainer || !minAanbiedersContainer) return;
   if (!priceCard || !behuizingCard || !brandCard || !gpuTierCard ||
       !ramCard || !opslagCard || !osCard || !processorFabrikantCard ||
-      !functieCard || !kleurCard || !aanbiederCard) return;
+      !functieCard || !kleurCard || !aanbiederCard || !minAanbiedersCard) return;
 
   const stored      = getStoredSelection();
   const answersData = localStorage.getItem("desktop_answers");
@@ -472,8 +573,10 @@ function initResultFilters() {
       // and let the user optionally narrow by budget.
       filterState.priceLabels = new Set();
 
-      const matches = getPriceScopedMatches();
+      // Vóór alle andere tellingen: bepaalt/valideert filterState.minAanbieders.
+      renderMinAanbiedersOptions(minAanbiedersContainer, minAanbiedersCard);
       renderPriceOptions(priceContainer, priceCard, filterState.behuizingType);
+      const matches = getSecondaryScopedMatches();
       renderBehuizingOptions(behuizingContainer, behuizingCard, matches);
       renderBrandOptions(brandContainer, brandCard, matches);
       renderGpuTierOptions(gpuTierContainer, gpuTierCard, matches);
@@ -484,11 +587,11 @@ function initResultFilters() {
       renderFunctieOptions(functieContainer, functieCard, matches);
       renderKleurOptions(kleurContainer, kleurCard, matches);
       renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
-      initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, functieContainer, kleurContainer, aanbiederContainer);
+      initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, functieContainer, kleurContainer, aanbiederContainer, minAanbiedersContainer);
       applyFilters();
     })
     .catch(() => {
-      [priceCard, behuizingCard, brandCard, gpuTierCard, ramCard, opslagCard, osCard, processorFabrikantCard, functieCard, kleurCard, aanbiederCard]
+      [priceCard, behuizingCard, brandCard, gpuTierCard, ramCard, opslagCard, osCard, processorFabrikantCard, functieCard, kleurCard, aanbiederCard, minAanbiedersCard]
         .forEach(card => { card.hidden = true; });
     });
 }

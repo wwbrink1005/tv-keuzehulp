@@ -1,4 +1,4 @@
-import { buildResultPoints } from "./matching.js";
+import { applyMinAanbiedersCascade, buildResultPoints } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { buildProvidersHtml, resetProvidersRegistry } from "../../shared/aanbieders.js";
 
@@ -199,11 +199,15 @@ export function initResultPage() {
 
   if (!bestMatchData) return;
 
-  const filteredMatchedVaatwassers = filteredData ? JSON.parse(filteredData) : [];
-  const answers                    = answersData  ? JSON.parse(answersData)  : null;
+  const rawFilteredMatchedVaatwassers = filteredData ? JSON.parse(filteredData) : [];
+  const answers                       = answersData  ? JSON.parse(answersData)  : null;
+
+  const { result: filteredMatchedVaatwassers } = applyMinAanbiedersCascade(
+    Array.isArray(rawFilteredMatchedVaatwassers) ? rawFilteredMatchedVaatwassers : []
+  );
 
   currentAnswers = answers;
-  baseMatches    = Array.isArray(filteredMatchedVaatwassers) ? filteredMatchedVaatwassers : [];
+  baseMatches    = filteredMatchedVaatwassers;
 
   initSortControl();
   applySortAndRender("price-asc");

@@ -1,11 +1,14 @@
-import { matchKoelkasten } from "./matching.js";
+import { matchKoelkasten, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
 import { computeDynamicPriceGroups, computeDynamicDimensionGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
+const MIN_AANBIEDERS_OPTIONS = [1, 2, 3, 4, 5];
+
 const filterState = {
   priceLabels:   new Set(),
+  minAanbieders: DEFAULT_MIN_AANBIEDERS,
   plaatsingen:   new Set(),
   brands:        new Set(),
   capaciteiten:  new Set(),
@@ -72,6 +75,14 @@ function getPriceScopedMatches() {
     const price = parsePrice(k.prijs);
     return groups.some(g => price >= g.min && price <= g.max);
   });
+}
+
+function getSecondaryScopedMatches() {
+  return getPriceScopedMatches().filter(k => (k.aanbieders ?? []).length >= filterState.minAanbieders);
+}
+
+function getBaseScopedByMinAanbieders() {
+  return getBaseMatches().filter(k => (k.aanbieders ?? []).length >= filterState.minAanbieders);
 }
 
 function collectPlaatsingOptions(matches) {
@@ -184,8 +195,14 @@ function applyFilters() {
     );
   }
 
+  const { effectiveMin, result: final } = applyMinAanbiedersCascade(filtered, filterState.minAanbieders);
+  const cascaded = effectiveMin !== filterState.minAanbieders;
+  if (cascaded) filterState.minAanbieders = effectiveMin;
+
   updateClearFiltersBtn();
-  updateResultMatches(filtered, filterState.answers, filterState.bestType);
+  updateResultMatches(final, filterState.answers, filterState.bestType);
+
+  if (cascaded) renderAllFilters();
 }
 
 function updateClearFiltersBtn() {
@@ -196,7 +213,7 @@ function updateClearFiltersBtn() {
     filterState.energielabels.size > 0 || filterState.geluid.size > 0 ||
     filterState.functies.size > 0 ||
     filterState.breedteLabels.size > 0 || filterState.diepteLabels.size > 0 || filterState.hoogteLabels.size > 0 ||
-    filterState.aanbieder.size > 0;
+    filterState.aanbieder.size > 0 || filterState.minAanbieders !== DEFAULT_MIN_AANBIEDERS;
   btn.hidden = !hasActive;
 }
 
@@ -206,7 +223,7 @@ function renderDimensionFilter(container, card, groups, veld, stateSet, filterNa
   if (!container || !card) return;
   if (groups.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
 
-  const base = getBaseMatches();
+  const base = getBaseScopedByMinAanbieders();
   const groupForMm = mm => Number.isFinite(mm) ? groups.find(g => mm / 10 >= g.min && mm / 10 < g.max) : undefined;
   const counts = computeCounts(base, k => groupForMm(k[veld])?.label);
   const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
@@ -219,10 +236,70 @@ function renderDimensionFilter(container, card, groups, veld, stateSet, filterNa
   }
 }
 
-function renderAllFilters() {
+function renderMinAanbiedersOptions(container, card) {
+  if (!container || !card) return;
   const matches = getPriceScopedMatches();
+  const options = MIN_AANBIEDERS_OPTIONS.map(n => ({
+    n,
+    count: matches.filter(k => (k.aanbieders ?? []).length >= n).length,
+  })).filter(o => o.count > 0);
 
+  // Corrigeer de drempel naar een geldige optie VOORDAT de kaart eventueel
+  // wordt verborgen — anders blijft filterState.minAanbieders op een
+  // onhaalbare waarde staan en gaan de kaarten hieronder (die via
+  // getSecondaryScopedMatches()/getBaseScopedByMinAanbieders() dezelfde
+  // drempel gebruiken) ten onrechte allemaal leeg renderen.
+  if (options.length > 0 && !options.some(o => o.n === filterState.minAanbieders)) {
+    const fallback = options.find(o => o.n === DEFAULT_MIN_AANBIEDERS) || options[options.length - 1];
+    filterState.minAanbieders = fallback.n;
+  }
+
+  if (options.length <= 1) { container.innerHTML = ""; card.hidden = true; return; }
+  card.hidden = false;
+
+  container.innerHTML = "";
+  const list = document.createElement("div");
+  list.className = "filter-list";
+  container.appendChild(list);
+
+  options.forEach(({ n, count }) => {
+    const label = document.createElement("label");
+    label.className = "filter-row";
+
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "minAanbiedersFilter";
+    input.value = String(n);
+    input.checked = filterState.minAanbieders === n;
+    input.className = "filter-row-input";
+
+    const check = document.createElement("span");
+    check.className = "filter-check";
+    check.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>';
+
+    const labelText = document.createElement("span");
+    labelText.className = "filter-label";
+    labelText.append(document.createTextNode(n === 1 ? "Alle winkels" : `${n}+ winkels`));
+    if (n === DEFAULT_MIN_AANBIEDERS) {
+      labelText.classList.add("has-badge");
+      const recommended = document.createElement("span");
+      recommended.className = "filter-recommended-badge";
+      recommended.textContent = "Aanbevolen";
+      labelText.appendChild(recommended);
+    }
+
+    const countEl = document.createElement("span");
+    countEl.className = "filter-count";
+    countEl.textContent = String(count);
+
+    label.append(input, check, labelText, countEl);
+    list.appendChild(label);
+  });
+}
+
+function renderAllFilters() {
   const priceContainer        = qs("[data-filter-container='price']");
+  const minAanbiedersContainer = qs("[data-filter-container='min-aanbieders']");
   const plaatsingContainer    = qs("[data-filter-container='plaatsing']");
   const brandContainer        = qs("[data-filter-container='brand']");
   const capaciteitContainer   = qs("[data-filter-container='capaciteit']");
@@ -245,9 +322,13 @@ function renderAllFilters() {
   const diepteCard       = qs(".filter-card[data-filter='diepte']");
   const hoogteCard       = qs(".filter-card[data-filter='hoogte']");
   const aanbiederCard    = qs(".filter-card[data-filter='aanbieder']");
+  const minAanbiedersCard = qs(".filter-card[data-filter='min-aanbieders']");
+
+  renderMinAanbiedersOptions(minAanbiedersContainer, minAanbiedersCard);
+  const matches = getSecondaryScopedMatches();
 
   if (priceContainer && priceCard) {
-    const base = getBaseMatches();
+    const base = getBaseScopedByMinAanbieders();
     const groups = getDynamicPriceGroups();
     const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
     const counts = computeCounts(base, k => groupForPrice(parsePrice(k.prijs))?.label);
@@ -312,6 +393,13 @@ function handleFilterChange(event) {
 
   const name  = input.name;
   const value = input.value;
+
+  if (name === "minAanbiedersFilter") {
+    filterState.minAanbieders = parseInt(value, 10);
+    renderAllFilters();
+    applyFilters();
+    return;
+  }
 
   const setMap = {
     priceLabels:   { set: filterState.priceLabels,   parse: v => v },
@@ -415,6 +503,7 @@ export async function initFilters() {
       filterState.diepteLabels.clear();
       filterState.hoogteLabels.clear();
       filterState.aanbieder.clear();
+      filterState.minAanbieders = DEFAULT_MIN_AANBIEDERS;
       renderAllFilters();
       applyFilters();
     });

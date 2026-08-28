@@ -1,4 +1,4 @@
-import { buildResultPoints } from "./matching.js";
+import { applyMinAanbiedersCascade, buildResultPoints } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { buildProvidersHtml, resetProvidersRegistry } from "../../shared/aanbieders.js";
 
@@ -206,11 +206,15 @@ export function initResultPage() {
 
   if (!bestMatchData) return;
 
-  const filteredMatchedMonitors = filteredData ? JSON.parse(filteredData) : [];
-  const answers                 = answersData  ? JSON.parse(answersData)  : null;
+  const rawFilteredMatchedMonitors = filteredData ? JSON.parse(filteredData) : [];
+  const answers                    = answersData  ? JSON.parse(answersData)  : null;
+
+  const { result: filteredMatchedMonitors } = applyMinAanbiedersCascade(
+    Array.isArray(rawFilteredMatchedMonitors) ? rawFilteredMatchedMonitors : []
+  );
 
   currentAnswers = answers;
-  baseMatches    = Array.isArray(filteredMatchedMonitors) ? filteredMatchedMonitors : [];
+  baseMatches    = filteredMatchedMonitors;
 
   initSortControl();
   applySortAndRender("price-asc");

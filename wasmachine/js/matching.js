@@ -1,6 +1,21 @@
 import { heeftWasprogramma, isCapaciteitInGroup, WASPROGRAMMA_DEFINITIES } from "./data.js";
 import { parsePrice } from "./utils.js";
 
+export const DEFAULT_MIN_AANBIEDERS = 2;
+
+export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
+  const countAanbieders = item => (item.aanbieders ?? []).length;
+  let effectiveMin = startThreshold;
+  let result = matches.filter(item => countAanbieders(item) >= effectiveMin);
+
+  while (result.length === 0 && effectiveMin > 1) {
+    effectiveMin -= 1;
+    result = matches.filter(item => countAanbieders(item) >= effectiveMin);
+  }
+
+  return { effectiveMin, result };
+}
+
 // Geen scoring-as meer voor "gebruik" (zie matchWasmachines) — behouden als
 // no-op zodat de call-sites/localStorage-vorm elders niet hoeven te wijzigen.
 export function calculateScores() {

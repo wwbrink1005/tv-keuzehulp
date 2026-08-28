@@ -302,6 +302,25 @@ body.filter-drawer-open {
 				line-height: 1.35;
 			}
 
+.filter-label.has-badge {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+
+.filter-recommended-badge {
+				display: inline-flex;
+				align-items: center;
+				background: var(--accent-green-soft);
+				color: var(--accent-green-dark);
+				font-size: 9px;
+				font-weight: 700;
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+				padding: 1px 6px;
+				border-radius: 999px;
+			}
+
 .filter-row:has(input:checked) .filter-label {
 				color: var(--text-primary);
 				font-weight: 600;
