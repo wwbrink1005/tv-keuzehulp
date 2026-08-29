@@ -591,16 +591,41 @@ AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
 - **`vragen/index.html`'s `BreadcrumbList`** uitbreiden met de gidspagina als tussenstap:
   `Home → {Categorie's} → {Categorie} Keuzehulp` (3 niveaus, niet 2) — voorkomt dat de
   gidspagina en de keuzehulp-pagina op dezelfde zoekterm gaan concurreren.
-- **3 blogartikelen per categorie** (`{categorie}/blog/{slug}/index.html`) — onderwerpen
-  eerst valideren tegen echte zoekresultaten (niet blind verzinnen), korte educatieve
-  artikelen (~500-700 woorden, geen streepjes), met `Article` + `BreadcrumbList` JSON-LD en
-  een CTA terug naar de keuzehulp. Koppel de "Binnenkort"-teasers op de gidspagina zodra het
-  artikel klaar is, en voeg het toe aan `blog/index.html`'s `BLOG_ARTICLES`-array (plus een
-  nieuwe filterchip als het de eerste keer is dat deze categorie in de blog-hub verschijnt).
-  Geef bij elk artikel een losse AI-beeldprompt aan de eigenaar (zelfde stijl: flat vector,
-  lichtgrijze achtergrond, blauw/groen accent, geen tekst) — de afbeelding wordt zelf
-  gegenereerd en later toegevoegd; tot die tijd toont een ingebouwde SVG-placeholder
-  (`onerror`-fallback) netjes iets in plaats van een kapotte afbeelding.
+- **3 blogartikelen per categorie bij launch** (`{categorie}/blog/{slug}/index.html`) —
+  onderwerpen eerst valideren tegen echte zoekresultaten (niet blind verzinnen), korte
+  educatieve artikelen (~500-700 woorden, geen streepjes), met `Article` + `BreadcrumbList`
+  JSON-LD en een CTA terug naar de keuzehulp. Koppel de "Binnenkort"-teasers op de
+  gidspagina zodra het artikel klaar is, en voeg het toe aan `blog/index.html`'s
+  `BLOG_ARTICLES`-array (plus een nieuwe filterchip als het de eerste keer is dat deze
+  categorie in de blog-hub verschijnt). Geef bij elk artikel een losse AI-beeldprompt aan
+  de eigenaar (zelfde stijl: flat vector, lichtgrijze achtergrond, blauw/groen accent, geen
+  tekst) — de afbeelding wordt zelf gegenereerd en later toegevoegd; tot die tijd toont een
+  ingebouwde SVG-placeholder (`onerror`-fallback) netjes iets in plaats van een kapotte
+  afbeelding. Deze eerste 3 zijn altijd long-tail koopgidsen, gekoppeld aan de belangrijkste
+  keuzevragen uit `data.js`/de quiz zelf.
+  **Styling/gedrag komt uit `shared/blog-article.css` + `shared/blog-article.js` (sinds
+  augustus 2026) — nooit meer de volledige CSS/observer-script in het artikel zelf
+  kopiëren.** Dit was tot dan 100% gedupliceerde boilerplate in elk van de 45 artikelen
+  (~270 regels CSS + 24 regels JS per bestand); nu link je gewoon
+  `<link rel="stylesheet" href="shared/blog-article.css" />` (direct na
+  `shared/footer.css`) en `<script src="shared/blog-article.js" defer></script>` (direct
+  na `shared/analytics.js`). Een nieuw artikel bevat dus alleen nog: de `<head>`-metadata,
+  de twee JSON-LD-blokken, en de `<body>`-content (breadcrumb, `<article>` met
+  top-CTA/hero-afbeelding/body/summary-box/CTA, sticky-CTA-balk) — geen `<style>`-blok en
+  geen inline observer-script meer. Kopieer een recent artikel (bijv. een van de
+  koffiemachine-blogs) als sjabloon voor de structuur, niet voor de CSS.
+- **Verdieping na launch: 1 op de 4 nieuwe blogartikelen is data-gedreven** (standaard
+  sinds augustus 2026, zie [[project-traffic-priorities-aug2026]]). Reden: een gewone
+  koopgids beantwoordt een zoekvraag maar is niet linkbaar (niemand linkt naar een
+  generieke uitleg); een data-gedreven stuk bevat een **eigen, geverifieerde bevinding uit
+  de live Supabase-catalogus** (bijv. "een stille vaatwasser onder €400 bestaat vrijwel
+  niet", "X% van de airfryers heeft geen dubbele lade") en is daardoor wél citeerbaar voor
+  andere sites/journalisten — dat is het enige contenttype dat later bruikbaar is voor
+  linkbuilding-outreach (Fase 2, nog niet gestart). Concreet: artikel 4, 8, 12, ... per
+  categorie is het data-stuk, de tussenliggende 3 blijven long-tail koopgidsen. Een
+  data-stuk vereist een echte query tegen de catalogus vóór publicatie — nooit een
+  plausibel klinkend cijfer verzinnen, altijd verifiëren zoals bij `spec_mapping`
+  (zie stap 3a) en de tier-cascade (stap 5.1).
 - **"Lees ook"-blok op `resultaat/index.html`** (sinds augustus 2026 standaard, niet
   optioneel): voeg direct vóór de sluitende `</aside>`, na de laatste `.filter-card`, een
   `.filters-blog-block` toe met links naar alle 3 blogartikelen. Styling zit al gedeeld in
@@ -616,11 +641,12 @@ AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
   onderaan het artikel (`.article-cta`) in beeld komt (voorkomt twee zichtbare CTA's
   tegelijk). Reden: bezoekers die het hele artikel lazen kwamen de CTA voorheen pas
   helemaal onderaan tegen. Werkt met een kleine `IntersectionObserver`-script (geen
-  dependency) die kijkt of de top-kaart en de onderste CTA in beeld zijn. Kopieer de CSS
-  (`.article-top-cta*`/`.sticky-cta*`), de HTML (`#articleTopCta`/`#stickyCta`) en het
-  script 1-op-1 uit een bestaand artikel, bijvoorbeeld `tv/blog/oled-vs-qled/index.html` —
-  alleen de `href` (`{categorie}/vragen`) en de sticky-tekst (dezelfde zin als de `<h3>` in
-  de bestaande onderste `.article-cta`) hoeven per artikel aangepast te worden.
+  dependency) die kijkt of de top-kaart en de onderste CTA in beeld zijn. De CSS
+  (`.article-top-cta*`/`.sticky-cta*`) en het script zitten al in `shared/blog-article.css`
+  /`shared/blog-article.js` (zie hierboven) — alleen de HTML (`#articleTopCta`/`#stickyCta`)
+  kopiëren uit een bestaand artikel, bijvoorbeeld `tv/blog/oled-vs-qled/index.html`, en
+  daarin de `href` (`{categorie}/vragen`) en de sticky-tekst (dezelfde zin als de `<h3>` in
+  de bestaande onderste `.article-cta`) per artikel aanpassen.
 - **`sitemap.xml`**: nieuwe `<url>`-entries voor de gidspagina (`https://producthulp.nl/{categorie}/`,
   prioriteit 0.9), de keuzehulp (`.../{categorie}/vragen/`, prioriteit 0.7) en elk
   blogartikel (`.../{categorie}/blog/{slug}/`, prioriteit 0.6). De `resultaat/`-pagina hoort
