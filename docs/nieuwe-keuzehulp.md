@@ -626,6 +626,25 @@ AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
   data-stuk vereist een echte query tegen de catalogus vóór publicatie — nooit een
   plausibel klinkend cijfer verzinnen, altijd verifiëren zoals bij `spec_mapping`
   (zie stap 3a) en de tier-cascade (stap 5.1).
+- **De "Verdiep je verder"-sectie op de gidspagina (`{categorie}/index.html`) toont altijd
+  precies de 3 originele launch-artikelen, nooit meer** (standaard sinds augustus 2026).
+  Reden: de `blog-grid` staat op `grid-template-columns: repeat(3, 1fr)` — een 4e kaart
+  wrapt naar een nieuwe rij, wat er op de gidspagina onaf uitziet. Nieuwe artikelen (vanaf
+  #4, inclusief elk data-gedreven stuk) worden **niet** aan deze sectie toegevoegd; ze
+  blijven wel vindbaar via `blog/index.html` (de bloghub) en via het "Meer over
+  {categorie}"-cross-linkblok onderaan elk blogartikel (zie hieronder).
+- **Elk blogartikel bevat een publicatiedatum en een cross-linkblok naar zusterartikelen**
+  (standaard sinds augustus 2026): (1) `datePublished`/`dateModified` (ISO-datum) in de
+  `Article` JSON-LD — `datePublished` is de originele publicatiedatum (git-eerste-commit),
+  `dateModified` de datum van de laatste inhoudelijke wijziging; (2) een zichtbare
+  `<p class="article-meta">Laatst bijgewerkt op {dag maand jaar, NL}</p>` direct na de
+  `.article-intro`-paragraaf, nog binnen `<header>`; (3) een `.article-related`-blok
+  ("Meer over {categorie}", stijl al gedeeld in `shared/blog-article.css`) vlak vóór de
+  laatste `.article-cta`-wrap, met links naar **alle andere** artikelen in dezelfde
+  categorie (dus ook naar artikelen die niet op de gidspagina staan — dit is de manier
+  waarop bezoekers en Google artikelen voorbij de eerste 3 vinden). Bij een nieuw artikel:
+  voeg het ook toe aan het `.article-related`-blok van alle bestaande zusterartikelen in
+  die categorie, niet alleen andersom.
 - **"Lees ook"-blok op `resultaat/index.html`** (sinds augustus 2026 standaard, niet
   optioneel): voeg direct vóór de sluitende `</aside>`, na de laatste `.filter-card`, een
   `.filters-blog-block` toe met links naar alle 3 blogartikelen. Styling zit al gedeeld in

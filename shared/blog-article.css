@@ -58,6 +58,13 @@ a { color: inherit; }
 
 /* ── Article header ── */
 .article-header { padding-top: 28px; padding-bottom: 24px; }
+.article-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-bottom: 14px;
+}
 .article-tag {
   display: inline-block;
   font-size: 12px;
@@ -65,7 +72,10 @@ a { color: inherit; }
   text-transform: uppercase;
   letter-spacing: 0.09em;
   color: var(--color-primary);
-  margin-bottom: 14px;
+}
+.article-date {
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
 }
 .article-header h1 {
   font-size: clamp(26px, 4vw, 38px);
@@ -79,6 +89,54 @@ a { color: inherit; }
   line-height: 1.65;
   color: var(--color-text-secondary);
   margin: 0;
+}
+
+/* ── Meer over {categorie} (cross-links naar zusterartikelen, na de CTA) ── */
+.article-related {
+  border-top: 1px solid var(--color-border);
+  padding-top: 32px;
+  margin-top: 8px;
+  padding-bottom: 56px;
+}
+.article-related-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin: 0 0 18px;
+}
+.article-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.article-related-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+.article-related-card-img {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg);
+  margin-bottom: 10px;
+}
+.article-related-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease; }
+.article-related-card:hover .article-related-card-img img { transform: scale(1.04); }
+.article-related-card h4 {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+  color: var(--color-text);
+}
+.article-related-card:hover h4 { color: var(--color-primary); }
+
+@media (max-width: 640px) {
+  .article-related-grid { grid-template-columns: 1fr; gap: 20px; }
 }
 
 /* ── Hero image ── */
