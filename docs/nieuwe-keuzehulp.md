@@ -634,17 +634,25 @@ AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
   blijven wel vindbaar via `blog/index.html` (de bloghub) en via het "Meer over
   {categorie}"-cross-linkblok onderaan elk blogartikel (zie hieronder).
 - **Elk blogartikel bevat een publicatiedatum en een cross-linkblok naar zusterartikelen**
-  (standaard sinds augustus 2026): (1) `datePublished`/`dateModified` (ISO-datum) in de
-  `Article` JSON-LD — `datePublished` is de originele publicatiedatum (git-eerste-commit),
-  `dateModified` de datum van de laatste inhoudelijke wijziging; (2) een zichtbare
-  `<p class="article-meta">Laatst bijgewerkt op {dag maand jaar, NL}</p>` direct na de
-  `.article-intro`-paragraaf, nog binnen `<header>`; (3) een `.article-related`-blok
-  ("Meer over {categorie}", stijl al gedeeld in `shared/blog-article.css`) vlak vóór de
-  laatste `.article-cta`-wrap, met links naar **alle andere** artikelen in dezelfde
-  categorie (dus ook naar artikelen die niet op de gidspagina staan — dit is de manier
-  waarop bezoekers en Google artikelen voorbij de eerste 3 vinden). Bij een nieuw artikel:
-  voeg het ook toe aan het `.article-related`-blok van alle bestaande zusterartikelen in
-  die categorie, niet alleen andersom.
+  (standaard sinds augustus 2026, herzien eind augustus 2026 na een layoutprobleem):
+  (1) `datePublished`/`dateModified` (ISO-datum) in de `Article` JSON-LD —
+  `datePublished` is de originele publicatiedatum (git-eerste-commit), `dateModified` de
+  datum van de laatste inhoudelijke wijziging; (2) een `.article-meta-row`-div direct vóór
+  de `<h1>`, nog binnen `<header>`, met de `.article-tag` en een
+  `<span class="article-date">· Laatst bijgewerkt op {dag maand jaar, NL}</span>` naast
+  elkaar op één regel (niet na de intro-paragraaf plaatsen — dat oogt als een losstaand
+  weeslied); (3) een `.article-related`-blok ("Meer over {categorie}", kaartjes-grid met
+  thumbnail + titel, stijl al gedeeld in `shared/blog-article.css`) **ná** de laatste
+  `.article-cta`-wrap (niet ervoor — een cross-linkblok vóór de CTA leidt de aandacht weg
+  van de conversie), vlak vóór de sluitende `</article>`.
+  **Maximaal 3 kaarten, nooit meer** — de grid staat op `grid-template-columns:
+  repeat(3, 1fr)`, dus een 4e kaart wrapt naar een nieuwe rij en oogt onaf (zelfde
+  probleem als bij de "Verdiep je verder"-sectie op de gidspagina). Kies bij meer dan 3
+  zusterartikelen de **3 meest recente** (op `datePublished`), nooit alle overige. Bij
+  een nieuw artikel: voeg het ook toe aan het `.article-related`-blok van bestaande
+  zusterartikelen (en verwijder daar zo nodig het oudste artikel om onder de 3 te
+  blijven), niet alleen andersom. Alle overige artikelen (voorbij de getoonde 3) blijven wel
+  vindbaar via `blog/index.html` (de bloghub).
 - **"Lees ook"-blok op `resultaat/index.html`** (sinds augustus 2026 standaard, niet
   optioneel): voeg direct vóór de sluitende `</aside>`, na de laatste `.filter-card`, een
   `.filters-blog-block` toe met links naar alle 3 blogartikelen. Styling zit al gedeeld in
