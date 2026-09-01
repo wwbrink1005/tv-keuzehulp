@@ -176,6 +176,37 @@ a { color: inherit; }
 }
 .article-body strong { color: var(--color-text); }
 
+/* ── Databel (voor het weergeven van catalogusdata i.p.v. het in lopende tekst te proppen) ── */
+.article-table-wrap {
+  overflow-x: auto;
+  margin: 0 0 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.article-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.article-table th,
+.article-table td {
+  text-align: left;
+  padding: 10px 16px;
+  white-space: nowrap;
+}
+.article-table th {
+  background: var(--color-bg);
+  font-weight: 700;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+}
+.article-table td {
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+.article-table tr:last-child td { border-bottom: none; }
+.article-table td strong { color: var(--color-text); }
+
 /* ── Summary box ── */
 .summary-box {
   background: var(--color-primary-light);
