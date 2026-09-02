@@ -29,10 +29,15 @@ export function formatPriceLabel(priceValue) {
 }
 
 /**
- * Normalizes raw koffiemachine products from Supabase to a consistent
- * internal shape. Geen harde partitie (een koffiemachine heeft geen fysieke
- * pasvorm-eis zoals vaatwasser/wasmachine) — alleen merk en een geldige
- * aanbieder zijn een harde eis, net als bij airfryer/beamer.
+ * Normalizes raw stofzuiger products from Supabase to a consistent internal
+ * shape. Harde vereisten (vallen anders weg): merk (komt alleen van Icecat —
+ * ontbreekt bij merken zonder Icecat-dekking, bv. Bosch/Miele/Dyson, zie
+ * sessie-onderzoek) en een geldige aanbieder, net als bij koffiemachine/
+ * airfryer/beamer. "stofzuigerType" is de harde partitie (cilinder/steel)
+ * maar wordt NOOIT als harde eis behandeld hier — de pipeline garandeert al
+ * (via het gewicht-vangnet in merge_publish.py) dat dit vrijwel altijd
+ * gevuld is; een enkel ontbrekend geval mag niet het hele product laten
+ * verdwijnen, dat hoort bij de matching-fallback (zie matching.js).
  */
 export function normalizeProducts(rawProducts) {
   if (!Array.isArray(rawProducts)) return [];
@@ -54,30 +59,31 @@ export function normalizeProducts(rawProducts) {
 
     if (!product.merk) return [];
 
+    const ondergrondenRuw = String(product.reinigtOndergronden || "").toLowerCase();
+
     return [{
       merk:                    product.merk,
       naam,
       prijs,
-      typeProduct:             product.typeProduct ?? "",
-      automatiseringsgraad:    product.automatiseringsgraad ?? "",
-      koffieInvoertype:        product.koffieInvoertype ?? "",
-      capsuleSysteem:          product.capsuleSysteem ?? "",
-      ingebouwdeMolen:         product.ingebouwdeMolen ?? "Nee",
-      boonreservoirGram:       Number.isFinite(product.boonreservoirGram) ? product.boonreservoirGram : null,
-      capaciteitWatertankL:    Number.isFinite(product.capaciteitWatertankL) ? product.capaciteitWatertankL : null,
-      capaciteitKopjes:        Number.isFinite(product.capaciteitKopjes) ? product.capaciteitKopjes : null,
-      melkopschuimer:          product.melkopschuimer ?? "Nee",
-      melkToevoegen:           product.melkToevoegen ?? "",
-      melkreservoir:           product.melkreservoir ?? "Nee",
-      bediening:               product.bediening ?? "",
-      display:                 product.display ?? "Nee",
-      wifi:                    product.wifi ?? "Nee",
-      zelfreinigend:           product.zelfreinigend ?? "Nee",
-      automatischAntikalk:     product.automatischAntikalk ?? "Nee",
-      maxWerkdrukBar:          Number.isFinite(product.maxWerkdrukBar) ? product.maxWerkdrukBar : null,
+      stofzuigerType:          product.stofzuigerType || "Cilinderstofzuiger",
+      containerType:           product.containerType ?? "",
+      // "Reinigt ondergronden" is een vrije, kommagescheiden Icecat-string
+      // (bv. "Tapijt, Harde vloer, Soft floor, Tile, Vinyl") — hier vast
+      // omgezet naar 2 simpele Ja/Nee-signalen die de vloertype-vraag
+      // (quiz) en het filtermenu rechtstreeks kunnen gebruiken. "Soft
+      // floor"/"Tile"/"Vinyl" tellen mee als harde vloer.
+      geschiktTapijt:          /tapijt|carpet/.test(ondergrondenRuw),
+      geschiktHardeVloer:      /harde vloer|kale vloer|hard floor|soft floor|tile|vinyl|parket|laminaat|houten vloer/.test(ondergrondenRuw),
+      geluidsniveauDb:         Number.isFinite(product.geluidsniveauDb) ? product.geluidsniveauDb : null,
       vermogenWatt:            Number.isFinite(product.vermogenWatt) ? product.vermogenWatt : null,
-      varianten:               Array.isArray(product.varianten) ? product.varianten : [],
+      stofcapaciteitLiter:     Number.isFinite(product.stofcapaciteitLiter) ? product.stofcapaciteitLiter : null,
+      heeftHepaFilter:         /hepa/i.test(String(product.luchtfiltering || "")),
+      looptijdMinuten:         Number.isFinite(product.looptijdMinuten) ? product.looptijdMinuten : null,
+      actieradiusMeter:        Number.isFinite(product.actieradiusMeter) ? product.actieradiusMeter : null,
       kleur:                   product.kleur ?? "",
+      breedteMm:               Number.isFinite(product.breedte) ? product.breedte : null,
+      diepteMm:                Number.isFinite(product.diepte) ? product.diepte : null,
+      hoogteMm:                Number.isFinite(product.hoogte) ? product.hoogte : null,
       gewichtKg:               Number.isFinite(product.gewichtKg) ? product.gewichtKg : null,
       afbeelding,
       afbeeldingen,
@@ -109,12 +115,12 @@ function floorNice(value) {
 
 /**
  * Dynamically computes 1–3 price buckets from the prices of the given list
- * of koffiemachines. Altijd aanroepen met een vers opgehaalde catalogus,
- * nooit met de quiz-time localStorage-snapshot.
+ * of stofzuigers. Altijd aanroepen met een vers opgehaalde catalogus, nooit
+ * met de quiz-time localStorage-snapshot.
  */
-export function computeDynamicPriceGroups(koffiemachines) {
-  const prices = (koffiemachines || [])
-    .map(k => parsePrice(k.prijs))
+export function computeDynamicPriceGroups(stofzuigers) {
+  const prices = (stofzuigers || [])
+    .map(s => parsePrice(s.prijs))
     .filter(p => Number.isFinite(p) && p > 0)
     .sort((a, b) => a - b);
 
@@ -150,4 +156,33 @@ export function computeDynamicPriceGroups(koffiemachines) {
   buckets.push({ label: `${lastDisplayMin}+`, min: prevMax, max: Number.POSITIVE_INFINITY });
 
   return buckets;
+}
+
+/**
+ * Verdeelt de meegegeven stofzuigers in 3 gewichtscategorieën (Licht/
+ * Gemiddeld/Zwaar) op basis van tertielen van de live catalogus — geen
+ * vaste kg-grenzen (zie CLAUDE.md 5.4: drempels altijd tegen live data
+ * valideren). Cilinder- en steelstofzuigers hebben een sterk verschillende
+ * gewichtsverdeling (steel doorgaans 1-3 kg, cilinder 4-9 kg) — wordt daarom
+ * altijd berekend op de op dat moment AL op type gefilterde matches, nooit
+ * op de volledige catalogus, anders zou "Licht" bij cilinderstofzuigers
+ * nooit voorkomen (en omgekeerd "Zwaar" nooit bij steel).
+ */
+export function computeDynamicWeightGroups(stofzuigers) {
+  const gewichten = (stofzuigers || [])
+    .map(s => s.gewichtKg)
+    .filter(g => Number.isFinite(g) && g > 0)
+    .sort((a, b) => a - b);
+
+  if (gewichten.length < 3) return [];
+
+  const n = gewichten.length;
+  const grens1 = gewichten[Math.floor(n / 3)];
+  const grens2 = gewichten[Math.floor((n * 2) / 3)];
+
+  return [
+    { label: "Licht", min: 0, max: grens1 },
+    { label: "Gemiddeld", min: grens1, max: grens2 },
+    { label: "Zwaar", min: grens2, max: Number.POSITIVE_INFINITY },
+  ];
 }

@@ -73,6 +73,58 @@ async function haalAantalOp(tabel) {
   return Number.isFinite(total) ? total : 0;
 }
 
+// Cache van de laatst opgehaalde aantallen per categorie, zodat een
+// terugkerende bezoeker nooit het hardgecodeerde fallback-getal uit de HTML
+// (bv. "3000+") te zien krijgt terwijl de verse Supabase-call nog loopt —
+// dat gaf soms een korte, merkbare "flits" naar het oude getal net na het
+// laden. In plaats daarvan tonen we meteen (vóór er ook maar 1 fetch is
+// gestart) het laatst bekende getal uit localStorage, en werken dat daarna
+// stil bij zodra de verse call binnenkomt. Bij de allereerste bezoeker ooit
+// (nog geen cache) blijft het oude gedrag: het statische getal tot de fetch
+// klaar is.
+const CACHE_KEY = "productCounts:v1";
+const CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 dagen
+
+function leesCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    if (!Number.isFinite(parsed.ts) || Date.now() - parsed.ts > CACHE_MAX_AGE_MS) return null;
+    return parsed.aantallen && typeof parsed.aantallen === "object" ? parsed.aantallen : null;
+  } catch {
+    return null;
+  }
+}
+
+function schrijfCache(aantallen) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), aantallen }));
+  } catch {
+    // localStorage kan ontbreken/vol zijn (privénavigatie, quota) — dan
+    // simpelweg geen cache, geen probleem voor de rest van de pagina.
+  }
+}
+
+function pasAantallenToe(elements, aantallen) {
+  elements.forEach(el => {
+    const categorie = el.dataset.productCount;
+    let n;
+    if (categorie === "totaal") {
+      const waarden = Object.values(aantallen).filter(Number.isFinite);
+      n = waarden.length > 0 ? waarden.reduce((a, b) => a + b, 0) : null;
+    } else {
+      n = aantallen[categorie];
+    }
+    const label = Number.isFinite(n) ? roundNiceCount(n) : null;
+    // Geen geldig getal (nog) beschikbaar voor deze categorie? Dan de
+    // bestaande tekst gewoon laten staan i.p.v. leeg te maken — beter een
+    // licht verouderd getal tonen dan helemaal niks.
+    if (label) el.textContent = label;
+  });
+}
+
 /**
  * Vult alle [data-product-count]-elementen op de huidige pagina in. Elke
  * categorie wordt maar 1x opgehaald, ook als hij op meerdere plekken op de
@@ -81,6 +133,9 @@ async function haalAantalOp(tabel) {
 export async function vulProductAantallenIn(root = document) {
   const elements = Array.from(root.querySelectorAll("[data-product-count]"));
   if (elements.length === 0) return;
+
+  const cache = leesCache();
+  if (cache) pasAantallenToe(elements, cache);
 
   const benodigdeCategorieen = new Set(
     elements.map(el => el.dataset.productCount).filter(c => c !== "totaal")
@@ -103,21 +158,14 @@ export async function vulProductAantallenIn(root = document) {
     })
   );
 
-  elements.forEach(el => {
-    const categorie = el.dataset.productCount;
-    let n;
-    if (categorie === "totaal") {
-      const waarden = Object.values(aantallen).filter(Number.isFinite);
-      n = waarden.length > 0 ? waarden.reduce((a, b) => a + b, 0) : null;
-    } else {
-      n = aantallen[categorie];
-    }
-    const label = Number.isFinite(n) ? roundNiceCount(n) : null;
-    // Bij een mislukte fetch de bestaande (statische) tekst gewoon laten
-    // staan i.p.v. leeg te maken — beter een licht verouderd getal tonen dan
-    // helemaal niks.
-    if (label) el.textContent = label;
-  });
+  pasAantallenToe(elements, aantallen);
+
+  // Cache updaten, maar een mislukte categorie ("null" hierboven) nooit een
+  // goede oude cache-waarde laten overschrijven.
+  const teCachen = { ...cache, ...Object.fromEntries(
+    Object.entries(aantallen).filter(([, v]) => Number.isFinite(v))
+  ) };
+  if (Object.keys(teCachen).length > 0) schrijfCache(teCachen);
 }
 
 if (typeof document !== "undefined") {

@@ -8,7 +8,8 @@ const HEADERS = {
 };
 
 /**
- * Extracts the first (decimal) number from strings like "1,8 l" → 1.8.
+ * Extracts the first (decimal) number from strings like "78 dB" → 78,
+ * "4,6 kg" → 4.6.
  */
 function parseFirstFloat(value) {
   if (!value) return null;
@@ -16,62 +17,34 @@ function parseFirstFloat(value) {
   return m ? parseFloat(m[1].replace(",", ".")) : null;
 }
 
-/**
- * "3,7 kg" → 3.7, "950 g" → 0.95. Gewicht staat als vrije Icecat-tekst met
- * wisselende eenheid, dus altijd naar kg normaliseren.
- */
-function parseGewichtKg(value) {
-  const num = parseFirstFloat(value);
-  if (num === null) return null;
-  return /\bg\b/i.test(String(value)) && !/kg/i.test(String(value)) ? num / 1000 : num;
-}
-
-/**
- * Normalise "Ja"/"Nee"/true/false/null to "Ja" of "Nee".
- */
-function parseJaNee(value) {
-  if (!value) return "Nee";
-  const s = String(value).toLowerCase();
-  if (s === "ja" || s === "true" || s === "yes" || s === "1") return "Ja";
-  return "Nee";
-}
-
 function adaptAanbieders(row) {
   return Array.isArray(row.aanbieders) ? row.aanbieders : [];
 }
 
 /**
- * Adapts a single koffiemachines row to the shape normalizeProducts() expects.
+ * Adapts a single stofzuigers row to the shape normalizeProducts() expects.
  */
 function adaptRow(row) {
   return {
     ean:                    row.ean,
     titel:                  row.titel ?? "",
     merk:                   row.merk,
+    stofzuigerType:         row.stofzuiger_type ?? "",
     typeProduct:            row.type_product ?? "",
-    automatiseringsgraad:   row.automatiseringsgraad ?? "",
-    koffieInvoertype:       row.koffie_invoertype ?? "",
-    capsuleSysteem:         row.capsule_systeem ?? "",
-    ingebouwdeMolen:        parseJaNee(row.ingebouwde_molen),
-    boonreservoirGram:      parseFirstFloat(row.boonreservoir_gram),
-    capaciteitWatertankL:   parseFirstFloat(row.capaciteit_watertank),
-    capaciteitKopjes:       parseFirstFloat(row.capaciteit_kopjes),
-    melkopschuimer:         parseJaNee(row.melkopschuimer),
-    melkToevoegen:          row.melk_toevoegen ?? "",
-    melkreservoir:          parseJaNee(row.melkreservoir),
-    bediening:              row.bediening ?? "",
-    display:                parseJaNee(row.display),
-    wifi:                   parseJaNee(row.wifi),
-    zelfreinigend:          parseJaNee(row.zelfreinigend),
-    automatischAntikalk:    parseJaNee(row.automatisch_antikalk),
-    maxWerkdrukBar:         parseFirstFloat(row.max_werkdruk_bar),
+    stroombron:             row.stroombron ?? "",
+    containerType:          row.container_type ?? "",
+    reinigtOndergronden:    row.reinigt_ondergronden ?? "",
+    geluidsniveauDb:        parseFirstFloat(row.geluidsniveau_db),
     vermogenWatt:           parseFirstFloat(row.vermogen_watt),
-    varianten:              Array.isArray(row.varianten) ? row.varianten : [],
+    stofcapaciteitLiter:    parseFirstFloat(row.stofcapaciteit_liter),
+    luchtfiltering:         row.luchtfiltering ?? "",
+    looptijdMinuten:        parseFirstFloat(row.looptijd_minuten),
+    actieradiusMeter:       parseFirstFloat(row.actieradius_meter),
     kleur:                  row.kleur ?? "",
-    gewichtKg:              parseGewichtKg(row.gewicht),
     breedte:                parseFirstFloat(row.breedte),
     diepte:                 parseFirstFloat(row.diepte),
     hoogte:                 parseFirstFloat(row.hoogte),
+    gewichtKg:              parseFirstFloat(row.gewicht),
     icecat_afbeelding:      row.icecat_afbeelding ?? "",
     icecat_afbeeldingen:    Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:             adaptAanbieders(row),
@@ -80,7 +53,7 @@ function adaptRow(row) {
 }
 
 /**
- * Fetches all rows from the `koffiemachines` table with offset-based pagination.
+ * Fetches all rows from the `stofzuigers` table with offset-based pagination.
  */
 async function fetchAll() {
   const PAGE_SIZE = 1000;
@@ -88,12 +61,12 @@ async function fetchAll() {
   let offset = 0;
 
   while (true) {
-    const url = `${SUPABASE_URL}/rest/v1/koffiemachines?order=ean&limit=${PAGE_SIZE}&offset=${offset}`;
+    const url = `${SUPABASE_URL}/rest/v1/stofzuigers?order=ean&limit=${PAGE_SIZE}&offset=${offset}`;
     const response = await fetch(url, { headers: HEADERS });
 
     if (!response.ok) {
       throw new Error(
-        `Supabase fetch mislukt (koffiemachines): ${response.status} ${response.statusText}`
+        `Supabase fetch mislukt (stofzuigers): ${response.status} ${response.statusText}`
       );
     }
 
@@ -144,7 +117,7 @@ function samenvoegDuplicaten(rows) {
 }
 
 /**
- * Fetches all koffiemachines and returns them in the shape normalizeProducts()
+ * Fetches all stofzuigers and returns them in the shape normalizeProducts()
  * expects.
  */
 export async function fetchProducts() {
