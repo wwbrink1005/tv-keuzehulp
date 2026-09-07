@@ -107,6 +107,7 @@ function adaptRow(row) {
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          adaptAanbieders(row),
+    bijgewerktOp:        row.bijgewerkt_op ?? null,
   };
 }
 
