@@ -6,7 +6,7 @@
     <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hoe werkt het?</title>
-    <meta name="description" content="Benieuwd hoe de keuzehulpen van producthulp.nl werken? Lees hier hoe we in een paar vragen tot persoonlijk productadvies komen." />
+    <meta name="description" content="Stap voor stap: welke vragen we stellen, hoe we de assortimenten van de grote winkels samenvoegen, hoe de match berekend wordt en waarom er soms een goedkoper product bovenaan staat." />
     <link rel="canonical" href="https://producthulp.nl/hoe-werkt-het/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,6 +20,8 @@
     <script src="shared/footer.js" defer></script>
     <script src="shared/consent.js" defer></script>
     <script src="shared/analytics.js" defer></script>
+    <script src="shared/info-figuren.js" defer></script>
+    <script type="module" src="shared/product-counts.js"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -30,7 +32,6 @@
       ]
     }
     </script>
-    <script src="shared/over-pagina.js" defer></script>
   </head>
   <body class="info-page" data-page="hoe-werkt-het">
     <nav class="info-breadcrumb" aria-label="Kruimelpad">
@@ -44,11 +45,181 @@
       <section class="info-layout" aria-label="Algemene informatie">
         <aside class="info-nav">
           <h2 class="info-nav-title">Algemene informatie</h2>
-          <ul class="info-nav-list"></ul>
+          <ul class="info-nav-list">
+            <li><a class="info-nav-link" href="over-ons">Over producthulp.nl<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+            <li><a class="info-nav-link is-active" href="hoe-werkt-het">Hoe werkt het?<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+            <li><a class="info-nav-link" href="contact">Contact<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+            <li><a class="info-nav-link" href="disclaimer">Disclaimer<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+            <li><a class="info-nav-link" href="privacy">Privacybeleid<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+          </ul>
         </aside>
         <div class="info-content">
-          <h1 class="info-title"></h1>
-          <div class="info-text"></div>
+          <h1 class="info-title">Hoe werkt het?</h1>
+          <div class="info-text">
+
+            <p class="info-lead">
+              Aan de voorkant zijn het een paar vragen en een lijst met resultaten. Daarachter zit een catalogus van <span data-product-count="totaal">10000+</span> producten die elke ochtend opnieuw wordt opgebouwd uit de assortimenten van de grote Nederlandse winkels. Op deze pagina leggen we allebei de kanten uit: wat jij doet, en wat wij ondertussen doen.
+            </p>
+
+            <h2>Wat jij doet: vier stappen</h2>
+            <ol class="info-steps">
+              <li class="info-step">
+                <div class="info-step-number">1</div>
+                <div class="info-step-body">
+                  <span class="info-step-title">Beantwoord een paar vragen</span>
+                  <span class="info-step-desc">We vragen naar je gebruik, je situatie en je budget, niet naar specificaties. Je hoeft dus niet te weten wat een refresh rate of een centrifugetoerental is; dat is nu juist onze taak. Er zijn geen goede of foute antwoorden, en je kunt altijd terug naar een vorige vraag.</span>
+                </div>
+              </li>
+              <li class="info-step">
+                <div class="info-step-number">2</div>
+                <div class="info-step-body">
+                  <span class="info-step-title">Wij leggen je antwoorden naast de hele catalogus</span>
+                  <span class="info-step-desc">Elk product in de categorie krijgt een score die aangeeft hoe goed het aansluit bij wat je hebt ingevuld. Producten die niet voldoen aan een harde eis vallen af; de rest wordt gerangschikt op hoe compleet ze bij je passen.</span>
+                </div>
+              </li>
+              <li class="info-step">
+                <div class="info-step-number">3</div>
+                <div class="info-step-body">
+                  <span class="info-step-title">Je krijgt je advies, met uitleg</span>
+                  <span class="info-step-desc">Je ziet een gesorteerde lijst waarin bij elk product staat waaróm het bij jouw antwoorden past. Wil je verder verfijnen, dan kun je de resultaten aanvullend filteren op merk, prijs en de specificaties die in die categorie het meest uitmaken.</span>
+                </div>
+              </li>
+              <li class="info-step">
+                <div class="info-step-number">4</div>
+                <div class="info-step-body">
+                  <span class="info-step-title">Kies zelf waar je koopt</span>
+                  <span class="info-step-desc">Bij elk product staan de winkels die het verkopen, met prijs, bezorgkosten en levertijd, van goedkoop naar duur. Je klikt door naar de winkel van je keuze en rekent daar af tegen dezelfde prijs als wanneer je er rechtstreeks naartoe was gegaan.</span>
+                </div>
+              </li>
+            </ol>
+
+            <figure class="info-figure">
+              <img src="images/algemeen/quiz-bank.jpg" alt="Iemand beantwoordt thuis op de bank een paar vragen op een telefoon" loading="lazy" width="1200" height="675">
+              <figcaption>De hele keuzehulp duurt een paar minuten en werkt zonder account. Je antwoorden blijven op je eigen apparaat.</figcaption>
+            </figure>
+
+            <h2>Wat wij doen: de catalogus achter de vragen</h2>
+            <p>
+              Een keuzehulp is niet beter dan de gegevens eronder. Als een populair merk ontbreekt of als de prijzen van vorige maand zijn, klopt het advies niet, hoe slim de vragen ook zijn. Daarom zit het grootste deel van ons werk niet in de vragenlijst maar in de catalogus. Die wordt elke ochtend rond 09:00 volledig opnieuw opgebouwd, in vier stappen.
+            </p>
+
+            <ol class="info-steps">
+              <li class="info-step">
+                <div class="info-step-number">1</div>
+                <div class="info-step-body">
+                  <span class="info-step-title">Alle winkelassortimenten ophalen</span>
+                  <span class="info-step-desc">We halen de complete productbestanden op bij Coolblue, MediaMarkt, Expert, EP. en bol, aangevuld met merkwinkels die eigen modellen verkopen. Daarin zit per product de actuele prijs, de voorraadstatus, de bezorgkosten en de levertijd.</span>
+                </div>
+              </li>
+              <li class="info-step">
+                <div class="info-step-number">2</div>
+                <div class="info-step-body">
+                  <span class="info-step-title">Samenvoegen op streepjescode</span>
+                  <span class="info-step-desc">Dezelfde wasmachine heet bij elke winkel net iets anders, dus op naam matchen werkt niet. We voegen samen op EAN: de streepjescode die wereldwijd uniek is per model. Vier winkels met hetzelfde product worden zo één productkaart met vier prijzen, in plaats van vier losse zoekresultaten.</span>
+                </div>
+              </li>
+              <li class="info-step">
+                <div class="info-step-number">3</div>
+                <div class="info-step-body">
+                  <span class="info-step-title">Specificaties aanvullen en gelijktrekken</span>
+                  <span class="info-step-desc">Winkelbestanden bevatten prijzen, geen bruikbare specificaties. Die halen we per streepjescode op uit productdatabases en zetten we om naar één vaste vorm, zodat "A", "energieklasse A" en "A (A tot G)" bij ons allemaal hetzelfde betekenen. Pas ná die stap kun je er zinnig op filteren.</span>
+                </div>
+              </li>
+              <li class="info-step">
+                <div class="info-step-number">4</div>
+                <div class="info-step-body">
+                  <span class="info-step-title">Ontbrekende merken opsporen</span>
+                  <span class="info-step-desc">Niet elk merk is even goed vertegenwoordigd in de gangbare productdatabases, en een merk dat daarin ontbreekt verdwijnt stilletjes uit een catalogus, zonder foutmelding. Wij controleren daarom per categorie of elk merk uit de winkelassortimenten ook echt op de site terechtkomt, en vullen aan wat er anders uit zou vallen.</span>
+                </div>
+              </li>
+            </ol>
+
+            <div class="info-highlight">
+              Producten die nergens meer op voorraad zijn, verdwijnen bij dezelfde dagelijkse ronde van de site. Je krijgt dus geen advies voor een model dat je nergens meer kunt kopen.
+            </div>
+
+            <div class="info-split">
+              <div class="info-split-media">
+                <img src="images/algemeen/bezorging.jpg" alt="Een pakket wordt thuis aan de deur bezorgd" loading="lazy" width="800" height="500">
+              </div>
+              <div class="info-split-body">
+                <h3>Waarom prijs alleen niet genoeg is</h3>
+                <p>
+                  Een product dat tien euro goedkoper is maar zeven euro bezorgkosten rekent en pas over twee weken komt, is geen betere deal. Daarom tonen we bij elke winkel niet alleen de prijs, maar ook de bezorgkosten en de levertijd, omgerekend naar één consistent label, zodat "morgen in huis" bij elke winkel hetzelfde betekent.
+                </p>
+                <p>
+                  Verkopen meerdere winkels hetzelfde product, dan zie je op de kaart standaard de twee goedkoopste. Via "vergelijk winkels" klap je de volledige lijst open en kun je zelf sorteren op prijs of op snelheid.
+                </p>
+              </div>
+            </div>
+
+            <h2>Hoe de match berekend wordt</h2>
+            <p>
+              Achter de resultatenlijst zit geen ondoorzichtige "AI-score" maar een berekening die we gewoon kunnen uitleggen. Je antwoorden worden in twee soorten regels vertaald.
+            </p>
+            <div class="info-card">
+              <p class="info-card-title">Harde eisen</p>
+              <p>
+                Dingen waar geen compromis in zit. Je maximale budget bijvoorbeeld, of het type apparaat dat je nodig hebt: een vaatwasser die niet ingebouwd kan worden, is geen optie als je een inbouwkeuken hebt. Voldoet een product hier niet aan, dan valt het af, hoe goed het verder ook scoort.
+              </p>
+            </div>
+            <div class="info-card">
+              <p class="info-card-title">Zachte voorkeuren</p>
+              <p>
+                Alles waarvan "meer" of "minder" beter bij jou past zonder dat het een breekpunt is: hoe stil het apparaat moet zijn, hoe zuinig, hoe groot, welke aansluitingen je wil. Elk product krijgt punten naarmate het hier beter op aansluit, en die punten bepalen de volgorde.
+              </p>
+            </div>
+            <p>
+              Die splitsing lost meteen het vervelendste probleem van gewone filters op: dat je aan het eind nul resultaten overhoudt omdat je zes vinkjes hebt aangezet die toevallig niet in één apparaat samenkomen. Bij ons leidt een voorkeur waaraan niets voldoet nooit tot een lege lijst. Dan telt die voorkeur simpelweg minder zwaar mee en zie je de producten die er het dichtst bij komen, in plaats van een leeg scherm.
+            </p>
+            <p>
+              Ook de andere kant is dichtgezet: past er maar een handvol producten precies bij je antwoorden, dan krijg je die handvol te zien en niet ineens de hele categorie erbij. Een scherper antwoord maakt de lijst korter en gerichter, nooit breder.
+            </p>
+
+            <h2>Waarom er soms een goedkoper product bovenaan staat</h2>
+            <p>
+              Dit verrast mensen het vaakst, dus het is het uitleggen waard. Je antwoorden bepalen niet alleen wat je nodig hebt, maar ook wat je <em>niet</em> nodig hebt, en dat weegt bij ons even zwaar mee.
+            </p>
+            <p>
+              Zeg je dat je vooral 's avonds films kijkt met de gordijnen dicht, dan is een extreem hoge helderheid geen pluspunt meer: die kost geld en levert in jouw kamer niets op. Was je twee keer per week voor twee personen, dan is een trommel van tien kilo geen luxe maar ruimte en energie die je betaalt zonder te gebruiken. In beide gevallen schuiven de goedkopere modellen bij ons naar boven.
+            </p>
+            <div class="info-highlight">
+              Een duurder product staat bij ons nooit hoger omdat het duurder is, en ook niet omdat wij er meer aan verdienen. De volgorde komt volledig uit je antwoorden. Hoe wij ons geld verdienen leggen we uit op de pagina <a href="over-ons">over producthulp.nl</a>.
+            </div>
+
+            <h2>Wat je op een productkaart ziet</h2>
+            <div class="info-card">
+              <ul>
+                <li><strong>Vier punten waarom dit product bij je past</strong>, geschreven vanuit jouw antwoorden, niet de marketingtekst van de fabrikant.</li>
+                <li><strong>De belangrijkste specificaties</strong> van die categorie, zodat je producten onderling kunt vergelijken zonder eerst een handleiding te lezen.</li>
+                <li><strong>De winkels die het verkopen</strong>, met prijs, bezorgkosten en levertijd, van goedkoop naar duur, plus een knop om alle winkels naast elkaar te zetten.</li>
+                <li><strong>Een doorklik naar de winkel</strong>, waar je de volledige productpagina en de beoordelingen van andere kopers vindt.</li>
+              </ul>
+            </div>
+
+            <h2>Wat het kost en wat we van je bewaren</h2>
+            <p>
+              De keuzehulp is gratis en je hebt er geen account voor nodig. Je antwoorden worden opgeslagen in je eigen browser zodat je tussen de vragen en het resultaat heen en weer kunt, en verder nergens: wij weten niet wie je bent en hebben geen profiel van je. Meer daarover lees je in ons <a href="privacy">privacybeleid</a>.
+            </p>
+
+            <h2>Waar het systeem tegenaan loopt</h2>
+            <p>
+              Twee dingen die we liever vooraf zeggen dan achteraf.
+            </p>
+            <div class="info-card">
+              <ul>
+                <li><strong>Wij testen niets zelf.</strong> Ons advies komt uit officiële specificaties, niet uit eigen metingen van beeldkwaliteit of wasresultaat. Voor de ervaring in de praktijk zijn de beoordelingen op de winkelpagina een waardevolle aanvulling.</li>
+                <li><strong>Prijzen zijn van de laatste update.</strong> Tussen twee dagelijkse rondes kan een winkel zijn prijs aanpassen. De prijs in de winkel is altijd leidend; wat je daar ziet reken je af.</li>
+              </ul>
+            </div>
+
+            <div class="info-cta">
+              <span class="info-cta-title">Probeer het zelf</span>
+              <p>Zestien keuzehulpen, van televisies en laptops tot wasmachines, koelkasten en koffiemachines. Een paar vragen en je weet welke modellen bij je passen.</p>
+              <a class="info-cta-btn" href="./">Bekijk alle keuzehulpen<i data-lucide="arrow-right" aria-hidden="true"></i></a>
+            </div>
+
+          </div>
         </div>
       </section>
     </main>

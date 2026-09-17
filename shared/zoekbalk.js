@@ -84,6 +84,15 @@ const keuzehulpen = [
     url: "vaatwasser/vragen",
   },
   {
+    title: "Stofzuiger keuzehulp",
+    keywords: [
+      "stofzuiger", "stofzuigers", "stofzuiger kopen",
+      "cilinderstofzuiger", "steelstofzuiger", "snoerloze stofzuiger",
+      "stofzak", "stofzakloos",
+    ],
+    url: "stofzuiger/vragen",
+  },
+  {
     title: "Robotstofzuiger keuzehulp",
     keywords: [
       "robotstofzuiger", "robotstofzuigers", "robot stofzuiger",

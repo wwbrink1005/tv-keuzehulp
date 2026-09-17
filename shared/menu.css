@@ -3,6 +3,17 @@
    DESIGN TOKENS
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 :root {
+  /* Site-brede inhoudskolom. menu.css wordt op elke pagina geladen, dus dit
+     is de ene plek waar de standaardbreedte en zijmarge staan. 1240px sluit
+     aan op het quiz-canvas (1242px, zie shared/quiz.css --base-width), dat
+     het minst flexibele element van de site is.
+     --site-bleed-padding: voor balken die zelf de volle breedte houden
+     (menu, titelbalk, footer) maar waarvan de inhoud in de kolom moet
+     staan — de padding groeit mee zodra het scherm breder is dan de kolom. */
+  --site-max-width: 1240px;
+  --site-gutter: clamp(20px, 4vw, 40px);
+  --site-bleed-padding: max(var(--site-gutter), calc((100% - var(--site-max-width)) / 2));
+
   --menu-height: 88px;
   --menu-bg: #ffffff;
   --menu-text: #1d1d1f;
@@ -48,9 +59,9 @@ body.has-menu {
   height: var(--menu-height);
   background: var(--menu-bg);
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: 0 clamp(20px, 4vw, 52px);
+  padding: 0 var(--site-bleed-padding);
   gap: 0 20px;
   z-index: 100;
   box-shadow: var(--menu-shadow);
@@ -59,10 +70,18 @@ body.has-menu {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    BRAND / LOGO
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.menu-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  justify-self: start;
+  min-width: 0;
+}
+
 .menu-brand {
   display: flex;
   align-items: center;
-  justify-self: start;
+  flex-shrink: 0;
 }
 
 .menu-brand a {
@@ -113,27 +132,37 @@ body.has-menu {
 
 .menu-search-center .landing-search {
   width: clamp(280px, 32vw, 500px);
-}
-
-.menu-search-center .landing-search input {
-  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   height: 50px;
-  padding: 0 20px 0 50px;
+  padding: 0 6px 0 18px;
   border-radius: 999px;
   border: 1.5px solid #d8dde6;
-  font-size: 14.5px;
-  font-family: var(--menu-font);
-  outline: none;
-  background: #f4f6f9;
-  color: var(--menu-text);
-  transition: all var(--menu-transition);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  transition: border-color var(--menu-transition), box-shadow var(--menu-transition);
 }
 
-.menu-search-center .landing-search input:focus {
+.menu-search-center .landing-search:focus-within {
   border-color: var(--menu-accent);
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(9, 84, 163, 0.10), inset 0 1px 3px rgba(0,0,0,0.03);
+  box-shadow: 0 0 0 3px rgba(9, 84, 163, 0.10);
+}
+
+.menu-search-center .landing-search input,
+.menu-search-center .landing-search input:focus {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  font-size: 14.5px;
+  font-family: var(--menu-font);
+  color: var(--menu-text);
 }
 
 .menu-search-center .landing-search input::placeholder {
@@ -142,12 +171,36 @@ body.has-menu {
 }
 
 .menu-search-center .landing-search .search-icon {
-  left: 17px;
+  position: static;
   width: 18px;
   height: 18px;
   color: #8a93a2;
-  top: 50%;
-  transform: translateY(-50%);
+  flex-shrink: 0;
+  transform: none;
+}
+
+.menu-search-center .menu-search-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--menu-accent);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background var(--menu-transition);
+}
+
+.menu-search-center .menu-search-btn:hover {
+  background: var(--color-primary-dark, #073d7a);
+}
+
+.menu-search-center .menu-search-btn svg,
+.menu-search-center .menu-search-btn i {
+  width: 16px;
+  height: 16px;
 }
 
 .menu-link {
@@ -761,25 +814,26 @@ body.has-menu {
 @media (max-width: 768px) {
   .menu-bar {
     grid-template-columns: auto 1fr auto;
+    grid-template-rows: var(--menu-height) auto;
+    height: auto;
+    padding-bottom: 12px;
     gap: 0;
-    padding: 0 20px;
-  }
-
-  .menu-search-center {
-    display: none;
   }
 
   .menu-desktop-links {
     display: none;
   }
-}
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   RESPONSIVE — NARROW DESKTOP (769px – 1100px)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-@media (max-width: 1100px) and (min-width: 769px) {
-  .menu-bar {
-    padding: 0 24px;
+  /* Zoekbalk blijft zichtbaar op mobiel — als eigen volle rij onder de
+     hoofdbalk, i.p.v. verstopt achter het hamburgermenu. */
+  .menu-search-center {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: stretch;
+  }
+
+  .menu-search-center .landing-search {
+    width: 100%;
   }
 }
 

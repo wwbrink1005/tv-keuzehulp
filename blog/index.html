@@ -53,7 +53,7 @@
         --radius-full: 999px;
         --font-body: "Inter", sans-serif;
         --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        --max-width: 1200px;
+        --max-width: var(--site-max-width);
       }
 
       * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -71,7 +71,10 @@
       .wrap {
         max-width: var(--max-width);
         margin: 0 auto;
-        padding: 0 clamp(24px, 5vw, 32px);
+        padding: 0 var(--site-gutter);
+        /* content-box: de 1240px is de inhoud zelf, de zijmarge valt erbuiten —
+           zo lijnt de inhoud exact uit met de menubalk (shared/menu.css). */
+        box-sizing: content-box;
       }
 
       /* ── Breadcrumb ── */
@@ -367,6 +370,7 @@
         <button class="blog-filter-chip" type="button" data-category="airfryer" role="tab" aria-selected="false">Airfryer</button>
         <button class="blog-filter-chip" type="button" data-category="beamer" role="tab" aria-selected="false">Beamer</button>
         <button class="blog-filter-chip" type="button" data-category="koffiemachine" role="tab" aria-selected="false">Koffiemachine</button>
+        <button class="blog-filter-chip" type="button" data-category="stofzuiger" role="tab" aria-selected="false">Stofzuiger</button>
       </div>
 
       <p class="blog-results-status" id="blogResultsStatus"></p>
@@ -835,6 +839,30 @@
           image: "koffiemachine/blog/melk-opschuimen-cappuccino-latte/images/melk-opschuimen-cappuccino-latte.png",
           category: "koffiemachine",
           categoryLabel: "Koffiemachine",
+        },
+        {
+          title: "Cilinderstofzuiger of steelstofzuiger: wat is het verschil?",
+          excerpt: "Krachtig aan het snoer of licht en draadloos — de cijfers uit onze catalogus laten zien wat je echt inlevert.",
+          url: "stofzuiger/blog/cilinderstofzuiger-of-steelstofzuiger/",
+          image: "stofzuiger/blog/cilinderstofzuiger-of-steelstofzuiger/images/cilinderstofzuiger-of-steelstofzuiger.png",
+          category: "stofzuiger",
+          categoryLabel: "Stofzuiger",
+        },
+        {
+          title: "Hoeveel decibel heeft een stille stofzuiger?",
+          excerpt: "We zochten uit hoe luid stofzuigers gemiddeld zijn, en welk deel echt stil genoemd mag worden.",
+          url: "stofzuiger/blog/stofzuiger-geluidsniveau-uitgelegd/",
+          image: "stofzuiger/blog/stofzuiger-geluidsniveau-uitgelegd/images/stofzuiger-geluidsniveau-uitgelegd.png",
+          category: "stofzuiger",
+          categoryLabel: "Stofzuiger",
+        },
+        {
+          title: "Hoe lang gaat een snoerloze stofzuiger mee op een acculading?",
+          excerpt: "De accuduur uit onze catalogus loopt enorm uiteen — dit is wat je realistisch kunt verwachten.",
+          url: "stofzuiger/blog/hoe-lang-gaat-snoerloze-stofzuiger-mee/",
+          image: "stofzuiger/blog/hoe-lang-gaat-snoerloze-stofzuiger-mee/images/hoe-lang-gaat-snoerloze-stofzuiger-mee.png",
+          category: "stofzuiger",
+          categoryLabel: "Stofzuiger",
         },
       ];
 

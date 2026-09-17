@@ -1,6 +1,7 @@
 import { applyMinAanbiedersCascade, buildResultPoints, isPerfectMatch } from "./matching.js";
 import { formatPriceLabel, formatScherpte, parsePrice, qs } from "./utils.js";
-import { buildProvidersHtml, normaliseVerzendkosten, resetProvidersRegistry } from "../../shared/aanbieders.js";
+import { normaliseVerzendkosten, resetProvidersRegistry } from "../../shared/aanbieders.js";
+import { buildCardHtml } from "../../shared/resultaat-kaart.js";
 
 // Fallback shown when an Icecat product image URL 404's (stale/broken CDN entry).
 const IMG_FALLBACK = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f4f5f7'/%3E%3Cg fill='none' stroke='%23c8ccd2' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='40' y='50' width='120' height='90' rx='8'/%3E%3Ccircle cx='75' cy='85' r='10'/%3E%3Cpath d='M40 125l35-30 30 25 20-18 35 28'/%3E%3C/g%3E%3C/svg%3E";
@@ -125,8 +126,8 @@ function updateResultMatchUI(tv, scores, answers, count = 0) {
   const enkelvoud = count === 1;
   const perfectMatch = isPerfectMatch(tv, scores, answers, currentSizeGroup);
   const titleText = perfectMatch
-    ? (enkelvoud ? "De tv die perfect bij je keuzes past" : "De tv's die perfect bij je keuzes passen")
-    : (enkelvoud ? "De tv die het beste bij je keuzes past" : "De tv's die het beste bij je keuzes passen");
+    ? (enkelvoud ? "Tv die bij je past" : "Tv's die bij je passen")
+    : (enkelvoud ? "Tv die bij je past" : "Tv's die bij je passen");
 
   if (titleEl) {
     titleEl.textContent = titleText;
@@ -232,34 +233,9 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
       const price = parsePrice(tv.prijs);
       const isCheapest = price === minPrice;
       const specs = buildSpecList(tv);
-      const specsText = specs.join(" \u2022 ");
       const points = buildResultPoints(tv, currentAnswers, currentSizeGroup);
-      const pointsHtml = points.map(point => `
-        <li>
-          <i data-lucide="check" class="tv-card-check" aria-hidden="true"></i>
-          <span>${point}</span>
-        </li>
-      `).join("");
-      const providersHtml = buildProvidersHtml(tv.aanbieders);
 
-      return `
-        <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
-          <div class="tv-card-image" aria-hidden="true">
-            <img src="${tv.afbeelding || 'tv.png'}" alt="" role="presentation" ${index < 4 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"'} onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
-            <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${tv.afbeelding || 'tv.png'}" data-preview-name="${tv.naam}" data-preview-imgs="${JSON.stringify(tv.afbeeldingen || []).replace(/"/g, '&quot;')}">
-              <i data-lucide="eye"></i>
-            </button>
-          </div>
-          <div class="tv-card-body">
-            ${isCheapest ? '<span class="tv-card-cheapest-badge">Goedkoopste keuze</span>' : ''}
-            <h3 class="tv-card-name">${tv.naam}</h3>
-            ${points.length > 0 ? `<ul class="tv-card-points">${pointsHtml}</ul>` : ""}
-            <div class="tv-card-specs">${specsText}</div>
-            <div class="tv-card-price">Vanaf \u20ac${formatPriceLabel(price)}</div>
-          </div>
-          ${providersHtml}
-        </article>
-      `;
+      return buildCardHtml({ product: tv, index, isCheapest, specs, points });
     })
     .join("");
 

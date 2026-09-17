@@ -193,7 +193,11 @@ body {
 
 .quiz-hero {
      width: 100%;
-     max-width: calc(var(--base-width) * 1px);
+     /* Canvas blijft --base-width (1242px) als ontwerpmaat, maar wordt begrensd
+        door de site-kolom (1240px, shared/menu.css) zodat hij exact uitlijnt
+        met de menubalk. De 2px verschil vangt main.js op: --scale wordt uit
+        de werkelijke breedte berekend, alle coördinaten schalen mee. */
+     max-width: min(calc(var(--base-width) * 1px), var(--site-max-width));
      position: relative;
      display: flex;
      flex-direction: column;
@@ -208,7 +212,7 @@ body {
      top: 0;
      transform: translateX(-50%);
      width: 100%;
-     max-width: calc(var(--base-width) * 1px);
+     max-width: min(calc(var(--base-width) * 1px), var(--site-max-width));
      aspect-ratio: 1242.21 / 630.138;
      z-index: 2;
    }

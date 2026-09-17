@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- TESTPAGINA voor de nieuwe homepage. Niet gelinkt, niet indexeren.
+         De echte homepage blijft index.html. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Testpagina homepage · producthulp.nl</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" />
+    <link rel="stylesheet" href="shared/menu.css" />
+    <link rel="stylesheet" href="shared/footer.css" />
+    <script src="shared/menu.js" defer></script>
+    <script src="shared/footer.js" defer></script>
+    <script type="module" src="shared/product-counts.js"></script>
+    <style>
+      :root { --blue: #0954a3; --blue-dark: #073d7a; --blue-soft: #eaf1fa; --blue-line: #cfdff2; --green: #059669; --text: #1d1d1f; --text-2: #424245; --text-3: #6e6e73; --line: #e3e5e8; --bg: #f5f5f7; --r: 12px; }
+      *, *::before, *::after { box-sizing: border-box; }
+      body { margin: 0; background: #fff; color: var(--text); font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; }
+      a { color: inherit; text-decoration: none; }
+      img { max-width: 100%; }
+      .hp { padding: 0 var(--site-bleed-padding) 0; }
+      .hp-tail { padding-bottom: 8px; }
+      .hp > * { max-width: var(--site-max-width); margin-left: auto; margin-right: auto; }
+      .btn { display: inline-flex; align-items: center; gap: 8px; background: var(--blue); color: #fff; font-weight: 700; font-size: 14px; height: 44px; padding: 0 18px 0 22px; border-radius: 999px; width: max-content; }
+      .btn svg { width: 14px; height: 14px; }
+      .btn:hover { background: var(--blue-dark); }
+      .btn-light { background: #fff; color: var(--blue-dark); }
+      .btn-light:hover { background: var(--blue-soft); }
+      .link { display: inline-flex; align-items: center; gap: 3px; font-weight: 700; color: var(--blue); font-size: 13.5px; }
+      .link svg { width: 13px; height: 13px; }
+
+      /* ── beloften-rij direct onder het menu ── */
+      .usprow { background: #ffffff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 0 var(--site-bleed-padding); }
+      .usprow-inner { max-width: var(--site-max-width); margin: 0 auto; min-height: 46px; display: flex; align-items: center; overflow: hidden; }
+      .usprow ul { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 8px 0; padding: 0; list-style: none; flex: 1; justify-content: center; min-width: 0; }
+      .usprow li { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 12px; color: var(--text-2); }
+      .usprow li .usp-check { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 999px; background: rgba(5, 150, 105, .12); color: var(--green); flex-shrink: 0; }
+      .usprow li svg { width: 11px; height: 11px; stroke-width: 3; }
+      .usprow b { font-weight: 700; color: var(--text); }
+      @media (max-width: 1150px) and (min-width: 901px) {
+        .usprow ul { gap: 6px 12px; }
+        .usprow li { font-size: 10.5px; gap: 5px; }
+        .usprow li .usp-check { width: 16px; height: 16px; }
+      }
+
+      /* ── hero: grote uitlicht-slider (links) + kleinere "over ons"-kaart (rechts) ── */
+      .hero { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; margin-top: 20px; align-items: stretch; }
+
+      .slider { position: relative; overflow: hidden; border-radius: var(--r); display: flex; flex-direction: column; min-height: 460px; border: 1px solid var(--line); }
+      .slides { flex: 1; display: flex; margin: 0; padding: 0; list-style: none; transition: transform .5s cubic-bezier(.4, 0, .2, 1); }
+      .slide { flex: 0 0 100%; position: relative; display: flex; align-items: center; padding: 0 40px; background-size: cover; background-position: center; overflow: hidden; }
+      .slide-badge { position: absolute; top: 26px; right: 30px; z-index: 2; background: var(--green); color: #fff; font-size: 11.5px; font-weight: 800; letter-spacing: .02em; padding: 9px 15px; border-radius: 999px; box-shadow: 0 8px 18px rgba(0, 0, 0, .22); transform: rotate(3deg); }
+      .slide-card { position: relative; z-index: 1; background: rgba(255, 255, 255, .94); backdrop-filter: blur(2px); border-radius: 14px; padding: 26px 28px; display: flex; flex-direction: column; gap: 12px; max-width: 380px; box-shadow: 0 20px 45px rgba(20, 30, 50, .18); }
+      .slide-card h2 { margin: 0; font-size: 28px; line-height: 1.05; font-weight: 800; letter-spacing: -.02em; color: var(--text); text-wrap: balance; }
+      .slide-card p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2); }
+
+      .slider-tabs { display: flex; gap: 8px; padding: 12px; background: var(--bg); border-top: 1px solid var(--line); }
+      .slider-tabs button { flex: 1; appearance: none; border: 1.5px solid var(--line); background: #fff; color: var(--text-2); font: inherit; font-size: 12.5px; font-weight: 700; padding: 10px 8px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+      .slider-tabs button.is-on { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+      /* over ons — rechterkaart: licht, geen blauw vlak */
+      .aboutcard { position: relative; border: 1px solid var(--line); border-radius: var(--r); background: #fff; display: flex; flex-direction: column; min-height: 460px; padding: 26px 24px 24px; gap: 14px; }
+      .aboutcard-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--blue-soft); color: var(--blue); display: grid; place-items: center; }
+      .aboutcard-icon svg { width: 22px; height: 22px; }
+      .aboutcard-eyebrow { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--blue); }
+      .aboutcard h3 { margin: 0; font-size: 21px; line-height: 1.2; font-weight: 800; letter-spacing: -.015em; color: var(--text); }
+      .aboutcard-punten { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; }
+      .aboutcard-punten li { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--text-2); }
+      .aboutcard-punten li i { width: 15px; height: 15px; color: var(--green); flex-shrink: 0; }
+      .aboutcard-live { margin: 2px 0 0; display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--green); }
+      .aboutcard-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+      .aboutcard .btn { margin-top: auto; height: 42px; }
+
+      /* placeholder-vlak: licht en duidelijk gelabeld, geen verzonnen foto */
+      .ph { position: relative; width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f2f3f5 0%, #e6e8eb 100%); }
+      .ph-icon { width: 30%; height: 30%; max-width: 60px; max-height: 60px; color: rgba(9, 84, 163, .22); stroke-width: 1.4; }
+      .ph-tag { position: absolute; left: 12px; bottom: 10px; font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-2); background: rgba(255, 255, 255, .85); padding: 4px 8px; border-radius: 6px; }
+
+      /* ── populaire keuzehulpen: fotostrook met pijlen ── */
+      .section { margin-top: 36px; }
+      .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 14px; }
+      .section h2 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+      .section-sub { margin: 0; font-size: 13.5px; color: var(--text-3); }
+      .strip-wrap { position: relative; }
+      .strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 2px; }
+      .strip::-webkit-scrollbar { display: none; }
+      .kh { flex: 0 0 calc((100% - 5 * 12px) / 6); scroll-snap-align: start; border: 1px solid var(--line); border-radius: var(--r); padding: 16px 10px 14px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 3px; background: #fff; transition: border-color .15s, box-shadow .15s; }
+      .kh:hover { border-color: var(--blue-line); box-shadow: 0 6px 18px rgba(9, 84, 163, .10); }
+      .kh-img { width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+      .kh-img img { max-width: 86%; max-height: 100%; object-fit: contain; }
+      .kh-name { font-size: 14px; font-weight: 700; }
+      .kh-n { font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+      .strip-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--text); display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, .10); z-index: 2; }
+      .strip-arrow svg { width: 16px; height: 16px; }
+      .strip-prev { left: -19px; } .strip-next { right: -19px; }
+
+      /* ── winkels waar we prijzen van vergelijken (logokaarten) ── */
+      .shops { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+      .shops a { display: flex; align-items: center; justify-content: center; height: 88px; border: 1px solid var(--line); border-radius: 10px; background: #fff; transition: border-color .15s, box-shadow .15s; }
+      .shops a:hover { border-color: var(--blue-line); box-shadow: 0 6px 18px rgba(9, 84, 163, .10); }
+      .shops img { height: 26px; width: auto; max-width: 120px; object-fit: contain; filter: grayscale(1); opacity: .7; transition: .2s; }
+      .shops a:hover img { filter: none; opacity: 1; }
+      .shops img[alt="Coolblue"] { height: 42px; }
+      .shops img[alt="Acer"] { height: 20px; }
+
+      /* ── "zo werken wij": twee brede beeld+tekst-blokken ── */
+      .howwork-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .how-block { position: relative; overflow: hidden; border-radius: var(--r); border: 1px solid var(--line); display: flex; min-height: 220px; background: #fff; }
+      .how-block-img { flex: 0 0 42%; position: relative; }
+      .how-block-panel { flex: 1; color: var(--text); padding: 26px 60px 26px 26px; display: flex; flex-direction: column; justify-content: center; gap: 10px; position: relative; }
+      .how-block-panel h3 { margin: 0; font-size: 19px; line-height: 1.25; font-weight: 800; letter-spacing: -.015em; color: var(--text); }
+      .how-block-panel p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--text-2); }
+      .how-block-arrow { position: absolute; right: 18px; bottom: 18px; width: 40px; height: 40px; border-radius: 999px; background: var(--blue); color: #fff; display: grid; place-items: center; transition: background .2s; }
+      .how-block-arrow svg { width: 17px; height: 17px; }
+      .how-block:hover { border-color: var(--blue-line); box-shadow: 0 8px 24px rgba(9, 84, 163, .10); }
+      .how-block:hover .how-block-arrow { background: var(--blue-dark); }
+
+      @media (max-width: 1000px) {
+        .hero { grid-template-columns: 1fr; }
+        .kh { flex-basis: calc((100% - 2 * 12px) / 3); }
+        .usprow-inner { height: 42px; }
+        .usprow ul { position: relative; height: 100%; justify-content: center; }
+        .usprow li { position: absolute; inset: 0; justify-content: center; opacity: 0; transition: opacity .4s ease; font-size: clamp(8.5px, 2.8vw, 11.5px); padding: 0 4px; }
+        .usprow li.is-active { opacity: 1; }
+        .slider { min-height: 400px; }
+        .aboutcard { min-height: 0; }
+        .slide-card h2 { font-size: 24px; }
+        .shops { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 12px; padding-bottom: 2px; }
+        .shops::-webkit-scrollbar { display: none; }
+        .shops a { flex: 0 0 132px; height: 76px; scroll-snap-align: start; }
+        .howwork-grid { grid-template-columns: 1fr; }
+        .strip-prev { left: -8px; } .strip-next { right: -8px; }
+      }
+      @media (max-width: 600px) {
+        .kh { flex-basis: calc((100% - 12px) / 2); }
+        .shops a { flex-basis: 116px; height: 70px; }
+        .slider { min-height: 0; }
+        .slide { align-items: flex-end; padding: 20px; }
+        .slide-card { max-width: none; width: 100%; padding: 20px 22px; }
+        .slide-card h2 { font-size: 24px; }
+        .slider-tabs { flex-wrap: wrap; }
+        .slider-tabs button { flex: 1 1 45%; }
+        .how-block { flex-direction: column; }
+        .how-block-img { flex-basis: auto; height: 140px; }
+        .how-block-panel { padding: 20px 56px 20px 20px; }
+      }
+
+      /* ── Alle categorieën: CSS letterlijk uit index.html ── */
+      :root { --color-primary: #0954a3; --color-primary-light: #e8f0fe; --color-primary-dark: #073d7a; --color-text: #1d1d1f; --color-text-secondary: #64748b; --color-white: #ffffff; --color-border: #e8eaed; --font-body: "Inter", sans-serif; --max-width: var(--site-max-width); }
+      @media (max-width: 480px) { .categories-section { padding: 20px 12px 28px; } }
+      .categories-section ul { margin: 0; padding: 0; }
+
+      .pop-heading {
+        font-size: clamp(20px, 2vw, 28px);
+        font-weight: 700;
+        color: #1d1d1f;
+        margin-bottom: 28px;
+        letter-spacing: -0.02em;
+      }
+      .categories-section {
+        padding: 16px clamp(24px, 5vw, 80px) 72px;
+        background: var(--color-white);
+      }
+
+      .categories-inner {
+        max-width: var(--max-width);
+        margin: 0 auto;
+      }
+
+      .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 36px 56px;
+      }
+
+      .category-col {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .category-header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid var(--color-primary-light);
+        padding: 0 0 14px 0;
+        margin-bottom: 18px;
+        cursor: default;
+        text-align: left;
+        font-family: inherit;
+      }
+
+      .cat-header-inner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .cat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        color: var(--color-primary);
+        flex-shrink: 0;
+      }
+
+      .cat-icon svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
+      }
+
+      .cat-label {
+        font-family: var(--font-body);
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--color-text);
+      }
+
+      .cat-toggle-chevron {
+        display: none;
+        width: 18px;
+        height: 18px;
+        color: var(--color-text-secondary);
+        flex-shrink: 0;
+        transition: transform 0.3s ease;
+      }
+
+      .category-col ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .category-col li a,
+      .category-col li span {
+        display: inline-flex;
+        align-items: center;
+        flex-direction: row-reverse;
+        gap: 6px;
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--color-text);
+        transition: color 0.2s ease;
+        cursor: pointer;
+      }
+
+      .category-col li a:hover {
+        color: var(--color-primary-dark);
+      }
+
+      .category-col li a:hover .cat-chevron {
+        transform: translateX(3px);
+        color: var(--color-primary-dark);
+      }
+
+      .category-col li span {
+        color: #adb5bd;
+        cursor: default;
+      }
+
+      .category-col li span .cat-chevron {
+        color: #c4c7cc;
+      }
+
+      .cat-chevron {
+        width: 12px;
+        height: 12px;
+        color: var(--color-text-secondary);
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
+        stroke-width: 2.5;
+      }
+@media (max-width: 880px) {
+        /* Categories: accordion at tablet */
+        .categories-grid {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .category-col {
+          border: 1.5px solid var(--color-border);
+          border-radius: 14px;
+          overflow: hidden;
+          background: var(--color-white);
+        }
+        .category-col + .category-col {
+          margin-top: 10px;
+        }
+        .category-header {
+          border-bottom: none;
+          margin-bottom: 0;
+          padding: 17px 18px;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+        .category-header:hover {
+          background: var(--color-primary-light);
+        }
+        .category-header[aria-expanded="true"] {
+          border-bottom: 1px solid var(--color-border);
+          background: var(--color-primary-light);
+        }
+        .category-header[aria-expanded="true"] .cat-label {
+          color: var(--color-primary);
+        }
+        .cat-toggle-chevron { display: block; }
+        .category-header[aria-expanded="true"] .cat-toggle-chevron {
+          transform: rotate(180deg);
+        }
+        .category-col ul {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                      padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 0 18px;
+        }
+        .category-col.is-open ul {
+          max-height: 500px;
+          padding: 14px 18px 18px;
+}
+@media (max-width: 768px) {
+        .categories-section {
+          padding: 20px 16px 36px;
+        }
+
+        .categories-grid {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+
+        .category-col {
+          border: 1.5px solid var(--color-border);
+          border-radius: 14px;
+          overflow: hidden;
+          background: var(--color-white);
+          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-col + .category-col {
+          margin-top: 10px;
+        }
+
+        .category-header {
+          border-bottom: none;
+          margin-bottom: 0;
+          padding: 17px 18px;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+
+        .category-header:hover {
+          background: var(--color-primary-light);
+        }
+
+        .category-header[aria-expanded="true"] {
+          border-bottom: 1px solid var(--color-border);
+          background: var(--color-primary-light);
+        }
+
+        .category-header[aria-expanded="true"] .cat-label {
+          color: var(--color-primary);
+        }
+
+        .cat-toggle-chevron { display: block; }
+
+        .category-header[aria-expanded="true"] .cat-toggle-chevron {
+          transform: rotate(180deg);
+        }
+
+        .category-col ul {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                      padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 0 18px;
+        }
+
+        .category-col.is-open ul {
+          max-height: 500px;
+          padding: 14px 18px 18px;
+        }
+}
+      .hp-cats .categories-section { padding-top: 40px; padding-bottom: 8px; }
+    </style>
+  </head>
+  <body class="has-menu">
+    <!-- beloften-rij (komt via script direct onder het menu te staan) -->
+    <div class="usprow" id="usprow"><div class="usprow-inner">
+      <ul id="usprowList">
+        <li class="is-active"><span class="usp-check"><i data-lucide="check" aria-hidden="true"></i></span><span><b><span data-product-count="totaal">10000+</span> producten</b> met volledige specificaties</span></li>
+        <li><span class="usp-check"><i data-lucide="check" aria-hidden="true"></i></span><span>Prijzen van <b>de grootste winkels</b><span id="priceUpdated">, bijgewerkt <b id="priceUpdatedTime"></b></span></span></li>
+        <li><span class="usp-check"><i data-lucide="check" aria-hidden="true"></i></span><span><b>100% onafhankelijk</b> — geen betaalde plekken</span></li>
+        <li><span class="usp-check"><i data-lucide="check" aria-hidden="true"></i></span><span>Gratis, zonder account</span></li>
+      </ul>
+    </div></div>
+
+    <main>
+    <div class="hp">
+      <!-- Hero: grote uitlicht-slider + kleinere "over ons"-kaart -->
+      <section class="hero" aria-label="Welkom">
+        <div class="slider" id="slider" aria-roledescription="carousel" aria-label="Uitgelichte keuzehulpen">
+          <ul class="slides" id="slides">
+            <li class="slide" aria-roledescription="slide" aria-label="1 van 4" style="background-image:url('images/homepage-test/slide-tv.jpg')">
+              <span class="slide-badge">Vind je ideale tv</span>
+              <div class="slide-card">
+                <h2>TV KEUZEHULP</h2>
+                <p>In 2 minuten het juiste scherm voor jouw kamer.</p>
+                <a class="btn" href="tv/vragen">Naar de tv-keuzehulp <i data-lucide="chevron-right" aria-hidden="true"></i></a>
+              </div>
+            </li><li class="slide" aria-roledescription="slide" aria-label="2 van 4" style="background-image:url('images/homepage-test/slide-laptop.jpg')">
+              <span class="slide-badge">Vind je ideale laptop</span>
+              <div class="slide-card">
+                <h2>LAPTOP KEUZEHULP</h2>
+                <p>Voor werk, school of gamen — gefilterd op specs.</p>
+                <a class="btn" href="laptop/vragen">Naar de laptop-keuzehulp <i data-lucide="chevron-right" aria-hidden="true"></i></a>
+              </div>
+            </li><li class="slide" aria-roledescription="slide" aria-label="3 van 4" style="background-image:url('images/homepage-test/slide-wasmachine.jpg')">
+              <span class="slide-badge">Vind je ideale wasmachine</span>
+              <div class="slide-card">
+                <h2>WASMACHINE KEUZEHULP</h2>
+                <p>Op vulgewicht, energielabel en geluid.</p>
+                <a class="btn" href="wasmachine/vragen">Naar de wasmachine-keuzehulp <i data-lucide="chevron-right" aria-hidden="true"></i></a>
+              </div>
+            </li><li class="slide" aria-roledescription="slide" aria-label="4 van 4" style="background-image:url('images/homepage-test/slide-koffiemachine.jpg')">
+              <span class="slide-badge">Vind je ideale koffiemachine</span>
+              <div class="slide-card">
+                <h2>KOFFIEMACHINE KEUZEHULP</h2>
+                <p>Bonen, cups of filter — wat past bij jou?</p>
+                <a class="btn" href="koffiemachine/vragen">Naar de koffiemachine-keuzehulp <i data-lucide="chevron-right" aria-hidden="true"></i></a>
+              </div>
+            </li>
+          </ul>
+          <div class="slider-tabs" id="sliderTabs">
+            <button type="button" class="is-on" data-i="0">Tv keuzehulp</button><button type="button" data-i="1">Laptop keuzehulp</button><button type="button" data-i="2">Wasmachine keuzehulp</button><button type="button" data-i="3">Koffiemachine keuzehulp</button>
+          </div>
+        </div>
+        <div class="aboutcard">
+          <div class="aboutcard-icon"><i data-lucide="shield-check" aria-hidden="true"></i></div>
+          <p class="aboutcard-eyebrow">producthulp.nl</p>
+          <h3>Onafhankelijk. Altijd.</h3>
+          <ul class="aboutcard-punten">
+            <li><i data-lucide="check" aria-hidden="true"></i>Geen betaalde plekken of deals</li>
+            <li><i data-lucide="check" aria-hidden="true"></i>Specificaties uit de officiële bron</li>
+            <li><i data-lucide="check" aria-hidden="true"></i>Elke dag opnieuw geverifieerd</li>
+          </ul>
+          <p class="aboutcard-live"><i></i>Vandaag bijgewerkt</p>
+          <a class="btn" href="hoe-werkt-het/">Lees hoe wij werken</a>
+        </div>
+      </section>
+
+      <!-- Populaire keuzehulpen -->
+      <section class="section" aria-label="Populaire keuzehulpen">
+        <div class="section-head"><h2>Populaire keuzehulpen</h2></div>
+        <div class="strip-wrap">
+          <div class="strip" id="khStrip"><a class="kh" href="tv/vragen"><div class="kh-img"><img src="images/header/oled.png" alt="" loading="lazy" /></div><span class="kh-name">Televisies</span><span class="kh-n"><span data-product-count="televisies">900+</span> producten</span></a><a class="kh" href="laptop/vragen"><div class="kh-img"><img src="images/header/laptop%20header.png" alt="" loading="lazy" /></div><span class="kh-name">Laptops</span><span class="kh-n"><span data-product-count="laptops">1900+</span> producten</span></a><a class="kh" href="monitor/vragen"><div class="kh-img"><img src="monitor/images/draak.png" alt="" loading="lazy" /></div><span class="kh-name">Monitoren</span><span class="kh-n"><span data-product-count="monitoren">1700+</span> producten</span></a><a class="kh" href="desktop/vragen"><div class="kh-img"><img src="desktop/images/tower.png" alt="" loading="lazy" /></div><span class="kh-name">Desktops</span><span class="kh-n"><span data-product-count="desktops">670+</span> producten</span></a><a class="kh" href="printer/vragen"><div class="kh-img"><img src="images/header/printer%20header.png" alt="" loading="lazy" /></div><span class="kh-name">Printers</span><span class="kh-n"><span data-product-count="printers">580+</span> producten</span></a><a class="kh" href="soundbar/vragen"><div class="kh-img"><img src="soundbar/images/soundbar%20cutout%20groot.png" alt="" loading="lazy" /></div><span class="kh-name">Soundbars</span><span class="kh-n"><span data-product-count="soundbars">140+</span> producten</span></a><a class="kh" href="beamer/vragen"><div class="kh-img"><img src="images/homepage-test/beamers.jpg" alt="" loading="lazy" /></div><span class="kh-name">Beamers</span><span class="kh-n"><span data-product-count="beamers">130+</span> producten</span></a><a class="kh" href="wasmachine/vragen"><div class="kh-img"><img src="images/header/wasmachine%20header.png" alt="" loading="lazy" /></div><span class="kh-name">Wasmachines</span><span class="kh-n"><span data-product-count="wasmachines">410+</span> producten</span></a><a class="kh" href="wasdroger/vragen"><div class="kh-img"><img src="images/homepage-test/wasdrogers.jpg" alt="" loading="lazy" /></div><span class="kh-name">Wasdrogers</span><span class="kh-n"><span data-product-count="wasdrogers">260+</span> producten</span></a><a class="kh" href="koelkast/vragen"><div class="kh-img"><img src="images/homepage-test/koelkasten.jpg" alt="" loading="lazy" /></div><span class="kh-name">Koelkasten</span><span class="kh-n"><span data-product-count="koelkasten">1100+</span> producten</span></a><a class="kh" href="vriezer/vragen"><div class="kh-img"><img src="images/homepage-test/vriezers.png" alt="" loading="lazy" /></div><span class="kh-name">Vriezers</span><span class="kh-n"><span data-product-count="vriezers">240+</span> producten</span></a><a class="kh" href="vaatwasser/vragen"><div class="kh-img"><img src="images/homepage-test/vaatwassers.jpg" alt="" loading="lazy" /></div><span class="kh-name">Vaatwassers</span><span class="kh-n"><span data-product-count="vaatwassers">680+</span> producten</span></a><a class="kh" href="airfryer/vragen"><div class="kh-img"><img src="images/homepage-test/airfryers.jpg" alt="" loading="lazy" /></div><span class="kh-name">Airfryers</span><span class="kh-n"><span data-product-count="airfryers">150+</span> producten</span></a><a class="kh" href="koffiemachine/vragen"><div class="kh-img"><img src="images/homepage-test/koffiemachines.jpg" alt="" loading="lazy" /></div><span class="kh-name">Koffiemachines</span><span class="kh-n"><span data-product-count="koffiemachines">530+</span> producten</span></a><a class="kh" href="stofzuiger/vragen"><div class="kh-img"><img src="images/homepage-test/stofzuiger.png" alt="" loading="lazy" /></div><span class="kh-name">Stofzuigers</span><span class="kh-n"><span data-product-count="stofzuigers">410+</span> producten</span></a><a class="kh" href="robotstofzuiger/vragen"><div class="kh-img"><img src="images/homepage-test/robotstofzuigers.jpg" alt="" loading="lazy" /></div><span class="kh-name">Robotstofzuigers</span><span class="kh-n"><span data-product-count="robotstofzuigers">190+</span> producten</span></a></div>
+          <button class="strip-arrow strip-prev" type="button" aria-label="Vorige" data-dir="-1"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+          <button class="strip-arrow strip-next" type="button" aria-label="Volgende" data-dir="1"><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+        </div>
+      </section>
+
+      <!-- Winkels -->
+      <section class="section" aria-label="Winkels">
+        <div class="section-head"><h2>Wij vergelijken prijzen bij</h2><p class="section-sub">Per product zie je prijs, levertijd en bezorgkosten per winkel — elke dag opnieuw opgehaald.</p></div>
+        <div class="shops"><a href="hoe-werkt-het/" aria-label="Coolblue"><img src="shared/images/aanbieder-logos/coolblue.png" alt="Coolblue" loading="lazy" /></a><a href="hoe-werkt-het/" aria-label="bol"><img src="shared/images/aanbieder-logos/bol.svg" alt="bol" loading="lazy" /></a><a href="hoe-werkt-het/" aria-label="MediaMarkt"><img src="shared/images/aanbieder-logos/mediamarkt.png" alt="MediaMarkt" loading="lazy" /></a><a href="hoe-werkt-het/" aria-label="Expert"><img src="shared/images/aanbieder-logos/expert.png" alt="Expert" loading="lazy" /></a><a href="hoe-werkt-het/" aria-label="EP."><img src="shared/images/aanbieder-logos/ep.svg" alt="EP." loading="lazy" /></a><a href="hoe-werkt-het/" aria-label="Acer"><img src="shared/images/aanbieder-logos/acer.svg" alt="Acer" loading="lazy" /></a></div>
+      </section>
+
+      <!-- Zo werken wij: twee brede beeld+tekst-blokken -->
+      <section class="section" aria-label="Zo werken wij">
+        <div class="section-head"><h2>Zo werken wij</h2></div>
+        <div class="howwork-grid">
+          <a class="how-block" href="hoe-werkt-het/">
+            <div class="how-block-img"><div class="ph ph-advies"><i data-lucide="list-checks" class="ph-icon" aria-hidden="true"></i><span class="ph-tag">Foto volgt</span></div></div>
+            <div class="how-block-panel">
+              <h3>Advies op basis van jouw antwoorden</h3>
+              <p>Een paar simpele vragen over hoe jij het apparaat gebruikt. Wij vertalen dat naar harde eisen en filteren onze database — geen gesponsorde plekken, geen verborgen deals.</p>
+              <span class="how-block-arrow"><i data-lucide="arrow-right" aria-hidden="true"></i></span>
+            </div>
+          </a>
+          <a class="how-block" href="hoe-werkt-het/">
+            <div class="how-block-img"><div class="ph ph-prijzen"><i data-lucide="refresh-cw" class="ph-icon" aria-hidden="true"></i><span class="ph-tag">Foto volgt</span></div></div>
+            <div class="how-block-panel">
+              <h3>Prijzen die nooit stilstaan</h3>
+              <p>Elke dag halen we opnieuw de actuele prijs, levertijd en bezorgkosten op bij de grootste winkels. Jij ziet altijd de meest recente stand, nooit een verouderde vergelijking.</p>
+              <span class="how-block-arrow"><i data-lucide="arrow-right" aria-hidden="true"></i></span>
+            </div>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- Alle categorieën: 1-op-1 uit index.html -->
+    <div class="hp-cats hp-tail" id="alle-categorieen">
+      <section class="categories-section" aria-label="Alle categorieën">
+        <div class="categories-inner">
+          <h2 class="pop-heading">Alle categorieën</h2>
+          <div class="categories-grid">
+
+            <div class="category-col reveal-delay-1">
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="tv" aria-hidden="true"></i></span>
+                  <span class="cat-label">Beeld &amp; Geluid</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
+              <ul>
+                <li>
+                  <a href="tv/vragen">
+                    Televisies
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="soundbar/vragen">
+                    Soundbars
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="beamer/vragen">
+                    Beamers
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="category-col reveal-delay-2">
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="laptop" aria-hidden="true"></i></span>
+                  <span class="cat-label">Computers &amp; Beeldscherm</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
+              <ul>
+                <li>
+                  <a href="laptop/vragen">
+                    Laptops
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="monitor/vragen">
+                    Monitoren
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="desktop/vragen">
+                    Desktop PC
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="printer/vragen">
+                    Printers
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="category-col reveal-delay-3">
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="washing-machine" aria-hidden="true"></i></span>
+                  <span class="cat-label">Huishouden &amp; Wonen</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
+              <ul>
+                <li>
+                  <a href="wasmachine/vragen">
+                    Wasmachines
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="wasdroger/vragen">
+                    Wasdrogers
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="robotstofzuiger/vragen">
+                    Robotstofzuigers
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="category-col reveal-delay-1">
+              <button class="category-header" aria-expanded="false">
+                <span class="cat-header-inner">
+                  <span class="cat-icon"><i data-lucide="utensils-crossed" aria-hidden="true"></i></span>
+                  <span class="cat-label">Keuken</span>
+                </span>
+                <i data-lucide="chevron-down" class="cat-toggle-chevron" aria-hidden="true"></i>
+              </button>
+              <ul>
+                <li>
+                  <a href="koelkast/vragen">
+                    Koelkasten
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="vriezer/vragen">
+                    Vriezers
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="vaatwasser/vragen">
+                    Vaatwassers
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="airfryer/vragen">
+                    Airfryers
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="koffiemachine/vragen">
+                    Koffiemachines
+                    <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </div>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="shared/zoekbalk.js" defer></script>
+    <script>
+      // setTimeout(…, 0): dit inline-script staat vóór de deferred menu.js in de
+      // uitvoervolgorde, dus zonder uitstel bestaat .menu-bar nog niet.
+      document.addEventListener("DOMContentLoaded", () => setTimeout(() => {
+        // ── beloften-rij onder het menu ── (het zoekveld zelf komt inmiddels
+        // altijd al mee via shared/menu.js — geen eigen injectie meer nodig)
+        const bar = document.querySelector(".menu-bar");
+        const usp = document.getElementById("usprow");
+        if (bar) bar.after(usp);
+        if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
+
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // ── hoofdslider, gestuurd door de tab-strook ──
+        const slides = document.getElementById("slides");
+        const tabs = Array.from(document.querySelectorAll("#sliderTabs button"));
+        const n = tabs.length;
+        let i = 0, timer = null;
+        function show(k) {
+          i = (k + n) % n;
+          slides.style.transform = `translateX(-${i * 100}%)`;
+          tabs.forEach((t, j) => t.classList.toggle("is-on", j === i));
+        }
+        function start() { if (!reduce) { stop(); timer = setInterval(() => show(i + 1), 5500); } }
+        function stop() { if (timer) clearInterval(timer); timer = null; }
+        tabs.forEach((t, j) => t.addEventListener("click", () => { show(j); start(); }));
+        const slider = document.getElementById("slider");
+        slider.addEventListener("mouseenter", stop);
+        slider.addEventListener("mouseleave", start);
+        let x0 = null;
+        slider.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; stop(); }, { passive: true });
+        slider.addEventListener("touchend", (e) => {
+          if (x0 === null) return;
+          const dx = e.changedTouches[0].clientX - x0; x0 = null;
+          if (Math.abs(dx) > 40) show(dx < 0 ? i + 1 : i - 1);
+          start();
+        }, { passive: true });
+        start();
+
+        // ── beloften-rij op mobiel: één belofte tegelijk ──
+        const uspItems = Array.from(document.querySelectorAll("#usprowList li"));
+        let u = 0;
+        if (!reduce) setInterval(() => {
+          if (!window.matchMedia("(max-width: 1000px)").matches) return;
+          uspItems[u].classList.remove("is-active"); u = (u + 1) % uspItems.length; uspItems[u].classList.add("is-active");
+        }, 4000);
+
+        // ── Alle categorieën: accordion op mobiel (zelfde gedrag als index.html) ──
+        document.querySelectorAll(".category-header").forEach((h) => h.addEventListener("click", () => {
+          if (!window.matchMedia("(max-width: 880px)").matches) return;
+          const col = h.closest(".category-col"); const open = col.classList.contains("is-open");
+          col.classList.toggle("is-open", !open); h.setAttribute("aria-expanded", String(!open));
+        }));
+
+        // ── keuzehulpenstrook ──
+        const strip = document.getElementById("khStrip");
+        document.querySelectorAll(".strip-arrow").forEach((b) => b.addEventListener("click", () => {
+          const tile = strip.querySelector(".kh");
+          const step = tile ? (tile.getBoundingClientRect().width + 12) * 3 : 600;
+          strip.scrollBy({ left: Number(b.dataset.dir) * step, behavior: "smooth" });
+        }));
+      }, 0));
+    </script>
+    <script type="module">
+      // Tijdstip van de laatste prijsupdate (nieuwste bijgewerkt_op over een paar
+      // grote tabellen). Lukt het niet, dan verdwijnt alleen dat stukje zin.
+      const URL_BASE = "https://clypcdpapacpowxehxzv.supabase.co/rest/v1/";
+      const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNseXBjZHBhcGFjcG93eGVoeHp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTc3NDIsImV4cCI6MjA5MzEzMzc0Mn0.3BpYssokCLQdhbSwTvhOMj5ve5QYhg2Jzd7MIUYCHkE";
+      const note = document.getElementById("priceUpdated");
+      const out = document.getElementById("priceUpdatedTime");
+      // Optimistische schatting (de eigen kloktijd van de bezoeker) vóór de
+      // netwerkcall, zodat de regel niet leeg begint en na de fetch verspringt.
+      if (out) {
+        out.textContent = `vandaag ${new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}`;
+      }
+      try {
+        const tijden = await Promise.all(["televisies", "laptops", "wasmachines"].map(async (t) => {
+          const r = await fetch(`${URL_BASE}${t}?select=bijgewerkt_op&order=bijgewerkt_op.desc&limit=1`, { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
+          const rows = r.ok ? await r.json() : [];
+          return rows[0]?.bijgewerkt_op ? new Date(rows[0].bijgewerkt_op) : null;
+        }));
+        const nieuwste = tijden.filter(Boolean).sort((a, b) => b - a)[0];
+        if (!nieuwste) throw new Error("geen tijdstip");
+        const nu = new Date();
+        const gisteren = new Date(nu); gisteren.setDate(nu.getDate() - 1);
+        const tijd = nieuwste.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+        const dag = nieuwste.toDateString() === nu.toDateString() ? "vandaag" : nieuwste.toDateString() === gisteren.toDateString() ? "gisteren" : nieuwste.toLocaleDateString("nl-NL", { day: "numeric", month: "short" });
+        out.textContent = `${dag} ${tijd}`;
+      } catch {
+        note.hidden = true;
+      }
+    </script>
+  </body>
+</html>

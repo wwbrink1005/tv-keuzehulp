@@ -5,8 +5,8 @@
     <base href="../">
     <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Over producthulp</title>
-    <meta name="description" content="Meer over producthulp.nl: wij helpen je met onafhankelijke keuzehulpen snel het beste product te vinden, zonder eindeloos te vergelijken." />
+    <title>Over producthulp.nl</title>
+    <meta name="description" content="Wij voegen de assortimenten van de grote Nederlandse winkels samen tot één overzicht, met alle relevante merken en dagelijks bijgewerkte prijzen. Lees waarom we daarmee begonnen zijn en hoe we het doen." />
     <link rel="canonical" href="https://producthulp.nl/over-ons/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,17 +20,18 @@
     <script src="shared/footer.js" defer></script>
     <script src="shared/consent.js" defer></script>
     <script src="shared/analytics.js" defer></script>
+    <script src="shared/info-figuren.js" defer></script>
+    <script type="module" src="shared/product-counts.js"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://producthulp.nl/" },
-        { "@type": "ListItem", "position": 2, "name": "Over producthulp", "item": "https://producthulp.nl/over-ons/" }
+        { "@type": "ListItem", "position": 2, "name": "Over producthulp.nl", "item": "https://producthulp.nl/over-ons/" }
       ]
     }
     </script>
-    <script src="shared/over-pagina.js" defer></script>
   </head>
   <body class="info-page" data-page="over-ons">
     <nav class="info-breadcrumb" aria-label="Kruimelpad">
@@ -44,11 +45,190 @@
       <section class="info-layout" aria-label="Algemene informatie">
         <aside class="info-nav">
           <h2 class="info-nav-title">Algemene informatie</h2>
-          <ul class="info-nav-list"></ul>
+          <ul class="info-nav-list">
+            <li><a class="info-nav-link is-active" href="over-ons">Over producthulp.nl<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+            <li><a class="info-nav-link" href="hoe-werkt-het">Hoe werkt het?<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+            <li><a class="info-nav-link" href="contact">Contact<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+            <li><a class="info-nav-link" href="disclaimer">Disclaimer<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+            <li><a class="info-nav-link" href="privacy">Privacybeleid<i data-lucide="chevron-right" class="chevron-icon"></i></a></li>
+          </ul>
         </aside>
         <div class="info-content">
-          <h1 class="info-title"></h1>
-          <div class="info-text"></div>
+          <h1 class="info-title">Over producthulp.nl</h1>
+          <div class="info-text">
+
+            <p class="info-lead">
+              producthulp.nl brengt het aanbod van de grote Nederlandse winkels samen in één overzicht, vult dat aan met de merken die daar vaak buiten vallen, en ververst de prijzen elke ochtend opnieuw. Daar bovenop ligt een keuzehulp die je een paar vragen stelt en op basis daarvan het aanbod terugbrengt tot de modellen die echt bij jou passen. Gratis, zonder account, en zonder dat een fabrikant of winkel een plek in de lijst kan kopen.
+            </p>
+
+            <h2>Waarom we hiermee begonnen zijn</h2>
+            <div class="info-split">
+              <div class="info-split-media">
+                <img src="images/algemeen/avond-vergelijken.jpg" alt="Iemand vergelijkt 's avonds thuis producten op een laptop" loading="lazy" width="800" height="500">
+              </div>
+              <div class="info-split-body">
+                <p>
+                  Dit platform is ontstaan uit onze eigen frustratie. Een wasmachine kopen kostte ons een avond: tien tabbladen open, dezelfde machine op drie sites onder drie net iets andere namen, prijzen die tientjes uit elkaar lagen, en filters die per winkel iets anders betekenden. Uiteindelijk kozen we iets waarvan we hoopten dat het goed was.
+                </p>
+                <p>
+                  Wat vooral bleef hangen was het gevoel dat we betaalden voor dingen die we niet nodig hadden. Een stoomfunctie die we nooit zouden gebruiken. Een toerental dat we niet konden uitleggen. Een scherm dat scherper was dan ons oog kon zien. Niet omdat iemand ons voorloog, maar omdat de duurdere modellen nu eenmaal het best gevonden en het duidelijkst uitgelegd worden.
+                </p>
+              </div>
+            </div>
+            <p>
+              Dat zijn de twee problemen waar producthulp.nl een antwoord op probeert te zijn: je weet niet of je het hele aanbod hebt gezien, en je weet niet of je te veel betaalt voor eigenschappen die in jouw situatie niets doen. Beide problemen zijn op te lossen met data en goede vragen. Dat is precies wat we gebouwd hebben.
+            </p>
+
+            <h2>Het probleem: er is geen plek waar de hele markt staat</h2>
+            <p>
+              De Nederlandse markt voor elektronica en witgoed is versnipperd over een handvol grote winkels, en die overlappen elkaar maar gedeeltelijk. Elke winkel toont je netjes zijn eigen assortiment. Maar geen enkele winkel heeft er belang bij je te laten zien dat hetzelfde model twee straten verderop goedkoper is, of dat er een vergelijkbaar model bestaat dat zij niet verkopen.
+            </p>
+            <p>
+              Daar komt bij dat winkels dezelfde eigenschappen anders benoemen. De ene noemt het "energieklasse A", de andere "A (op een schaal van A tot G)", de derde zet het alleen in een productafbeelding. Zolang die gegevens niet op één manier zijn vastgelegd, kun je ze niet naast elkaar leggen, en kun je dus ook niet filteren op wat je écht belangrijk vindt.
+            </p>
+            <div class="info-highlight">
+              De meeste vergelijkingssites lossen dit half op: ze tonen wel prijzen van meerdere winkels, maar laten de keuze vervolgens volledig aan jou. Je krijgt tweeduizend resultaten en zeventig filters. Wij draaien dat om: eerst de vraag wat je ermee gaat doen, dan pas de lijst.
+            </div>
+
+            <h2>Zo proberen wij de markt wél compleet te krijgen</h2>
+            <p>
+              Volledigheid is geen kwestie van één slimme truc, maar van drie dingen die elke dag opnieuw moeten kloppen: alle winkels erin, alle merken erin, en alle prijzen actueel. Hieronder leggen we per onderdeel uit wat we doen en waar de grenzen liggen.
+            </p>
+
+            <div class="info-split">
+              <div class="info-split-media">
+                <img src="images/algemeen/winkelstraat.jpg" alt="Etalages van meerdere elektronicawinkels in een Nederlandse winkelstraat" loading="lazy" width="800" height="500">
+              </div>
+              <div class="info-split-body">
+                <h3>1. We voegen de assortimenten van de grote winkels samen</h3>
+                <p>
+                  We halen dagelijks het volledige assortiment op bij Coolblue, MediaMarkt, Expert, EP. en bol, aangevuld met merkwinkels die hun eigen modellen verkopen. Al die producten worden samengevoegd op EAN: de streepjescode die wereldwijd uniek is per model.
+                </p>
+                <p>
+                  Dat samenvoegen is het belangrijkste stuk. Een televisie die bij vier winkels ligt, wordt bij ons geen vier zoekresultaten maar één product met vier prijzen eronder, van laag naar hoog. Je ziet in één oogopslag wat het goedkoopst is en wat het snelst bezorgd wordt.
+                </p>
+              </div>
+            </div>
+            <div class="info-shops" aria-label="Winkels waarvan wij het assortiment en de prijzen meenemen">
+              <span><img src="shared/images/aanbieder-logos/coolblue.png" alt="Coolblue" loading="lazy"></span>
+              <span><img src="shared/images/aanbieder-logos/bol.svg" alt="bol" loading="lazy"></span>
+              <span><img src="shared/images/aanbieder-logos/mediamarkt.png" alt="MediaMarkt" loading="lazy"></span>
+              <span><img src="shared/images/aanbieder-logos/expert.png" alt="Expert" loading="lazy"></span>
+              <span><img src="shared/images/aanbieder-logos/ep.svg" alt="EP." loading="lazy"></span>
+              <span><img src="shared/images/aanbieder-logos/acer.svg" alt="Acer" loading="lazy"></span>
+            </div>
+            <p class="info-note">
+              Ongeveer een derde van de producten in onze catalogus ligt bij meer dan één van deze winkels. Voor die producten heeft het vergelijken direct effect op wat je betaalt. Voor de rest geldt dat je in elk geval wéét dat er maar één aanbieder is, in plaats van dat je nog vier sites afgaat om daarachter te komen.
+            </p>
+
+            <div class="info-split is-reverse">
+              <div class="info-split-media">
+                <img src="images/algemeen/merken-showroom.jpg" alt="Wasmachines en koelkasten van verschillende merken naast elkaar in een showroom" loading="lazy" width="800" height="500">
+              </div>
+              <div class="info-split-body">
+                <h3>2. We zorgen dat alle relevante merken erin zitten</h3>
+                <p>
+                  Een vergelijking waarin Bosch, Siemens of Miele ontbreekt is geen vergelijking van de wasmachinemarkt. Toch gebeurt dat makkelijker dan je denkt: niet elk merk is even goed vertegenwoordigd in de gangbare productdatabases, en een merk dat daarin ontbreekt verdwijnt stilletjes uit een overzicht zonder dat iemand een foutmelding ziet.
+                </p>
+                <p>
+                  Wij controleren daarom per categorie of elk merk dat in de winkelassortimenten zit ook daadwerkelijk op de site terechtkomt, en zorgen dat de merken die er anders uit zouden vallen alsnog volledig worden opgenomen. Op dit moment staan er <strong>98 merken</strong> op de site.
+                </p>
+              </div>
+            </div>
+
+            <div class="info-split">
+              <div class="info-split-media">
+                <img src="images/algemeen/ochtend-update.jpg" alt="Vroege ochtend in een magazijn waar de dagvoorraad wordt klaargezet" loading="lazy" width="800" height="500">
+              </div>
+              <div class="info-split-body">
+                <h3>3. We halen de prijzen elke ochtend opnieuw op</h3>
+                <p>
+                  Elke ochtend rond 09:00 wordt de hele catalogus opnieuw opgebouwd: prijzen, voorraad, levertijden en bezorgkosten van alle winkels. Producten die nergens meer te koop zijn verdwijnen dezelfde dag van de site.
+                </p>
+                <p>
+                  Dat is bewust dagelijks en niet "elk uur" of "realtime". Een prijs die tussen twee updates verandert kun je nooit helemaal uitsluiten, en wij beloven liever iets wat we altijd waarmaken dan iets wat er indrukwekkender uitziet. Op elke productkaart staat daarom de winkel en de prijs waarop wij ons baseren. De winkel bepaalt wat je uiteindelijk afrekent.
+                </p>
+              </div>
+            </div>
+
+            <h2>Waar we nu staan</h2>
+            <div class="info-stats">
+              <div class="info-stat">
+                <span class="info-stat-value"><span data-product-count="totaal">10000+</span></span>
+                <span class="info-stat-label">producten met volledige specificaties</span>
+              </div>
+              <div class="info-stat">
+                <span class="info-stat-value">98</span>
+                <span class="info-stat-label">merken over alle categorieën</span>
+              </div>
+              <div class="info-stat">
+                <span class="info-stat-value">16</span>
+                <span class="info-stat-label">keuzehulpen, en groeiend</span>
+              </div>
+              <div class="info-stat">
+                <span class="info-stat-value">Dagelijks</span>
+                <span class="info-stat-label">prijzen en voorraad bijgewerkt</span>
+              </div>
+            </div>
+            <p class="info-note">
+              Deze aantallen zijn geen momentopname uit een persbericht: het productaantal hierboven wordt live uit onze eigen catalogus geladen en verandert dus mee met elke dagelijkse update.
+            </p>
+
+            <h2>Niet betalen voor wat je niet nodig hebt</h2>
+            <p>
+              Dit is het punt waarop wij het duidelijkst afwijken van een gewone vergelijker. Wanneer je onze vragen beantwoordt, gebruiken we die antwoorden niet alleen om producten weg te filteren die niet voldoen, maar ook om te bepalen wat je níét nodig hebt.
+            </p>
+            <p>
+              Geef je aan dat je vooral films kijkt in een verduisterde kamer, dan is een extreem hoge helderheid geen pluspunt meer maar iets waar je voor betaalt zonder er wat aan te hebben. Was je twee keer per week voor twee personen, dan is een trommel van tien kilo geen luxe maar dood gewicht. In beide gevallen zul je bij ons goedkopere modellen bovenaan zien staan dan de "beste koop"-lijstjes je zouden voorschotelen.
+            </p>
+            <div class="info-highlight">
+              Een duurder product staat bij ons nooit hoger omdat het duurder is. De volgorde van de resultaten wordt volledig bepaald door hoe goed een product past bij de antwoorden die jij hebt gegeven.
+            </div>
+
+            <h2>Hoe wij geld verdienen</h2>
+            <p>
+              Hier zijn we het liefst zo duidelijk mogelijk over, omdat het precies het punt is waarop je ons zou moeten wantrouwen.
+            </p>
+            <div class="info-card">
+              <ul>
+                <li><strong>Wij werken met affiliate-links.</strong> Klik je door naar een winkel en koop je daar iets, dan ontvangen wij van die winkel een commissie over de aankoop.</li>
+                <li><strong>Jij betaalt daardoor niets extra.</strong> De prijs die je in de winkel afrekent is exact dezelfde als wanneer je er rechtstreeks naartoe was gegaan. De commissie komt uit de marge van de winkel, niet uit jouw portemonnee.</li>
+                <li><strong>Geen enkel product staat hoger omdat het meer oplevert.</strong> De volgorde wordt bepaald door je antwoorden. Onze commissie speelt geen enkele rol in de berekening. Die informatie zit niet eens in het systeem dat de volgorde bepaalt.</li>
+                <li><strong>Fabrikanten en winkels kunnen geen plek kopen.</strong> We accepteren geen betaling voor een hogere positie, een keurmerk, een uitgelicht blok of een aanbeveling. Er bestaat bij ons geen advertentieruimte om te verkopen.</li>
+                <li><strong>Wij verdienen niets aan wélk product je kiest.</strong> Of je nu het goedkoopste of het duurste model in de lijst neemt: voor ons maakt dat geen verschil in hoe we je adviseren.</li>
+              </ul>
+            </div>
+            <p>
+              Dit model heeft één eerlijke keerzijde die we niet willen verzwijgen: wij verdienen alleen iets als je daadwerkelijk via ons koopt. Dat geeft ons een belang bij dóórkliks. Het geeft ons alleen geen enkel belang bij een <em>duur</em> doorklik, en dat is het onderscheid dat telt. Onze beste strategie is simpelweg dat je het juiste product vindt en terugkomt.
+            </p>
+
+            <h2>Wat wij niet zijn</h2>
+            <p>
+              Een eerlijk verhaal over wat we wél doen hoort een even eerlijk verhaal over de grenzen te bevatten. Dit zijn de belangrijkste.
+            </p>
+            <div class="info-card">
+              <ul>
+                <li><strong>Wij testen producten niet zelf.</strong> We hebben geen laboratorium en meten geen beeldkwaliteit of wasresultaat. Onze adviezen zijn gebaseerd op officiële productspecificaties en op hoe die zich verhouden tot jouw antwoorden, niet op onze eigen gebruikservaring.</li>
+                <li><strong>Wij dekken niet elke webshop.</strong> We richten ons op de grote landelijke winkels met een betrouwbare, dagelijks bijgewerkte productfeed. Kleine of zeer gespecialiseerde shops zitten er niet bij, en marktplaatsen en tweedehands aanbod evenmin.</li>
+                <li><strong>Wij zijn geen recensieplatform.</strong> Je vindt bij ons geen gebruikersbeoordelingen of sterren. Voor de ervaringen van andere kopers ben je op de productpagina van de winkel zelf beter af.</li>
+              </ul>
+            </div>
+
+            <h2>Waar we naartoe werken</h2>
+            <p>
+              We zijn begonnen met televisies en breiden sindsdien categorie voor categorie uit, steeds met dezelfde eis: pas live als het aanbod compleet genoeg is om een eerlijke vergelijking te kunnen maken. Liever vier maanden wachten op een categorie dan er een half overzicht van neerzetten.
+            </p>
+            <p>
+              Op dit moment zijn er zestien keuzehulpen, van televisies en laptops tot wasmachines, koelkasten, vaatwassers, koffiemachines en robotstofzuigers. Daarnaast werken we doorlopend aan de merkdekking binnen bestaande categorieën, want een categorie is nooit definitief af. Suggesties voor een nieuwe categorie of een merk dat je mist zijn welkom. Laat het ons weten via de <a href="contact">contactpagina</a>.
+            </p>
+
+            <div class="info-cta">
+              <span class="info-cta-title">Benieuwd hoe het in de praktijk werkt?</span>
+              <p>Op de volgende pagina leggen we stap voor stap uit wat er gebeurt tussen jouw eerste antwoord en het advies dat je terugkrijgt.</p>
+              <a class="info-cta-btn" href="hoe-werkt-het">Bekijk hoe het werkt<i data-lucide="arrow-right" aria-hidden="true"></i></a>
+            </div>
+
+          </div>
         </div>
       </section>
     </main>

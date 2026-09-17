@@ -83,7 +83,7 @@
         --radius-full: 999px;
         --font-body: "Inter", sans-serif;
         --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        --max-width: 1200px;
+        --max-width: var(--site-max-width);
       }
 
       * { box-sizing: border-box; }
@@ -101,7 +101,10 @@
       .wrap {
         max-width: var(--max-width);
         margin: 0 auto;
-        padding: 0 clamp(24px, 5vw, 32px);
+        padding: 0 var(--site-gutter);
+        /* content-box: de 1240px is de inhoud zelf, de zijmarge valt erbuiten —
+           zo lijnt de inhoud exact uit met de menubalk (shared/menu.css). */
+        box-sizing: content-box;
       }
 
       .breadcrumb { padding-top: 18px; }

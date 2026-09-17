@@ -1,6 +1,7 @@
 import { applyMinAanbiedersCascade, buildResultPoints } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
-import { buildProvidersHtml, resetProvidersRegistry } from "../../shared/aanbieders.js";
+import { resetProvidersRegistry } from "../../shared/aanbieders.js";
+import { buildCardHtml } from "../../shared/resultaat-kaart.js";
 
 // Fallback shown when an Icecat product image URL 404's (stale/broken CDN entry).
 const IMG_FALLBACK = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f4f5f7'/%3E%3Cg fill='none' stroke='%23c8ccd2' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='40' y='50' width='120' height='90' rx='8'/%3E%3Ccircle cx='75' cy='85' r='10'/%3E%3Cpath d='M40 125l35-30 30 25 20-18 35 28'/%3E%3C/g%3E%3C/svg%3E";
@@ -35,8 +36,8 @@ function updateMatchCount(count) {
   const titleEl = qs("#resultTitleText");
   if (titleEl) {
     titleEl.textContent = count === 1
-      ? "De vaatwasser die het beste bij je past!"
-      : "De vaatwassers die het beste bij je passen!";
+      ? "Vaatwasser die bij je past"
+      : "Vaatwassers die bij je passen";
   }
 }
 
@@ -58,34 +59,9 @@ function displayOtherMatchesRedesign(filteredMatchedVaatwassers) {
       const price = parsePrice(vaatwasser.prijs);
       const isCheapest = price === minPrice;
       const specs = buildSpecList(vaatwasser);
-      const specsText = specs.join(" • ");
       const points = buildResultPoints(vaatwasser, currentAnswers);
-      const pointsHtml = points.map(point => `
-        <li>
-          <i data-lucide="check" class="tv-card-check" aria-hidden="true"></i>
-          <span>${point}</span>
-        </li>
-      `).join("");
-      const providersHtml = buildProvidersHtml(vaatwasser.aanbieders);
 
-      return `
-        <article class="tv-card${isCheapest ? " is-cheapest" : ""}" data-match-index="${index}">
-          <div class="tv-card-image" aria-hidden="true">
-            <img src="${vaatwasser.afbeelding || ''}" alt="" role="presentation" ${index < 4 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"'} onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
-            <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${vaatwasser.afbeelding || ''}" data-preview-name="${vaatwasser.naam}" data-preview-imgs="${JSON.stringify(vaatwasser.afbeeldingen || []).replace(/"/g, '&quot;')}">
-              <i data-lucide="eye"></i>
-            </button>
-          </div>
-          <div class="tv-card-body">
-            ${isCheapest ? '<span class="tv-card-cheapest-badge">Goedkoopste keuze</span>' : ''}
-            <h3 class="tv-card-name">${vaatwasser.naam}</h3>
-            ${points.length > 0 ? `<ul class="tv-card-points">${pointsHtml}</ul>` : ""}
-            <div class="tv-card-specs">${specsText}</div>
-            <div class="tv-card-price">Vanaf €${formatPriceLabel(price)}</div>
-          </div>
-          ${providersHtml}
-        </article>
-      `;
+      return buildCardHtml({ product: vaatwasser, index, isCheapest, specs, points });
     })
     .join("");
 

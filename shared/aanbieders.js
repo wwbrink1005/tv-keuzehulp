@@ -173,6 +173,16 @@ function renderCardBlock(aanbieders) {
   `;
 }
 
+/** Registreert een aanbieders-lijst en geeft het id terug waarmee een
+ * trigger (`.rcard-compare[data-providers-id]`, zie resultaat-kaart.js) het
+ * gedeelde vergelijk-venster opent. */
+export function registerProviders(aanbieders) {
+  const list = Array.isArray(aanbieders) ? aanbieders : [];
+  const id = `tv-providers-${seq++}`;
+  registry.set(id, list);
+  return id;
+}
+
 /** Bouwt het volledige "Beschikbaar bij"-blok voor één product. */
 export function buildProvidersHtml(aanbieders) {
   const list = Array.isArray(aanbieders) ? aanbieders : [];
@@ -266,11 +276,12 @@ export function initProvidersInteractions() {
   interactionsBound = true;
 
   document.addEventListener("click", (event) => {
-    const trigger = event.target.closest(".tv-providers-compare-trigger");
+    const trigger = event.target.closest(".tv-providers-compare-trigger, .rcard-compare");
     if (trigger) {
       event.preventDefault();
       const container = trigger.closest(".tv-card-providers");
-      const data = container && registry.get(container.id);
+      const id = trigger.dataset.providersId || (container && container.id);
+      const data = id && registry.get(id);
       if (data) openModal(data);
       return;
     }

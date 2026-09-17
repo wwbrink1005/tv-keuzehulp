@@ -10,13 +10,15 @@
   font-size: 14px;
   line-height: 1.6;
   border-top: 1px solid #e4e8f0;
+  /* Achtergrond volle breedte, inhoud in de site-kolom (zie menu.css). */
+  padding-inline: var(--site-bleed-padding);
 }
 
 /* Inner grid container */
 .footer-inner {
-  max-width: 1200px;
+  max-width: var(--site-max-width);
   margin: 0 auto;
-  padding: 56px clamp(20px, 5vw, 60px) 40px;
+  padding: 56px 0 40px;
   display: grid;
   grid-template-columns: 1.6fr repeat(3, 1fr);
   gap: 40px 48px;
@@ -140,8 +142,9 @@
 /* Bottom bar */
 .footer-bottom {
   border-top: 1px solid #e4e8f0;
-  padding: 20px clamp(20px, 5vw, 60px);
-  max-width: none;
+  padding: 20px 0;
+  max-width: var(--site-max-width);
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;

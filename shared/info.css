@@ -46,10 +46,10 @@ body {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    BREADCRUMB
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* Inhoud in de site-kolom (shared/menu.css): de zijpadding groeit mee zodra
+   het scherm breder is dan de kolom, dus geen aparte max-width nodig. */
 .info-breadcrumb {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px clamp(20px, 5vw, 80px) 0;
+  padding: 20px var(--site-bleed-padding) 0;
 }
 
 .info-breadcrumb ol {
@@ -88,9 +88,7 @@ body {
 
 .info-main {
   flex: 1;
-  padding: clamp(24px, 5vw, 40px) clamp(20px, 5vw, 80px) 88px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: clamp(24px, 5vw, 40px) var(--site-bleed-padding) 88px;
   width: 100%;
 }
 
@@ -211,7 +209,7 @@ body {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   RICH TEXT STYLES (injected by over-pagina.js)
+   RICH TEXT STYLES (staat als gewone HTML in elke pagina zelf)
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .info-text {
   display: flex;
@@ -405,6 +403,224 @@ body {
 
   .info-title {
     font-size: clamp(24px, 6vw, 32px);
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   AFBEELDINGEN
+   Elke figure verwijdert zichzelf via onerror als het bestand (nog) niet
+   bestaat — zo staat er nooit een gebroken-afbeelding-icoon op de pagina
+   terwijl de foto's nog gegenereerd worden.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.info-figure {
+  margin: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-figure img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--info-radius);
+  border: 1px solid var(--info-border);
+  display: block;
+}
+
+.info-figure figcaption {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--info-text-secondary);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SPLIT: tekst naast beeld
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.info-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(20px, 3vw, 32px);
+  align-items: center;
+  margin: 4px 0;
+}
+
+.info-split.is-reverse .info-split-media {
+  order: 2;
+}
+
+.info-split-media img {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  max-height: 340px;
+  object-fit: cover;
+  border-radius: var(--info-radius);
+  border: 1px solid var(--info-border);
+  display: block;
+}
+
+.info-split-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-split-body h3 {
+  font-family: var(--info-font-heading);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--info-text);
+}
+
+.info-split-body p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--info-text);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CIJFERS
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.info-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 4px 0;
+}
+
+.info-stat {
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  border-radius: var(--info-radius);
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-stat-value {
+  font-family: var(--info-font-heading);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--info-accent);
+  line-height: 1.1;
+}
+
+.info-stat-label {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--info-text-secondary);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   WINKELLOGO'S
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.info-shops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.info-shops span {
+  display: grid;
+  place-items: center;
+  min-width: 108px;
+  height: 58px;
+  padding: 10px 16px;
+  background: var(--info-card-bg);
+  border: 1px solid var(--info-border);
+  border-radius: var(--info-radius-sm);
+}
+
+.info-shops img {
+  max-width: 82px;
+  max-height: 26px;
+  object-fit: contain;
+  display: block;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   KLEINE VOETNOOT
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.info-text .info-note {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--info-text-secondary);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   AFSLUITENDE CTA
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.info-cta {
+  background: var(--info-accent-light);
+  border: 1px solid rgba(9, 84, 163, 0.15);
+  border-radius: var(--info-radius);
+  padding: 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.info-cta-title {
+  font-family: var(--info-font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--info-text);
+}
+
+.info-text .info-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--info-radius-full);
+  background: var(--info-accent);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--info-transition);
+}
+
+.info-text .info-cta-btn:hover {
+  background: var(--info-accent-dark);
+  color: #ffffff;
+}
+
+.info-cta-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 720px) {
+  .info-split {
+    grid-template-columns: 1fr;
+  }
+
+  .info-split.is-reverse .info-split-media {
+    order: 0;
+  }
+
+  .info-split-media img {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+    max-height: none;
+  }
+
+  .info-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .info-stat {
+    padding: 16px 14px;
+  }
+
+  .info-stat-value {
+    font-size: 22px;
   }
 }
 

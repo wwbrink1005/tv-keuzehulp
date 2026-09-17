@@ -653,6 +653,15 @@ AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
   zusterartikelen (en verwijder daar zo nodig het oudste artikel om onder de 3 te
   blijven), niet alleen andersom. Alle overige artikelen (voorbij de getoonde 3) blijven wel
   vindbaar via `blog/index.html` (de bloghub).
+- **Intro-alinea (`.article-intro`): gewoon sfeer-/contextzin eerst, zoals altijd** — dit
+  is en blijft de standaard. Er is in september 2026 kort overwogen om hier standaard
+  "antwoord-eerst" van te maken vanwege GEO (Generative Engine Optimization — geciteerd
+  worden in AI-antwoorden van ChatGPT/Google AI Overviews/Perplexity), maar de gebruiker
+  heeft dit bewust weer teruggedraaid (2026-09-17): geen prioriteit, het antwoord hoeft
+  niet per se in de eerste zin. GEO blijft relevant als achtergrondkennis (LLM's citeren
+  bij voorkeur een vroege, concrete, van-een-bron-voorziene claim), maar is geen verplichte
+  intro-structuur — schrijf de intro zoals voorheen, op leesbaarheid/sfeer, met het
+  concrete cijfer ergens vroeg in het artikel (niet per se de allereerste zin).
 - **"Lees ook"-blok op `resultaat/index.html`** (sinds augustus 2026 standaard, niet
   optioneel): voeg direct vóór de sluitende `</aside>`, na de laatste `.filter-card`, een
   `.filters-blog-block` toe met links naar alle 3 blogartikelen. Styling zit al gedeeld in

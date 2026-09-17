@@ -6,67 +6,88 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuHtml = `
     <header class="menu-bar" role="banner">
 
-      <!-- Brand -->
-      <div class="menu-brand">
-        <a href="./" aria-label="producthulp.nl homepage">
-          <img
-            src="logo's/logo.svg"
-            alt="producthulp.nl"
-            class="menu-logo"
-            height="44"
-          />
-        </a>
-      </div>
+      <div class="menu-left">
+        <!-- Brand -->
+        <div class="menu-brand">
+          <a href="./" aria-label="producthulp.nl homepage">
+            <img
+              src="logo's/logo.svg"
+              alt="producthulp.nl"
+              class="menu-logo"
+              height="44"
+            />
+          </a>
+        </div>
 
-      <!-- Desktop nav links -->
-      <div class="menu-desktop-links" id="menuDesktopLinks">
-        <div class="menu-dropdown-trigger" id="desktopCatTrigger">
-          <button class="menu-link menu-cat-btn" type="button" aria-expanded="false" id="desktopCatBtn">
-            Categorieën
-            <svg class="menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="menu-dropdown" id="desktopCatDropdown" role="dialog" aria-label="Alle categorieën">
-            <div class="menu-dropdown-grid">
-              <div class="menu-dropdown-col">
-                <h4>Beeld &amp; Geluid</h4>
-                <ul>
-                  <li><a href="tv/vragen">Televisies <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="soundbar/vragen">Soundbars <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="beamer/vragen">Beamers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                </ul>
-              </div>
-              <div class="menu-dropdown-col">
-                <h4>Computers &amp; Beeldscherm</h4>
-                <ul>
-                  <li><a href="laptop/vragen">Laptops <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="monitor/vragen">Monitoren <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="desktop/vragen">Desktops <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="printer/vragen">Printers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                </ul>
-              </div>
-              <div class="menu-dropdown-col">
-                <h4>Huishouden &amp; Wonen</h4>
-                <ul>
-                  <li><a href="wasmachine/vragen">Wasmachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="wasdroger/vragen">Wasdrogers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="robotstofzuiger/vragen">Robotstofzuigers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                </ul>
-              </div>
-              <div class="menu-dropdown-col">
-                <h4>Keuken</h4>
-                <ul>
-                  <li><a href="koelkast/vragen">Koelkasten <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="vriezer/vragen">Vriezers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="vaatwasser/vragen">Vaatwassers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="airfryer/vragen">Airfryers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                  <li><a href="koffiemachine/vragen">Koffiemachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
-                </ul>
+        <!-- Desktop nav links -->
+        <div class="menu-desktop-links" id="menuDesktopLinks">
+          <div class="menu-dropdown-trigger" id="desktopCatTrigger">
+            <button class="menu-link menu-cat-btn" type="button" aria-expanded="false" id="desktopCatBtn">
+              Categorieën
+              <svg class="menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="menu-dropdown" id="desktopCatDropdown" role="dialog" aria-label="Alle categorieën">
+              <div class="menu-dropdown-grid">
+                <div class="menu-dropdown-col">
+                  <h4>Beeld &amp; Geluid</h4>
+                  <ul>
+                    <li><a href="tv/vragen">Televisies <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="soundbar/vragen">Soundbars <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="beamer/vragen">Beamers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  </ul>
+                </div>
+                <div class="menu-dropdown-col">
+                  <h4>Computers &amp; Beeldscherm</h4>
+                  <ul>
+                    <li><a href="laptop/vragen">Laptops <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="monitor/vragen">Monitoren <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="desktop/vragen">Desktops <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="printer/vragen">Printers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  </ul>
+                </div>
+                <div class="menu-dropdown-col">
+                  <h4>Huishouden &amp; Wonen</h4>
+                  <ul>
+                    <li><a href="wasmachine/vragen">Wasmachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="wasdroger/vragen">Wasdrogers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="stofzuiger/vragen">Stofzuigers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="robotstofzuiger/vragen">Robotstofzuigers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  </ul>
+                </div>
+                <div class="menu-dropdown-col">
+                  <h4>Keuken</h4>
+                  <ul>
+                    <li><a href="koelkast/vragen">Koelkasten <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="vriezer/vragen">Vriezers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="vaatwasser/vragen">Vaatwassers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="airfryer/vragen">Airfryers <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                    <li><a href="koffiemachine/vragen">Koffiemachines <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></a></li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <a class="menu-link" href="blog/">Blogs</a>
-        <a class="menu-link" href="over-ons">Over ons</a>
+      </div>
+
+      <!-- Centered search (desktop) -->
+      <div class="menu-search-center">
+        <div class="landing-search" id="menuLandingSearch">
+          <i data-lucide="search" class="search-icon" aria-hidden="true"></i>
+          <input
+            type="text"
+            placeholder="Waar ben je naar op zoek?"
+            aria-label="Zoek naar een keuzehulp"
+          />
+          <button class="menu-search-btn" type="button" aria-label="Zoeken">
+            <i data-lucide="chevron-right" aria-hidden="true"></i>
+          </button>
+          <div class="landing-search-dropdown" aria-hidden="true">
+            <div class="landing-search-dropdown-header">keuzehulpen</div>
+            <ul class="landing-search-results" role="listbox"></ul>
+            <div class="landing-search-dropdown-footer"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Hamburger (always visible) -->
@@ -159,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <ul>
               <li><a href="wasmachine/vragen">Wasmachines <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><a href="wasdroger/vragen">Wasdrogers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
+              <li><a href="stofzuiger/vragen">Stofzuigers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
               <li><a href="robotstofzuiger/vragen">Robotstofzuigers <i data-lucide="chevron-right" class="cat-chevron" aria-hidden="true"></i></a></li>
             </ul>
           </div>
