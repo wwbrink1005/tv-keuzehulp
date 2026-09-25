@@ -19,6 +19,18 @@ en drempelwaardes/tier-verdelingen die nooit tegen de live catalogus zijn gevali
 (5.3-5.4). Deze secties zijn net zo relevant bij het **herzien van een bestaande**
 keuzehulp als bij het bouwen van een nieuwe — pas dezelfde verificatiestappen toe.
 
+## Nieuw blogartikel schrijven
+
+Kies **nooit** een onderwerp op gevoel. Volg eerst de voorcontrole in
+**[docs/onderwerp-selectie.md](docs/onderwerp-selectie.md)**: zoekvolume via Keyword
+Planner, dan tellen hoeveel sterke sites de exacte vraag al beantwoorden, dan Search
+Console. Van de eerste 62 artikelen leverden er 13 ook maar één klik op omdat die stap
+ontbrak. Wat wint zijn specifiek benoemde technologieën en meeteenheden; wat verliest is
+alles wat begint met "beste" en elke brede vergelijking.
+
+Draai na elk nieuw artikel `scripts/rebuild_related_blocks.py` en
+`scripts/rebuild_all_articles_list.py`, en voeg de URL toe aan `sitemap.xml`.
+
 ## Kernarchitectuur
 
 - `shared/quiz.css`, `shared/resultaat.css` — gedeelde design-CSS voor alle
