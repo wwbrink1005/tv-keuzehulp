@@ -95,6 +95,11 @@
   }
 
   function init() {
+    // Op localhost (Live Server e.d.) nooit GA laden en nooit de banner tonen —
+    // voorkomt dat een testklik op "Accepteren" per ongeluk echte events naar
+    // GA4 stuurt en de live statistieken vervuilt.
+    if (IS_LOCAL_DEV) return;
+
     const consent = getConsent();
     if (consent === "granted") {
       loadGA();

@@ -633,6 +633,23 @@ AI-gegenereerd) — gebruik een punt, komma, dubbele punt of verbindend woord.
   #4, inclusief elk data-gedreven stuk) worden **niet** aan deze sectie toegevoegd; ze
   blijven wel vindbaar via `blog/index.html` (de bloghub) en via het "Meer over
   {categorie}"-cross-linkblok onderaan elk blogartikel (zie hieronder).
+- **Direct onder die 3 kaarten staat een statieke lijst met de artikelen die daar níét bij
+  staan** ("Meer artikelen over {categorie}", `.all-articles`, standaard sinds september 2026).
+  De 3 artikelen die al als kaart getoond worden zijn bewust uitgesloten: ze hebben op deze
+  pagina al een link, en een tweede link naar dezelfde URL telt bij Google niet extra mee —
+  herhalen oogt alleen dubbel. Bij precies 3 artikelen in een categorie verschijnt er dus
+  helemaal geen lijst.
+  **Waarom dit moest:** de gidspagina toont altijd de 3 launch-artikelen en het cross-linkblok
+  altijd de 3 meest recente. In een categorie met meer dan 6 artikelen valt alles daartussenin
+  buiten élke statieke interne link. Een audit op 2026-09-24 vond zo 3 volledig verweesde
+  artikelen (`tv/blog/tv-energielabel-a-of-b-bestaat-dat`, `tv/blog/tweedehands-tv-kopen-waar-op-letten`,
+  `laptop/blog/gaming-laptop-kopen-waar-op-letten`) met nul inkomende links — waaronder een
+  pagina met 212 vertoningen en een dalende positie. De bloghub lost dit niet op: die rendert
+  alle kaarten client-side via JavaScript (`grid.innerHTML = ... .map(renderCard)`) én
+  gepagineerd, dus daar staat geen enkele statieke `href` naar een blogartikel in.
+  **Onderhoud:** draai `scripts/rebuild_all_articles_list.py` na elk nieuw artikel (idempotent, zelfde
+  werkwijze als `scripts/rebuild_related_blocks.py`); het script bouwt de lijst per categorie opnieuw
+  op, gesorteerd op `datePublished` aflopend, en voegt de bijbehorende CSS toe als die ontbreekt.
 - **Elk blogartikel bevat een publicatiedatum en een cross-linkblok naar zusterartikelen**
   (standaard sinds augustus 2026, herzien eind augustus 2026 na een layoutprobleem):
   (1) `datePublished`/`dateModified` (ISO-datum) in de `Article` JSON-LD —

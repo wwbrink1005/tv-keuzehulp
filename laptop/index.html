@@ -284,6 +284,44 @@
       }
 
       /* -- Blog teasers -- */
+      .all-articles { margin-top: 40px; }
+      .all-articles-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--color-text-secondary);
+        margin: 0 0 16px;
+      }
+      .all-articles-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 32px;
+      }
+      .all-articles-list a {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 9px;
+        font-size: 14.5px;
+        line-height: 1.45;
+        color: var(--color-text);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+      .all-articles-list a::before {
+        content: "\2192";
+        color: var(--color-primary);
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .all-articles-list a:hover { color: var(--color-primary); }
+      @media (max-width: 700px) {
+        .all-articles-list { grid-template-columns: 1fr; }
+      }
+
       .blog-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -487,6 +525,17 @@
               </div>
             </a>
           </div>
+
+            <div class="all-articles">
+              <p class="all-articles-title">Meer artikelen over laptops</p>
+              <ul class="all-articles-list">
+                <li><a href="laptop/blog/intel-core-i5-vs-core-ultra-uitgelegd/">Intel Core i5, Core 5 of Core Ultra 5: wat is het verschil?</a></li>
+                <li><a href="laptop/blog/oled-laptop-de-moeite-waard/">Is een OLED-laptop de moeite waard?</a></li>
+                <li><a href="laptop/blog/zakelijke-laptop-vs-consumentenlaptop/">Zakelijke laptop vs consumentenlaptop: is de meerprijs het waard?</a></li>
+                <li><a href="laptop/blog/beste-laptop-per-budget/">Beste laptop per budget: dit krijg je voor €300, €500 of €800</a></li>
+                <li><a href="laptop/blog/gaming-laptop-kopen-waar-op-letten/">Gaming laptop kopen: waar moet je op letten?</a></li>
+              </ul>
+            </div>
         </div>
       </section>
 
