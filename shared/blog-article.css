@@ -323,7 +323,12 @@ a { color: inherit; }
     text-align: center;
   }
   .article-top-cta-text { justify-content: center; }
-  .article-top-cta-btn { justify-content: center; }
+  /* nowrap loslaten: de ankertekst noemt de categorie ("Start de
+     robotstofzuiger-keuzehulp") en past op smalle schermen niet op een regel */
+  .article-top-cta-btn {
+    justify-content: center;
+    white-space: normal;
+  }
 }
 
 /* ── Sticky CTA-balk (verschijnt bij scrollen, verdwijnt bij de echte CTA onderaan) ── */
