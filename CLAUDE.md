@@ -28,8 +28,21 @@ Console. Van de eerste 62 artikelen leverden er 13 ook maar één klik op omdat 
 ontbrak. Wat wint zijn specifiek benoemde technologieën en meeteenheden; wat verliest is
 alles wat begint met "beste" en elke brede vergelijking.
 
-Draai na elk nieuw artikel `scripts/rebuild_related_blocks.py` en
-`scripts/rebuild_all_articles_list.py`, en voeg de URL toe aan `sitemap.xml`.
+Draai na elk nieuw artikel **alle drie** de scripts en voeg de URL toe aan `sitemap.xml`:
+
+```
+python scripts/rebuild_blog_hub.py           # blog/index.html (anders onvindbaar)
+python scripts/rebuild_related_blocks.py     # cross-links onderaan elk artikel
+python scripts/rebuild_all_articles_list.py  # artikellijst op de gidspagina
+```
+
+`rebuild_blog_hub.py` is het makkelijkst te vergeten: de blog-hub draait op een
+handmatig bijgehouden `BLOG_ARTICLES`-array in `blog/index.html` en dat is de enige
+bron voor zoeken, filteren en paginering daar. Staat een artikel er niet in, dan is het
+via het blogmenu nergens te vinden, ook al bestaat de pagina wel.
+
+De "Lees ook"-blokken op de resultaatpagina's staan bewust vast op de 3 lanceerartikelen
+per categorie en hoeven niet mee te groeien.
 
 ## Kernarchitectuur
 
