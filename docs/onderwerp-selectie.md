@@ -54,6 +54,17 @@ Consumentenbond wél precies die pagina, en dan staan we op 48.
 Fabrikanten winnen vrijwel altijd op hun eigen technologienaam. "mini led tv" viel daarop
 af: Samsung en LG hebben allebei een pagina die letterlijk "Mini LED versus OLED" heet.
 
+Drie aanvullingen uit de ronde van 26 september:
+
+- **Een nichesite met meerdere pagina's over hetzelfde deelonderwerp telt als sterk.** Bij
+  "beamer overdag" staat geen enkele grote site, maar beamerkopen.nl heeft vijf pagina's
+  over daglicht. Die topische diepte verslaat één artikel van ons.
+- **Een rekentool verslaat een artikel.** Bij "beamer projectieafstand berekenen" bieden
+  drie concurrenten een calculator. Daar kom je met tekst niet tussen.
+- **Kijk ook naar de intentie, niet alleen naar het volume.** "verschil cappuccino latte
+  macchiato" heeft zwakke concurrentie, maar wie dat zoekt wil een recept, geen
+  koffiemachine kopen. Zwakke concurrentie is geen reden als de bezoeker nooit converteert.
+
 ## Filter 3: vindt Google ons hier al relevant voor? (Search Console)
 
 Geen afvaller maar een versneller. Krijgen we al vertoningen op de term zonder dat we er

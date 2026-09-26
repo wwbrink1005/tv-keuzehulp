@@ -44,6 +44,18 @@ via het blogmenu nergens te vinden, ook al bestaat de pagina wel.
 De "Lees ook"-blokken op de resultaatpagina's staan bewust vast op de 3 lanceerartikelen
 per categorie en hoeven niet mee te groeien.
 
+## Bestaande blogartikelen verbeteren
+
+**[docs/blog-onderhoudsplan.md](docs/blog-onderhoudsplan.md)** bevat een oordeel per
+artikel: herbouwen, met rust laten of opgeven. Werk die volgorde af en verzin er niets bij.
+Kern: alleen artikelen met bewezen vraag (25+ vertoningen) op positie 13 tot 45 zijn het
+waard. Boven positie 45 is het een autoriteitsprobleem dat je niet met tekst oplost, en
+artikelen die bovenaan staan met nul vertoningen hebben simpelweg geen zoekvraag.
+
+Langer schrijven is op zichzelf geen oplossing: de artikelen die het goed doen zijn net zo
+kort als de rest. Controleer altijd eerst filter 2 uit onderwerp-selectie.md (hoeveel
+sterke sites beantwoorden de exacte vraag al) voordat je aan een herbouw begint.
+
 ## Kernarchitectuur
 
 - `shared/quiz.css`, `shared/resultaat.css` — gedeelde design-CSS voor alle
