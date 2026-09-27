@@ -36,8 +36,31 @@
     document.head.appendChild(script);
   }
 
+  // Kanaal van de sessie (bv. "google/cpc" bij de Ads-test), vastgelegd bij binnenkomst
+  // zodat ook events op latere pagina's (resultaat, affiliate-klik) eraan te koppelen zijn.
+  function getKanaal() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const source = params.get("utm_source");
+      if (source) {
+        sessionStorage.setItem("ph_kanaal", `${source}/${params.get("utm_medium") || "onbekend"}`);
+      } else if (params.has("gclid")) {
+        sessionStorage.setItem("ph_kanaal", "google/cpc");
+      } else if (!sessionStorage.getItem("ph_kanaal")) {
+        const ref = document.referrer ? new URL(document.referrer).hostname : "";
+        const kanaal = !ref ? "direct" : ref.endsWith(window.location.hostname) ? "intern" : ref.replace(/^www\./, "");
+        sessionStorage.setItem("ph_kanaal", kanaal);
+      }
+      return sessionStorage.getItem("ph_kanaal") || "onbekend";
+    } catch (e) {
+      return "onbekend";
+    }
+  }
+  const KANAAL = getKanaal();
+
   function trackUmami(name, params) {
     if (!UMAMI_WEBSITE_ID || IS_LOCAL_DEV) return;
+    params = Object.assign({ kanaal: KANAAL }, params || {});
     if (window.umami && typeof window.umami.track === "function") {
       window.umami.track(name, params || {});
     } else {
