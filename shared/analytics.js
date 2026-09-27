@@ -45,7 +45,8 @@
       const info = getCategoryAndStage();
       window.phTrackEvent?.("affiliate_klik", {
         categorie: info?.category ?? "onbekend",
-        aanbieder: hostname
+        aanbieder: link.dataset.winkel || hostname,
+        prijs: link.dataset.prijs || ""
       });
     }, true);
   }
@@ -55,8 +56,14 @@
       const link = event.target.closest("a.guide-cta");
       if (!link) return;
 
-      const category = getGuideCategory();
-      window.phTrackEvent?.("gids_cta_klik", { categorie: category ?? "onbekend" });
+      // Zelfde event voor gidspagina's en blogartikelen (die gebruiken ook .guide-cta);
+      // "bron" onderscheidt ze zodat we de stap blog -> keuzehulp apart kunnen meten.
+      const isBlog = /^\/[^/]+\/blog\//.test(window.location.pathname);
+      const category = isBlog ? window.location.pathname.split("/")[1] : getGuideCategory();
+      window.phTrackEvent?.("gids_cta_klik", {
+        categorie: CATEGORIES.includes(category) ? category : "onbekend",
+        bron: isBlog ? "blog" : "gids"
+      });
     }, true);
   }
 

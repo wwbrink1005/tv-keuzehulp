@@ -29,7 +29,7 @@ function renderBestMatchProviders(tv) {
         const priceLabel = formatPriceLabel(p.prijs);
         const shippingLabel = normaliseVerzendkosten(p.verzendkosten).label;
         return `
-          <a href="${p.url}" class="provider-btn" target="_blank" rel="noopener noreferrer" aria-label="${p.winkel}: \u20ac${priceLabel}, ${p.levertijd}">
+          <a href="${p.url}" class="provider-btn" target="_blank" rel="noopener noreferrer" aria-label="${p.winkel}: \u20ac${priceLabel}, ${p.levertijd}" data-winkel="${p.winkel}" data-prijs="${p.prijs ?? ""}">
             <span class="provider-name">${p.winkel}</span>
             <span class="provider-price">\u20ac\u00a0${priceLabel}</span>
             <span class="provider-meta">

@@ -134,7 +134,7 @@ function rowHtml(p, fastest) {
   const isFastest = dagen === fastest && dagen < 99;
 
   return `
-    <a href="${p.url}" class="tv-provider-row" target="_blank" rel="noopener noreferrer" aria-label="${p.winkel}: €${priceLabel}">
+    <a href="${p.url}" class="tv-provider-row" target="_blank" rel="noopener noreferrer" aria-label="${p.winkel}: €${priceLabel}" data-winkel="${p.winkel}" data-prijs="${p.prijs ?? ""}">
       <div class="tv-provider-left">
         <div class="tv-provider-name-line">
           ${storeLabelHtml(p.winkel)}

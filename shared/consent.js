@@ -8,6 +8,45 @@
   // terugkomt tijdens het testen, maar wel weer verschijnt in een nieuw tabblad/browser.
   const IS_LOCAL_DEV = ["localhost", "127.0.0.1"].includes(window.location.hostname);
 
+  // Umami Cloud: cookieloze analytics, dus geen toestemming nodig en we zien alle
+  // bezoekers i.p.v. alleen de fractie die op "Accepteren" klikt. Leeg = uit.
+  // Eigen bezoeken uitsluiten: open eenmalig per browser/apparaat
+  // https://producthulp.nl/?nietmeten (zet de opt-out-vlag van Umami zelf).
+  const UMAMI_WEBSITE_ID = "1d2280f8-0166-4f3f-990f-52224879a0b8";
+  const umamiQueue = [];
+
+  try {
+    if (new URLSearchParams(window.location.search).has("nietmeten")) {
+      localStorage.setItem("umami.disabled", "1");
+    }
+  } catch (e) { /* opslag geblokkeerd: dan meten we gewoon */ }
+
+  function loadUmami() {
+    if (!UMAMI_WEBSITE_ID || IS_LOCAL_DEV || window.__umamiLoaded) return;
+    window.__umamiLoaded = true;
+
+    const script = document.createElement("script");
+    script.defer = true;
+    script.src = "https://cloud.umami.is/script.js";
+    script.dataset.websiteId = UMAMI_WEBSITE_ID;
+    script.dataset.domains = "producthulp.nl";
+    script.addEventListener("load", () => {
+      while (umamiQueue.length) trackUmami(...umamiQueue.shift());
+    });
+    document.head.appendChild(script);
+  }
+
+  function trackUmami(name, params) {
+    if (!UMAMI_WEBSITE_ID || IS_LOCAL_DEV) return;
+    if (window.umami && typeof window.umami.track === "function") {
+      window.umami.track(name, params || {});
+    } else {
+      umamiQueue.push([name, params]);
+    }
+  }
+
+  loadUmami();
+
   function loadGA() {
     if (window.__gaLoaded) return;
     window.__gaLoaded = true;
@@ -114,8 +153,10 @@
     init();
   }
 
-  // Beschikbaar voor shared/analytics.js — stuurt alleen events door als er toestemming is.
+  // Beschikbaar voor shared/analytics.js. Umami krijgt elk event (cookieloos), GA4 alleen
+  // na toestemming.
   window.phTrackEvent = function phTrackEvent(name, params) {
+    trackUmami(name, params);
     if (getConsent() !== "granted") return;
     if (typeof window.gtag === "function") {
       window.gtag("event", name, params || {});
