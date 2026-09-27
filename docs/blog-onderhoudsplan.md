@@ -51,16 +51,25 @@ pagina die exact die vraag beantwoordt.
 
 Alle 23 zijn op 26 september langs filter 2 gehaald. Zes komen erdoor.
 
-### Groen: bouwen, in deze volgorde
+### Groen: alle zes herbouwd op 26 en 27 september 2026
 
-| # | Artikel | Impr | Pos | Wrd | Waarom |
-|---|---|---|---|---|---|
-| 1 | wasdroger/warmtepompdroger-of-condensdroger | 156 | 33,2 | 272 | Twee termen van 50.000/mnd. Alleen Expert, AEG en keuzehulp.com sterk |
-| 2 | tv/hdr-uitgelegd-hdr10-dolby-vision | 449 | 15,5 | 369 | Alleen TechRadar NL sterk, rest Engelstalig. Meeste vertoningen van de zes |
-| 3 | koelkast/koelkast-formaat-bepalen | 109 | 13,2 | 248 | Alleen EP sterk. Haalt nu al 4 klikken vanaf pagina 2 |
-| 4 | tv/tweedehands-tv-kopen-waar-op-letten | 155 | 31,5 | 404 | Alleen Welhof. Geen Coolblue, Consumentenbond of MediaMarkt |
-| 5 | monitor/ips-vs-va | 41 | 19,7 | 214 | Alleen MediaMarkt sterk. Kortste artikel van de site |
-| 6 | robotstofzuiger/drempels-en-vloerkleden | 91 | 14,7 | 284 | Alleen bol (categoriepagina) en Eufy |
+| # | Artikel | Pos vooraf | Wrd voor → na | Wat het onderscheidende cijfer werd |
+|---|---|---|---|---|
+| 1 | wasdroger/warmtepompdroger-of-condensdroger | 33,2 | 272 → 760 | 97,7% is warmtepomp; condensdrogers zijn duurder, niet goedkoper |
+| 2 | tv/hdr-uitgelegd-hdr10-dolby-vision | 15,5 | 369 → 825 | Samsung: 0% Dolby Vision over 203 modellen |
+| 3 | koelkast/koelkast-formaat-bepalen | 13,2 | 248 → 514 | 200-300 l kost €805, 400+ l kost €1497; inbouw 54-56 cm vs vrijstaand 60 cm |
+| 4 | tv/tweedehands-tv-kopen-waar-op-letten | 31,5 | 404 → 841 | Nieuw vanaf €339 bij 50 inch, dus tweedehands loont pas vanaf 55 inch |
+| 5 | monitor/ips-vs-va | 19,7 | 214 → 583 | VA is duurder (€279 vs €218) én sneller dan IPS; TN is nog 1,3% |
+| 6 | robotstofzuiger/drempels-en-vloerkleden | 14,7 | 284 → 702 | Zuigkracht van 4.000 tot 25.000+ Pa (€239 vs €649); 70,1% is 95-105 mm hoog |
+
+Lengte was nadrukkelijk **niet** het doel. Wat er bij kwam is catalogusdata die de
+concurrentie niet heeft; de woorden zijn daar een bijproduct van. Koelkast bleef bewust op
+514 woorden omdat dat artikel al op positie 13 stond en alleen een duwtje nodig had.
+
+Nulmeting om eind december tegen af te zetten: posities 33,2 / 15,5 / 13,2 / 31,5 / 19,7 / 14,7.
+
+Onderweg gecorrigeerd: tv/blog/8k-tv-bestaat-dat-nog stelde dat geen enkele tv 8K heeft,
+terwijl er drie in de catalogus staan. Dat is geen drift maar een onjuiste bewering.
 
 ### Oranje: kan, pas na de groene
 

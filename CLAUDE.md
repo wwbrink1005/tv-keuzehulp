@@ -56,6 +56,43 @@ Langer schrijven is op zichzelf geen oplossing: de artikelen die het goed doen z
 kort als de rest. Controleer altijd eerst filter 2 uit onderwerp-selectie.md (hoeveel
 sterke sites beantwoorden de exacte vraag al) voordat je aan een herbouw begint.
 
+## Je hebt leestoegang tot Search Console en Google Analytics
+
+In de repo-root staat `producthulp-keuzehulp-yv-375addcbe023.json`, een sleutel van de
+service-account `seo-readonly@producthulp-keuzehulp-yv.iam.gserviceaccount.com`. Daarmee
+kun je zelf live cijfers ophalen; vraag ze niet aan de gebruiker en gok er niet naar.
+
+Het bestand staat in `.gitignore` en is nooit gecommit. **Houd dat zo**: nooit committen,
+nooit de inhoud in een antwoord of logregel zetten, nooit naar een externe dienst sturen.
+De rechten zijn alleen-lezen (`siteRestrictedUser` in GSC), dus je kunt niets kapotmaken,
+maar de sleutel zelf is wel gevoelig.
+
+```python
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+K = "producthulp-keuzehulp-yv-375addcbe023.json"
+
+creds = service_account.Credentials.from_service_account_file(
+    K, scopes=["https://www.googleapis.com/auth/webmasters.readonly"])
+svc = build("searchconsole", "v1", credentials=creds)
+rows = svc.searchanalytics().query(
+    siteUrl="https://producthulp.nl/",          # LET OP: niet "sc-domain:producthulp.nl", dat geeft 403
+    body={"startDate": "2026-09-01", "endDate": "2026-09-26",
+          "dimensions": ["query", "page"], "rowLimit": 25000}).execute().get("rows", [])
+```
+
+GA4 draait op **property 548142324**, met scope `analytics.readonly` en
+`BetaAnalyticsDataClient` uit `google-analytics-data`.
+
+Twee valkuilen die echt geld aan tijd kosten:
+
+- **Klikaantallen kloppen niet als je op `query` uitsplitst.** GSC verbergt zeldzame
+  combinaties om privacyredenen, waardoor klikken stelselmatig te laag uitvallen. Haal
+  totalen altijd op met alleen `dimensions: ["page"]` of `[]`.
+- **GA4 ziet maar een fractie van het verkeer.** De cookiebanner in `shared/consent.js`
+  laadt Analytics pas na expliciete toestemming, dus het overgrote deel van de bezoekers
+  is daar onzichtbaar. Gebruik GSC voor volume en GA4 alleen voor gedrag ná toestemming.
+
 ## Kernarchitectuur
 
 - `shared/quiz.css`, `shared/resultaat.css` — gedeelde design-CSS voor alle
