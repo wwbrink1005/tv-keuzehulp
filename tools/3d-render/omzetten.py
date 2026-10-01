@@ -97,8 +97,9 @@ def bouw(cat):
 <main class="wrap">
 {t["stage"]}
 
-<section class="uitleg" aria-labelledby="uitleg-titel">
-  <h2 id="uitleg-titel">Zo werkt de {e(o["h1"])}</h2>
+<details class="uitleg">
+  <summary>Hoe werkt het?</summary>
+  <h2>Zo werkt de {e(o["h1"])}</h2>
   <p>{e(o["how_p"])}</p>
   <ol class="stappen">
 {stappen}
@@ -107,7 +108,7 @@ def bouw(cat):
   <div class="vragen">
 {vragen}
   </div>
-</section>
+</details>
 </main>
 
 <script type="module" src="{cat}/vragen/vragen.js"></script>

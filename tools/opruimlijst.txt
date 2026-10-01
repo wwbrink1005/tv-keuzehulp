@@ -1,0 +1,75 @@
+airfryer/images/airfryer achtergrond.png
+airfryer/js/quiz.js
+beamer/images/beamer achtergrond.png
+beamer/js/quiz.js
+desktop/images/all in one visualisatie.png
+desktop/images/desktop achtergrond mobiel.png
+desktop/images/desktop mini visualisatie.png
+desktop/js/quiz.js
+homepage-test.html
+images/homepage-test/airfryers.jpg
+images/homepage-test/beamers.jpg
+images/homepage-test/gids-tv-maat.jpg
+images/homepage-test/koelkasten.jpg
+images/homepage-test/koffiemachines.jpg
+images/homepage-test/robotstofzuigers.jpg
+images/homepage-test/scene-koffie.jpg
+images/homepage-test/scene-wasmachine.jpg
+images/homepage-test/slide-laptop.jpg
+images/homepage-test/slide-tv.jpg
+images/homepage-test/stofzuiger.png
+images/homepage-test/vaatwassers.jpg
+images/homepage-test/vriezers.png
+images/homepage-test/wasdrogers.jpg
+koelkast/images/koelkast achtergrond amerikaans.png
+koelkast/images/koelkast achtergrond inbouw.png
+koelkast/images/koelkast achtergrond tafelmodel.png
+koelkast/images/koelkast achtergrond vrijstaand.png
+koelkast/images/koelkast achtergrond.png
+koelkast/js/quiz.js
+koffiemachine/images/koffiemachine achtergrond.png
+koffiemachine/images/koffiemachine cup.png
+koffiemachine/images/koffiemachine filter.png
+koffiemachine/images/koffiemachine halfautomatisch.png
+koffiemachine/images/koffiemachine volautomaat.png
+koffiemachine/js/main-test.js
+koffiemachine/js/quiz.js
+koffiemachine/js/result-filters-test.js
+koffiemachine/js/result-test.js
+laptop/images/laptop achtergrond2.png
+laptop/images/laptop telefoon.png
+laptop/images/laptop visualisatie.png
+laptop/js/quiz.js
+monitor/js/quiz.js
+printer/images/Tekst.png
+printer/images/printer achtergrond telefoon.png
+printer/images/printer achtergrond.png
+printer/js/quiz.js
+robotstofzuiger/js/quiz.js
+soundbar/images/sounbar achtegrond zonder tv.png
+soundbar/images/soundbar cutout groot.png
+soundbar/images/soundbar cutout klein.png
+soundbar/images/soundbar cutout middel.png
+soundbar/images/subwoofer cutout.png
+soundbar/js/quiz.js
+stofzuiger/js/quiz.js
+tv/images/tv aarde.png
+tv/images/tv scherp.png
+vaatwasser/images/vaatwasser achtergrond.png
+vaatwasser/images/vaatwasser inbouw.png
+vaatwasser/images/vaatwasser vrijstaand.png
+vaatwasser/js/quiz.js
+vriezer/images/achtegrond zonder vriezer.png
+vriezer/images/compact.png
+vriezer/images/keuken zwart test.png
+vriezer/images/middel.png
+vriezer/images/vrieskist extra groot.png
+vriezer/images/vrieskist groot.png
+vriezer/images/vrieskist middel.png
+vriezer/images/vrijstaande vriezer in afbeelding.png
+vriezer/js/quiz.js
+wasdroger/images/wasdroger achtegrond.png
+wasdroger/js/quiz.js
+wasmachine/images/wasmachine nieuw.png
+wasmachine/images/wasmachine visualisatie test.png
+wasmachine/js/quiz.js
