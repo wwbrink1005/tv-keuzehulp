@@ -80,6 +80,7 @@ def bouw(cat):
  <link rel="stylesheet" href="shared/menu.css">
  <link rel="stylesheet" href="shared/footer.css">
  <link rel="stylesheet" href="shared/quiz3d.css">
+ <script src="https://unpkg.com/lucide@latest"></script>
  <script src="shared/menu.js" defer></script>
  <script src="shared/footer.js" defer></script>
  <script src="shared/consent.js" defer></script>
