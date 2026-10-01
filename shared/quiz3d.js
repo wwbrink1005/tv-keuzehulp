@@ -77,7 +77,8 @@ export function spotColumn(ctx, points, { zBot, zTop, edgeX, edgeY }) {
     svg += `<line x1="${d.px.x}" y1="${d.px.y}" x2="${labelX}" y2="${ys[i]}" class="leader"/>`;
     html += `<div class="spot is-on" style="left:${d.px.x}px;top:${d.px.y}px"></div>`;
     const pos = flip ? `right:${ctx.width - labelX}px` : `left:${labelX}px`;
-    html += `<div class="spot-label is-on" style="${pos};top:${ys[i]}px">${d.label}</div>`;
+    // op mobiel alleen de naam (voor de dubbele punt), anders past het label niet naast het object
+    html += `<div class="spot-label is-on" style="${pos};top:${ys[i]}px">${ctx.mobile ? d.label.split(":")[0] : d.label}</div>`;
   });
   return { svg, html };
 }
@@ -179,6 +180,37 @@ export function createQuiz3D(cfg) {
     caption.classList.toggle("is-top", top && !mobileQuery.matches);
   }
 
+  // Labels nooit buiten beeld: elk label (tag, spot-label, vergroting) wordt binnen het
+  // podium geschoven, en het lijntje dat ernaartoe loopt schuift mee. Rekent met de
+  // eindpositie uit de inline stijl (left/right/top) en de vaste transform per soort,
+  // niet met getBoundingClientRect: die geeft tijdens de CSS-transitie een tussenstand.
+  const SHIFT = { tag: [-0.5, -1], "spot-label": [0, -0.5], lens: [0, -0.5] };
+  function keepInside(W, H) {
+    const m = 8;
+    tags.querySelectorAll(".tag, .spot-label, .lens").forEach(el => {
+      const kind = Object.keys(SHIFT).find(k => el.classList.contains(k));
+      const [sx, sy] = SHIFT[kind];
+      const w = el.offsetWidth, h = el.offsetHeight;
+      const useRight = el.style.right !== "" && el.style.left === "";
+      const ax = useRight ? W - parseFloat(el.style.right) : parseFloat(el.style.left);
+      const ay = parseFloat(el.style.top);
+      if (!Number.isFinite(ax) || !Number.isFinite(ay)) return;
+      const x0 = useRight ? ax - w : ax + sx * w, y0 = ay + sy * h;
+      const dx = x0 < m ? m - x0 : x0 + w > W - m ? W - m - (x0 + w) : 0;
+      const dy = y0 < m ? m - y0 : y0 + h > H - m ? H - m - (y0 + h) : 0;
+      if (!dx && !dy) return;
+      if (useRight) el.style.right = `${W - (ax + dx)}px`; else el.style.left = `${ax + dx}px`;
+      el.style.top = `${ay + dy}px`;
+      // lijntje dat bij dit label eindigt: eindpunt meeschuiven
+      fx.querySelectorAll("line").forEach(ln => {
+        const x2 = parseFloat(ln.getAttribute("x2")), y2 = parseFloat(ln.getAttribute("y2"));
+        if (Math.abs(x2 - ax) < 2 && Math.abs(y2 - ay) < 2) {
+          ln.setAttribute("x2", x2 + dx); ln.setAttribute("y2", y2 + dy);
+        }
+      });
+    });
+  }
+
   function render() {
     const L = layout();
     rooms.forEach(img => Object.assign(img.style, { left: `${L.x0}px`, top: `${L.y0}px`, width: `${L.dw}px`, height: `${L.dh}px` }));
@@ -192,6 +224,7 @@ export function createQuiz3D(cfg) {
     const o = cfg.overlays?.(ctx) ?? {};
     fx.innerHTML = o.svg ?? "";
     tags.innerHTML = o.html ?? "";
+    keepInside(L.sw, L.sh);
     cfg.afterRender?.(ctx);
     setCaption();
     placeCaptionCorner();
