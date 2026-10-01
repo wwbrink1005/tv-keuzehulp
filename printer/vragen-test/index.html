@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+ <meta charset="UTF-8">
+ <base href="../../">
+ <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="robots" content="noindex, nofollow">
+ <title>Printer Keuzehulp testversie</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+ <link rel="stylesheet" href="shared/menu.css">
+ <link rel="stylesheet" href="shared/footer.css">
+ <link rel="stylesheet" href="shared/quiz3d.css">
+ <script src="shared/menu.js" defer></script>
+ <script src="shared/footer.js" defer></script>
+ <style>
+/* geprinte vellen op de uitvoerlade, in perspectief geplaatst */
+.sheet { position: absolute; left: 0; top: 0; transform-origin: 0 0; background: #fbfbf9; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.18); font-family: 'Inter', sans-serif; transition: opacity .35s ease; }
+.sheet .pad { position: absolute; inset: 0; padding: 26px 28px; }
+.sheet h5 { margin: 0 0 12px; font-size: 22px; color: #1d1d1f; }
+.sheet i { display: block; height: 9px; border-radius: 4px; background: #9a9aa0; margin-bottom: 10px; }
+.sheet i:nth-child(3n) { width: 75%; }
+.sheet .bars { display: flex; align-items: flex-end; gap: 12px; height: 120px; margin: 14px 0; }
+.sheet .bars b { flex: 1; border-radius: 3px 3px 0 0; }
+.sheet .photo { position: absolute; inset: 14px; width: calc(100% - 28px); height: calc(100% - 28px); object-fit: cover; }
+.sheet .colorimg { width: 100%; height: 130px; object-fit: cover; border-radius: 4px; margin-bottom: 12px; }
+
+/* bureaublad op de laptop (zelfde als de laptop-keuzehulp) */
+.lscreen { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; background: #0c0c0e; font-family: 'Inter', sans-serif; color: #1d1d1f; transition: opacity .4s ease; }
+.lscreen .wall { position: absolute; inset: 0; }
+.lscreen .wall svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.lscreen .clock { position: absolute; left: 26px; top: 22px; color: #fff; font-size: 46px; font-weight: 300; letter-spacing: -.02em; line-height: 1; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+.lscreen .clock small { display: block; font-size: 14px; font-weight: 500; letter-spacing: .01em; margin-top: 6px; opacity: .85; }
+.lscreen .dock { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); display: flex; gap: 9px; padding: 7px 10px; border-radius: 14px; background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(10px); }
+.lscreen .dock i { width: 24px; height: 24px; border-radius: 7px; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+.lscreen .dock .a1 { background: linear-gradient(135deg, #5ab0ff, #0954a3); }
+.lscreen .dock .a2 { background: linear-gradient(135deg, #ffffff, #d9dde3); }
+.lscreen .dock .a3 { background: linear-gradient(135deg, #ffcf6b, #f08a24); }
+.lscreen .dock .a4 { background: linear-gradient(135deg, #6ee7a8, #1f9d61); }
+.lscreen .dock .a5 { background: linear-gradient(135deg, #e0a3ff, #7b3fd1); }
+ </style>
+ <link rel="preload" as="image" href="printer/vragen-test/img/bureau.webp">
+</head>
+<body>
+
+<header class="test-head">
+  <h1>Printer Keuzehulp</h1>
+  <span class="test-badge">Testversie 3D</span>
+</header>
+
+<main class="wrap">
+  <div class="shell">
+    <div class="stage" id="stage">
+      <div class="progress"><i id="progress"></i></div>
+      <div class="scene" id="scene">
+        <img class="room" id="roomA" alt="" decoding="async">
+        <img class="room" id="roomB" alt="" decoding="async">
+        <svg class="fx" id="fx"></svg>
+        <div id="tags"></div>
+      </div>
+      <div class="caption" id="caption"></div>
+      <div class="loading" id="loading">Werkplek laden…</div>
+    </div>
+
+    <section class="card" id="card" aria-live="polite">
+      <p class="step" id="step"></p>
+      <div class="q-body" id="qBody"></div>
+    </section>
+  </div>
+
+  <p class="below">Dit is een testversie van de vragenpagina met een 3D-visualisatie. De vragen en het advies zijn gelijk aan de
+  <a href="printer/vragen/">huidige keuzehulp</a>; alleen de visualisatie is anders.</p>
+</main>
+
+<script type="module" src="printer/vragen-test/test.js"></script>
+</body>
+</html>

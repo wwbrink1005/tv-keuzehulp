@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+ <meta charset="UTF-8">
+ <base href="../../">
+ <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="robots" content="noindex, nofollow">
+ <title>Wasmachine Keuzehulp testversie</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+ <link rel="stylesheet" href="shared/menu.css">
+ <link rel="stylesheet" href="shared/footer.css">
+ <link rel="stylesheet" href="shared/quiz3d.css">
+ <script src="shared/menu.js" defer></script>
+ <script src="shared/footer.js" defer></script>
+ <style>
+/* display van de wasmachine: in perspectief op het zwarte glas gelegd */
+.wdisp { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; background: #050506; font-family: 'Inter', sans-serif; color: #eaf3ff; display: flex; align-items: center; justify-content: center; gap: 16px; transition: opacity .35s ease; }
+.wdisp .big { font-size: 56px; font-weight: 600; letter-spacing: -.02em; text-shadow: 0 0 10px rgba(150,200,255,.55); white-space: nowrap; }
+.wdisp .big.prog { font-size: 38px; }
+.wdisp .big small { font-size: 26px; font-weight: 500; opacity: .8; margin-left: 4px; }
+.wdisp svg { width: 44px; height: 44px; stroke: #eaf3ff; fill: none; stroke-width: 2.2; filter: drop-shadow(0 0 6px rgba(150,200,255,.5)); }
+
+/* vergrootglas op het display (vraag 4) */
+.lens { position: absolute; z-index: 5; width: 250px; transform: translate(0, -50%); background: rgba(255,255,255,.95); border-radius: 18px; padding: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.2); transition: left var(--dur) var(--ease), top var(--dur) var(--ease), opacity .4s ease; pointer-events: none; }
+.lens .scr { background: #050506; border-radius: 10px; padding: 14px 16px 12px; color: #eaf3ff; font-family: 'Inter', sans-serif; }
+.lens .prog { font-size: 25px; font-weight: 600; letter-spacing: -.01em; text-shadow: 0 0 10px rgba(150,200,255,.5); min-height: 32px; transition: opacity .25s ease; }
+.lens .meta { display: flex; justify-content: space-between; font-size: 12px; opacity: .7; margin-top: 4px; }
+.lens .dots { display: flex; gap: 5px; margin-top: 10px; }
+.lens .dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(234,243,255,.25); }
+.lens .dots i.on { background: #eaf3ff; box-shadow: 0 0 6px rgba(150,200,255,.8); }
+.lens p { margin: 8px 4px 2px; font-size: 12px; color: var(--c-text-2); line-height: 1.4; }
+.prog.is-swap { opacity: 0; }
+
+/* geluidsgolven (vraag 2) */
+.fx .wave { fill: none; stroke: #0954a3; stroke-width: 2.4; stroke-linecap: round; animation: wave 2.4s ease-in-out infinite; }
+.fx .wave.soft { stroke-dasharray: 3 7; }
+@keyframes wave { 0%, 100% { opacity: .22; } 50% { opacity: .95; } }
+@media (prefers-reduced-motion: reduce) { .fx .wave { animation: none; opacity: .7; } }
+
+@media (max-width: 900px) {
+  .wdisp .big { font-size: 50px; }
+  .lens { width: 190px; padding: 8px; }
+  .lens .prog { font-size: 19px; min-height: 25px; }
+  .lens p { display: none; }
+}
+ </style>
+ <link rel="preload" as="image" href="wasmachine/vragen-test/img/bijkeuken.webp">
+</head>
+<body>
+
+<header class="test-head">
+  <h1>Wasmachine Keuzehulp</h1>
+  <span class="test-badge">Testversie 3D</span>
+</header>
+
+<main class="wrap">
+  <div class="shell">
+    <div class="stage" id="stage">
+      <div class="progress"><i id="progress"></i></div>
+      <div class="scene" id="scene">
+        <img class="room" id="roomA" alt="" decoding="async">
+        <img class="room" id="roomB" alt="" decoding="async">
+        <svg class="fx" id="fx"></svg>
+        <div id="tags"></div>
+      </div>
+      <div class="caption" id="caption"></div>
+      <div class="loading" id="loading">Bijkeuken laden…</div>
+    </div>
+
+    <section class="card" id="card" aria-live="polite">
+      <p class="step" id="step"></p>
+      <div class="q-body" id="qBody"></div>
+    </section>
+  </div>
+
+  <p class="below">Dit is een testversie van de vragenpagina met een 3D-visualisatie. De vragen en het advies zijn gelijk aan de
+  <a href="wasmachine/vragen/">huidige keuzehulp</a>; alleen de visualisatie is anders.</p>
+</main>
+
+<script type="module" src="wasmachine/vragen-test/test.js"></script>
+</body>
+</html>

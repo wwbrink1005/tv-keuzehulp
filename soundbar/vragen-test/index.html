@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+ <meta charset="UTF-8">
+ <base href="../../">
+ <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="robots" content="noindex, nofollow">
+ <title>Soundbar Keuzehulp testversie</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+ <link rel="stylesheet" href="shared/menu.css">
+ <link rel="stylesheet" href="shared/footer.css">
+ <link rel="stylesheet" href="shared/quiz3d.css">
+ <script src="shared/menu.js" defer></script>
+ <script src="shared/footer.js" defer></script>
+ <style>
+/* muziek-scherm op de tv (bij "Muziek luisteren") */
+.screen .music {
+  position: absolute; inset: 0; display: flex; align-items: center; gap: 6%; padding: 0 9%;
+  background: radial-gradient(120% 140% at 20% 30%, #3b2a4f 0%, #141019 60%, #09080c 100%);
+  color: #fff; font-family: 'Inter', sans-serif; font-size: calc(var(--sw, 400) * 0.028px);
+  opacity: 0; transition: opacity .6s ease;
+}
+.screen .music .art {
+  flex: 0 0 34%; aspect-ratio: 1; border-radius: 6%;
+  background: linear-gradient(135deg, #f6b26b 0%, #e0616a 45%, #6b4bd8 100%);
+  box-shadow: 0 1em 2em rgba(0,0,0,.45);
+}
+.screen .music .meta { display: flex; flex-direction: column; gap: .35em; flex: 1; }
+.screen .music small { font-size: .7em; letter-spacing: .12em; text-transform: uppercase; opacity: .6; }
+.screen .music b { font-size: 1.5em; }
+.screen .music span { opacity: .75; }
+.screen .music i { display: block; height: .25em; border-radius: 1em; background: rgba(255,255,255,.2); margin-top: .6em; overflow: hidden; }
+.screen .music em { display: block; height: 100%; width: 38%; background: #fff; border-radius: inherit; }
+/* geluidsgolven uit de soundbar */
+.waves { position: absolute; height: 0; transform: translate(-50%, 0); pointer-events: none; opacity: 0; transition: opacity .5s ease; }
+.waves.is-on { opacity: 1; }
+.waves i {
+  position: absolute; left: 50%; bottom: 0; width: 100%; aspect-ratio: 3 / 1;
+  transform: translate(-50%, 50%) scale(.6); border-radius: 50%;
+  border: 1.5px solid rgba(9,84,163,.55);
+  animation: wave 2.4s ease-out infinite;
+}
+.waves i:nth-child(2) { animation-delay: .8s; }
+.waves i:nth-child(3) { animation-delay: 1.6s; }
+@keyframes wave { from { transform: translate(-50%, 50%) scale(.6); opacity: .9; } to { transform: translate(-50%, 50%) scale(1.5); opacity: 0; } }
+ </style>
+ <link rel="preload" as="image" href="soundbar/vragen-test/img/kamer.webp">
+</head>
+<body>
+
+<header class="test-head">
+  <h1>Soundbar Keuzehulp</h1>
+  <span class="test-badge">Testversie 3D</span>
+</header>
+
+<main class="wrap">
+  <div class="shell">
+    <div class="stage" id="stage">
+      <div class="progress"><i id="progress"></i></div>
+      <div class="scene" id="scene">
+        <img class="room" id="roomA" alt="" decoding="async">
+        <img class="room" id="roomB" alt="" decoding="async">
+        <svg class="fx" id="fx"></svg>
+        <div id="tags"></div>
+      </div>
+      <div class="caption" id="caption"></div>
+      <div class="loading" id="loading">Woonkamer laden…</div>
+    </div>
+
+    <section class="card" id="card" aria-live="polite">
+      <p class="step" id="step"></p>
+      <div class="q-body" id="qBody"></div>
+    </section>
+  </div>
+
+  <p class="below">Dit is een testversie van de vragenpagina met een 3D-visualisatie. De vragen en het advies zijn gelijk aan de
+  <a href="soundbar/vragen/">huidige keuzehulp</a>; alleen de visualisatie is anders.</p>
+</main>
+
+<script type="module" src="soundbar/vragen-test/test.js"></script>
+</body>
+</html>
