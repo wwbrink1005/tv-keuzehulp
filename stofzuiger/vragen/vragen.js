@@ -169,7 +169,7 @@ createQuiz3D({
   captionTop: true,   // uitleg vast rechtsboven: de toestellen staan laag in beeld
   steps: 5,
   state: { stofzuigerType: null, vloertype: null, huisdieren: null, zak: null, looptijd: null, geluid: null },
-  imgPath: n => `stofzuiger/vragen-test/img/${n}.webp`,
+  imgPath: n => `stofzuiger/vragen/img/${n}.webp`,
   question,
 
   images(st) {

@@ -185,7 +185,7 @@ createQuiz3D({
   captionTop: true,   // uitleg vast rechtsboven: de toestellen staan laag in beeld
   steps: 5,
   state: { navigatie: null, dweilen: null, woninggrootte: null, geluid: null, extra: [] },
-  imgPath: n => `robotstofzuiger/vragen-test/img/${n}.webp`,
+  imgPath: n => `robotstofzuiger/vragen/img/${n}.webp`,
   question: st => Q[st.q],
 
   images(st) {

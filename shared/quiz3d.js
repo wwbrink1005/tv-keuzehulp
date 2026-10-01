@@ -1,4 +1,4 @@
-// Gedeelde motor voor de 3D-vragenpagina's (…/vragen-test/).
+// Gedeelde motor voor de 3D-vragenpagina's ({categorie}/vragen/).
 //
 // Elke keuzehulp levert een config met zijn vragen, welke render(s) bij een
 // antwoord horen en wat er over het beeld getekend wordt. De motor regelt de

@@ -87,7 +87,7 @@ function afterRender(ctx) {
   screenEl.style.setProperty("--sw", pw);
   const look = LOOK[light(st)];
   const werk = st.gebruik === "werk";
-  const src = `tv/vragen-test/img/scherm-${CONTENT[st.gebruik] ?? "films"}.webp`;
+  const src = `shared/img/scherm/scherm-${CONTENT[st.gebruik] ?? "films"}.webp`;
   if (imgEl.getAttribute("src") !== src) imgEl.src = src;
   hudEl.classList.toggle("is-on", st.gebruik === "gamen");
   const sharp = st.q === 2 && st.beeldkwaliteit ? SHARP[st.beeldkwaliteit] : "";
@@ -103,7 +103,7 @@ createQuiz3D({
   camera,
   steps: 5,
   state: { gebruik: null, licht: null, beeldkwaliteit: null, draagbaar: null, extra: [] },
-  imgPath: n => `beamer/vragen-test/img/${n}.webp`,
+  imgPath: n => `beamer/vragen/img/${n}.webp`,
   question: st => Q[st.q],
   setup, afterRender,
 

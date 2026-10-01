@@ -231,7 +231,7 @@ quiz = createQuiz3D({
   camera,
   steps: 6,
   state: { plaatsing: null, gezinsgrootte: null, geluid: null, energie: null, extra: [], programma: [] },
-  imgPath: n => `vaatwasser/vragen-test/img/${n}.webp`,
+  imgPath: n => `vaatwasser/vragen/img/${n}.webp`,
   question: st => Q[st.q],
   setup, afterRender,
 

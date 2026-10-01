@@ -92,7 +92,7 @@ createQuiz3D({
   camera,
   steps: 4,
   state: { plaatsing: null, nishoogte: null, grootte: null, gezinsgrootte: null, extra: [] },
-  imgPath: n => `vriezer/vragen-test/img/${n}.webp`,
+  imgPath: n => `vriezer/vragen/img/${n}.webp`,
   question: st => [Q_PLAATSING, st.plaatsing === "inbouw" ? Q_NIS : grootteQ(st.plaatsing === "vrieskist"), Q_GEZIN, Q_EXTRA][st.q],
 
   images(st) {

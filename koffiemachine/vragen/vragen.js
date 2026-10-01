@@ -152,7 +152,7 @@ createQuiz3D({
   camera,
   steps: st => questions(st).length,
   state: { type: null, hoeveelheid: null, melk: null, extra: [] },
-  imgPath: n => `koffiemachine/vragen-test/img/${n}.webp`,
+  imgPath: n => `koffiemachine/vragen/img/${n}.webp`,
   question: st => questions(st)[st.q],
   setup, afterRender, overlays,
 

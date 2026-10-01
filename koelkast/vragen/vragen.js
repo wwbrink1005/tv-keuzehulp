@@ -1,5 +1,5 @@
 // Testversie van de koelkast-vragenpagina met een Blender-gerenderde keuken.
-// Alle renders (koelkast/vragen-test/img) delen één camera (render/scene.py,
+// Alle renders (koelkast/vragen/img) delen één camera (render/scene.py,
 // --d 1.3); alleen de koelkast wisselt. De motor staat in shared/quiz3d.js.
 import { createQuiz3D, makeCamera, dimLine, spotColumn } from "../../shared/quiz3d.js";
 import { nishoogteGroups, vrijstaandTypeLabels } from "../js/data.js";
@@ -87,7 +87,7 @@ createQuiz3D({
   camera,
   steps: 4,
   state: { plaatsing: null, vrijstaandtype: null, nishoogte: null, gezinsgrootte: null, extra: [] },
-  imgPath: n => `koelkast/vragen-test/img/${n}.webp`,
+  imgPath: n => `koelkast/vragen/img/${n}.webp`,
   question: st => [Q_PLAATSING, st.plaatsing === "inbouw" ? Q_NIS : Q_TYPE, Q_GEZIN, Q_EXTRA][st.q],
 
   images(st) {

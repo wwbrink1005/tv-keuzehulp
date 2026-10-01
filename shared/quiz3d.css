@@ -1,4 +1,4 @@
-/* Gedeelde stijl voor de 3D-vragenpagina's (…/vragen-test/), zie shared/quiz3d.js.
+/* Gedeelde stijl voor de 3D-vragenpagina's ({categorie}/vragen/), zie shared/quiz3d.js.
    Pagina-specifieke aanvullingen staan in een inline <style> ná deze link. */
 :root {
   --c-bg: #f5f5f7;
@@ -19,7 +19,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.test-head {
+.test-head, .q3d-head {
   max-width: var(--site-max-width, 1240px);
   margin: 0 auto;
   padding: 28px 16px 18px;
@@ -28,7 +28,7 @@ body {
   justify-content: center;
   gap: 12px;
 }
-.test-head h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
+.test-head h1, .q3d-head h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
 .test-badge {
   font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
   color: var(--c-accent); background: rgba(9,84,163,.08);
@@ -178,8 +178,8 @@ body {
 
 /* ───────── mobiel: beeld boven, kaart eronder ───────── */
 @media (max-width: 900px) {
-  .test-head { padding: 18px 16px 12px; }
-  .test-head h1 { font-size: 21px; }
+  .test-head, .q3d-head { padding: 18px 16px 12px; }
+  .test-head h1, .q3d-head h1 { font-size: 21px; }
   /* beeld en kaart sluiten op mobiel als één blok op elkaar aan */
   .stage { aspect-ratio: 1 / 0.92; border-radius: 18px 18px 0 0; overflow: hidden; }
   .shell { position: relative; }
@@ -340,3 +340,21 @@ body {
   background: #f3f6fa; color: var(--c-text-2); -webkit-backdrop-filter: none; backdrop-filter: none;
   box-shadow: none; font-size: 13px; border-radius: 12px; }
 .card .caption strong { color: var(--c-text); }
+
+/* ───────── uitleg onder de keuzehulp: hoe het werkt + alle vragen als gewone tekst (SEO) ───────── */
+.uitleg { margin: 44px 0 8px; }   /* staat binnen main.wrap (breedte en marges komen daarvandaan) */
+.uitleg h2 { font-size: 22px; font-weight: 700; letter-spacing: -.01em; margin: 0 0 10px; }
+.uitleg > p { max-width: 820px; color: var(--c-text-2); font-size: 15px; line-height: 1.65; margin: 0 0 22px; }
+.uitleg .stappen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 0 0 34px; padding: 0; list-style: none; }
+.uitleg .stappen li { display: flex; gap: 12px; align-items: flex-start; background: #fff; border-radius: 14px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.uitleg .stappen .nr { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--c-accent); color: #fff; font-weight: 700; font-size: 14px; display: grid; place-items: center; }
+.uitleg .stappen strong { display: block; font-size: 14.5px; margin-bottom: 2px; }
+.uitleg .stappen span { font-size: 13.5px; color: var(--c-text-2); line-height: 1.45; }
+.uitleg .vragen { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.uitleg .vraag { background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.uitleg .vraag h3 { font-size: 15.5px; font-weight: 700; margin: 0 0 6px; line-height: 1.35; }
+.uitleg .vraag p { font-size: 13.5px; color: var(--c-text-2); line-height: 1.55; margin: 0; }
+@media (max-width: 900px) {
+  .uitleg { margin: 30px 0 4px; }
+  .uitleg .stappen, .uitleg .vragen { grid-template-columns: 1fr; }
+}

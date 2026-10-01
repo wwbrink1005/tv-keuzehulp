@@ -98,10 +98,10 @@ function setup(scene) {
       <div class="clock">09:41<small>dinsdag 29 september</small></div>
       <div class="dock"><i class="a1"></i><i class="a2"></i><i class="a3"></i><i class="a4"></i><i class="a5"></i></div>
     </div></div>
-    <div class="view" data-v="dagelijks"><div class="win"><div class="bar"><b></b><b></b><b></b><span class="url">nieuws.nl</span></div><div class="hero"><img class="fill" src="tv/vragen-test/img/scherm-normaal.webp" alt=""></div><div class="lines"><i></i><i></i><i></i><i></i></div></div></div>
+    <div class="view" data-v="dagelijks"><div class="win"><div class="bar"><b></b><b></b><b></b><span class="url">nieuws.nl</span></div><div class="hero"><img class="fill" src="shared/img/scherm/scherm-normaal.webp" alt=""></div><div class="lines"><i></i><i></i><i></i><i></i></div></div></div>
     <div class="view" data-v="werk"><div class="win" style="background:#e9e9ee"><div class="bar"><b></b><b></b><b></b><span class="url">Scriptie hoofdstuk 3.docx</span></div><div class="doc"><h4>3. Resultaten</h4>${"<i></i>".repeat(14)}</div></div></div>
-    <div class="view" data-v="creatief"><div class="editor"><div class="tools"></div><img class="photo" src="tv/vragen-test/img/scherm-films.webp" alt=""><div class="side"><i style="--p:70%"></i><i style="--p:35%"></i><i style="--p:55%"></i><i style="--p:80%"></i><i style="--p:20%"></i></div></div></div>
-    <div class="view" data-v="gaming"><img class="fill" src="tv/vragen-test/img/scherm-gamen.webp" alt=""><div class="hud is-on"><div class="pos">P3<small>/ 12</small></div><div class="lap">Ronde 2 / 5</div><div class="speed"><b>187</b><small>KM/U</small></div></div></div>
+    <div class="view" data-v="creatief"><div class="editor"><div class="tools"></div><img class="photo" src="shared/img/scherm/scherm-films.webp" alt=""><div class="side"><i style="--p:70%"></i><i style="--p:35%"></i><i style="--p:55%"></i><i style="--p:80%"></i><i style="--p:20%"></i></div></div></div>
+    <div class="view" data-v="gaming"><img class="fill" src="shared/img/scherm/scherm-gamen.webp" alt=""><div class="hud is-on"><div class="pos">P3<small>/ 12</small></div><div class="lap">Ronde 2 / 5</div><div class="speed"><b>187</b><small>KM/U</small></div></div></div>
     <div class="view" data-v="prestaties"><div class="perf"><h4>Prestaties</h4><div class="meter"><span>Processor <b id="cpuV"></b></span><i><em id="cpuB"></em></i></div><div class="meter"><span>Werkgeheugen <b id="ramV"></b></span><i><em id="ramB"></em></i></div></div></div>
     <div class="view" data-v="opslag"><div class="store"><h4 id="stT"></h4><p id="stP"></p><div class="sbar"><em style="background:#0954a3;width:18%"></em><em id="stPhotos" style="background:#c49a78"></em></div><div class="legend"><span><b style="background:#0954a3"></b>Apps</span><span><b style="background:#c49a78"></b>Foto's en video</span><span><b style="background:#e2e2e7"></b>Vrij</span></div></div></div>`;
   scene.querySelector(".layers").after(scr);
@@ -138,7 +138,7 @@ createQuiz3D({
   camera,
   steps: 5,
   state: { formaat: null, gebruik: [], intensiteit: null, opslag: null, extra: [] },
-  imgPath: n => `laptop/vragen-test/img/${n}.webp`,
+  imgPath: n => `laptop/vragen/img/${n}.webp`,
   question: st => Q[st.q],
   setup, afterRender,
   images: st => ["bureau", lap(st).key],

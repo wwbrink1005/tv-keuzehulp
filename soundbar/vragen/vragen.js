@@ -88,7 +88,7 @@ function afterRender(ctx) {
   const key = st.q >= 2 ? st.gebruik : "films";
   const music = key === "muziek";
   musicEl.style.opacity = music ? "1" : "0";
-  const src = `tv/vragen-test/img/scherm-${SCREEN[key] ?? "films"}.webp`;
+  const src = `shared/img/scherm/scherm-${SCREEN[key] ?? "films"}.webp`;
   if (!music && scrImg.getAttribute("src") !== src) scrImg.src = src;
   glowEl.style.backgroundImage = `url("${src}")`;
   // geluidsgolven uit de soundbar vanaf de gebruiksvraag
@@ -102,7 +102,7 @@ createQuiz3D({
   camera,
   steps: 5,
   state: { tvgrootte: null, breedte: null, gebruik: null, subwoofer: null, extra: [] },
-  imgPath: n => `soundbar/vragen-test/img/${n}.webp`,
+  imgPath: n => `soundbar/vragen/img/${n}.webp`,
   question: st => QUESTIONS[st.q],
   setup, afterRender,
 

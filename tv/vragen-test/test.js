@@ -39,7 +39,7 @@ const SCREENS = {
   films: "films", sport: "sport", gamen: "gamen", normaal: "normaal",
   zwart: "zwart", helderheid: "helder", kleur: "kleur",
 };
-const screenSrc = k => `tv/vragen-test/img/scherm-${SCREENS[k] ?? k}.webp`;
+const screenSrc = k => `shared/img/scherm/scherm-${SCREENS[k] ?? k}.webp`;
 const roomSrc = (light, D) => `tv/vragen-test/img/kamer-${light}-${D}.webp`;
 
 const QUESTIONS = [

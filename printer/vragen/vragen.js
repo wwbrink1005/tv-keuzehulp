@@ -90,8 +90,8 @@ function sheetKind(st) {
 }
 const SHEETS = {
   zw: `<div class="pad"><h5>Offerte 2026-114</h5>${"<i></i>".repeat(14)}</div>`,
-  kleur: `<div class="pad"><h5 style="color:#0954a3">Werkstuk: de kust</h5><img class="colorimg" src="tv/vragen-test/img/scherm-normaal.webp" alt=""><div class="bars"><b style="height:40%;background:#0954a3"></b><b style="height:70%;background:#c49a78"></b><b style="height:55%;background:#2e8b57"></b><b style="height:85%;background:#d08a16"></b></div>${"<i></i>".repeat(4)}</div>`,
-  foto: `<img class="photo" src="tv/vragen-test/img/scherm-films.webp" alt="">`,
+  kleur: `<div class="pad"><h5 style="color:#0954a3">Werkstuk: de kust</h5><img class="colorimg" src="shared/img/scherm/scherm-normaal.webp" alt=""><div class="bars"><b style="height:40%;background:#0954a3"></b><b style="height:70%;background:#c49a78"></b><b style="height:55%;background:#2e8b57"></b><b style="height:85%;background:#d08a16"></b></div>${"<i></i>".repeat(4)}</div>`,
+  foto: `<img class="photo" src="shared/img/scherm/scherm-films.webp" alt="">`,
 };
 
 let sheetBox, lapScreen;
@@ -123,7 +123,7 @@ createQuiz3D({
   camera,
   steps: 6,
   state: { gebruik: null, volume: null, aio: null, kleur: null, inkt: null, extra: [] },
-  imgPath: n => `printer/vragen-test/img/${n}.webp`,
+  imgPath: n => `printer/vragen/img/${n}.webp`,
   question: st => Q[st.q],
   setup, afterRender,
 

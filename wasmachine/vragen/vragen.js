@@ -193,7 +193,7 @@ quiz = createQuiz3D({
   camera,
   steps: 4,
   state: { capaciteitGroup: null, geluid: null, extra: [], programma: [] },
-  imgPath: n => `wasmachine/vragen-test/img/${n}.webp`,
+  imgPath: n => `wasmachine/vragen/img/${n}.webp`,
   question: st => Q[st.q],
   setup, afterRender,
 

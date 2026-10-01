@@ -117,7 +117,7 @@ createQuiz3D({
   camera,
   steps: 4,
   state: { personen: null, dubbeleMand: null, gebruik: null, extra: [] },
-  imgPath: n => `airfryer/vragen-test/img/${n}.webp`,
+  imgPath: n => `airfryer/vragen/img/${n}.webp`,
   question: st => Q[st.q],
   setup, afterRender, overlays,
 
