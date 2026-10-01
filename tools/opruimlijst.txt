@@ -1,10 +1,14 @@
 airfryer/images/airfryer achtergrond.png
+airfryer/js/popovers.js
 airfryer/js/quiz.js
 beamer/images/beamer achtergrond.png
+beamer/js/popovers.js
 beamer/js/quiz.js
 desktop/images/all in one visualisatie.png
 desktop/images/desktop achtergrond mobiel.png
 desktop/images/desktop mini visualisatie.png
+desktop/images/tower.png
+desktop/js/popovers.js
 desktop/js/quiz.js
 homepage-test.html
 images/homepage-test/airfryers.jpg
@@ -26,6 +30,7 @@ koelkast/images/koelkast achtergrond inbouw.png
 koelkast/images/koelkast achtergrond tafelmodel.png
 koelkast/images/koelkast achtergrond vrijstaand.png
 koelkast/images/koelkast achtergrond.png
+koelkast/js/popovers.js
 koelkast/js/quiz.js
 koffiemachine/images/koffiemachine achtergrond.png
 koffiemachine/images/koffiemachine cup.png
@@ -33,31 +38,43 @@ koffiemachine/images/koffiemachine filter.png
 koffiemachine/images/koffiemachine halfautomatisch.png
 koffiemachine/images/koffiemachine volautomaat.png
 koffiemachine/js/main-test.js
+koffiemachine/js/popovers.js
 koffiemachine/js/quiz.js
 koffiemachine/js/result-filters-test.js
 koffiemachine/js/result-test.js
 laptop/images/laptop achtergrond2.png
 laptop/images/laptop telefoon.png
 laptop/images/laptop visualisatie.png
+laptop/js/popovers.js
 laptop/js/quiz.js
+monitor/images/wide.png
+monitor/js/popovers.js
 monitor/js/quiz.js
+printer/images/Foto.png
+printer/images/Gemengd.png
 printer/images/Tekst.png
+printer/images/Zakelijk.png
 printer/images/printer achtergrond telefoon.png
 printer/images/printer achtergrond.png
+printer/js/popovers.js
 printer/js/quiz.js
+robotstofzuiger/js/popovers.js
 robotstofzuiger/js/quiz.js
 soundbar/images/sounbar achtegrond zonder tv.png
 soundbar/images/soundbar cutout groot.png
 soundbar/images/soundbar cutout klein.png
 soundbar/images/soundbar cutout middel.png
 soundbar/images/subwoofer cutout.png
+soundbar/js/popovers.js
 soundbar/js/quiz.js
+stofzuiger/js/popovers.js
 stofzuiger/js/quiz.js
 tv/images/tv aarde.png
 tv/images/tv scherp.png
 vaatwasser/images/vaatwasser achtergrond.png
 vaatwasser/images/vaatwasser inbouw.png
 vaatwasser/images/vaatwasser vrijstaand.png
+vaatwasser/js/popovers.js
 vaatwasser/js/quiz.js
 vriezer/images/achtegrond zonder vriezer.png
 vriezer/images/compact.png
@@ -67,9 +84,12 @@ vriezer/images/vrieskist extra groot.png
 vriezer/images/vrieskist groot.png
 vriezer/images/vrieskist middel.png
 vriezer/images/vrijstaande vriezer in afbeelding.png
+vriezer/js/popovers.js
 vriezer/js/quiz.js
 wasdroger/images/wasdroger achtegrond.png
+wasdroger/js/popovers.js
 wasdroger/js/quiz.js
 wasmachine/images/wasmachine nieuw.png
 wasmachine/images/wasmachine visualisatie test.png
+wasmachine/js/popovers.js
 wasmachine/js/quiz.js

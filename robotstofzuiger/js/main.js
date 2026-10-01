@@ -1,6 +1,4 @@
 import { initLucideIcons } from "./icons.js";
-import { initQuestionPopovers, initResultPopover } from "./popovers.js";
-import { initQuizPage } from "./quiz.js";
 import { initResultPage } from "./result.js";
 import { initFilters } from "./result-filters.js";
 
@@ -46,9 +44,6 @@ function initResponsiveScaling() {
 document.addEventListener("DOMContentLoaded", () => {
   initResponsiveScaling();
   initLucideIcons();
-  initQuestionPopovers();
-  initResultPopover();
-  initQuizPage();
   initResultPage();
   initFilters();
 });
