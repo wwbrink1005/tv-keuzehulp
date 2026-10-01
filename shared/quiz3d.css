@@ -28,6 +28,8 @@ body {
   justify-content: center;
   gap: 12px;
 }
+.q3d-head { flex-direction: column; gap: 0; }
+.q3d-intro { max-width: 640px; margin: 8px auto 0; text-align: center; font-size: 15px; line-height: 1.5; color: var(--c-text-2); }
 .test-head h1, .q3d-head h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
 .test-badge {
   font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
@@ -180,6 +182,7 @@ body {
 @media (max-width: 900px) {
   .test-head, .q3d-head { padding: 18px 16px 12px; }
   .test-head h1, .q3d-head h1 { font-size: 21px; }
+  .q3d-intro { font-size: 13.5px; margin-top: 6px; }
   /* beeld en kaart sluiten op mobiel als één blok op elkaar aan */
   .stage { aspect-ratio: 1 / 0.92; border-radius: 18px 18px 0 0; overflow: hidden; }
   .shell { position: relative; }

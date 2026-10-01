@@ -173,7 +173,7 @@ createQuiz3D({
     localStorage.setItem("airfryer_bestType", result.bestType ?? "");
     localStorage.setItem("airfryer_filteredMatchedAirfryers", JSON.stringify(result.filteredMatchedAirfryers));
     localStorage.setItem("airfryer_answers", JSON.stringify(answers));
-    window.location.href = "airfryer/resultaat";
+    window.location.href = "airfryer/resultaat/";
   },
 
   preload: ["af-gemiddeld", "af-klein", "af-groot", "af-dubbel", "eten-friet", "eten-grill", "eten-alles", "af-gemiddeld-glas"],

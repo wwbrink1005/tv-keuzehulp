@@ -247,7 +247,7 @@ createQuiz3D({
     localStorage.setItem("robotstofzuiger_bestType", result.bestType ?? "");
     localStorage.setItem("robotstofzuiger_filteredMatchedRobotstofzuigers", JSON.stringify(result.filteredMatchedRobotstofzuigers));
     localStorage.setItem("robotstofzuiger_answers", JSON.stringify(answers));
-    window.location.href = "robotstofzuiger/resultaat";
+    window.location.href = "robotstofzuiger/resultaat/";
   },
 
   preload: ["robot-lidar", "dock", "robot-basic", "robot-lidar-mop", "robot-basic-mop", "dock-zelflegend"],

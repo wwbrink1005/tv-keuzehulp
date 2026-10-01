@@ -177,7 +177,7 @@ createQuiz3D({
     localStorage.setItem("koelkast_bestType", result.bestType ?? "");
     localStorage.setItem("koelkast_filteredMatchedKoelkasten", JSON.stringify(result.filteredMatchedKoelkasten));
     localStorage.setItem("koelkast_answers", JSON.stringify(answers));
-    window.location.href = "koelkast/resultaat";
+    window.location.href = "koelkast/resultaat/";
   },
 
   preload: ["standaard-dicht", "inbouw-178", "breed-dicht", "amerikaans-dicht", "tafelmodel-dicht",

@@ -33,6 +33,8 @@ def oud_uitlezen(cat):
         "canonical": one(r'<link rel="canonical" href="(.*?)"'),
         "ldjson": one(r'(<script type="application/ld\+json">.*?</script>)'),
         "h1": strip_tags(one(r"<h1[^>]*>(.*?)</h1>")),
+        # meervoud uit de broodkruimel (positie 2), bv. "Wasmachines"
+        "meervoud": re.search(r'"position": 2, "name": "([^"]+)"', s).group(1),
     }
     how = s[s.index('id="how-content"'):]
     head["how_p"] = strip_tags(re.search(r"<p>(.*?)</p>", how, re.S).group(1))
@@ -71,7 +73,7 @@ def bouw(cat):
  <base href="../../">
  <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>{o["title"]}</title>
+ <title>{o["h1"].replace(" Keuzehulp", "")} keuzehulp – vind in een paar vragen de {o["h1"].replace(" Keuzehulp", "").lower()} die bij je past</title>
  <meta name="description" content="{o["description"]}">
  <link rel="canonical" href="{o["canonical"]}" />
  <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -93,6 +95,7 @@ def bouw(cat):
 
 <header class="q3d-head">
   <h1>{e(o["h1"])}</h1>
+  <p class="q3d-intro">Gratis en onafhankelijk: beantwoord een paar vragen en wij vergelijken alle {e(o["meervoud"].lower())} op prijs, specificaties en jouw wensen.</p>
 </header>
 
 <main class="wrap">

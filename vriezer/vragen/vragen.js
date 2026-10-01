@@ -176,7 +176,7 @@ createQuiz3D({
     localStorage.setItem("vriezer_bestType", result.bestType ?? "");
     localStorage.setItem("vriezer_filteredMatchedVriezers", JSON.stringify(result.filteredMatchedVriezers));
     localStorage.setItem("vriezer_answers", JSON.stringify(answers));
-    window.location.href = "vriezer/resultaat";
+    window.location.href = "vriezer/resultaat/";
   },
 
   preload: ["kast-middel-dicht", "inbouw-178", "kist-middel-dicht", "kast-klein-dicht", "kast-groot-dicht", "kist-klein-dicht", "kist-groot-dicht",

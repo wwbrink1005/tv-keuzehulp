@@ -189,7 +189,7 @@ createQuiz3D({
     localStorage.setItem("desktop_filteredMatchedDesktops", JSON.stringify(result.filteredMatchedDesktops));
     localStorage.setItem("desktop_answers", JSON.stringify(answers));
     localStorage.setItem("desktop_selectedBehuizingType", st.behuizing ?? "");
-    window.location.href = "desktop/resultaat";
+    window.location.href = "desktop/resultaat/";
   },
 
   preload: ["bureau", MONITOR, "tower", "mini", "aio", "tower-open", "tower-rgb", "tower-water", "tower-rgb-water"],

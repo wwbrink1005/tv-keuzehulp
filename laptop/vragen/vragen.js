@@ -198,7 +198,7 @@ createQuiz3D({
     localStorage.setItem("laptop_filteredMatchedLaptops", JSON.stringify(result.filteredMatchedLaptops));
     localStorage.setItem("laptop_answers", JSON.stringify(answers));
     localStorage.setItem("laptop_selectedSizeGroup", st.formaat ?? "");
-    window.location.href = "laptop/resultaat";
+    window.location.href = "laptop/resultaat/";
   },
 
   preload: ["bureau", "15", "13", "17"],

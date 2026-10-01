@@ -28,19 +28,19 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3 class="footer-col-title">Keuzehulpen</h3>
           <ul>
             <li>
-              <a href="tv/vragen">Televisies</a>
+              <a href="tv/vragen/">Televisies</a>
             </li>
             <li>
-              <a href="laptop/vragen">Laptops</a>
+              <a href="laptop/vragen/">Laptops</a>
             </li>
             <li>
-              <a href="wasmachine/vragen">Wasmachines</a>
+              <a href="wasmachine/vragen/">Wasmachines</a>
             </li>
             <li>
-              <a href="koelkast/vragen">Koelkasten</a>
+              <a href="koelkast/vragen/">Koelkasten</a>
             </li>
             <li>
-              <a href="soundbar/vragen">Soundbars</a>
+              <a href="soundbar/vragen/">Soundbars</a>
             </li>
           </ul>
         </div>

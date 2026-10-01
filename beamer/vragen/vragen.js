@@ -196,7 +196,7 @@ createQuiz3D({
     localStorage.setItem("beamer_bestType", result.bestType ?? "");
     localStorage.setItem("beamer_filteredMatchedBeamers", JSON.stringify(result.filteredMatchedBeamers));
     localStorage.setItem("beamer_answers", JSON.stringify(answers));
-    window.location.href = "beamer/resultaat";
+    window.location.href = "beamer/resultaat/";
   },
 
   preload: ["avond", "groot", "dag", "donker", "mini", "ust"],

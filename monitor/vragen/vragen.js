@@ -184,7 +184,7 @@ createQuiz3D({
     localStorage.setItem("monitor_filteredMatchedMonitors", JSON.stringify(result.filteredMatchedMonitors));
     localStorage.setItem("monitor_answers", JSON.stringify(answers));
     localStorage.setItem("monitor_selectedSizeGroup", st.schermgrootte ?? "");
-    window.location.href = "monitor/resultaat";
+    window.location.href = "monitor/resultaat/";
   },
 
   preload: ["bureau", "27", "24", "32", "34", "27c", "32c", "34c"],

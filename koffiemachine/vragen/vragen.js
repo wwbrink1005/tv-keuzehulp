@@ -210,7 +210,7 @@ createQuiz3D({
     localStorage.setItem("koffiemachine_bestType", result.bestType ?? "");
     localStorage.setItem("koffiemachine_filteredMatchedKoffiemachines", JSON.stringify(result.filteredMatchedKoffiemachines));
     localStorage.setItem("koffiemachine_answers", JSON.stringify(answers));
-    window.location.href = "koffiemachine/resultaat";
+    window.location.href = "koffiemachine/resultaat/";
   },
 
   preload: ["vol", "half", "caps", "filter", "kopjes-gemiddeld", "kopjes-klein", "kopjes-groot", "vol-auto", "vol-stoom", "half-auto", "half-stoom", "caps-auto", "caps-stoom"],

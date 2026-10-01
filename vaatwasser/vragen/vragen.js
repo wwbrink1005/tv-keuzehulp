@@ -314,7 +314,7 @@ quiz = createQuiz3D({
     localStorage.setItem("vaatwasser_filteredMatchedVaatwassers", JSON.stringify(result.filteredMatchedVaatwassers));
     localStorage.setItem("vaatwasser_answers", JSON.stringify(answers));
     localStorage.setItem("vaatwasser_selectedPlaatsing", st.plaatsing ?? "");
-    window.location.href = "vaatwasser/resultaat";
+    window.location.href = "vaatwasser/resultaat/";
   },
 
   preload: ["ib-dicht", "ib-open-gemiddeld", "kast", "vs-dicht", "ib-open-klein", "ib-open-groot", "ib-kier", "vs-open-gemiddeld", "vs-open-klein", "vs-open-groot"],

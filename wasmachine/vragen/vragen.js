@@ -256,7 +256,7 @@ quiz = createQuiz3D({
     localStorage.setItem("wasmachine_filteredMatchedWasmachines", JSON.stringify(result.filteredMatchedWasmachines));
     localStorage.setItem("wasmachine_answers", JSON.stringify(answers));
     localStorage.setItem("wasmachine_selectedCapaciteitGroup", st.capaciteitGroup ?? "");
-    window.location.href = "wasmachine/resultaat";
+    window.location.href = "wasmachine/resultaat/";
   },
 
   preload: ["wm-9", "wm-7", "wm-10", "mand1", "mand2", "mand3", "top"],

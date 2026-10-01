@@ -242,7 +242,7 @@ createQuiz3D({
     localStorage.setItem("stofzuiger_bestType", result.bestType ?? "");
     localStorage.setItem("stofzuiger_filteredMatchedStofzuigers", JSON.stringify(result.filteredMatchedStofzuigers));
     localStorage.setItem("stofzuiger_answers", JSON.stringify(answers));
-    window.location.href = "stofzuiger/resultaat";
+    window.location.href = "stofzuiger/resultaat/";
   },
 
   preload: ["cil-zak", "steel", "cil-zakloos", "mand"],

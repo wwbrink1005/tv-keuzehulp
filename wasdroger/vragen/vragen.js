@@ -260,7 +260,7 @@ quiz = createQuiz3D({
     localStorage.setItem("wasdroger_filteredMatchedWasdrogers", JSON.stringify(result.filteredMatchedWasdrogers));
     localStorage.setItem("wasdroger_answers", JSON.stringify(answers));
     localStorage.setItem("wasdroger_selectedCapaciteitGroup", st.capaciteitGroup ?? "");
-    window.location.href = "wasdroger/resultaat";
+    window.location.href = "wasdroger/resultaat/";
   },
 
   preload: ["wd-9", "wd-7", "wd-10", "mand1", "mand2", "mand3"],

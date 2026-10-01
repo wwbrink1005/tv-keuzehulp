@@ -186,7 +186,7 @@ createQuiz3D({
     localStorage.setItem("soundbar_filteredMatchedSoundbars", JSON.stringify(result.filteredMatchedSoundbars));
     localStorage.setItem("soundbar_answers", JSON.stringify(answers));
     localStorage.setItem("soundbar_selectedBreedteGroup", st.breedte ?? "");
-    window.location.href = "soundbar/resultaat";
+    window.location.href = "soundbar/resultaat/";
   },
 
   preload: ["kamer", "gemiddeld", "compact", "groot", "sub"],

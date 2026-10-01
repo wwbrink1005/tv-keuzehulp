@@ -177,7 +177,7 @@ createQuiz3D({
     localStorage.setItem("printer_filteredMatchedPrinters", JSON.stringify(result.filteredMatchedPrinters));
     localStorage.setItem("printer_answers", JSON.stringify(answers));
     localStorage.setItem("printer_selectedGebruik", st.gebruik ?? "");
-    window.location.href = "printer/resultaat";
+    window.location.href = "printer/resultaat/";
   },
 
   preload: ["bureau", "thuis", "foto", "zakelijk", "thuis-aio", "foto-aio", "zakelijk-aio", "tank-thuis", "tank-foto", "adf-thuis", "adf-foto"],
