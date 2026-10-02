@@ -11,20 +11,11 @@ desktop/images/tower.png
 desktop/js/popovers.js
 desktop/js/quiz.js
 homepage-test.html
-images/homepage-test/airfryers.jpg
-images/homepage-test/beamers.jpg
 images/homepage-test/gids-tv-maat.jpg
-images/homepage-test/koelkasten.jpg
-images/homepage-test/koffiemachines.jpg
-images/homepage-test/robotstofzuigers.jpg
 images/homepage-test/scene-koffie.jpg
 images/homepage-test/scene-wasmachine.jpg
 images/homepage-test/slide-laptop.jpg
 images/homepage-test/slide-tv.jpg
-images/homepage-test/stofzuiger.png
-images/homepage-test/vaatwassers.jpg
-images/homepage-test/vriezers.png
-images/homepage-test/wasdrogers.jpg
 koelkast/images/koelkast achtergrond amerikaans.png
 koelkast/images/koelkast achtergrond inbouw.png
 koelkast/images/koelkast achtergrond tafelmodel.png
@@ -61,7 +52,6 @@ printer/js/quiz.js
 robotstofzuiger/js/popovers.js
 robotstofzuiger/js/quiz.js
 soundbar/images/sounbar achtegrond zonder tv.png
-soundbar/images/soundbar cutout groot.png
 soundbar/images/soundbar cutout klein.png
 soundbar/images/soundbar cutout middel.png
 soundbar/images/subwoofer cutout.png
