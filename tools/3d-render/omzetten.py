@@ -95,7 +95,7 @@ def bouw(cat):
 
 <header class="q3d-head">
   <h1>{e(o["h1"])}</h1>
-  <p class="q3d-intro">Gratis en onafhankelijk: beantwoord een paar vragen en wij vergelijken alle {e(o["meervoud"].lower())} op prijs, specificaties en jouw wensen.</p>
+  <p class="q3d-intro">Gratis en onafhankelijk: beantwoord een paar vragen en wij vergelijken alle {e(o["meervoud"].lower())} op prijs, specificaties en jouw wensen. Bij elke vraag zie je in beeld wat je keuze betekent.</p>
 </header>
 
 <main class="wrap">
