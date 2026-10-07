@@ -8,7 +8,7 @@
     <!-- Nog niet publiek. Pas weghalen bij livegang van het zakelijke deel. -->
     <meta name="robots" content="noindex, nofollow" />
     <title>Prijzen | producthulp.nl zakelijk</title>
-    <meta name="description" content="Een interactieve keuzehulp op je eigen site vanaf €129 per maand per productgroep. Geen verborgen kosten." />
+    <meta name="description" content="Een interactieve keuzehulp op je eigen site vanaf €149 per maand per productgroep. Geen verborgen kosten." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -65,7 +65,7 @@
             <article class="zk-plan">
               <h3>Eén productgroep</h3>
               <p class="zk-plan-sub">Om te beginnen</p>
-              <div class="zk-plan-price"><strong>€129</strong><span>per maand</span></div>
+              <div class="zk-plan-price"><strong>€149</strong><span>per maand</span></div>
               <p class="zk-plan-extra">Plus eenmalig €249 opstart</p>
               <ul>
                 <li><i data-lucide="check"></i>Keuzehulp in jouw huisstijl</li>
@@ -82,7 +82,7 @@
               <h3>Meerdere productgroepen</h3>
               <p class="zk-plan-sub">Voor een breder assortiment</p>
               <div class="zk-plan-price"><strong>€79</strong><span>per extra groep per maand</span></div>
-              <p class="zk-plan-extra">Bovenop de eerste groep, plus €99 opstart per extra groep. Bijvoorbeeld 3 groepen: €287 per maand</p>
+              <p class="zk-plan-extra">Bovenop de eerste groep, plus €99 opstart per extra groep. Bijvoorbeeld 3 groepen: €307 per maand</p>
               <ul>
                 <li><i data-lucide="check"></i>Alles uit één productgroep</li>
                 <li><i data-lucide="check"></i>Elke extra groep voordeliger</li>
@@ -95,8 +95,8 @@
             <article class="zk-plan">
               <h3>Jaarcontract</h3>
               <p class="zk-plan-sub">Voor wie vooruit wil</p>
-              <div class="zk-plan-price"><strong>2</strong><span>maanden gratis</span></div>
-              <p class="zk-plan-extra">Je betaalt 10 maanden in plaats van 12, en geen opstartkosten</p>
+              <div class="zk-plan-price"><strong>1</strong><span>maand gratis</span></div>
+              <p class="zk-plan-extra">Je betaalt 11 maanden in plaats van 12, en geen opstartkosten</p>
               <ul>
                 <li><i data-lucide="check"></i>Geen opstartkosten</li>
                 <li><i data-lucide="check"></i>Alles uit je gekozen productgroepen</li>
@@ -120,13 +120,13 @@
               <label for="calcGroepen">Voor hoeveel productgroepen wil je een keuzehulp?</label>
               <p class="zk-calc-count"><b id="calcAantal">3</b> <span id="calcEenheid">productgroepen</span></p>
               <input id="calcGroepen" type="range" min="1" max="16" value="3" />
-              <label class="zk-calc-toggle"><input id="calcJaar" type="checkbox" /> Jaarcontract (2 maanden gratis en geen opstartkosten)</label>
+              <label class="zk-calc-toggle"><input id="calcJaar" type="checkbox" /> Jaarcontract (1 maand gratis en geen opstartkosten)</label>
             </div>
             <div class="zk-calc-out" aria-live="polite">
-              <div class="zk-calc-row"><span>Per maand</span><b id="calcMaand">€287</b></div>
+              <div class="zk-calc-row"><span>Per maand</span><b id="calcMaand">€307</b></div>
               <div class="zk-calc-row"><span>Eenmalige opstart</span><b id="calcOpstart">€447</b></div>
-              <div class="zk-calc-row is-total"><span>Eerste jaar</span><b id="calcJaarTotaal">€3.891</b></div>
-              <div class="zk-calc-row"><span>Elk jaar daarna</span><b id="calcVolgendJaar">€3.444</b></div>
+              <div class="zk-calc-row is-total"><span>Eerste jaar</span><b id="calcJaarTotaal">€4.131</b></div>
+              <div class="zk-calc-row"><span>Elk jaar daarna</span><b id="calcVolgendJaar">€3.684</b></div>
               <p class="zk-calc-save" id="calcBesparing" hidden></p>
             </div>
           </div>
@@ -153,9 +153,9 @@
     <script>
       if (window.lucide) lucide.createIcons();
 
-      // Maand: eerste groep 129, elke extra 79. Opstart: eerste groep 249, elke extra 99
+      // Maand: eerste groep 149, elke extra 79. Opstart: eerste groep 249, elke extra 99
       // (feed, huisstijl en intake doe je maar één keer per klant).
-      const EERSTE = 129, EXTRA = 79, OPSTART = 249, OPSTART_EXTRA = 99;
+      const EERSTE = 149, EXTRA = 79, OPSTART = 249, OPSTART_EXTRA = 99;
       const euro = (n) => "€" + n.toLocaleString("nl-NL");
       const el = (id) => document.getElementById(id);
 
@@ -164,9 +164,9 @@
         const jaar = el("calcJaar").checked;
         const maand = EERSTE + (n - 1) * EXTRA;
         const opstartNormaal = OPSTART + (n - 1) * OPSTART_EXTRA;
-        // Bij een jaarcontract vervalt de opstart en betaal je 10 van de 12 maanden.
+        // Bij een jaarcontract vervalt de opstart en betaal je 11 van de 12 maanden.
         const opstart = jaar ? 0 : opstartNormaal;
-        const perJaar = maand * (jaar ? 10 : 12);
+        const perJaar = maand * (jaar ? 11 : 12);
         el("calcAantal").textContent = n;
         el("calcEenheid").textContent = n === 1 ? "productgroep" : "productgroepen";
         el("calcMaand").textContent = euro(maand);
@@ -175,7 +175,7 @@
         el("calcVolgendJaar").textContent = euro(perJaar);
         const besparing = el("calcBesparing");
         besparing.hidden = !jaar;
-        besparing.textContent = "Je bespaart " + euro(maand * 2 + opstartNormaal) + " in het eerste jaar met een jaarcontract";
+        besparing.textContent = "Je bespaart " + euro(maand + opstartNormaal) + " in het eerste jaar met een jaarcontract";
       }
       el("calcGroepen").addEventListener("input", reken);
       el("calcJaar").addEventListener("change", reken);
