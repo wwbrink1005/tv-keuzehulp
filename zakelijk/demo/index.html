@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../../">
+    <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Nog niet publiek. Pas weghalen bij livegang van het zakelijke deel. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Demo | producthulp.nl zakelijk</title>
+    <meta name="description" content="Probeer de keuzehulp zoals een webshop hem op zijn eigen site krijgt: eigen huisstijl, eigen assortiment, eigen productpagina's." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="stylesheet" href="shared/footer.css" />
+    <link rel="stylesheet" href="zakelijk/zakelijk.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="shared/footer.js" defer></script>
+  </head>
+  <body>
+
+    <header class="zk-header">
+      <div class="zk-wrap">
+        <a class="zk-brand" href="zakelijk/" aria-label="producthulp.nl zakelijk">
+          <img src="logo's/logo.svg" alt="producthulp.nl" />
+          <span class="zk-brand-tag">Zakelijk</span>
+        </a>
+        <nav class="zk-nav" aria-label="Zakelijk menu">
+          <a href="zakelijk/">Home</a>
+          <a href="zakelijk/hoe-het-werkt/">Hoe het werkt</a>
+          <a href="zakelijk/demo/" aria-current="page">Demo</a>
+          <a href="zakelijk/prijzen/">Prijzen</a>
+          <a href="zakelijk/contact/">Contact</a>
+        </nav>
+        <a class="zk-btn zk-btn-primary zk-btn-sm zk-header-cta" href="zakelijk/contact/">Plan een demo</a>
+      </div>
+    </header>
+
+    <main>
+
+      <section class="zk-page-hero">
+        <div class="zk-wrap">
+          <span class="zk-eyebrow">Demo</span>
+          <h1>Zo staat hij op de site van een winkel</h1>
+          <p>Hieronder draait de keuzehulp precies zoals een webshop hem krijgt: in de eigen huisstijl, met alleen het eigen assortiment, en elke knop naar de eigen productpagina. Doorloop hem gerust helemaal.</p>
+        </div>
+      </section>
+
+      <section class="zk-section">
+        <div class="zk-wrap">
+          <div class="zk-live-frame">
+            <div class="zk-live-bar"><i></i><i></i><i></i><span>demo-witgoed.nl/koelkasten</span></div>
+            <iframe id="keuzehulp" src="embed/koelkast/?klant=demowitgoed" title="Koelkast-keuzehulp van Demo Witgoed"></iframe>
+          </div>
+          <div class="zk-live-acties">
+            <a class="zk-btn zk-btn-ghost" href="klanten/proefsite/" target="_blank" rel="noopener">Bekijk de demo-webshop <i data-lucide="external-link"></i></a>
+            <p class="zk-live-fictief">Demo Witgoed is een fictieve webshop die we hebben gemaakt om te laten zien hoe de keuzehulp bij een winkel werkt. De koelkasten bestaan echt, de winkel en zijn productpagina's niet.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="zk-section">
+        <div class="zk-wrap">
+          <div class="zk-final">
+            <div>
+              <h2>Wil je hem zien met jouw producten?</h2>
+              <p>We maken een proefversie met je eigen kleuren en assortiment. Vrijblijvend.</p>
+            </div>
+            <a class="zk-btn zk-btn-primary" href="zakelijk/contact/">Plan een demo <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <p class="zk-consumer-link">Op zoek naar een product voor jezelf? <a href="./">Naar producthulp.nl</a></p>
+
+    </main>
+
+    <script>
+      if (window.lucide) lucide.createIcons();
+
+      // De keuzehulp meldt zijn hoogte (shared/embed-hoogte.js) en de iframe
+      // groeit mee, zodat er geen tweede scrollbalk in het venster komt.
+      // Hetzelfde scriptje dat een winkel naast de iframe-regel plakt.
+      window.addEventListener("message", function (e) {
+        var f = document.getElementById("keuzehulp");
+        if (e.source === f.contentWindow && e.data && e.data.type === "producthulp-keuzehulp-hoogte") {
+          f.style.height = Math.max(560, e.data.hoogte) + "px";
+        }
+      });
+    </script>
+  </body>
+</html>

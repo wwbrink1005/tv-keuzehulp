@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="nl" class="klant-laden">
+<head>
+ <meta charset="UTF-8">
+ <base href="../../">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="robots" content="noindex, nofollow">
+ <title>Koelkast keuzehulp</title>
+ <!-- B2B-embed: de koelkast-keuzehulp voor op de site van een webshop (iframe).
+      Zelfde code als koelkast/vragen/, maar zonder onze menubalk, footer,
+      cookiebanner en meting (consent.js/analytics.js bewust niet geladen:
+      testkliks en klantverkeer horen niet in onze cijfers). De klant komt uit
+      ?klant=<id> (shared/klant.js); zonder geldige klant stopt de pagina. -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+ <link rel="stylesheet" href="shared/quiz3d.css">
+ <link rel="stylesheet" href="shared/embed.css">
+ <link rel="preload" as="image" href="koelkast/vragen/img/standaard-dicht.webp">
+ <script src="shared/embed-hoogte.js" defer></script>
+</head>
+<body>
+
+<header class="embed-head">
+  <img class="embed-logo" id="klantLogo" alt="" hidden>
+  <h1>Welke koelkast past bij jou?</h1>
+  <p>Beantwoord vier korte vragen en zie welke koelkasten uit ons assortiment het beste passen.</p>
+</header>
+
+<main class="wrap">
+  <div class="shell">
+    <div class="stage" id="stage">
+      <div class="progress"><i id="progress"></i></div>
+      <div class="scene" id="scene">
+        <img class="room" id="roomA" alt="" decoding="async">
+        <img class="room" id="roomB" alt="" decoding="async">
+        <svg class="fx" id="fx"></svg>
+        <div id="tags"></div>
+      </div>
+      <div class="caption" id="caption"></div>
+      <div class="loading" id="loading">Keuken laden…</div>
+    </div>
+
+    <section class="card" id="card" aria-live="polite">
+      <p class="step" id="step"></p>
+      <div class="q-body" id="qBody"></div>
+    </section>
+  </div>
+</main>
+
+<p class="embed-credit">Keuzehulp door producthulp.nl</p>
+
+<script type="module">
+  import { klant } from "./shared/klant.js";
+  const logo = document.getElementById("klantLogo");
+  if (klant?.logo) { logo.src = klant.logo; logo.alt = klant.naam; logo.hidden = false; }
+</script>
+<script type="module" src="koelkast/vragen/vragen.js"></script>
+</body>
+</html>

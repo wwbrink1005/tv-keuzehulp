@@ -1,10 +1,16 @@
+import { klant, productLink, B2B_SUPABASE_URL, B2B_SUPABASE_ANON_KEY } from "../../shared/klant.js";
+
 const SUPABASE_URL = "https://clypcdpapacpowxehxzv.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNseXBjZHBhcGFjcG93eGVoeHp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTc3NDIsImV4cCI6MjA5MzEzMzc0Mn0.3BpYssokCLQdhbSwTvhOMj5ve5QYhg2Jzd7MIUYCHkE";
 
+// Klantmodus leest uit het aparte B2B-project (zie shared/klant.js).
+const BASIS_URL = klant ? B2B_SUPABASE_URL : SUPABASE_URL;
+const SLEUTEL = klant ? B2B_SUPABASE_ANON_KEY : SUPABASE_ANON_KEY;
+
 const HEADERS = {
-  apikey: SUPABASE_ANON_KEY,
-  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+  apikey: SLEUTEL,
+  Authorization: `Bearer ${SLEUTEL}`,
 };
 
 /**
@@ -13,7 +19,10 @@ const HEADERS = {
  * nieuwe aanbieder zoals MediaMarkt vereist hier geen wijziging.
  */
 function adaptAanbieders(row) {
-  return Array.isArray(row.aanbieders) ? row.aanbieders : [];
+  const lijst = Array.isArray(row.aanbieders) ? row.aanbieders : [];
+  // Klantmodus: de enige "winkel" is de klant zelf; de link krijgt hun
+  // meet-tag (utm) zodat zij zien welke verkopen via de keuzehulp komen.
+  return klant ? lijst.map(a => ({ ...a, url: productLink(a.url) })) : lijst;
 }
 
 /**
@@ -51,18 +60,28 @@ function adaptRow(row) {
 /**
  * Fetches all rows from the `koelkasten` table with offset-based pagination.
  */
+// Klantmodus leest de tabel van de klant (zie shared/klant.js); lokaal kan
+// dat ook een JSON-bestand zijn (droge uitvoer van de pipeline).
+const TABEL = klant?.databron ?? "koelkasten";
+
 async function fetchAll() {
+  if (TABEL.endsWith(".json")) {
+    const res = await fetch(TABEL, { cache: "no-cache" });
+    if (!res.ok) throw new Error(`Testbestand niet gevonden: ${TABEL}`);
+    return res.json();
+  }
   const PAGE_SIZE = 1000;
   const results = [];
   let offset = 0;
 
   while (true) {
-    const url = `${SUPABASE_URL}/rest/v1/koelkasten?order=ean&limit=${PAGE_SIZE}&offset=${offset}`;
+    if (!BASIS_URL) throw new Error("B2B-Supabase-project nog niet ingesteld (shared/klant.js)");
+    const url = `${BASIS_URL}/rest/v1/${TABEL}?order=${klant ? "klant_id" : "ean"}&limit=${PAGE_SIZE}&offset=${offset}`;
     const response = await fetch(url, { headers: HEADERS });
 
     if (!response.ok) {
       throw new Error(
-        `Supabase fetch mislukt (koelkasten): ${response.status} ${response.statusText}`
+        `Supabase fetch mislukt (${TABEL}): ${response.status} ${response.statusText}`
       );
     }
 
@@ -119,5 +138,7 @@ function samenvoegDuplicaten(rows) {
  */
 export async function fetchProducts() {
   const rows = await fetchAll();
-  return samenvoegDuplicaten(rows).map(adaptRow).filter(Boolean);
+  // Klantdata heeft een eigen sleutel (klant_id) en soms geen EAN: samenvoegen
+  // op EAN zou alle producten zonder EAN tot één product plakken.
+  return (klant ? rows : samenvoegDuplicaten(rows)).map(adaptRow).filter(Boolean);
 }

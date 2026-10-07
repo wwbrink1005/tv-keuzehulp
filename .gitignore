@@ -5,3 +5,6 @@ service-account*.json
 
 # Interne strategie-/omzet-aantekeningen (bedrijfsgevoelig, niet voor publieke repo)
 strategie/
+
+# B2B-proefrun: droge pipeline-uitvoer om lokaal te testen zonder Supabase-tabel
+klanten/testdata/

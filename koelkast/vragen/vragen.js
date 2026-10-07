@@ -2,13 +2,28 @@
 // Alle renders (koelkast/vragen/img) delen één camera (render/scene.py,
 // --d 1.3); alleen de koelkast wisselt. De motor staat in shared/quiz3d.js.
 import { createQuiz3D, makeCamera, dimLine, spotColumn } from "../../shared/quiz3d.js";
-import { nishoogteGroups, vrijstaandTypeLabels } from "../js/data.js";
+import { nishoogteGroups, vrijstaandTypeLabels, EXTRA_CHECKS } from "../js/data.js";
+import { klant, isUitgezet, zetUit, sleutel, pagina } from "../../shared/klant.js";
 import { matchKoelkasten } from "../js/matching.js";
 import { normalizeProducts } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 
 const camera = makeCamera({ camY: -(1.3 + 2.45) });
 const productsPromise = fetchProducts().catch(() => null);   // alvast ophalen
+
+// B2B-embed: een extra wens waar de klant (vrijwel) geen producten voor
+// heeft, doet niets (de matching slaat hem stil over). Die zetten we dan
+// automatisch uit, bovenop wat de klant zelf in "uitgezet" heeft staan.
+// Op producthulp.nl zelf gebeurt dit niet.
+const MIN_PRODUCTEN_PER_OPTIE = 3;
+if (klant) {
+  productsPromise.then(raw => {
+    const producten = normalizeProducts(raw ?? []);
+    for (const [wens, voldoet] of Object.entries(EXTRA_CHECKS)) {
+      if (producten.filter(voldoet).length < MIN_PRODUCTEN_PER_OPTIE) zetUit(wens);
+    }
+  });
+}
 
 // geometrie van de koelkasten (meters, zoals in render/scene.py)
 const X0 = -0.31;
@@ -54,7 +69,21 @@ const Q_EXTRA = {
   id: "extra", type: "check", exclusive: "geen",
   title: "Wat is nog meer belangrijk voor jou?",
   sub: "Je keuzes verschijnen op de koelkast zelf.",
-  why: "Energiezuinig betekent een lager verbruik op je energierekening. Stil in gebruik is prettig als de koelkast dicht bij een woon- of slaapkamer staat. No Frost betekent dat de vriezer nooit meer handmatig ontdooid hoeft te worden. Een vriesvak is handig als je ook bevroren producten wilt bewaren zonder een aparte vriezer. Een vers zone compartiment houdt groente, fruit en vlees langer vers. Waterdispenser en ijsmaker zijn vooral te vinden bij Amerikaanse en extra brede koelkasten.",
+  // Uitleg per optie, zodat een uitgezette optie (B2B-klant) ook uit de
+  // tekst verdwijnt. Wordt bij elke weergave opnieuw samengesteld.
+  get why() {
+    const delen = [
+      ["energiezuinig", "Energiezuinig betekent een lager verbruik op je energierekening."],
+      ["stil", "Stil in gebruik is prettig als de koelkast dicht bij een woon- of slaapkamer staat."],
+      ["nofrost", "No Frost betekent dat de vriezer nooit meer handmatig ontdooid hoeft te worden."],
+      ["vriesvak", "Een vriesvak is handig als je ook bevroren producten wilt bewaren zonder een aparte vriezer."],
+      ["verszone", "Een vers zone compartiment houdt groente, fruit en vlees langer vers."],
+    ].filter(([v]) => !isUitgezet(v)).map(([, tekst]) => tekst);
+    const breed = ["waterdispenser", "ijsmaker"].filter(v => !isUitgezet(v));
+    if (breed.length === 2) delen.push("Waterdispenser en ijsmaker zijn vooral te vinden bij Amerikaanse en extra brede koelkasten.");
+    else if (breed.length === 1) delen.push(`Een ${breed[0]} is vooral te vinden bij Amerikaanse en extra brede koelkasten.`);
+    return delen.join(" ");
+  },
   options: [
     { v: "energiezuinig", label: "Energiezuinig, laag energieverbruik", price: "€€" },
     { v: "stil", label: "Stil in gebruik", price: "€€" },
@@ -64,7 +93,7 @@ const Q_EXTRA = {
     { v: "waterdispenser", label: "Waterdispenser", price: "€€€", when: isBreed },
     { v: "ijsmaker", label: "IJsmaker", price: "€€€", when: isBreed },
     { v: "geen", label: "Geen extra wensen", price: "€" },
-  ],
+  ].map(o => (o.v === "geen" ? o : { ...o, when: st => !isUitgezet(o.v) && (!o.when || o.when(st)) })),
 };
 
 const LITERS = {
@@ -169,15 +198,15 @@ createQuiz3D({
       nishoogte: st.plaatsing === "inbouw" ? (st.nishoogte ?? "") : "",
       vrijstaandtype: st.plaatsing === "vrijstaand" ? (st.vrijstaandtype ?? "") : "",
       gezinsgrootte: st.gezinsgrootte ?? "",
-      extraAnswers: st.extra.filter(e => isBreed(st) || !["waterdispenser", "ijsmaker"].includes(e)),
+      extraAnswers: st.extra.filter(e => !isUitgezet(e) && (isBreed(st) || !["waterdispenser", "ijsmaker"].includes(e))),
     };
     const raw = await productsPromise;
     const result = matchKoelkasten(normalizeProducts(raw ?? []), answers);
-    localStorage.setItem("koelkast_bestMatch", JSON.stringify(result.bestMatch));
-    localStorage.setItem("koelkast_bestType", result.bestType ?? "");
-    localStorage.setItem("koelkast_filteredMatchedKoelkasten", JSON.stringify(result.filteredMatchedKoelkasten));
-    localStorage.setItem("koelkast_answers", JSON.stringify(answers));
-    window.location.href = "koelkast/resultaat/";
+    localStorage.setItem(sleutel("koelkast_bestMatch"), JSON.stringify(result.bestMatch));
+    localStorage.setItem(sleutel("koelkast_bestType"), result.bestType ?? "");
+    localStorage.setItem(sleutel("koelkast_filteredMatchedKoelkasten"), JSON.stringify(result.filteredMatchedKoelkasten));
+    localStorage.setItem(sleutel("koelkast_answers"), JSON.stringify(answers));
+    window.location.href = pagina("koelkast", "resultaat");
   },
 
   preload: ["standaard-dicht", "inbouw-178", "breed-dicht", "amerikaans-dicht", "tafelmodel-dicht",

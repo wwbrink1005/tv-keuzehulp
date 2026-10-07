@@ -1,0 +1,9 @@
+{
+  "naam": "Demo Witgoed",
+  "categorie": "koelkast",
+  "kleuren": { "accent": "#C8102E", "accentDonker": "#9B0C23" },
+  "logo": "klanten/logos/demowitgoed.svg",
+  "uitgezet": ["verszone"],
+  "databron": "klant_demowitgoed_koelkasten",
+  "productlink": "{url}?utm_source=producthulp&utm_medium=keuzehulp"
+}

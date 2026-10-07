@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Koelkast keuzehulp | Demo Witgoed</title>
+<!-- NEP-KLANTSITE voor de B2B-proefrun: een webshoppagina met eigen opmaak,
+     om te testen of de embed op een vreemde pagina werkt. Niet gelinkt,
+     niet geïndexeerd. Bewust ander lettertype, andere marges en een
+     agressieve eigen CSS-reset, zoals een echte webshop die heeft. -->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Georgia, "Times New Roman", serif; color: #222; background: #faf7f2; }
+  iframe { max-width: 100%; }
+  a { color: #9B0C23; }
+  .topbar { background: #9B0C23; color: #fff; font: 13px Arial, sans-serif; text-align: center; padding: 7px 12px; }
+  header { background: #fff; border-bottom: 3px solid #C8102E; }
+  .kop { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 28px; padding: 14px 20px; flex-wrap: wrap; }
+  .kop img { height: 38px; }
+  nav { display: flex; gap: 20px; font: 600 15px Arial, sans-serif; flex-wrap: wrap; }
+  nav a { color: #222; text-decoration: none; }
+  nav a.actief { color: #C8102E; border-bottom: 2px solid #C8102E; }
+  .zoek { margin-left: auto; padding: 9px 14px; border: 1px solid #ccc; border-radius: 4px; width: 260px; font: 14px Arial, sans-serif; }
+  .kruimel { max-width: 1200px; margin: 0 auto; padding: 14px 20px 0; font: 13px Arial, sans-serif; color: #777; }
+  main { max-width: 1200px; margin: 0 auto; padding: 8px 20px 40px; }
+  h1 { font-size: 34px; margin: 10px 0 6px; }
+  .intro { font-size: 17px; line-height: 1.6; max-width: 70ch; margin: 0 0 22px; }
+  .keuzehulp-blok { background: #fff; border: 1px solid #e5ded3; border-radius: 6px; padding: 0; overflow: hidden; }
+  .usp { display: flex; gap: 26px; flex-wrap: wrap; margin: 26px 0 0; font: 14px Arial, sans-serif; }
+  .usp span::before { content: "✔ "; color: #C8102E; }
+  footer { background: #222; color: #bbb; font: 13px Arial, sans-serif; padding: 28px 20px; text-align: center; }
+  @media (max-width: 700px) { .zoek { width: 100%; margin-left: 0; } h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+  <div class="topbar">Gratis bezorging en installatie vanaf € 299 · Vandaag besteld, morgen in huis</div>
+  <header>
+    <div class="kop">
+      <img src="../logos/demowitgoed.svg" alt="Demo Witgoed">
+      <nav>
+        <a href="#">Wassen &amp; drogen</a>
+        <a href="#" class="actief">Koelen &amp; vriezen</a>
+        <a href="#">Koken</a>
+        <a href="#">Vaatwassers</a>
+        <a href="#">Service</a>
+      </nav>
+      <input class="zoek" type="search" placeholder="Zoek in 4.000 producten">
+    </div>
+  </header>
+  <div class="kruimel">Home › Koelen &amp; vriezen › Koelkast keuzehulp</div>
+
+  <main>
+    <h1>Welke koelkast past bij jou?</h1>
+    <p class="intro">Twijfel je tussen inbouw of vrijstaand, of weet je niet hoeveel liter je nodig hebt? Onze keuzehulp helpt je in een paar vragen naar de koelkast die echt bij je keuken en je huishouden past.</p>
+
+    <div class="keuzehulp-blok">
+      <!-- ▼ Dit is wat de klant op zijn site plakt (de iframe-regel + het
+           optionele hoogtescriptje). De src komt uit het script hieronder,
+           alleen omdat deze proefsite lokaal én live moet werken. -->
+      <iframe id="keuzehulp" title="Koelkast keuzehulp" loading="lazy"
+              style="width:100%;height:760px;border:0;display:block"></iframe>
+      <script>
+        // Optioneel: iframe laten meegroeien met de inhoud (geen dubbele scrollbalk).
+        window.addEventListener("message", function (e) {
+          var f = document.getElementById("keuzehulp");
+          if (e.source === f.contentWindow && e.data && e.data.type === "producthulp-keuzehulp-hoogte") {
+            f.style.height = Math.max(560, e.data.hoogte) + "px";
+          }
+        });
+      </script>
+      <!-- ▲ -->
+    </div>
+
+    <div class="usp"><span>30 dagen bedenktijd</span><span>Oude koelkast gratis mee retour</span><span>Installatie door eigen monteurs</span></div>
+  </main>
+
+  <footer>© Demo Witgoed (fictieve webshop voor de B2B-proefrun van producthulp.nl)</footer>
+
+  <script>
+    // Alleen voor deze proefsite. Lokaal: de webshop op "localhost" en de
+    // keuzehulp op "127.0.0.1" (twee verschillende sites voor de browser,
+    // zoals demo-witgoed.nl vs producthulp.nl), met de droge pipeline-uitvoer
+    // als databron. Live: gewoon de keuzehulp op producthulp.nl.
+    // Op 127.0.0.1 geopend: alles op één domein (handig om automatisch door
+    // de quiz te klikken in een test).
+    var lokaal = ["localhost", "127.0.0.1"].indexOf(location.hostname) >= 0;
+    var basis = lokaal ? "http://127.0.0.1:" + location.port : "https://producthulp.nl";
+    // Standaard leest de embed uit Supabase (project b2b). Met ?testbestand=1
+    // gebruikt hij lokaal de droge pipeline-uitvoer, handig zonder internet.
+    var bron = lokaal && /testbestand=1/.test(location.search) ? "&bron=klanten/testdata/demowitgoed_koelkast.json" : "";
+    document.getElementById("keuzehulp").src = basis + "/embed/koelkast/?klant=demowitgoed" + bron;
+  </script>
+</body>
+</html>

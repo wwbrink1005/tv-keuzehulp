@@ -81,6 +81,20 @@ export const gezinsgrootteMinCapaciteit = {
 // ─── "Stil" drempel voor de geluidsniveau-extra ────────────────────────────────
 export const STIL_DB_THRESHOLD = 38;
 
+// ─── Extra wensen (vraag 4): wanneer voldoet een koelkast? ─────────────────────
+// Eén definitie voor de matching (applyExtraFilter) en voor het automatisch
+// uitzetten van opties waar een klant (B2B-embed) geen data voor heeft. De
+// volgorde is de volgorde waarin de matching versmalt.
+export const EXTRA_CHECKS = {
+  energiezuinig:  k => ["A", "B", "C"].includes(k.energielabel),
+  stil:           k => k.geluidsniveauDb !== null && k.geluidsniveauDb <= STIL_DB_THRESHOLD,
+  nofrost:        k => k.automatischOntdooien === "Ja",
+  vriesvak:       k => Boolean(k.heeftVriesvak),
+  verszone:       k => k.versZone === "Ja",
+  waterdispenser: k => k.waterdispenser === "Ja",
+  ijsmaker:       k => k.ijsmaker === "Ja",
+};
+
 // ─── Static fallback price groups (used only if dynamic computation yields
 // nothing, e.g. before the catalog has loaded) ─────────────────────────────────
 export const priceGroupsFallback = [

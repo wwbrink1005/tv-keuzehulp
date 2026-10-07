@@ -1,0 +1,67 @@
+/* shared/embed.css — alleen voor de B2B-embed-pagina's (embed/<categorie>/).
+   Kleine kop met het logo van de klant, en de pagina onzichtbaar houden tot
+   shared/klant.js de huisstijl heeft gezet (anders flitst eerst ons blauw). */
+
+html.klant-laden body { visibility: hidden; }
+
+body { margin: 0; }
+
+.embed-head {
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: 18px 20px 6px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	font-family: "Inter", system-ui, sans-serif;
+}
+
+.embed-logo { height: 30px; width: auto; display: block; margin-bottom: 6px; }
+
+.embed-head h1 {
+	margin: 0;
+	font-size: clamp(20px, 2.6vw, 26px);
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	color: #1d1d1f;
+}
+
+.embed-head p {
+	margin: 0;
+	font-size: 14.5px;
+	line-height: 1.5;
+	color: #515154;
+}
+
+.embed-credit {
+	margin: 4px 0 14px;
+	text-align: center;
+	font: 11.5px "Inter", system-ui, sans-serif;
+	color: #86868b;
+}
+
+/* Resultaatpagina: de winkelfilters horen bij de prijsvergelijking van
+   producthulp.nl, niet bij het assortiment van één winkel. */
+.filter-card[data-filter="aanbieder"],
+.filter-card[data-filter="min-aanbieders"] { display: none !important; }
+
+/* Productfoto's laden in de resultatenlijst pas als ze in beeld komen
+   (lazy). In de embed scrolt de bezoeker over de pagina van de winkel, dus
+   foto's verderop laden pas tijdens het scrollen. Tot dan een rustige
+   laadtint i.p.v. een hagelwit vak; zodra de foto er is (of de placeholder
+   bij een kapotte link) wordt het vak wit. "is-geladen" zet
+   shared/resultaat-kaart.js via onload. */
+.rcard-img { background: #f2f3f5; transition: background 0.3s ease; }
+.rcard-img.is-geladen { background: #ffffff; }
+.rcard-img img { opacity: 0; transition: opacity 0.3s ease; }
+.rcard-img.is-geladen img { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+	.rcard-img, .rcard-img img { transition: none; }
+}
+
+/* In een smalle iframe (telefoon, binnen de marges van de winkelpagina) brak
+   "Prijs (laag-hoog)" over twee regels. */
+@media (max-width: 420px) {
+	.results-head .sort-button { white-space: nowrap; font-size: 12.5px; padding: 0 10px 0 12px; gap: 4px; }
+}

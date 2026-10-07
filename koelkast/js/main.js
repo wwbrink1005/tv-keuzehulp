@@ -41,7 +41,15 @@ function initResponsiveScaling() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// Start zodra de DOM klaar is, ook als dat moment al voorbij is: in de
+// B2B-embed wacht shared/klant.js eerst op de klantinstellingen (top-level
+// await), waardoor deze module pas ná DOMContentLoaded draait.
+function start(fn) {
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+  else fn();
+}
+
+start(() => {
   initResponsiveScaling();
   initLucideIcons();
   initResultPage();
