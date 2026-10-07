@@ -4,12 +4,24 @@
 
 html.klant-laden body { visibility: hidden; }
 
+/* Layoutmaten die op producthulp.nl uit shared/menu.css komen. De embed laadt
+   geen menu, dus zonder deze regels was de zijmarge van de resultaatpagina 0
+   en plakte alles tegen de rand van de iframe. */
+:root {
+	--site-max-width: 1240px;
+	--site-gutter: clamp(16px, 3vw, 28px);
+	--site-bleed-padding: max(var(--site-gutter), calc((100% - var(--site-max-width)) / 2));
+}
+
 body { margin: 0; }
+
+/* Vragenpagina: zelfde lucht aan de zijkant als de kop erboven. */
+.wrap { padding: 0 var(--site-gutter); margin-bottom: 20px; }
 
 .embed-head {
 	max-width: 1180px;
 	margin: 0 auto;
-	padding: 18px 20px 6px;
+	padding: 18px var(--site-gutter) 6px;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -64,4 +76,32 @@ body { margin: 0; }
    "Prijs (laag-hoog)" over twee regels. */
 @media (max-width: 420px) {
 	.results-head .sort-button { white-space: nowrap; font-size: 12.5px; padding: 0 10px 0 12px; gap: 4px; }
+}
+
+/* ── Wat "vast in beeld" moet staan ──────────────────────────────────────
+   De iframe groeit mee met zijn inhoud en scrolt zelf niet; de bezoeker
+   scrolt over de pagina van de winkel. position:fixed is daardoor vast
+   t.o.v. de HELE iframe (duizenden pixels), niet t.o.v. wat de bezoeker
+   ziet. Zwevende knoppen belanden dan onderaan de lijst en het
+   vergrootvenster midden in een lange pagina, buiten beeld. */
+
+/* Zwevende filterknop (mobiel) en "terug naar boven": werken niet in een
+   meegroeiende iframe. De gewone filterknop bovenaan blijft. */
+.mobile-filter-fab,
+#scroll-top-btn { display: none !important; }
+
+/* Vergrootvenster: over de hele lengte dimmen, het venster zelf opent bij de
+   foto waarop is geklikt (top via --preview-top, gezet in
+   embed/koelkast/resultaat/index.html). */
+/* "html body" omdat de resultaatpagina een eigen inline regel voor
+   #imagePreviewOverlay heeft die na dit bestand komt. */
+html body #imagePreviewOverlay {
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: var(--preview-doc-h, 100%);
+	align-items: flex-start;
+}
+#imagePreviewOverlay .image-preview-dialog {
+	margin-top: var(--preview-top, 40px);
+	max-height: min(640px, calc(100vh - 60px));
 }

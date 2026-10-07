@@ -460,6 +460,24 @@
       document.getElementById("embedRestart").href = document.body.dataset.vragenUrl;
     </script>
 
+    <!-- Embed: de iframe groeit mee en scrolt zelf niet, dus een gecentreerd
+         vergrootvenster zou midden in de hele (lange) pagina openen, buiten
+         beeld. Daarom opent hij bij de foto waarop geklikt is: daar kijkt de
+         bezoeker op dat moment. Zie ook shared/embed.css. Draait vóór de
+         gewone klikafhandeling hieronder (capture). -->
+    <script>
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.tv-preview-btn');
+        var overlay = document.getElementById('imagePreviewOverlay');
+        if (!btn || !overlay) return;
+        var docH = document.documentElement.scrollHeight;
+        var y = btn.closest('.rcard-img').getBoundingClientRect().top + window.scrollY;
+        var top = Math.max(16, Math.min(y - 120, docH - 680));
+        overlay.style.setProperty('--preview-doc-h', docH + 'px');
+        overlay.style.setProperty('--preview-top', top + 'px');
+      }, true);
+    </script>
+
     <!-- ── Image Preview Overlay ── -->
     <div id="imagePreviewOverlay" role="dialog" aria-modal="true" aria-label="Koelkast afbeelding vergroten" aria-hidden="true">
       <div class="image-preview-dialog">
