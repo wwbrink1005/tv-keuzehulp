@@ -734,6 +734,105 @@ h1, h2 { text-wrap: balance; }
 .zk-live-acties { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 22px; }
 .zk-live-fictief { font-size: 14px; color: var(--zk-text-3); max-width: 60ch; }
 
+/* Demo: dezelfde keuzehulp in verschillende plaatsingen. De iframe blijft op
+   zijn plek in de DOM (verplaatsen laadt hem opnieuw); alleen de opmaak van
+   de vakken eromheen wisselt via data-plaats. */
+.zk-plaats { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 16px; }
+.zk-plaats-label { font-size: 14px; font-weight: 600; color: var(--zk-text-2); margin-right: 4px; }
+.zk-plaats button {
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--zk-line);
+  background: #fff;
+  color: var(--zk-text-2);
+  cursor: pointer;
+  transition: background var(--zk-ease), border-color var(--zk-ease), color var(--zk-ease);
+}
+.zk-plaats button:hover { border-color: var(--zk-text-3); }
+.zk-plaats button[aria-pressed="true"] { background: var(--zk-accent); border-color: var(--zk-accent); color: #fff; }
+.zk-plaats button:focus-visible { outline: 2px solid var(--zk-accent); outline-offset: 2px; }
+
+.zk-plaats-vak { display: block; }
+.zk-plaats-tekst, .zk-plaats-popknop, .zk-plaats-sluit, .zk-plaats-schuif { display: none; }
+
+/* Skelet voor "de eigen inhoud van de winkel" */
+.zk-plaats-tekst h3 { margin: 0 0 8px; font-size: 22px; }
+.zk-plaats-tekst p { margin: 0 0 16px; color: var(--zk-text-2); }
+.zk-plaats-tekst i { display: block; height: 10px; border-radius: 4px; background: #eceef1; margin-bottom: 10px; }
+
+/* Naast eigen tekst: twee kolommen, de keuzehulp krijgt de smalle opmaak */
+.zk-plaats-vak[data-plaats="kolom"] { display: grid; grid-template-columns: 1fr 1.5fr; gap: 28px; align-items: start; padding: 24px; }
+.zk-plaats-vak[data-plaats="kolom"] .zk-plaats-tekst { display: block; }
+
+/* Smalle zijbalk: eigen inhoud breed, de keuzehulp in een kolom van 340 px */
+.zk-plaats-vak[data-plaats="zijbalk"] { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; padding: 24px; }
+.zk-plaats-vak[data-plaats="zijbalk"] .zk-plaats-tekst { display: block; }
+
+/* Sleep zelf de breedte */
+.zk-plaats-vak[data-plaats="schuif"] { padding: 24px; }
+.zk-plaats-vak[data-plaats="schuif"] .zk-plaats-hulp { margin: 0 auto; }
+.zk-plaats-vak[data-plaats="schuif"] ~ .zk-plaats-schuif { display: flex; }
+.zk-plaats-schuif { align-items: center; gap: 12px; padding: 12px 24px 20px; font-size: 13px; color: var(--zk-text-3); flex-wrap: wrap; }
+.zk-plaats-schuif input { flex: 1; min-width: 160px; accent-color: var(--zk-accent); }
+.zk-plaats-schuif output { font-variant-numeric: tabular-nums; color: var(--zk-text-2); font-weight: 600; }
+
+/* Als pop-up: een knop op de pagina, de keuzehulp in een venster */
+.zk-plaats-vak[data-plaats="popup"] { padding: 24px; }
+.zk-plaats-vak[data-plaats="popup"] .zk-plaats-tekst { display: block; }
+.zk-plaats-vak[data-plaats="popup"] .zk-plaats-popknop { display: inline-flex; }
+/* Dicht: buiten beeld i.p.v. display:none, zodat de keuzehulp geladen blijft. */
+.zk-plaats-vak[data-plaats="popup"] .zk-plaats-hulp:not(.is-open) { position: fixed; left: -10000px; top: 0; width: min(1100px, 92vw); }
+.zk-plaats-hulp.is-open {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(15, 23, 42, 0.55);
+  padding: 4vh 16px;
+  overflow-y: auto;
+}
+.zk-plaats-hulp.is-open .zk-plaats-raam { width: min(1100px, 100%); margin: 0 auto; background: #fff; border-radius: 16px; position: relative; padding-top: 46px; overflow: hidden; }
+.zk-plaats-hulp.is-open .zk-plaats-sluit {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--zk-bg);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.zk-plaats-popknop { align-items: center; gap: 8px; }
+
+.zk-code { margin-top: 18px; }
+.zk-code summary { cursor: pointer; font-weight: 600; color: var(--zk-accent); font-size: 15px; }
+.zk-code p { margin: 10px 0; color: var(--zk-text-2); font-size: 14.5px; max-width: 70ch; }
+.zk-code-kop { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+.zk-code pre {
+  margin: 0;
+  padding: 14px 16px;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 12px;
+  overflow-x: auto;
+  font: 12.5px/1.55 ui-monospace, Consolas, monospace;
+}
+
+@media (max-width: 760px) {
+  .zk-plaats-vak[data-plaats="kolom"],
+  .zk-plaats-vak[data-plaats="zijbalk"] { grid-template-columns: 1fr; padding: 16px; }
+  /* Op een telefoon is het scherm al smaller dan het schuifje: niets te slepen. */
+  .zk-plaats button[data-plaats="schuif"] { display: none; }
+  .zk-plaats-vak[data-plaats="schuif"], .zk-plaats-vak[data-plaats="popup"] { padding: 16px; }
+}
+
 /* Contact */
 .zk-contact { display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px; align-items: start; }
 .zk-contact-card {

@@ -3,7 +3,7 @@
 // scrollbalk te tonen (vooral de resultatenlijst is langer dan het scherm).
 //
 // Werkt alleen als de klant naast de iframe-regel ook het kleine
-// luisterscriptje plakt (zie klanten/proefsite/). Zonder dat script valt het
+// luisterscriptje plakt (zie de code op zakelijk/demo/). Zonder dat script valt het
 // terug op de vaste hoogte uit de iframe-regel, met scrollen binnen de iframe.
 //
 // Gemeten wordt waar de inhoud ophoudt (een onzichtbaar markeerpunt onderaan
