@@ -117,6 +117,16 @@ Twee valkuilen die echt geld aan tijd kosten:
   (fetch + adaptRow), `js/utils.js` (normalizeProducts/prijsbuckets), `js/matching.js`
   (scoring + tier-cascade met verplichte eindfallback), `js/quiz.js`, `js/result.js`,
   `js/result-filters.js` (secundaire filters op de resultaatpagina).
+- **Resultaatkaart, nieuwe opzet (koelkast klaar, rest volgt per groep):** per categorie
+  `js/punten.js` met `buildContext`, `buildResultPoints` ("Waarom dit bij jou past":
+  bevestigt de keuzes en vergelijkt binnen de eigen resultatenlijst), `buildSpecChips` en
+  `buildAlleSpecs`. Gedeeld: `shared/punten-basis.js` (bouwstenen + vangnetten),
+  `shared/alle-specs.js` (uitklapblok), `shared/favorieten.js` (hartjes, opslag
+  `ph_favorieten` in localStorage), `shared/kaart-verrijking.js` (hartje + specs in de
+  kaarten). Favorietenpagina: `favorieten/`, één regel per categorie in `CATEGORIEEN`;
+  vereist ook `fetchProductsByEan()` in `js/supabase.js`. Het menuhartje zit in
+  `shared/menu.js`. `fetchProducts()` is gememoiseerd zodat de kaartverrijking geen
+  tweede download kost.
 
 ## Bekende valkuilen (kostte dit project meerdere bugs)
 
@@ -142,4 +152,7 @@ Twee valkuilen die echt geld aan tijd kosten:
 - **`buildResultPoints()` moet altijd exact 4 USP-punten teruggeven**, nooit minder — zie
   stap 5.5 in [docs/nieuwe-keuzehulp.md](docs/nieuwe-keuzehulp.md) voor het verplichte
   3-lagen-patroon (specifiek → generieke specs → puur generiek vangnet) en hoe dat te
-  testen tegen de volledige live catalogus. TV is het referentiepatroon.
+  testen tegen de volledige live catalogus. In de nieuwe opzet (`js/punten.js`) is
+  koelkast het referentiepatroon; sluit altijd af met `winkelVangnet()` uit
+  `shared/punten-basis.js`. Test met meerdere lijsten (hele catalogus, 1 product, 5
+  producten) en meerdere antwoordsets, want de punten hangen van de lijst af.

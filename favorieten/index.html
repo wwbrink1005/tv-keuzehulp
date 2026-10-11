@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../">
+    <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jouw favorieten</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="stylesheet" href="shared/menu.css" />
+    <link rel="stylesheet" href="shared/footer.css" />
+    <link rel="stylesheet" href="shared/resultaat.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="shared/menu.js" defer></script>
+    <script src="shared/footer.js" defer></script>
+    <script src="shared/consent.js" defer></script>
+    <style>
+      /* Zelfde reset als de inline stijl van de resultaatpagina's; zonder
+         deze telt de padding van .rcard op bij width:100% en steekt de kaart uit. */
+      *, *::before, *::after { box-sizing: border-box; }
+      [hidden] { display: none !important; }
+
+      body { background: var(--page-bg); margin: 0; }
+
+      .fav-page {
+        padding: 28px var(--site-bleed-padding) 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .fav-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px 24px;
+      }
+
+      .fav-head h1 {
+        margin: 0;
+        font-size: clamp(22px, 3vw, 28px);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+      }
+
+      .fav-head p { margin: 6px 0 0; font-size: 14px; color: var(--text-secondary); max-width: 60ch; line-height: 1.55; }
+
+      .fav-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+      .fav-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 18px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--card-bg);
+        color: var(--text-primary);
+        font: 600 14px "Inter", sans-serif;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.18s ease, border-color 0.18s ease;
+      }
+
+      .fav-action:hover { background: var(--accent-soft); border-color: rgba(9, 84, 163, 0.25); }
+      .fav-action.is-primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+      .fav-action.is-primary:hover { background: var(--accent-dark); }
+      .fav-action svg { width: 16px; height: 16px; }
+
+      .fav-shared {
+        padding: 16px 20px;
+        border-radius: var(--radius-md);
+        background: var(--accent-soft);
+        border: 1px solid rgba(9, 84, 163, 0.18);
+        font-size: 14px;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px 20px;
+      }
+
+      .fav-section { display: flex; flex-direction: column; gap: 12px; }
+
+      .fav-section-title {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--accent);
+      }
+
+      .fav-gone {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        border: 1px dashed var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--card-bg);
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+
+      .fav-gone strong { color: var(--text-primary); }
+
+      .fav-gone button {
+        flex-shrink: 0;
+        border: none;
+        background: none;
+        color: var(--accent);
+        font: 600 13px "Inter", sans-serif;
+        cursor: pointer;
+      }
+
+      .fav-empty {
+        padding: 48px 24px;
+        border-radius: var(--radius-lg);
+        background: var(--card-bg);
+        border: 1px solid var(--line);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .fav-empty svg { width: 34px; height: 34px; fill: var(--fav-red-soft); stroke: var(--fav-red); stroke-width: 1.8; }
+      .fav-empty h2 { margin: 0; font-size: 18px; color: var(--text-primary); }
+      .fav-empty p { margin: 0; font-size: 14px; color: var(--text-secondary); max-width: 46ch; line-height: 1.55; }
+
+      .fav-loading { font-size: 14px; color: var(--text-tertiary); }
+
+      /* Geen vergrootvenster op deze pagina. */
+      .fav-page .tv-preview-btn { display: none; }
+
+      .rcard.is-leaving { opacity: 0; transform: scale(0.98); transition: opacity 0.2s ease, transform 0.2s ease; }
+    </style>
+  </head>
+  <body>
+
+    <main class="fav-page">
+      <div class="fav-head">
+        <div>
+          <h1>Jouw favorieten</h1>
+          <p>Producten die je hebt bewaard, met de prijzen van vandaag. Je lijst staat alleen in deze browser: je hebt geen account nodig en wij kunnen hem niet inzien.</p>
+        </div>
+        <div class="fav-actions" id="favActions" hidden>
+          <button class="fav-action" type="button" id="favShare">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Deel je lijst
+          </button>
+        </div>
+      </div>
+
+      <div id="favShared" class="fav-shared" hidden></div>
+      <div id="favLijst"><p class="fav-loading">Je favorieten worden geladen…</p></div>
+    </main>
+
+    <script type="module">
+      import { buildCardHtml } from "./shared/resultaat-kaart.js";
+      import { resetProvidersRegistry } from "./shared/aanbieders.js";
+      import { leesFavorieten, favKnopHtml, initFavorieten, voegToe, toggleFavoriet } from "./shared/favorieten.js";
+      import { plaatsAlleSpecs, initAlleSpecs } from "./shared/alle-specs.js";
+
+      // Categorieën met favorieten, in de volgorde waarin ze op de pagina
+      // staan. Elke categorie levert dezelfde drie modules:
+      //   {cat}/js/supabase.js  fetchProductsByEan(eans)
+      //   {cat}/js/utils.js     normalizeProducts(rows)
+      //   {cat}/js/punten.js    buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs
+      // Een nieuwe categorie is hier één regel; de modules worden pas geladen
+      // als er een favoriet uit die categorie is.
+      const CATEGORIEEN = {
+        koelkast: { label: "Koelkasten" },
+      };
+
+      const laadCategorie = (cat) => Promise.all([
+        import(`./${cat}/js/supabase.js`),
+        import(`./${cat}/js/utils.js`),
+        import(`./${cat}/js/punten.js`),
+      ]).then(([db, utils, punten]) => ({ db, utils, punten }));
+
+      const IMG_FALLBACK = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f4f5f7'/%3E%3C/svg%3E";
+      window.IMG_FALLBACK = IMG_FALLBACK;
+
+      const lijstEl = document.getElementById("favLijst");
+      const actiesEl = document.getElementById("favActions");
+      const gedeeldEl = document.getElementById("favShared");
+
+      const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+      /** Een gedeelde lijst staat in de URL als ?koelkast=ean1,ean2 */
+      function gedeeldeLijst() {
+        const params = new URLSearchParams(location.search);
+        const items = [];
+        for (const cat of Object.keys(CATEGORIEEN)) {
+          for (const ean of new Set((params.get(cat) || "").split(","))) {
+            if (/^\d{8,14}$/.test(ean)) items.push({ cat, ean, naam: "" });
+          }
+        }
+        return items;
+      }
+
+      function leegHtml() {
+        return `
+          <div class="fav-empty">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <h2>Nog geen favorieten</h2>
+            <p>Tik in je resultaten op het hartje bij een product om het hier te bewaren. Zo kun je later rustig vergelijken, ook als je de keuzehulp niet opnieuw wilt doen.</p>
+            <a class="fav-action is-primary" href="./">Naar de keuzehulpen</a>
+          </div>`;
+      }
+
+      async function render() {
+        const gedeeld = gedeeldeLijst();
+        const isGedeeld = gedeeld.length > 0;
+        const items = isGedeeld ? gedeeld : leesFavorieten();
+
+        actiesEl.hidden = isGedeeld || items.length === 0;
+        if (isGedeeld) {
+          gedeeldEl.hidden = false;
+          gedeeldEl.innerHTML = `<span>Je bekijkt een <strong>gedeelde lijst</strong> met ${items.length} product${items.length === 1 ? "" : "en"}.</span>
+            <button class="fav-action is-primary" type="button" id="favBewaarGedeeld">Bewaar in mijn favorieten</button>`;
+        }
+
+        if (items.length === 0) {
+          lijstEl.innerHTML = leegHtml();
+          return;
+        }
+
+        resetProvidersRegistry();
+        const secties = [];
+        const naRender = [];
+        for (const [cat, cfg] of Object.entries(CATEGORIEEN)) {
+          const vanCat = items.filter((f) => f.cat === cat);
+          if (!vanCat.length) continue;
+
+          let mod, rijen = [];
+          try {
+            mod = await laadCategorie(cat);
+            rijen = await mod.db.fetchProductsByEan(vanCat.map((f) => f.ean));
+          } catch {
+            secties.push(`<section class="fav-section"><p class="fav-loading">${esc(cfg.label)} konden niet worden geladen. Probeer het zo opnieuw.</p></section>`);
+            continue;
+          }
+
+          // Per rij normaliseren, zodat de EAN aan het product gekoppeld blijft
+          // (normalizeProducts laat producten zonder winkel weg).
+          const perEan = new Map(rijen.map((r) => [String(r.ean), r]));
+          const kaarten = [];
+          const weg = [];
+          for (const f of vanCat) {
+            const raw = perEan.get(f.ean);
+            const product = raw ? mod.utils.normalizeProducts([raw])[0] : null;
+            if (product) kaarten.push({ product, raw, fav: f });
+            else weg.push(f);
+          }
+
+          const ctx = mod.punten.buildContext(kaarten.map((k) => k.product), kaarten.length === 1 ? "je favoriet" : `je ${kaarten.length} favorieten`);
+          const minPrijs = Math.min(...kaarten.map((k) => k.product.prijs));
+          const html = kaarten.map(({ product, raw }, index) => {
+            const kaart = buildCardHtml({
+              product,
+              index,
+              isCheapest: kaarten.length > 1 && product.prijs === minPrijs,
+              specs: mod.punten.buildSpecChips(product),
+              points: mod.punten.buildResultPoints(product, null, ctx),
+            });
+            return kaart
+              .replace('<article class="rcard"', `<article class="rcard" data-fav-ean="${esc(raw.ean)}"`)
+              .replace(/(<article[^>]*>)/, `$1${isGedeeld ? "" : favKnopHtml(cat, raw.ean, product.naam)}`);
+          }).join("");
+
+          const wegHtml = weg.map((f) => `
+            <div class="fav-gone" data-gone-ean="${esc(f.ean)}">
+              <span><strong>${esc(f.naam || "Product")}</strong> is op dit moment nergens leverbaar.</span>
+              ${isGedeeld ? "" : `<button type="button" data-verwijder="${esc(f.ean)}" data-cat="${esc(cat)}">Verwijderen</button>`}
+            </div>`).join("");
+
+          // Specificaties pas na het renderen in de kaart zetten (DOM).
+          naRender.push(() => kaarten.forEach(({ product, raw }) => {
+            plaatsAlleSpecs(document.querySelector(`.rcard[data-fav-ean="${CSS.escape(String(raw.ean))}"]`), mod.punten.buildAlleSpecs(product, raw));
+          }));
+
+          secties.push(`
+            <section class="fav-section">
+              <h2 class="fav-section-title">${esc(cfg.label)} (${vanCat.length})</h2>
+              <div class="other-matches-grid">${html}${wegHtml}</div>
+            </section>`);
+        }
+
+        lijstEl.innerHTML = secties.join("") || leegHtml();
+        naRender.forEach((f) => f());
+        window.lucide?.createIcons?.();
+      }
+
+      initAlleSpecs();
+
+      // Een hartje uitzetten op deze pagina haalt de kaart ook meteen weg.
+      initFavorieten({
+        opWijziging(ean, aan) {
+          if (aan) return;
+          const kaart = document.querySelector(`.rcard[data-fav-ean="${CSS.escape(ean)}"]`);
+          if (!kaart) return;
+          kaart.classList.add("is-leaving");
+          setTimeout(render, 200);
+        },
+      });
+
+      document.addEventListener("click", async (e) => {
+        const del = e.target.closest("[data-verwijder]");
+        if (del) {
+          toggleFavoriet(del.dataset.cat, del.dataset.verwijder, "");
+          render();
+          return;
+        }
+
+        if (e.target.closest("#favBewaarGedeeld")) {
+          voegToe(gedeeldeLijst());
+          history.replaceState(null, "", location.pathname);
+          gedeeldEl.hidden = true;
+          render();
+          return;
+        }
+
+        if (e.target.closest("#favShare")) {
+          const params = new URLSearchParams();
+          for (const cat of Object.keys(CATEGORIEEN)) {
+            const eans = leesFavorieten().filter((f) => f.cat === cat).map((f) => f.ean);
+            if (eans.length) params.set(cat, eans.join(","));
+          }
+          const link = `${location.origin}${location.pathname}?${params.toString().replace(/%2C/g, ",")}`;
+          const knop = e.target.closest("#favShare");
+          try {
+            if (navigator.share) {
+              await navigator.share({ title: "Mijn favorieten op producthulp.nl", url: link });
+              return;
+            }
+            await navigator.clipboard.writeText(link);
+            knop.lastChild.textContent = " Link gekopieerd";
+            setTimeout(() => { knop.lastChild.textContent = " Deel je lijst"; }, 2200);
+          } catch {
+            window.prompt("Kopieer deze link:", link);
+          }
+        }
+      });
+
+      render();
+    </script>
+  </body>
+</html>

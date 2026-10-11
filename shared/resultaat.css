@@ -1756,3 +1756,228 @@ body.has-menu {
 					flex-shrink: 0;
 				}
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   KAART: FAVORIETEN EN ALLE SPECIFICATIES
+   Hartje: shared/favorieten.js. Specificaties: shared/alle-specs.js.
+   Het hartje in de menubalk staat in shared/menu.css.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+	--fav-red: #e0245e;
+	--fav-red-soft: rgba(224, 36, 94, 0.1);
+}
+
+/* ── Rustiger kaart ─────────────────────────────────────────────────────
+   Nadruk via kleur in plaats van vet: losse vette woorden midden in een
+   zin trekken het oog heen en weer. Chips zonder rand, en "Alle
+   specificaties" zonder eigen scheidingslijn, zodat er per kaart nog maar
+   één lijn overblijft (boven de prijs). */
+.rcard-why { gap: 6px; }
+.rcard-why strong { font-weight: 500; color: var(--text-primary); }
+
+.rcard-chip {
+	border-color: transparent;
+	background: var(--page-bg);
+	font-weight: 500;
+	color: var(--text-secondary);
+}
+
+.rcard-chip svg { color: var(--text-tertiary); }
+
+/* ── Hartjesknop ────────────────────────────────────────────────────── */
+.rcard:has(> .fav-btn) .rcard-badges,
+.rcard:has(> .fav-btn) .rcard-name { padding-right: 44px; }
+
+.fav-btn {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	z-index: 2;
+	width: 38px;
+	height: 38px;
+	display: grid;
+	place-items: center;
+	padding: 0;
+	border-radius: 50%;
+	border: 1px solid transparent;
+	background: transparent;
+	cursor: pointer;
+	transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.fav-btn svg {
+	width: 18px;
+	height: 18px;
+	fill: none;
+	stroke: var(--text-tertiary);
+	stroke-width: 2;
+	stroke-linejoin: round;
+	transition: fill 0.18s ease, stroke 0.18s ease;
+}
+
+.fav-btn:hover { border-color: rgba(224, 36, 94, 0.4); background: var(--fav-red-soft); }
+.fav-btn:hover svg { stroke: var(--fav-red); }
+.fav-btn.is-on { border-color: rgba(224, 36, 94, 0.35); background: var(--fav-red-soft); }
+.fav-btn.is-on svg { fill: var(--fav-red); stroke: var(--fav-red); }
+.fav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fav-btn.is-pop { animation: favPop 0.35s ease; }
+
+@keyframes favPop {
+	0% { transform: scale(1); }
+	45% { transform: scale(1.22); }
+	100% { transform: scale(1); }
+}
+
+.fav-toast {
+	position: fixed;
+	left: 50%;
+	bottom: 24px;
+	z-index: 10001;
+	transform: translate(-50%, 16px);
+	opacity: 0;
+	pointer-events: none;
+	padding: 11px 18px;
+	border-radius: 999px;
+	background: #1d1d1f;
+	color: #ffffff;
+	font-size: 13.5px;
+	font-weight: 500;
+	box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+	transition: opacity 0.22s ease, transform 0.22s ease;
+	white-space: nowrap;
+}
+
+.fav-toast.is-open { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.fav-toast a { color: #8ec5ff; font-weight: 700; margin-left: 4px; }
+
+/* ── Alle specificaties ─────────────────────────────────────────────── */
+/* Knop staat op twee plekken; per schermbreedte is er één zichtbaar.
+   Desktop: onder de spec-chips (bij de specificaties die er al staan).
+   Mobiel: onderaan de kaart, na de winkels. Het blok zelf staat altijd
+   onderaan over de volle breedte. */
+.rspecs-toggle {
+	display: inline-flex;
+	align-items: center;
+	align-self: center;
+	justify-self: center;
+	gap: 6px;
+	padding: 0;
+	border: none;
+	background: none;
+	cursor: pointer;
+	font: 500 12.5px "Inter", sans-serif;
+	color: var(--text-tertiary);
+	transition: color 0.18s ease;
+}
+
+.rspecs-toggle:hover,
+.rspecs-toggle[aria-expanded="true"] { color: var(--accent); }
+.rspecs-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+.rcard-foot { display: none; }
+
+.rspecs-count::before { content: "("; }
+.rspecs-count::after { content: ")"; }
+
+.rspecs-chev { width: 15px; height: 15px; transition: transform 0.2s ease; }
+.rspecs-toggle[aria-expanded="true"] .rspecs-chev { transform: rotate(180deg); }
+
+.rcard > .rspecs-body {
+	grid-column: 1 / -1;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: 18px 24px;
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid var(--line);
+}
+
+.rcard > .rspecs-body[hidden] { display: none; }
+
+.rspecs-group-title {
+	margin: 0 0 6px;
+	font-size: 10.5px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--text-tertiary);
+}
+
+.rspecs-body dl { margin: 0; }
+
+.rspecs-body dl > div {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 6px 0;
+	border-bottom: 1px dashed var(--line);
+	font-size: 13px;
+}
+
+.rspecs-body dl > div:last-child { border-bottom: none; }
+.rspecs-body dt { color: var(--text-secondary); }
+.rspecs-body dd { margin: 0; font-weight: 600; color: var(--text-primary); text-align: right; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 700px) {
+	.rcard-left > .rspecs-toggle.is-links { display: none; }
+
+	/* Prijs → bezorging → knop: de bezorgregel hoort bij de prijs, niet
+	   onder de knop. De prijsrij wordt "doorzichtig" zodat prijs en knop
+	   los te ordenen zijn binnen de kaart. */
+	.rcard .rcard-price-row { display: contents; }
+	.rcard .rcard-price {
+		order: 1;
+		margin-top: 6px;
+		padding-top: 12px;
+		border-top: 1px solid var(--line);
+	}
+	.rcard .rcard-delivery { order: 2; margin-top: -2px; }
+	.rcard .rcard-cta { order: 3; justify-content: center; margin-top: 4px; }
+	.rcard .rcard-shops { order: 4; }
+
+	/* De onderstreepte vergelijklink verhuist naar de voetbalk (alleen
+	   als die er is: zonder specificatieblok blijft hij gewoon staan). */
+	.rcard:has(> .rcard-foot) .rcard-shops .rcard-compare { display: none; }
+
+	/* Voetbalk: twee gelijke acties, van rand tot rand van de kaart. */
+	.rcard-foot {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		margin: 2px -16px -16px;
+		border-top: 1px solid var(--line);
+	}
+	.rcard-foot:has(+ .rspecs-body:not([hidden])) { margin-bottom: 0; }
+	.rcard-foot > :only-child { grid-column: 1 / -1; }
+
+	.rcard-foot .rcard-foot-btn,
+	.rcard-foot .rspecs-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		height: 48px;
+		margin: 0;
+		padding: 0 8px;
+		border: none;
+		background: none;
+		font: 600 13px "Inter", sans-serif;
+		color: var(--text-secondary);
+		text-decoration: none;
+		cursor: pointer;
+	}
+	.rcard-foot > * + * { border-left: 1px solid var(--line) !important; }
+	.rcard-foot .rcard-foot-btn:active,
+	.rcard-foot .rspecs-toggle:active { background: var(--page-bg); }
+	.rcard-foot .rspecs-toggle[aria-expanded="true"] { color: var(--accent); }
+
+	.rcard > .rspecs-body { grid-template-columns: 1fr; gap: 14px; margin-top: 0; padding-top: 14px; }
+	.fav-btn { top: 12px; right: 12px; }
+	.rcard:has(> .fav-btn) .rcard-badges,
+	.rcard:has(> .fav-btn) .rcard-name { padding-right: 0; }
+	.fav-toast { bottom: 84px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.fav-btn.is-pop, .menu-fav.is-pop { animation: none; }
+	.fav-toast, .rspecs-chev { transition: none; }
+}

@@ -945,3 +945,71 @@ body.has-menu {
   }
 }
 
+/* ── Favorieten in de menubalk ──────────────────────────────────────
+   Zelfde maat en rand als het hamburgermenu ernaast (shared/menu.css),
+   zodat de twee als één groep ogen. Tellertje alleen zichtbaar als er
+   iets bewaard is. Kleuren staan hier zelf, want menu.css wordt ook op
+   pagina's zonder resultaat.css geladen. */
+.menu-right {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	justify-self: end;
+}
+
+.menu-fav {
+	position: relative;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border: 1.5px solid var(--menu-border, #e8eaed);
+	border-radius: 12px;
+	color: var(--menu-text, #1d1d1f);
+	transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.menu-fav:hover { background: rgba(224, 36, 94, 0.1); border-color: rgba(224, 36, 94, 0.4); }
+.menu-fav:focus-visible { outline: 2px solid var(--accent, #0954a3); outline-offset: 2px; }
+
+.menu-fav svg {
+	width: 20px;
+	height: 20px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linejoin: round;
+}
+
+.menu-fav.has-items svg { fill: #e0245e; stroke: #e0245e; }
+.menu-fav.is-pop { animation: favPop 0.35s ease; }
+
+.menu-fav-count {
+	position: absolute;
+	top: -6px;
+	right: -6px;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	border-radius: 999px;
+	border: 2px solid #ffffff;
+	background: #e0245e;
+	color: #ffffff;
+	font: 700 10.5px/1 "Inter", sans-serif;
+	box-sizing: content-box;
+}
+
+.menu-fav.has-items .menu-fav-count { display: inline-flex; }
+
+@keyframes favPop {
+	0% { transform: scale(1); }
+	45% { transform: scale(1.22); }
+	100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.menu-fav.is-pop { animation: none; }
+}

@@ -116,8 +116,38 @@ function samenvoegDuplicaten(rows) {
 
 /**
  * Fetches all koelkasten and returns them in the shape normalizeProducts() expects.
+ * Eén download per pagina: result-filters.js en de kaartverrijking
+ * (shared/kaart-verrijking.js) delen dezelfde belofte. Mislukt hij, dan
+ * probeert de volgende aanroep het opnieuw.
  */
-export async function fetchProducts() {
-  const rows = await fetchAll();
-  return samenvoegDuplicaten(rows).map(adaptRow).filter(Boolean);
+/**
+ * Alleen de opgegeven producten, voor de favorietenpagina (favorieten/).
+ * Favorieten bewaren de EAN zoals fetchProducts() hem teruggeeft (13
+ * cijfers); in de tabel kan dezelfde EAN als 12 cijfers staan, dus we
+ * vragen beide vormen op.
+ * @param {string[]} eans
+ */
+export async function fetchProductsByEan(eans) {
+  const varianten = new Set();
+  for (const e of eans) {
+    const s = String(e).trim();
+    if (!/^\d{8,14}$/.test(s)) continue;
+    varianten.add(s);
+    if (s.length === 13 && s.startsWith("0")) varianten.add(s.slice(1));
+  }
+  if (!varianten.size) return [];
+  const url = `${SUPABASE_URL}/rest/v1/koelkasten?ean=in.(${[...varianten].join(",")})`;
+  const response = await fetch(url, { headers: HEADERS });
+  if (!response.ok) {
+    throw new Error(`Supabase fetch mislukt (koelkasten): ${response.status} ${response.statusText}`);
+  }
+  return samenvoegDuplicaten(await response.json()).map(adaptRow).filter(Boolean);
+}
+
+let belofte = null;
+export function fetchProducts() {
+  belofte ??= fetchAll()
+    .then((rows) => samenvoegDuplicaten(rows).map(adaptRow).filter(Boolean))
+    .catch((err) => { belofte = null; throw err; });
+  return belofte;
 }

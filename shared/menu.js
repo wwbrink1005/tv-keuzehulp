@@ -90,17 +90,25 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
 
-      <!-- Hamburger (always visible) -->
-      <button
-        class="menu-hamburger"
-        type="button"
-        aria-expanded="false"
-        aria-controls="mobileNav"
-        aria-label="Menu openen"
-        id="menuHamburger"
-      >
-        <i data-lucide="menu" aria-hidden="true"></i>
-      </button>
+      <div class="menu-right">
+        <!-- Favorieten (shared/favorieten.js); teller alleen zichtbaar als er iets bewaard is -->
+        <a class="menu-fav" href="favorieten/" data-fav-link aria-label="Favorieten">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="menu-fav-count" data-fav-teller>0</span>
+        </a>
+
+        <!-- Hamburger (always visible) -->
+        <button
+          class="menu-hamburger"
+          type="button"
+          aria-expanded="false"
+          aria-controls="mobileNav"
+          aria-label="Menu openen"
+          id="menuHamburger"
+        >
+          <i data-lucide="menu" aria-hidden="true"></i>
+        </button>
+      </div>
     </header>
 
     <!-- Mobile overlay -->
@@ -146,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <div class="mobile-nav-links">
         <a class="mobile-nav-link" href="./">Home</a>
+        <a class="mobile-nav-link" href="favorieten/">Favorieten (<span data-fav-teller>0</span>)</a>
 
         <!-- Mobile categories accordion -->
         <button
@@ -211,6 +220,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.body.insertAdjacentHTML("afterbegin", menuHtml);
   document.body.classList.add("has-menu");
+
+  /* ── Favorieten-teller ──
+     Zelfde opslag als shared/favorieten.js (die werkt de teller bij bij elk
+     hartje). Hier alleen de stand bij het laden, en wijzigingen vanuit een
+     ander tabblad. */
+  const werkFavTellerBij = () => {
+    let n = 0;
+    try {
+      const lijst = JSON.parse(localStorage.getItem("ph_favorieten") || "[]");
+      n = Array.isArray(lijst) ? lijst.filter((f) => f && f.cat && f.ean).length : 0;
+    } catch {
+      n = 0;
+    }
+    document.querySelectorAll("[data-fav-teller]").forEach((el) => { el.textContent = String(n); });
+    document.querySelectorAll("[data-fav-link]").forEach((el) => {
+      el.classList.toggle("has-items", n > 0);
+      el.setAttribute("aria-label", n > 0 ? `Favorieten (${n})` : "Favorieten");
+    });
+  };
+  werkFavTellerBij();
+  window.addEventListener("storage", (e) => {
+    if (e.key === "ph_favorieten") werkFavTellerBij();
+  });
 
   if (window.lucide && typeof window.lucide.createIcons === "function") {
     window.lucide.createIcons();

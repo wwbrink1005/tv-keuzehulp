@@ -1,31 +1,18 @@
-import { applyMinAanbiedersCascade, buildResultPoints } from "./matching.js";
-import { formatPriceLabel, parsePrice, qs } from "./utils.js";
+import { applyMinAanbiedersCascade } from "./matching.js";
+import { parsePrice, qs } from "./utils.js";
+import { fetchProducts } from "./supabase.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
+import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
+import { initFavorieten } from "../../shared/favorieten.js";
+import { initAlleSpecs } from "../../shared/alle-specs.js";
+import { maakVerrijker } from "../../shared/kaart-verrijking.js";
 
 // Fallback shown when an Icecat product image URL 404's (stale/broken CDN entry).
 const IMG_FALLBACK = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f4f5f7'/%3E%3Cg fill='none' stroke='%23c8ccd2' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='40' y='50' width='120' height='90' rx='8'/%3E%3Ccircle cx='75' cy='85' r='10'/%3E%3Cpath d='M40 125l35-30 30 25 20-18 35 28'/%3E%3C/g%3E%3C/svg%3E";
 window.IMG_FALLBACK = IMG_FALLBACK;
 
-function buildSpecList(koelkast) {
-  const specs = [];
-
-  specs.push(koelkast.plaatsing === "inbouw" ? "Inbouw" : "Vrijstaand");
-
-  if (koelkast.nettoInhoudL) {
-    specs.push(`${koelkast.nettoInhoudL} L`);
-  }
-
-  if (koelkast.energielabel) {
-    specs.push(`Energielabel ${koelkast.energielabel}`);
-  }
-
-  if (koelkast.geluidsniveauDb) {
-    specs.push(`${koelkast.geluidsniveauDb} dB`);
-  }
-
-  return specs;
-}
+const verrijker = maakVerrijker({ categorie: "koelkast", fetchProducts, buildAlleSpecs });
 
 function updateMatchCount(count) {
   const countEl = qs("#resultMatchCount");
@@ -41,29 +28,41 @@ function updateMatchCount(count) {
   }
 }
 
-function displayOtherMatchesRedesign(filteredMatchedKoelkasten) {
+let renderVolgnummer = 0;
+
+function displayOtherMatchesRedesign(lijst) {
+  const mijnRender = ++renderVolgnummer;
   resetProvidersRegistry();
   const container = qs("#otherMatchesGrid");
   if (!container) return;
 
-  if (filteredMatchedKoelkasten.length === 0) {
+  if (lijst.length === 0) {
     container.innerHTML = '<p class="no-matches">Geen passende koelkasten gevonden.</p>';
     return;
   }
 
-  const prices = filteredMatchedKoelkasten.map(k => parsePrice(k.prijs));
-  const minPrice = Math.min(...prices);
+  const minPrice = Math.min(...lijst.map(k => parsePrice(k.prijs)));
+  const ctx = buildContext(lijst);
 
-  container.innerHTML = filteredMatchedKoelkasten
-    .map((koelkast, index) => {
-      const price = parsePrice(koelkast.prijs);
-      const isCheapest = price === minPrice;
-      const specs = buildSpecList(koelkast);
-      const points = buildResultPoints(koelkast, currentAnswers);
-
-      return buildCardHtml({ product: koelkast, index, isCheapest, specs, points });
-    })
+  container.innerHTML = lijst
+    .map((koelkast, index) => buildCardHtml({
+      product: koelkast,
+      index,
+      isCheapest: parsePrice(koelkast.prijs) === minPrice,
+      specs: buildSpecChips(koelkast),
+      points: buildResultPoints(koelkast, currentAnswers, ctx),
+    }))
     .join("");
+
+  // Hartje en specificatieblok komen erbij zodra de ruwe catalogus binnen
+  // is; alleen als er intussen niet opnieuw gerenderd is (filter aangeklikt).
+  if (verrijker.isKlaar) {
+    verrijker.verrijk(container, lijst);
+  } else {
+    verrijker.klaar.then(() => {
+      if (mijnRender === renderVolgnummer) verrijker.verrijk(container, lijst);
+    });
+  }
 
   if (window.lucide && typeof window.lucide.createIcons === "function") {
     window.lucide.createIcons();
@@ -166,6 +165,9 @@ function initSortControl() {
 }
 
 export function initResultPage() {
+  initFavorieten();
+  initAlleSpecs();
+
   const hasRedesignLayout = Boolean(qs("#bestMatchCard"));
   if (!hasRedesignLayout) return;
 
