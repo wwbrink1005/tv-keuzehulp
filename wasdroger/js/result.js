@@ -1,33 +1,18 @@
-import { applyMinAanbiedersCascade, buildResultPoints } from "./matching.js";
+import { applyMinAanbiedersCascade } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
+import { fetchProducts } from "./supabase.js";
+import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
+import { initFavorieten } from "../../shared/favorieten.js";
+import { initAlleSpecs } from "../../shared/alle-specs.js";
+import { maakVerrijker } from "../../shared/kaart-verrijking.js";
 
 // Fallback shown when an Icecat product image URL 404's (stale/broken CDN entry).
 const IMG_FALLBACK = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f4f5f7'/%3E%3Cg fill='none' stroke='%23c8ccd2' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='40' y='50' width='120' height='90' rx='8'/%3E%3Ccircle cx='75' cy='85' r='10'/%3E%3Cpath d='M40 125l35-30 30 25 20-18 35 28'/%3E%3C/g%3E%3C/svg%3E";
 window.IMG_FALLBACK = IMG_FALLBACK;
 
-function buildSpecList(wasdroger) {
-  const specs = [];
-
-  if (wasdroger.capaciteit) {
-    specs.push(`${wasdroger.capaciteit} kg`);
-  }
-
-  if (wasdroger.droogsysteem) {
-    specs.push(wasdroger.droogsysteem);
-  }
-
-  if (wasdroger.energieLabel) {
-    specs.push(`Energielabel ${wasdroger.energieLabel}`);
-  }
-
-  if (wasdroger.geluidDb) {
-    specs.push(`${wasdroger.geluidDb} dB`);
-  }
-
-  return specs;
-}
+const verrijker = maakVerrijker({ categorie: "wasdroger", fetchProducts, buildAlleSpecs });
 
 function updateMatchCount(count) {
   const countEl = qs("#resultMatchCount");
@@ -43,7 +28,10 @@ function updateMatchCount(count) {
   }
 }
 
+let renderVolgnummer = 0;
+
 function displayOtherMatchesRedesign(filteredMatchedWasdrogers) {
+  const mijnRender = ++renderVolgnummer;
   resetProvidersRegistry();
   const container = qs("#otherMatchesGrid");
   if (!container) return;
@@ -55,17 +43,28 @@ function displayOtherMatchesRedesign(filteredMatchedWasdrogers) {
 
   const prices = filteredMatchedWasdrogers.map(w => parsePrice(w.prijs));
   const minPrice = Math.min(...prices);
+  const ctx = buildContext(filteredMatchedWasdrogers);
 
   container.innerHTML = filteredMatchedWasdrogers
     .map((wasdroger, index) => {
       const price = parsePrice(wasdroger.prijs);
       const isCheapest = price === minPrice;
-      const specs = buildSpecList(wasdroger);
-      const points = buildResultPoints(wasdroger, currentAnswers);
+      const specs = buildSpecChips(wasdroger);
+      const points = buildResultPoints(wasdroger, currentAnswers, ctx);
 
       return buildCardHtml({ product: wasdroger, index, isCheapest, specs, points });
     })
     .join("");
+
+  // Hartje en specificatieblok komen erbij zodra de ruwe catalogus binnen
+  // is; alleen als er intussen niet opnieuw gerenderd is (filter aangeklikt).
+  if (verrijker.isKlaar) {
+    verrijker.verrijk(container, filteredMatchedWasdrogers);
+  } else {
+    verrijker.klaar.then(() => {
+      if (mijnRender === renderVolgnummer) verrijker.verrijk(container, filteredMatchedWasdrogers);
+    });
+  }
 
   if (window.lucide && typeof window.lucide.createIcons === "function") {
     window.lucide.createIcons();
@@ -168,6 +167,9 @@ function initSortControl() {
 }
 
 export function initResultPage() {
+  initFavorieten();
+  initAlleSpecs();
+
   const hasRedesignLayout = Boolean(qs("#bestMatchCard"));
   if (!hasRedesignLayout) return;
 

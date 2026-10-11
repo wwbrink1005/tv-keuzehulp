@@ -25,6 +25,18 @@ export const cm = (mm) => getal(mm / 10, mm % 10 === 0 ? 0 : 1);
 export const gemiddelde = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
 export const leeg = (v) => v === null || v === undefined || String(v).trim() === "";
 
+/**
+ * De samengevoegde regel met alle vervulde keuzes. Bij meer dan 4 wensen
+ * wordt hij te lang voor de kaart: dan de eerste 3 en "nog N wensen".
+ * @param {object} p      puntenLijst()
+ * @param {string[]} delen  al opgemaakte delen ("<strong>stil</strong>")
+ */
+export function zochtRegel(p, delen) {
+  if (!delen.length) return;
+  const kort = delen.length > 4 ? [...delen.slice(0, 3), `nog ${delen.length - 3} wensen`] : delen;
+  p.los(10, `Precies wat je zocht: ${opsomming(kort)}`);
+}
+
 /** "a, b en c" */
 export function opsomming(delen) {
   if (delen.length <= 1) return delen.join("");
@@ -47,6 +59,68 @@ export function basisContext(lijst, naam) {
     gemPrijs: gemiddelde(prijzen),
   };
 }
+
+/**
+ * Context met per veld een gesorteerde lijst waarden, voor vergelijk().
+ * @param {object[]} lijst
+ * @param {string} [naam]
+ * @param {Object<string, (p:object) => number>} velden  bv. { geluid: p => p.geluidDb }
+ */
+export function maakContext(lijst, naam, velden = {}) {
+  const ctx = basisContext(lijst, naam);
+  for (const [sleutel, f] of Object.entries(velden)) {
+    ctx[sleutel] = lijst.map(f).filter(Number.isFinite).sort((a, b) => a - b);
+  }
+  ctx.labels = lijst.map((p) => LABEL_RANG[String(p.energielabel ?? p.energieLabel ?? "").toUpperCase()]).filter(Boolean).sort((a, b) => a - b);
+  return ctx;
+}
+
+/**
+ * Het standaard vergelijkpunt: "<waarde>: de stilste van je 12 resultaten",
+ * of zwakker "<waarde>: 3 dB stiller dan gemiddeld".
+ * @param {object} p        puntenLijst()
+ * @param {object} ctx      maakContext()
+ * @param {string} sleutel  veld in ctx
+ * @param {number} w        waarde van dit product
+ * @param {object} o
+ * @param {boolean} o.laagBeter
+ * @param {string} o.overtreffend   "stilste"
+ * @param {(w:number)=>string} o.fmt  "<strong>42 dB</strong>"
+ * @param {string} [o.onderwerp]    standaard de sleutel
+ * @param {number} [o.gemMin]       minimaal verschil met het gemiddelde voor het zwakke punt
+ * @param {(verschil:number)=>string} [o.gemTekst]  "3 dB stiller dan gemiddeld"
+ */
+export function vergelijk(p, ctx, sleutel, w, o) {
+  if (!Number.isFinite(w) || !ctx[sleutel]) return;
+  const onderwerp = o.onderwerp || sleutel;
+  const v = opvallend(ctx[sleutel], w, o.laagBeter, ctx, o.overtreffend);
+  if (v) p.voeg(v.sterk ? 20 : 23, onderwerp, `${o.fmt(w)}: ${v.tekst}`);
+  if (o.gemTekst && ctx.n >= 4) {
+    const gem = gemiddelde(ctx[sleutel]);
+    const verschil = o.laagBeter ? gem - w : w - gem;
+    if (gem && verschil >= (o.gemMin ?? 0) && verschil > 0) p.voeg(25, onderwerp, `${o.fmt(w)}: ${o.gemTekst(verschil)}`);
+  }
+}
+
+/** Energielabel: zuinigste van de lijst, of zuiniger dan de meeste. */
+export function energiePunt(p, ctx, label) {
+  const l = String(label ?? "").toUpperCase();
+  const rang = LABEL_RANG[l];
+  if (!rang) return;
+  const fmt = () => `<strong>Energielabel ${esc(l)}</strong>`;
+  vergelijk(p, ctx, "labels", rang, { laagBeter: true, overtreffend: "zuinigste", fmt, onderwerp: "energie" });
+  if (ctx.n >= 4 && ctx.labels.filter((x) => x > rang).length >= ctx.labels.length * 0.6) {
+    p.voeg(26, "energie", `${fmt()}: zuiniger dan de meeste van ${ctx.naam}`);
+  }
+}
+
+/** "x × y × z cm (h × b × d)" uit millimeters, of null. */
+export function maten(h, b, d) {
+  return h && b && d ? `<strong>${cm(h)} × ${cm(b)} × ${cm(d)} cm</strong> (h × b × d)` : null;
+}
+
+/** "Ja"/true → true */
+export const ja = (v) => v === true || String(v ?? "").trim().toLowerCase() === "ja";
 
 /**
  * Valt deze waarde op binnen de lijst? Geeft "de stilste van je 31

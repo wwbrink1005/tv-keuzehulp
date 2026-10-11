@@ -142,9 +142,40 @@ function samenvoegDuplicaten(rows) {
 }
 
 /**
- * Fetches all wasmachines and returns them in the shape normalizeProducts() expects.
+ * Alleen de opgegeven producten, voor de favorietenpagina (favorieten/).
+ * Favorieten bewaren de EAN zoals fetchProducts() hem teruggeeft (13
+ * cijfers); in de tabel kan dezelfde EAN als 12 cijfers staan, dus we
+ * vragen beide vormen op.
+ * @param {string[]} eans
  */
-export async function fetchProducts() {
-  const rows = await fetchAll();
+export async function fetchProductsByEan(eans) {
+  const varianten = new Set();
+  for (const e of eans) {
+    const s = String(e).trim();
+    if (!/^\d{8,14}$/.test(s)) continue;
+    varianten.add(s);
+    if (s.length === 13 && s.startsWith("0")) varianten.add(s.slice(1));
+  }
+  if (!varianten.size) return [];
+  const url = `${SUPABASE_URL}/rest/v1/wasmachines?ean=in.(${[...varianten].join(",")})`;
+  const response = await fetch(url, { headers: HEADERS });
+  if (!response.ok) {
+    throw new Error(`Supabase fetch mislukt (wasmachines): ${response.status} ${response.statusText}`);
+  }
+  const rows = await response.json();
   return samenvoegDuplicaten(rows).map(adaptRow).filter(Boolean);
+}
+
+/**
+ * Alle producten in de vorm die normalizeProducts() verwacht.
+ * Eén download per pagina: result-filters.js en de kaartverrijking
+ * (shared/kaart-verrijking.js) delen dezelfde belofte. Mislukt hij, dan
+ * probeert de volgende aanroep het opnieuw.
+ */
+let belofte = null;
+export function fetchProducts() {
+  belofte ??= fetchAll()
+    .then((rows) => samenvoegDuplicaten(rows).map(adaptRow).filter(Boolean))
+    .catch((err) => { belofte = null; throw err; });
+  return belofte;
 }

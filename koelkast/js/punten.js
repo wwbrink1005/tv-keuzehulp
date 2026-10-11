@@ -5,7 +5,7 @@
 
 import {
   LABEL_RANG, esc, getal, cm, gemiddelde, leeg, opsomming,
-  basisContext, opvallend, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
+  basisContext, opvallend, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
 
 /**
@@ -73,7 +73,7 @@ export function buildResultPoints(k, answers, ctx) {
   if (wil("waterdispenser") && k.waterdispenser === "Ja") vink("water", "met waterdispenser");
   if (wil("ijsmaker") && k.ijsmaker === "Ja") vink("ijs", "met ijsmaker");
 
-  if (delen.length) p.los(10, `Precies wat je zocht: ${opsomming(delen)}`);
+  zochtRegel(p, delen);
 
   // ── 2. Wat déze kaart onderscheidt van de rest van de lijst ──────────
   const { geluid: geluiden, labels, inhoud: inhouden } = ctx;
