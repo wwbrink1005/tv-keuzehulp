@@ -117,7 +117,7 @@ Twee valkuilen die echt geld aan tijd kosten:
   (fetch + adaptRow), `js/utils.js` (normalizeProducts/prijsbuckets), `js/matching.js`
   (scoring + tier-cascade met verplichte eindfallback), `js/quiz.js`, `js/result.js`,
   `js/result-filters.js` (secundaire filters op de resultaatpagina).
-- **Resultaatkaart, nieuwe opzet (koelkast klaar, rest volgt per groep):** per categorie
+- **Resultaatkaart (alle 16 categorieën):** per categorie
   `js/punten.js` met `buildContext`, `buildResultPoints` ("Waarom dit bij jou past":
   bevestigt de keuzes en vergelijkt binnen de eigen resultatenlijst), `buildSpecChips` en
   `buildAlleSpecs`. Gedeeld: `shared/punten-basis.js` (bouwstenen + vangnetten),

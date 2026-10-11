@@ -1,11 +1,18 @@
-import { applyMinAanbiedersCascade, buildResultPoints, isPerfectMatch } from "./matching.js";
+import { applyMinAanbiedersCascade, isPerfectMatch } from "./matching.js";
 import { formatPriceLabel, formatScherpte, parsePrice, qs } from "./utils.js";
 import { normaliseVerzendkosten, resetProvidersRegistry } from "../../shared/aanbieders.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
+import { fetchProducts } from "./supabase.js";
+import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
+import { initFavorieten } from "../../shared/favorieten.js";
+import { initAlleSpecs } from "../../shared/alle-specs.js";
+import { maakVerrijker } from "../../shared/kaart-verrijking.js";
 
 // Fallback shown when an Icecat product image URL 404's (stale/broken CDN entry).
 const IMG_FALLBACK = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f4f5f7'/%3E%3Cg fill='none' stroke='%23c8ccd2' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='40' y='50' width='120' height='90' rx='8'/%3E%3Ccircle cx='75' cy='85' r='10'/%3E%3Cpath d='M40 125l35-30 30 25 20-18 35 28'/%3E%3C/g%3E%3C/svg%3E";
 window.IMG_FALLBACK = IMG_FALLBACK;
+
+const verrijker = maakVerrijker({ categorie: "tv", fetchProducts, buildAlleSpecs });
 
 function renderBestMatchProviders(tv) {
   const container = qs("#bestMatchProviders");
@@ -80,39 +87,6 @@ function updateMatchCount(count) {
   if (!countEl) return;
   const safeCount = Number.isFinite(count) ? count : 0;
   countEl.textContent = `${safeCount}`;
-}
-
-function buildSpecList(tv) {
-  const specs = [];
-
-  const sizeMatch = String(tv.grootte ?? "").match(/\d+/);
-  if (sizeMatch) {
-    specs.push(`${sizeMatch[0]} inch`);
-  }
-
-  const typeValue = String(tv.type ?? "");
-  if (typeValue === "LED (edge)" || typeValue === "LED (direct)") {
-    specs.push("LED");
-  } else if (typeValue) {
-    specs.push(typeValue);
-  }
-
-  const hzValue = tv.Hz ?? tv.hz;
-  if (hzValue !== undefined && hzValue !== null && hzValue !== "") {
-    const hzLabel = String(hzValue).trim();
-    if (/hz$/i.test(hzLabel)) {
-      specs.push(hzLabel);
-    } else {
-      specs.push(`${hzLabel} Hz`);
-    }
-  }
-
-  const scherpteValue = String(tv.scherpte ?? "");
-  if (scherpteValue) {
-    specs.push(formatScherpte(scherpteValue));
-  }
-
-  return specs;
 }
 
 function updateResultMatchUI(tv, scores, answers, count = 0) {
@@ -192,7 +166,7 @@ function updateBestMatchCard(tv, type, answers) {
   }
 
   if (specsEl) {
-    const specs = buildSpecList(tv);
+    const specs = buildSpecChips(tv);
     specsEl.textContent = specs.join(" \u2022 ");
   }
 
@@ -201,7 +175,7 @@ function updateBestMatchCard(tv, type, answers) {
     priceEl.textContent = `Vanaf \u20ac${formatPriceLabel(price)}`;
   }
 
-  renderBestMatchPoints(buildResultPoints(tv, answers, currentSizeGroup));
+  renderBestMatchPoints(buildResultPoints(tv, answers, buildContext([tv])));
   renderBestMatchProviders(tv);
 
   const bestMatchCard = qs("#bestMatchCard");
@@ -215,7 +189,10 @@ function updateBestMatchCard(tv, type, answers) {
   }
 }
 
+let renderVolgnummer = 0;
+
 function displayOtherMatchesRedesign(filteredMatchedTVs) {
+  const mijnRender = ++renderVolgnummer;
   resetProvidersRegistry();
   const container = qs("#otherMatchesGrid");
   if (!container) return;
@@ -227,17 +204,28 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
 
   const prices = filteredMatchedTVs.map(tv => parsePrice(tv.prijs));
   const minPrice = Math.min(...prices);
+  const ctx = buildContext(filteredMatchedTVs);
 
   container.innerHTML = filteredMatchedTVs
     .map((tv, index) => {
       const price = parsePrice(tv.prijs);
       const isCheapest = price === minPrice;
-      const specs = buildSpecList(tv);
-      const points = buildResultPoints(tv, currentAnswers, currentSizeGroup);
+      const specs = buildSpecChips(tv);
+      const points = buildResultPoints(tv, currentAnswers, ctx);
 
       return buildCardHtml({ product: tv, index, isCheapest, specs, points });
     })
     .join("");
+
+  // Hartje en specificatieblok komen erbij zodra de ruwe catalogus binnen
+  // is; alleen als er intussen niet opnieuw gerenderd is (filter aangeklikt).
+  if (verrijker.isKlaar) {
+    verrijker.verrijk(container, filteredMatchedTVs);
+  } else {
+    verrijker.klaar.then(() => {
+      if (mijnRender === renderVolgnummer) verrijker.verrijk(container, filteredMatchedTVs);
+    });
+  }
 
   if (window.lucide && typeof window.lucide.createIcons === "function") {
     window.lucide.createIcons();
@@ -488,6 +476,9 @@ function setActiveMatchCard(card) {
 }
 
 export function initResultPage() {
+  initFavorieten();
+  initAlleSpecs();
+
   const hasRedesignLayout = Boolean(qs("#bestMatchCard"));
   if (!hasRedesignLayout) return;
 
