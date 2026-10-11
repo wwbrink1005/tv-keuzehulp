@@ -98,7 +98,8 @@ export function applyExtraFilter(desktops, extraAnswers) {
   }
 
   if (extraAnswers.includes("wifi")) {
-    const w = filtered.filter(d => d.wifi === "Ja");
+    // De catalogus noemt de wifi-standaard ("Wifi 6E (802.11ax)"), nooit "Ja".
+    const w = filtered.filter(d => Boolean(d.wifi) && d.wifi !== "Nee");
     if (w.length > 0) filtered = w;
   }
 
