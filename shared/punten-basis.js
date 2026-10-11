@@ -84,7 +84,9 @@ export function maakContext(lijst, naam, velden = {}) {
  * @param {number} w        waarde van dit product
  * @param {object} o
  * @param {boolean} o.laagBeter
- * @param {string} o.overtreffend   "stilste"
+ * @param {string} o.overtreffend   "stilste": alleen het bijvoeglijk naamwoord, het
+ *                                  zelfstandig naamwoord hoort in fmt ("<strong>40 Pa</strong>
+ *                                  zuigkracht"), anders "bij de 3 sterkste zuigkracht van"
  * @param {(w:number)=>string} o.fmt  "<strong>42 dB</strong>"
  * @param {string} [o.onderwerp]    standaard de sleutel
  * @param {number} [o.gemMin]       minimaal verschil met het gemiddelde voor het zwakke punt
@@ -206,6 +208,7 @@ export function winkelVangnet(p, k) {
   // Puur generiek (laag 3 uit stap 5.5): altijd waar, want de pipeline
   // draait dagelijks.
   p.voeg(100, "actueel", `Prijs en levertijd <strong>elke dag bijgewerkt</strong>`);
+  p.voeg(101, "bestellen", `Je bestelt <strong>rechtstreeks bij de winkel</strong>, zonder extra kosten`);
 }
 
 /** Groepen [{titel, rijen: [[label, waarde], ...]}] zonder lege velden en lege groepen. */
