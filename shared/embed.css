@@ -58,19 +58,8 @@ body { margin: 0; }
 .filter-card[data-filter="aanbieder"],
 .filter-card[data-filter="min-aanbieders"] { display: none !important; }
 
-/* Productfoto's laden in de resultatenlijst pas als ze in beeld komen
-   (lazy). In de embed scrolt de bezoeker over de pagina van de winkel, dus
-   foto's verderop laden pas tijdens het scrollen. Tot dan een rustige
-   laadtint i.p.v. een hagelwit vak; zodra de foto er is (of de placeholder
-   bij een kapotte link) wordt het vak wit. "is-geladen" zet
-   shared/resultaat-kaart.js via onload. */
-.rcard-img { background: #f2f3f5; transition: background 0.3s ease; }
-.rcard-img.is-geladen { background: #ffffff; }
-.rcard-img img { opacity: 0; transition: opacity 0.3s ease; }
-.rcard-img.is-geladen img { opacity: 1; }
-@media (prefers-reduced-motion: reduce) {
-	.rcard-img, .rcard-img img { transition: none; }
-}
+/* De laadtint voor productfoto's staat sinds oktober 2026 in shared/resultaat.css
+   (voor alle resultaatpagina's, niet alleen de embed). */
 
 /* In een smalle iframe (telefoon, binnen de marges van de winkelpagina) brak
    "Prijs (laag-hoog)" over twee regels. */

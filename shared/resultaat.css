@@ -1270,6 +1270,28 @@ body.has-menu {
 
 .rcard-img img[data-provider="coolblue"] { transform: scale(0.84); }
 
+/* Tot de foto binnen is: een lichtgrijs vak met een zachte glans in plaats
+   van een leeg wit vak, daarna verschijnt de foto rustig. "is-geladen" zet
+   shared/resultaat-kaart.js via onload (ook bij de placeholder voor een
+   kapotte link). Foto's verderop laden pas als ze in beeld komen (lazy). */
+.rcard-img:not(.is-geladen) {
+	background: linear-gradient(100deg, #f2f3f5 30%, #f8f9fa 50%, #f2f3f5 70%) 0 0 / 300% 100%;
+	animation: rcardImgLaden 1.4s ease-in-out infinite;
+}
+
+@keyframes rcardImgLaden {
+	from { background-position: 100% 0; }
+	to { background-position: 0 0; }
+}
+
+.rcard-img img { opacity: 0; transition: opacity 0.3s ease; }
+.rcard-img.is-geladen img { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+	.rcard-img:not(.is-geladen) { animation: none; }
+	.rcard-img img { transition: none; }
+}
+
 .rcard-chips {
 	display: flex;
 	flex-wrap: wrap;
