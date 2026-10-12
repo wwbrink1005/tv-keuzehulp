@@ -235,7 +235,12 @@ box("floor", ROOM_X0 - T, ROOM_X1 + T, ROOM_Y_BACK, 0.3, -T, 0, M_FLOOR)
 box("ceiling", ROOM_X0 - T, ROOM_X1 + T, ROOM_Y_BACK, 0.3, CEIL, CEIL + T, M_CEIL)
 box("wall_back_k", ROOM_X0 - T, ROOM_X1 + T, 0, T, 0, CEIL, M_WALL)
 box("wall_behind_cam", ROOM_X0 - T, ROOM_X1 + T, ROOM_Y_BACK - T, ROOM_Y_BACK, 0, CEIL, M_WALL)
-box("wall_right", ROOM_X1, ROOM_X1 + T, ROOM_Y_BACK, 0, 0, CEIL, M_WALL)
+wr_ = box("wall_right", ROOM_X1, ROOM_X1 + T, ROOM_Y_BACK, 0, 0, CEIL, M_WALL)
+wr_.visible_shadow = False
+# raam in de rechterwand (buiten beeld): alleen voor de schaduw, zodat het zonlicht als raamvlak binnenvalt
+for (y0_, y1_, z0_, z1_) in ((ROOM_Y_BACK - 2, -2.6, -1, 5), (-0.7, 2, -1, 5), (-2.6, -0.7, -1, 0.9), (-2.6, -0.7, 2.4, 5), (-1.68, -1.62, 0.9, 2.4)):
+    _b = box("winblock", ROOM_X1 + 0.3, ROOM_X1 + 0.32, y0_, y1_, z0_, z1_, M_WALL)
+    _b.visible_camera = False; _b.visible_diffuse = False; _b.visible_glossy = False; _b.visible_transmission = False
 wl_ = box("wall_left", ROOM_X0 - T, ROOM_X0, ROOM_Y_BACK, 0, 0, CEIL, M_WALL)
 wl_.visible_shadow = False
 for (x0, x1, y0, y1) in ((ROOM_X0, ROOM_X1, -0.003, 0), (ROOM_X0, ROOM_X0 + 0.003, ROOM_Y_BACK, 0), (ROOM_X1 - 0.003, ROOM_X1, ROOM_Y_BACK, 0)):
@@ -252,11 +257,6 @@ for (y0, y1, z0, z1) in ((ROOM_Y_BACK - 2, HY0, -1, 5), (HY1, 2, -1, 5), (HY0, H
 # ── bijkeuken: wasmachine, hoge kast, plank met handdoeken, wasmanden ──
 # --layer none | wm-7|wm-9|wm-10 | top | mand1|mand2|mand3
 from mathutils import Matrix
-M_FLOOR_T = pbr("floor_t", "concrete_tiles_02", 1.3, tint=(1.85, 1.75, 1.6), tint_mix=1.0, bump=0.35, rough_add=0.1)
-for o in list(bpy.data.objects):
-    if o.name == "floor":
-        o.data.materials.clear(); o.data.materials.append(M_FLOOR_T)
-
 def mat(name, color, rough=0.4, metal=0.0, coat=0.0, grain=0.0):
     m = bpy.data.materials.new(name); m.use_nodes = True
     N = m.node_tree.nodes; L = m.node_tree.links; b = N["Principled BSDF"]
@@ -268,8 +268,8 @@ def mat(name, color, rough=0.4, metal=0.0, coat=0.0, grain=0.0):
         L.new(tc.outputs["Object"], nz.inputs["Vector"]); L.new(nz.outputs["Fac"], bu.inputs["Height"]); L.new(bu.outputs["Normal"], b.inputs["Normal"])
     return m
 
-M_ENAMEL = mat("enamel", (0.86, 0.86, 0.85), 0.22, coat=0.4)
-M_TOPSLAB = mat("topslab", (0.84, 0.84, 0.83), 0.45, grain=0.08)
+M_ENAMEL = mat("enamel", (0.88, 0.88, 0.87), 0.3, coat=0.35)
+M_TOPSLAB = mat("topslab", (0.88, 0.88, 0.87), 0.32, coat=0.25)
 M_PANEL = mat("wpanel", (0.8, 0.8, 0.8), 0.3, coat=0.3)
 M_BLACKGLASS = mat("blackglass", (0.01, 0.01, 0.012), 0.05, coat=1.0)
 M_CHROME = mat("chrome", (0.8, 0.8, 0.82), 0.12, metal=1.0)
@@ -287,31 +287,103 @@ _mx = _N.new("ShaderNodeMix"); _mx.data_type = "RGBA"; _mx.inputs[6].default_val
 _L.new(_c.outputs[0], _mx.inputs[0]); _L.new(_mx.outputs[2], _b.inputs["Base Color"])
 M_GLASS_D = bpy.data.materials.new("doorglass"); M_GLASS_D.use_nodes = True
 _g = M_GLASS_D.node_tree.nodes["Principled BSDF"]
-_g.inputs["Base Color"].default_value = (0.78, 0.8, 0.84, 1); _g.inputs["Roughness"].default_value = 0.02
+_g.inputs["Base Color"].default_value = (0.36, 0.38, 0.41, 1); _g.inputs["Roughness"].default_value = 0.02
 _g.inputs["Transmission Weight"].default_value = 1.0; _g.inputs["IOR"].default_value = 1.45
 M_FRAME = mat("doorframe", (0.03, 0.031, 0.034), 0.38)
+M_SEAM_L = mat("wseaml", (0.56, 0.56, 0.56), 0.6)
+M_GRAPH = mat("graph", (0.03, 0.031, 0.034), 0.45, coat=0.1)
+M_LED = mat("led", (0.2, 0.2, 0.2), 0.4)
+_ln = M_LED.node_tree.nodes["Principled BSDF"]
+_ln.inputs["Emission Color"].default_value = (0.8, 0.9, 1.0, 1); _ln.inputs["Emission Strength"].default_value = 1.2
 M_LCD_W = flat("wlcd", (0.01, 0.01, 0.012), 0.05)
 
-# ── vast decor: hoge kast links, plank met handdoeken en plant, fles wasmiddel ──
-M_LAKW = pbr("lakw", "white_oak_veneer", 0.7, base=(0.40, 0.22, 0.125), var=0.16, bump=0.02, rough_add=0.3)
-M_OAKW = pbr("oakw", "white_oak_veneer", 0.8, base=(0.46, 0.34, 0.22), var=0.22, bump=0.03, rough_add=0.2)
-box("tall_cab", -1.2, -0.62, -0.6, 0, 0, 2.1, M_LAKW, bevel=0.003)
-box("tall_cab_seam", -0.912, -0.908, -0.602, -0.598, 0.05, 2.08, M_SEAM)
-box("tall_cab_seam2", -1.18, -0.64, -0.602, -0.598, 1.3, 1.304, M_SEAM)
-for gx0, gx1 in ((-1.19, -0.915), (-0.905, -0.63)):   # greeplijst boven de onderdeuren
-    box("tall_grip", gx0, gx1, -0.605, -0.598, 1.255, 1.3, M_DARK)
-append_model("potted_plant_01", (-1.55, -0.35, 0), 0.6, 0.9)
-box("tall_plinth", -1.2, -0.62, -0.55, 0, 0, 0.06, M_DARK)
-box("shelf_w", -0.45, 0.45, -0.26, 0, 1.36, 1.39, M_OAKW, bevel=0.003)
-towel_cols = [(0.72, 0.68, 0.6), (0.36, 0.42, 0.33), (0.82, 0.8, 0.76)]
-for s_, sx in enumerate((-0.32, -0.08)):
+# ── vast decor: modern washok ──
+# Lichte microcementvloer, verticaal gestapelde tegels achter de machines, een kastenwand in
+# licht eiken zonder grepen met een open nis, een zwevende eiken plank met linnen en een plant.
+STACK = False
+M_FLOOR_T = pbr("floor_t", "smooth_concrete_floor", 2.4, base=(0.6, 0.56, 0.5), var=0.16, bump=0.03, rough_add=0.18)
+for o in list(bpy.data.objects):
+    if o.name == "floor":
+        o.data.materials.clear(); o.data.materials.append(M_FLOOR_T)
+
+def tile_mat():
+    """verticaal gestapelde tegels van 7,5 x 30 cm, glanzend gebroken wit met een lichte voeg"""
+    m = bpy.data.materials.new("tiles"); m.use_nodes = True
+    N = m.node_tree.nodes; L = m.node_tree.links; b = N["Principled BSDF"]
+    tc = N.new("ShaderNodeTexCoord"); sep = N.new("ShaderNodeSeparateXYZ"); comb = N.new("ShaderNodeCombineXYZ")
+    L.new(tc.outputs["Object"], sep.inputs[0]); L.new(sep.outputs["X"], comb.inputs["X"]); L.new(sep.outputs["Z"], comb.inputs["Y"])
+    br = N.new("ShaderNodeTexBrick"); br.offset = 0.0; br.squash = 1.0
+    br.inputs["Scale"].default_value = 1.0; br.inputs["Mortar Size"].default_value = 0.0016
+    br.inputs["Brick Width"].default_value = 0.075; br.inputs["Row Height"].default_value = 0.30
+    br.inputs["Color1"].default_value = (0.9, 0.87, 0.81, 1); br.inputs["Color2"].default_value = (0.86, 0.83, 0.77, 1)
+    br.inputs["Mortar"].default_value = (0.66, 0.65, 0.62, 1); br.inputs["Bias"].default_value = 0.0
+    L.new(comb.outputs[0], br.inputs["Vector"]); L.new(br.outputs["Color"], b.inputs["Base Color"])
+    # handgemaakte look: iets golvend oppervlak per tegel
+    nz = N.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 18
+    L.new(tc.outputs["Object"], nz.inputs["Vector"])
+    mx = N.new("ShaderNodeMath"); mx.operation = "ADD"
+    mm = N.new("ShaderNodeMath"); mm.operation = "MULTIPLY"; mm.inputs[1].default_value = 0.25
+    L.new(nz.outputs["Fac"], mm.inputs[0]); L.new(br.outputs["Fac"], mx.inputs[0]); L.new(mm.outputs[0], mx.inputs[1])
+    bu = N.new("ShaderNodeBump"); bu.inputs["Strength"].default_value = 0.35; bu.inputs["Distance"].default_value = 0.002
+    bu.invert = True
+    L.new(mx.outputs[0], bu.inputs["Height"]); L.new(bu.outputs["Normal"], b.inputs["Normal"])
+    b.inputs["Roughness"].default_value = 0.16; b.inputs["Coat Weight"].default_value = 0.5
+    return m
+
+M_TILE = tile_mat()
+box("tilewall", -0.62, 2.4, -0.012, 0, 0.0, 1.3, M_TILE)
+box("tilecap", -0.62, 2.4, -0.022, 0, 1.3, 1.312, mat("tilecap", (0.8, 0.79, 0.75), 0.3))
+# eiken werkblad op 1 m hoogte over de machine en de wasmanden, met een zijpaneel rechts
+WT_X0 = -0.62
+M_WTOP = pbr("wtop", "white_oak_veneer", 0.9, base=(0.58, 0.44, 0.3), var=0.32, bump=0.03, rough_add=0.2)
+box("worktop", WT_X0, 1.62, -0.66, 0, 1.0, 1.04, M_WTOP, bevel=0.003)
+box("worktop_side", 1.6, 1.64, -0.66, 0, 0, 1.0, M_WTOP, bevel=0.003)
+box("worktop_rail", WT_X0, 1.6, -0.06, 0, 0.96, 1.0, M_DARK)
+
+# kastenwand in licht eiken, grepen als smalle sleuf bovenin de fronten, open nis in de rechterkolom
+M_OAKC = pbr("oakc", "white_oak_veneer", 0.6, base=(0.6, 0.46, 0.32), var=0.32, bump=0.02, rough_add=0.25)
+M_OAKN = pbr("oakn", "white_oak_veneer", 0.6, base=(0.5, 0.37, 0.25), var=0.32, bump=0.02, rough_add=0.25)
+M_GAPC = mat("gapc", (0.18, 0.15, 0.12), 0.8)
+CX0, CX1, CZ1, CY = -2.2, -0.62, 2.3, -0.6
+box("cab_plinth", CX0, CX1, CY + 0.06, 0, 0, 0.08, M_DARK)
+box("cab_side", CX1 - 0.018, CX1, CY, 0, 0, CZ1, M_OAKC, bevel=0.002)
+cols = [(CX0 + i * (CX1 - 0.018 - CX0) / 3, CX0 + (i + 1) * (CX1 - 0.018 - CX0) / 3) for i in range(3)]
+for i, (a, b) in enumerate(cols):
+    spans = [(0.085, 0.95), (1.4, CZ1 - 0.004)] if i == 2 else [(0.085, 1.18), (1.184, CZ1 - 0.004)]
+    for (z0, z1) in spans:
+        box("cab_front", a + 0.002, b - 0.002, CY, CY + 0.02, z0, z1, M_OAKC, bevel=0.002, segs=2)
+        box("cab_grip", a + 0.02, b - 0.02, CY - 0.0005, CY + 0.004, z1 - 0.03, z1 - 0.022, M_GAPC)
+# romp per kolom; in de rechterkolom open laten voor de nis
+for i, (c0, c1) in enumerate(cols):
+    for (z0, z1) in ([(0.08, 0.95), (1.4, CZ1)] if i == 2 else [(0.08, CZ1)]):
+        box("cab_carcass", c0, c1, CY + 0.02, 0, z0, z1, M_GAPC)
+a, b = cols[2]
+box("niche_side", a, a + 0.016, CY + 0.02, 0, 0.95, 1.4, M_OAKN)
+box("niche_back", a, b, -0.03, -0.01, 0.95, 1.4, M_OAKN)
+box("niche_shelf", a, b, CY + 0.02, -0.01, 0.95, 0.968, M_OAKN, bevel=0.002)
+for i, c in enumerate([(0.78, 0.74, 0.66), (0.62, 0.6, 0.55), (0.86, 0.84, 0.79)]):
+    box("niche_towel", a + 0.07 + 0.004 * i, b - 0.07 - 0.004 * i, CY + 0.08, -0.08, 0.968 + i * 0.045, 0.968 + (i + 1) * 0.045 - 0.003,
+        pbr(f"nt{i}", "knitted_fleece", 0.15, base=c, var=0.15, bump=0.9, sheen=0.6, rough_add=0.3), bevel=0.018, segs=4)
+
+# zwevende eiken plank met linnen, een plant en een fles wasmiddel van amberglas
+OX = 0.95 if STACK else 0.0
+M_OAKW = pbr("oakw", "white_oak_veneer", 0.8, base=(0.58, 0.44, 0.3), var=0.32, bump=0.03, rough_add=0.2)
+box("shelf_w", -0.45 + OX, 0.45 + OX, -0.25, 0, 1.38, 1.42, M_OAKW, bevel=0.004)
+towel_cols = [(0.8, 0.76, 0.68), (0.6, 0.58, 0.53), (0.88, 0.86, 0.81)]
+for s_, sx in enumerate((-0.31 + OX, -0.07 + OX)):
     for i in range(3):
         c = towel_cols[(i + s_) % 3]
-        t_ = box("towel", sx - 0.14 + 0.004 * i, sx + 0.14 - 0.004 * i, -0.23, -0.03, 1.39 + i * 0.045, 1.39 + (i + 1) * 0.045 - 0.003,
-                 pbr(f"tw{s_}{i}", "knitted_fleece", 0.15, base=c, var=0.15, bump=0.9, sheen=0.6, rough_add=0.3), bevel=0.018, segs=4)
-append_model("potted_plant_04", (0.28, -0.13, 1.39), 0.4, 1.1)
-bot = cyl("bottle", 0.045, 1.39, 1.58, 0.14, -0.12, mat("bottle", (0.95, 0.95, 0.93), 0.3, coat=0.5), 48, bevel=0.012)
-cyl("bottle_cap", 0.022, 1.58, 1.61, 0.14, -0.12, mat("cap", (0.36, 0.42, 0.33), 0.4), 32, bevel=0.004)
+        box("towel", sx - 0.13 + 0.004 * i, sx + 0.13 - 0.004 * i, -0.22, -0.03, 1.42 + i * 0.045, 1.42 + (i + 1) * 0.045 - 0.003,
+            pbr(f"tw{s_}{i}", "knitted_fleece", 0.15, base=c, var=0.15, bump=0.9, sheen=0.6, rough_add=0.3), bevel=0.018, segs=4)
+append_model("potted_plant_04", (0.29 + OX, -0.13, 1.42), 0.4, 1.1)
+M_AMBER = bpy.data.materials.new("amber"); M_AMBER.use_nodes = True
+_ab = M_AMBER.node_tree.nodes["Principled BSDF"]
+_ab.inputs["Base Color"].default_value = (0.42, 0.16, 0.03, 1); _ab.inputs["Roughness"].default_value = 0.08
+_ab.inputs["Transmission Weight"].default_value = 0.7; _ab.inputs["IOR"].default_value = 1.5
+cyl("bottle", 0.04, 1.42, 1.6, 0.13 + OX, -0.12, M_AMBER, 48, bevel=0.012)
+cyl("bottle_pump", 0.014, 1.6, 1.64, 0.13 + OX, -0.12, M_DARK, 24)
+box("bottle_nozzle", 0.13 + OX - 0.004, 0.13 + OX + 0.004, -0.165, -0.12, 1.634, 1.642, M_DARK)
+append_model("potted_plant_01", (2.05, -0.4, 0), 0.6, 0.9)
 
 WM = []
 lay = A.layer
@@ -359,40 +431,38 @@ def frontloader(depth, door_r):
     out.append(box("wm_top", x0 - 0.002, x1 + 0.002, yf + 0.002, yb, h - 0.022, h, M_TOPSLAB, bevel=0.006, segs=3))
     # plint met naad en onderhoudsluikje, stelvoetjes
     out.append(box("wm_kick", x0 + 0.01, x1 - 0.01, yf + 0.004, yf + 0.03, 0.035, 0.11, M_ENAMEL, bevel=0.004))
-    out.append(box("wm_kick_seam", x0 + 0.012, x1 - 0.012, yf + 0.003, yf + 0.008, 0.108, 0.112, M_SEAM))
+    out.append(box("wm_kick_seam", x0 + 0.012, x1 - 0.012, yf + 0.003, yf + 0.008, 0.108, 0.112, M_SEAM_L))
     out.append(box("wm_hatch", 0.16, 0.27, yf + 0.002, yf + 0.006, 0.045, 0.098, M_ENAMEL, bevel=0.004))
-    out.append(box("wm_hatch_seam", 0.158, 0.272, yf + 0.004, yf + 0.0055, 0.043, 0.1, M_SEAM))
+    out.append(box("wm_hatch_seam", 0.158, 0.272, yf + 0.004, yf + 0.0055, 0.043, 0.1, M_SEAM_L))
     for fx in (x0 + 0.04, x1 - 0.04):
         for fy in (yf + 0.04, yb - 0.04):
             out.append(cyl("wm_foot", 0.018, 0, 0.035, fx, fy, M_RUBBER, 24))
     # bedieningsstrook
     bz0, bz1 = 0.69, 0.81
-    out.append(box("wm_band", x0 + 0.006, x1 - 0.006, yf - 0.002, yf + 0.01, bz0, bz1, M_PANEL, bevel=0.006, segs=3))
-    out.append(box("wm_band_seam", x0 + 0.006, x1 - 0.006, yf - 0.001, yf + 0.004, bz0 - 0.005, bz0 - 0.002, M_SEAM))
+    out.append(box("wm_band", x0 + 0.006, x1 - 0.006, yf - 0.002, yf + 0.01, bz0, bz1, M_ENAMEL, bevel=0.006, segs=3))
+    out.append(box("wm_band_seam", x0 + 0.006, x1 - 0.006, yf - 0.001, yf + 0.004, bz0 - 0.005, bz0 - 0.002, M_SEAM_L))
     # zeeplade links met greepuitsparing en vakverdeling
     out.append(box("wm_drawer", x0 + 0.02, x0 + 0.2, yf - 0.006, yf, bz0 + 0.012, bz1 - 0.012, M_ENAMEL, bevel=0.005, segs=3))
     out.append(box("wm_drawer_grip", x0 + 0.05, x0 + 0.17, yf - 0.0065, yf - 0.004, bz0 + 0.014, bz0 + 0.024, M_SEAM, bevel=0.003))
     # programmaknop met chromen rand, indicatorstreep en streepjes rondom
     kx, kz = -0.02, (bz0 + bz1) / 2
-    out.append(disc("wm_knob_rim", 0.038, yf - 0.02, yf, kx, kz, M_CHROME))
-    out.append(disc("wm_knob", 0.032, yf - 0.03, yf - 0.018, kx, kz, M_ENAMEL))
-    out.append(box("wm_knob_ind", kx - 0.002, kx + 0.002, yf - 0.031, yf - 0.029, kz + 0.012, kz + 0.028, M_SEAM))
-    for i in range(14):
-        a = math.radians(-120 + i * (240 / 13))
-        tx, tz = kx + math.sin(a) * 0.05, kz + math.cos(a) * 0.05
-        out.append(box("wm_tick", tx - 0.0012, tx + 0.0012, yf - 0.003, yf - 0.0015, tz - 0.004, tz + 0.004, M_SEAM))
-    # display (inhoud tekent de pagina) + knoppen
-    out.append(box("wm_dpanel", 0.045, x1 - 0.02, yf - 0.003, yf, bz0 + 0.015, bz1 - 0.015, M_FRAME, bevel=0.004))
-    out.append(box("wm_display", 0.07, 0.2, yf - 0.004, yf - 0.001, kz - 0.022, kz + 0.022, M_BLACKGLASS, bevel=0.003))
+    out.append(disc("wm_knob_rim", 0.036, yf - 0.014, yf - 0.004, kx, kz, M_CHROME))
+    out.append(disc("wm_knob", 0.031, yf - 0.024, yf - 0.012, kx, kz, M_GRAPH))
+    out.append(box("wm_knob_ind", kx - 0.0015, kx + 0.0015, yf - 0.0245, yf - 0.023, kz + 0.014, kz + 0.026, M_CHROME))
+    for i in range(12):
+        a = math.radians(-120 + i * (240 / 11))
+        tx, tz = kx + math.sin(a) * 0.048, kz + math.cos(a) * 0.048
+        out.append(disc("wm_led", 0.0022, yf - 0.0052, yf - 0.0046, tx, tz, M_LED if i in (3, 4) else M_SEAM_L, 12))
+    out.append(box("wm_dpanel", kx - 0.058, x1 - 0.018, yf - 0.0045, yf - 0.0005, bz0 + 0.01, bz1 - 0.01, M_BLACKGLASS, bevel=0.006, segs=3))
+    out.append(box("wm_display", 0.07, 0.2, yf - 0.005, yf - 0.0042, kz - 0.022, kz + 0.022, M_BLACKGLASS, bevel=0.003))
     for i in range(3):
         bx = 0.215 + i * 0.024
-        out.append(box("wm_btn", bx, bx + 0.016, yf - 0.0045, yf - 0.002, kz - 0.008, kz + 0.008, M_SILVER, bevel=0.004, segs=3))
-        out.append(box("wm_btn_dot", bx + 0.006, bx + 0.01, yf - 0.0055, yf - 0.005, kz + 0.01, kz + 0.013, M_SEAM))
+        out.append(disc("wm_btn", 0.006, yf - 0.0051, yf - 0.0046, bx + 0.008, kz, M_SEAM_L, 24))
     out.append(box("wm_logo", x0 + 0.03, x0 + 0.1, yf - 0.001, yf + 0.001, 0.64, 0.652, M_SILVER))
     # deur: ring, bolle getinte glazen koepel, manchet, trommel erachter
     dz = 0.40
-    out.append(ring("wm_door_ring", 0, yf - 0.02, dz, door_r - 0.018, 0.02, M_CHROME, 0.8))
-    out.append(ring("wm_door_frame", 0, yf - 0.03, dz, door_r - 0.05, 0.032, M_FRAME, 0.9))
+    out.append(ring("wm_door_ring", 0, yf - 0.016, dz, door_r - 0.01, 0.01, M_CHROME, 0.7))
+    out.append(ring("wm_door_frame", 0, yf - 0.022, dz, door_r - 0.042, 0.034, M_GRAPH, 0.55))
     out.append(ring("wm_door_inner", 0, yf - 0.035, dz, door_r - 0.08, 0.008, M_SILVER, 0.8))
     out.append(dome("wm_glass", door_r - 0.07, 0.05, 0, yf - 0.005, dz, M_GLASS_D))
     out.append(ring("wm_gasket", 0, yf + 0.01, dz, door_r - 0.085, 0.022, M_RUBBER, 1.0))
@@ -411,7 +481,7 @@ def frontloader(depth, door_r):
         px, pz = math.cos(a) * (door_r - 0.105), math.sin(a) * (door_r - 0.105)
         out.append(box("wm_paddle", px - 0.012, px + 0.012, yf + 0.02, yf + 0.25, dz + pz - 0.012, dz + pz + 0.012, M_SILVER, bevel=0.008))
     # greep rechts in de ring
-    out.append(box("wm_handle", door_r - 0.02, door_r + 0.004, yf - 0.05, yf - 0.02, dz - 0.05, dz + 0.05, M_SILVER, bevel=0.01, segs=4))
+    out.append(box("wm_handle", door_r - 0.03, door_r - 0.008, yf - 0.042, yf - 0.03, dz - 0.045, dz + 0.045, M_DARK, bevel=0.006, segs=3))
     return out
 
 def toploader():
@@ -525,7 +595,7 @@ fr_.visible_camera = False
 sun = bpy.data.lights.new("sun", "SUN"); sun.energy = 3.4; sun.angle = math.radians(7)
 sun.color = (1.0, 0.92, 0.82)
 so = bpy.data.objects.new("sun", sun); scene.collection.objects.link(so)
-Ld = Vector((0.6, 0.6, -0.35)).normalized()
+Ld = Vector((-0.62, 0.55, -0.56)).normalized()   # zon door een raam rechts (buiten beeld)
 so.rotation_euler = (-Ld).to_track_quat("Z", "Y").to_euler()
 
 
@@ -569,10 +639,10 @@ c.sample_clamp_indirect = 4.0
 c.caustics_reflective = False; c.caustics_refractive = False
 scene.view_settings.view_transform = "AgX"
 try:
-    scene.view_settings.look = "AgX - Medium High Contrast" if NIGHT else "AgX - Base Contrast"
+    scene.view_settings.look = "AgX - Medium High Contrast"
 except Exception:
     pass
-scene.view_settings.exposure = 0.6 if NIGHT else 1.1
+scene.view_settings.exposure = 0.6 if NIGHT else 0.72
 
 if A.blend:
     bpy.ops.wm.save_as_mainfile(filepath=A.blend)

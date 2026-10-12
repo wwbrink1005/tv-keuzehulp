@@ -8,3 +8,6 @@ strategie/
 
 # B2B-proefrun: droge pipeline-uitvoer om lokaal te testen zonder Supabase-tabel
 klanten/testdata/
+
+# 3D-render assets (Poly Haven, opnieuw op te halen met tools/3d-render/assets_ophalen.py)
+tools/3d-render/assets/
