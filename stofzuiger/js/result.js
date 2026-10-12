@@ -1,4 +1,5 @@
 
+import { applyMinAanbiedersCascade } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
@@ -181,7 +182,12 @@ export function initResultPage() {
   const answers                       = answersData  ? JSON.parse(answersData)  : null;
 
   currentAnswers = answers;
-  baseMatches    = Array.isArray(rawFilteredMatchedStofzuigers) ? rawFilteredMatchedStofzuigers : [];
+  // Zelfde "minimaal 2 winkels"-cascade als result-filters.js, al bij de
+  // eerste render: anders stonden er heel even alle stofzuigers in beeld die
+  // een fractie later weer verdwenen.
+  baseMatches    = applyMinAanbiedersCascade(
+    Array.isArray(rawFilteredMatchedStofzuigers) ? rawFilteredMatchedStofzuigers : []
+  ).result;
 
   initSortControl();
   applySortAndRender("price-asc");

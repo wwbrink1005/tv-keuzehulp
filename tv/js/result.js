@@ -74,11 +74,13 @@ function renderBestMatchPoints(points) {
     .join("");
 }
 
+// De beste match uit de quiz alleen gebruiken als de lijst verder leeg is.
+// Hem altijd toevoegen zette een tv die de "minimaal 2 winkels"-regel er net
+// uit had gehaald toch terug, waarna result-filters.js hem een fractie later
+// weer weghaalde: een kaart die heel even zichtbaar was en dan verdween.
 function buildAllMatches(filteredMatchedTVs, bestMatch) {
   const list = Array.isArray(filteredMatchedTVs) ? [...filteredMatchedTVs] : [];
-  if (bestMatch && !list.some(tv => tv.naam === bestMatch.naam)) {
-    list.push(bestMatch);
-  }
+  if (list.length === 0 && bestMatch) list.push(bestMatch);
   return list;
 }
 
