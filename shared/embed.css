@@ -105,3 +105,8 @@ html body #imagePreviewOverlay {
 	margin-top: var(--preview-top, 40px);
 	max-height: min(640px, calc(100vh - 60px));
 }
+
+/* Favorieten (hartje op de kaart) horen bij producthulp.nl zelf: in de iframe op de site
+   van een winkel worden ze bij ons opgeslagen en kan de bezoeker ze nergens terugvinden. */
+.fav-btn,
+.fav-toast { display: none !important; }

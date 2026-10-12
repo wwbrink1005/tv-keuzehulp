@@ -1,5 +1,5 @@
 // Testversie van de tv-vragenpagina met een Blender-gerenderde woonkamer.
-// De renders (tv/vragen-test/img) zijn per kijkafstand en per licht (dag/avond)
+// De renders (tv/vragen/img) zijn per kijkafstand en per licht (dag/avond)
 // gemaakt met een camera die recht op de tv-muur kijkt. Daardoor is een tv op die
 // muur in beeld een exacte rechthoek en kunnen we hem met dezelfde cameragegevens
 // als in Blender op ware grootte over de render leggen.
@@ -40,7 +40,7 @@ const SCREENS = {
   zwart: "zwart", helderheid: "helder", kleur: "kleur",
 };
 const screenSrc = k => `shared/img/scherm/scherm-${SCREENS[k] ?? k}.webp`;
-const roomSrc = (light, D) => `tv/vragen-test/img/kamer-${light}-${D}.webp`;
+const roomSrc = (light, D) => `tv/vragen/img/kamer-${light}-${D}.webp`;
 
 const QUESTIONS = [
   {
