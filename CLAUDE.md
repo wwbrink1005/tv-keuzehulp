@@ -93,6 +93,16 @@ Twee valkuilen die echt geld aan tijd kosten:
   laadt Analytics pas na expliciete toestemming, dus het overgrote deel van de bezoekers
   is daar onzichtbaar. Gebruik GSC voor volume en GA4 alleen voor gedrag ná toestemming.
 
+## B2B: de keuzehulp op de site van een winkel
+
+Onder `embed/`, `klanten/` en `zakelijk/` staat de versie van de keuzehulp die winkels op
+hun eigen site zetten (iframe, eigen assortiment uit het aparte Supabase-project "b2b").
+Lees **[docs/b2b.md](docs/b2b.md)** voordat je daar of aan gedeelde keuzehulpcode iets
+verandert: de koelkastcode heeft een klantmodus, en een paar regels (nooit terugvallen op
+de eigen catalogus, geen `klant.js` in code van alle categorieën, geen `position: fixed` in
+de embed) breken de klantversie stil als je ze vergeet. Na een wijziging aan een categorie
+met klantmodus: ook `/embed/<categorie>/?klant=demowitgoed` doorklikken.
+
 ## Kernarchitectuur
 
 - `shared/quiz.css`, `shared/resultaat.css` — gedeelde design-CSS voor alle

@@ -40,7 +40,8 @@ function initResultMobileUI() {
 
   if (restartConfirm) {
     restartConfirm.addEventListener("click", () => {
-      window.location.href = "koelkast/vragen";
+      // Embed-pagina's zetten hun eigen vragen-URL (met ?klant=) op de body.
+      window.location.href = document.body.dataset.vragenUrl || "koelkast/vragen";
     });
   }
 

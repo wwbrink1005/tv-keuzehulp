@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../../">
+    <link rel="icon" type="image/svg+xml" href="logo's/logo_favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Nog niet publiek. Pas weghalen bij livegang van het zakelijke deel. -->
+    <link rel="canonical" href="https://producthulp.nl/zakelijk/demo/" />
+    <title>Demo | producthulp.nl zakelijk</title>
+    <meta name="description" content="Probeer de keuzehulp zoals een webshop hem op zijn eigen site krijgt: eigen huisstijl, eigen assortiment, eigen productpagina's." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="stylesheet" href="shared/footer.css" />
+    <link rel="stylesheet" href="zakelijk/zakelijk.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="shared/footer.js" defer></script>
+  </head>
+  <body>
+
+    <header class="zk-header">
+      <div class="zk-wrap">
+        <a class="zk-brand" href="zakelijk/" aria-label="producthulp.nl zakelijk">
+          <img src="logo's/logo.svg" alt="producthulp.nl" />
+          <span class="zk-brand-tag">Zakelijk</span>
+        </a>
+        <nav class="zk-nav" aria-label="Zakelijk menu">
+          <a href="zakelijk/">Home</a>
+          <a href="zakelijk/hoe-het-werkt/">Hoe het werkt</a>
+          <a href="zakelijk/demo/" aria-current="page">Demo</a>
+          <a href="zakelijk/prijzen/">Prijzen</a>
+          <a href="zakelijk/contact/">Contact</a>
+        </nav>
+        <a class="zk-btn zk-btn-primary zk-btn-sm zk-header-cta" href="zakelijk/contact/">Plan een demo</a>
+      </div>
+    </header>
+
+    <main>
+
+      <section class="zk-page-hero">
+        <div class="zk-wrap">
+          <span class="zk-eyebrow">Demo</span>
+          <h1>Zo staat hij op de site van een winkel</h1>
+          <p>Hieronder draait de keuzehulp precies zoals een webshop hem krijgt: in de eigen huisstijl, met alleen het eigen assortiment, en elke knop naar de eigen productpagina. Doorloop hem gerust helemaal.</p>
+        </div>
+      </section>
+
+      <section class="zk-section">
+        <div class="zk-wrap">
+          <div class="zk-plaats" role="group" aria-label="Plaatsing kiezen">
+            <span class="zk-plaats-label">Zo kan hij op jouw site staan:</span>
+            <button type="button" data-plaats="vol" aria-pressed="true">Volle breedte</button>
+            <button type="button" data-plaats="kolom" aria-pressed="false">Naast je eigen tekst</button>
+            <button type="button" data-plaats="zijbalk" aria-pressed="false">Smalle zijbalk</button>
+            <button type="button" data-plaats="popup" aria-pressed="false">Als pop-up</button>
+            <button type="button" data-plaats="schuif" aria-pressed="false">Sleep zelf de breedte</button>
+          </div>
+          <div class="zk-live-frame">
+            <div class="zk-live-bar"><i></i><i></i><i></i><span>demo-witgoed.nl/koelkasten</span></div>
+            <div class="zk-plaats-vak" id="plaatsVak" data-plaats="vol">
+              <div class="zk-plaats-tekst" aria-hidden="true">
+                <h3>Jouw eigen inhoud</h3>
+                <p>Tekst, foto's of reviews van de winkel zelf, bijvoorbeeld een uitleg over koelkasten.</p>
+                <i style="width:92%"></i><i style="width:78%"></i><i style="width:85%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:71%"></i>
+                <button type="button" class="zk-btn zk-btn-primary zk-plaats-popknop" id="popKnop">Vind jouw koelkast <i data-lucide="arrow-right"></i></button>
+              </div>
+              <div class="zk-plaats-hulp" id="plaatsHulp">
+                <div class="zk-plaats-raam">
+                  <button type="button" class="zk-plaats-sluit" id="popSluit" aria-label="Sluiten">×</button>
+                  <iframe id="keuzehulp" src="embed/koelkast/?klant=demowitgoed" title="Koelkast keuzehulp"></iframe>
+                </div>
+              </div>
+            </div>
+            <div class="zk-plaats-schuif">
+              <span>Breedte van het vak</span>
+              <input type="range" id="schuifIn" min="320" max="1180" step="10" value="700" aria-label="Breedte van het vak">
+              <output id="schuifUit">700 px</output>
+            </div>
+          </div>
+          <details class="zk-code">
+            <summary>Bekijk de code die een winkel plakt</summary>
+            <p>Twee stukjes, meer niet: de keuzehulp zelf en een klein script waarmee hij meegroeit met zijn inhoud. Waar en hoe breed hij staat, bepaalt de winkel zelf: over de volle breedte, in een kolom of achter een knop. Boven ongeveer 900 px staat de vraag naast de keuken, daaronder eronder.</p>
+            <div class="zk-code-kop"><button type="button" class="zk-btn zk-btn-ghost zk-btn-sm" id="kopieer">Kopieer</button></div>
+            <pre><code id="code">&lt;iframe id="keuzehulp" src="https://producthulp.nl/embed/koelkast/?klant=jouwwinkel"
+        title="Koelkast keuzehulp" style="width:100%;height:760px;border:0"&gt;&lt;/iframe&gt;
+&lt;script&gt;
+  window.addEventListener("message", function (e) {
+    var f = document.getElementById("keuzehulp");
+    if (e.source === f.contentWindow &amp;&amp; e.data &amp;&amp; e.data.type === "producthulp-keuzehulp-hoogte") {
+      f.style.height = Math.max(560, e.data.hoogte) + "px";
+    }
+  });
+&lt;/script&gt;</code></pre>
+          </details>
+          <div class="zk-live-acties">
+            <p class="zk-live-fictief">Demo Witgoed is een fictieve webshop die we hebben gemaakt om te laten zien hoe de keuzehulp bij een winkel werkt. De koelkasten bestaan echt, de winkel en zijn productpagina's niet.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="zk-section">
+        <div class="zk-wrap">
+          <div class="zk-final">
+            <div>
+              <h2>Wil je hem zien met jouw producten?</h2>
+              <p>We maken een proefversie met je eigen kleuren en assortiment. Vrijblijvend.</p>
+            </div>
+            <a class="zk-btn zk-btn-primary" href="zakelijk/contact/">Plan een demo <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <p class="zk-consumer-link">Op zoek naar een product voor jezelf? <a href="./">Naar producthulp.nl</a></p>
+
+    </main>
+
+    <script>
+      if (window.lucide) lucide.createIcons();
+
+      // Plaatsing wisselen: alleen de opmaak eromheen verandert (data-plaats),
+      // de keuzehulp zelf blijft staan en laadt dus niet opnieuw.
+      (function () {
+        var vak = document.getElementById("plaatsVak");
+        var hulp = document.getElementById("plaatsHulp");
+        var schuif = document.getElementById("schuifIn");
+        var uit = document.getElementById("schuifUit");
+        var knoppen = document.querySelectorAll(".zk-plaats button");
+
+        function zet(plaats) {
+          vak.dataset.plaats = plaats;
+          knoppen.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.plaats === plaats)); });
+          hulp.classList.remove("is-open");
+          hulp.style.maxWidth = plaats === "schuif" ? schuif.value + "px" : "";
+        }
+        knoppen.forEach(function (b) { b.addEventListener("click", function () { zet(b.dataset.plaats); }); });
+
+        schuif.addEventListener("input", function () {
+          hulp.style.maxWidth = schuif.value + "px";
+          uit.textContent = schuif.value + " px";
+        });
+
+        document.getElementById("popKnop").addEventListener("click", function () { hulp.classList.add("is-open"); });
+        document.getElementById("popSluit").addEventListener("click", function () { hulp.classList.remove("is-open"); });
+        hulp.addEventListener("click", function (e) { if (e.target === hulp) hulp.classList.remove("is-open"); });
+        document.addEventListener("keydown", function (e) { if (e.key === "Escape") hulp.classList.remove("is-open"); });
+
+        document.getElementById("kopieer").addEventListener("click", function () {
+          var knop = this, tekst = document.getElementById("code").textContent;
+          (navigator.clipboard ? navigator.clipboard.writeText(tekst) : Promise.reject()).then(function () {
+            knop.textContent = "Gekopieerd"; setTimeout(function () { knop.textContent = "Kopieer"; }, 1600);
+          }).catch(function () { window.prompt("Kopieer de code:", tekst); });
+        });
+      })();
+
+      // De keuzehulp meldt zijn hoogte (shared/embed-hoogte.js) en de iframe
+      // groeit mee, zodat er geen tweede scrollbalk in het venster komt.
+      // Hetzelfde scriptje dat een winkel naast de iframe-regel plakt.
+      window.addEventListener("message", function (e) {
+        var f = document.getElementById("keuzehulp");
+        if (e.source === f.contentWindow && e.data && e.data.type === "producthulp-keuzehulp-hoogte") {
+          f.style.height = Math.max(560, e.data.hoogte) + "px";
+        }
+      });
+    </script>
+  </body>
+</html>

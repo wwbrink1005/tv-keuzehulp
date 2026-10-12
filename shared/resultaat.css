@@ -4,8 +4,8 @@
   --accent: #0954a3;
   --accent-dark: #073d7a;
   --accent-mid: #0b5fba;
-  --accent-soft: rgba(9, 84, 163, 0.08);
-  --accent-glow: rgba(9, 84, 163, 0.14);
+  --accent-soft: color-mix(in srgb, var(--accent) 8%, transparent);
+  --accent-glow: color-mix(in srgb, var(--accent) 14%, transparent);
   --accent-green: #10b981;
   --accent-green-soft: rgba(16, 185, 129, 0.12);
   --accent-green-dark: #059669;
@@ -25,7 +25,7 @@
   --radius-lg: 20px;
   --radius-xl: 24px;
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
-  --shadow-card-hover: 0 12px 40px rgba(9, 84, 163, 0.12);
+  --shadow-card-hover: 0 12px 40px color-mix(in srgb, var(--accent) 12%, transparent);
   --shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.1);
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -445,7 +445,7 @@ body.filter-drawer-open {
 			}
 
 .restart-confirm:hover {
-				background: #073d7a;
+				background: var(--accent-dark);
 			}
 
 .filters-panel-header {
@@ -1234,7 +1234,7 @@ body.has-menu {
 
 .rcard:hover {
 	box-shadow: var(--shadow-card-hover);
-	border-color: rgba(9, 84, 163, 0.35);
+	border-color: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .rcard:nth-child(2) { animation-delay: 0.04s; }
@@ -1440,7 +1440,7 @@ body.has-menu {
 }
 
 .rcard-shop:hover {
-	border-color: rgba(9, 84, 163, 0.35);
+	border-color: color-mix(in srgb, var(--accent) 35%, transparent);
 	background: var(--accent-soft);
 }
 
@@ -1486,7 +1486,7 @@ body.has-menu {
 	cursor: pointer;
 	text-decoration: underline;
 	text-underline-offset: 3px;
-	text-decoration-color: rgba(9, 84, 163, 0.35);
+	text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .rcard-compare:hover { color: var(--accent-dark); text-decoration-color: currentColor; }
@@ -1605,13 +1605,13 @@ body.has-menu {
 
 .info-btn:hover {
 				background: var(--accent-soft);
-				border-color: rgba(9, 84, 163, 0.22);
+				border-color: color-mix(in srgb, var(--accent) 22%, transparent);
 				color: var(--accent);
 			}
 
 .info-btn.is-active {
 				background: var(--accent-soft);
-				border-color: rgba(9, 84, 163, 0.22);
+				border-color: color-mix(in srgb, var(--accent) 22%, transparent);
 				color: var(--accent);
 			}
 
@@ -1737,7 +1737,7 @@ body.has-menu {
 					font-size: 14px;
 					font-weight: 700;
 					cursor: pointer;
-					box-shadow: 0 4px 16px rgba(9, 84, 163, 0.35);
+					box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 35%, transparent);
 					opacity: 0;
 					transform: translateY(10px);
 					pointer-events: none;

@@ -7,6 +7,7 @@ import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from 
 import { initFavorieten } from "../../shared/favorieten.js";
 import { initAlleSpecs } from "../../shared/alle-specs.js";
 import { maakVerrijker } from "../../shared/kaart-verrijking.js";
+import { sleutel } from "../../shared/klant.js";
 
 // Fallback shown when an Icecat product image URL 404's (stale/broken CDN entry).
 const IMG_FALLBACK = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f4f5f7'/%3E%3Cg fill='none' stroke='%23c8ccd2' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='40' y='50' width='120' height='90' rx='8'/%3E%3Ccircle cx='75' cy='85' r='10'/%3E%3Cpath d='M40 125l35-30 30 25 20-18 35 28'/%3E%3C/g%3E%3C/svg%3E";
@@ -171,9 +172,9 @@ export function initResultPage() {
   const hasRedesignLayout = Boolean(qs("#bestMatchCard"));
   if (!hasRedesignLayout) return;
 
-  const bestMatchData  = localStorage.getItem("koelkast_bestMatch");
-  const filteredData   = localStorage.getItem("koelkast_filteredMatchedKoelkasten");
-  const answersData    = localStorage.getItem("koelkast_answers");
+  const bestMatchData  = localStorage.getItem(sleutel("koelkast_bestMatch"));
+  const filteredData   = localStorage.getItem(sleutel("koelkast_filteredMatchedKoelkasten"));
+  const answersData    = localStorage.getItem(sleutel("koelkast_answers"));
 
   if (!bestMatchData) return;
 

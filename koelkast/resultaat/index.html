@@ -42,7 +42,7 @@
         transition: all var(--transition);
       }
 
-.restart-link:hover { background: var(--accent-soft); border-color: rgba(9,84,163,0.22); color: var(--accent); }
+.restart-link:hover { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
 
 .result-count-badge {
         display: inline-flex;
@@ -78,16 +78,16 @@
         transition: all var(--transition);
       }
 
-.sort-button:hover { background: var(--accent-soft); border-color: rgba(9,84,163,0.22); color: var(--accent); }
+.sort-button:hover { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
 
 .filter-option input[type="radio"],
       .filter-option input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
 
 .icon-button { width: 36px; height: 36px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--card-bg); display: inline-flex; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); }
 
-.icon-button:hover, .icon-button.is-active { background: var(--accent-soft); border-color: rgba(9,84,163,0.22); color: var(--accent); }
+.icon-button:hover, .icon-button.is-active { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
 
-.clear-filters-btn { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border: 1.5px solid rgba(9,84,163,0.28); border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease; white-space: nowrap; }
+.clear-filters-btn { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border: 1.5px solid color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease; white-space: nowrap; }
 
 .tv-card {
         width: 100%;
@@ -106,7 +106,7 @@
         animation: fadeUp 0.4s ease-out backwards;
       }
 
-.tv-card:hover { border-color: rgba(9,84,163,0.55); }
+.tv-card:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
 
 .tv-preview-btn { position: absolute; bottom: 7px; right: 7px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); opacity: 0; transition: opacity 0.2s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease; z-index: 1; padding: 0; font-family: inherit; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 
@@ -120,9 +120,9 @@
 
 .image-preview-close:hover { background: rgba(0,0,0,0.14); color: var(--text-primary); }
 
-.image-preview-thumb.is-active, .image-preview-thumb:hover { opacity: 1; border-color: #0954a3; }
+.image-preview-thumb.is-active, .image-preview-thumb:hover { opacity: 1; border-color: var(--accent); }
 
-.tv-provider-row:hover { border-color: rgba(9,84,163,0.3); background: var(--accent-soft); box-shadow: 0 2px 12px rgba(9,84,163,0.1); }
+.tv-provider-row:hover { border-color: color-mix(in srgb, var(--accent) 30%, transparent); background: var(--accent-soft); box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 10%, transparent); }
 
 @media (hover: none), (max-width: 700px) {
 .tv-preview-btn { opacity: 1; }
@@ -592,12 +592,12 @@
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: #0954a3;
+      background: var(--accent);
       border: none;
       cursor: pointer;
       display: grid;
       place-items: center;
-      box-shadow: 0 4px 16px rgba(9,84,163,.35);
+      box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 35%, transparent);
       opacity: 0;
       transform: translateY(10px);
       transition: opacity .25s ease, transform .25s ease;

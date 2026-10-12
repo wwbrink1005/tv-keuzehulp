@@ -505,4 +505,29 @@
     <lastmod>2026-09-25</lastmod>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://producthulp.nl/zakelijk/</loc>
+    <lastmod>2026-10-12</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://producthulp.nl/zakelijk/contact/</loc>
+    <lastmod>2026-10-12</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://producthulp.nl/zakelijk/demo/</loc>
+    <lastmod>2026-10-12</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://producthulp.nl/zakelijk/hoe-het-werkt/</loc>
+    <lastmod>2026-10-12</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://producthulp.nl/zakelijk/prijzen/</loc>
+    <lastmod>2026-10-12</lastmod>
+    <priority>0.4</priority>
+  </url>
 </urlset>

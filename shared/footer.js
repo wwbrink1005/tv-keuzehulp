@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <li><a href="over-ons">Over ons</a></li>
             <li><a href="hoe-werkt-het">Hoe werkt het?</a></li>
             <li><a href="contact">Contact</a></li>
+            <li><a href="zakelijk/">Voor winkels</a></li>
           </ul>
         </div>
 

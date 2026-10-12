@@ -1,4 +1,4 @@
-import { gezinsgrootteMinCapaciteit, STIL_DB_THRESHOLD } from "./data.js";
+import { gezinsgrootteMinCapaciteit, EXTRA_CHECKS } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 export const DEFAULT_MIN_AANBIEDERS = 2;
@@ -61,48 +61,22 @@ export function applyExtraFilter(koelkasten, extraAnswers) {
     return koelkasten;
   }
 
-  let filtered = [...koelkasten];
-
-  if (extraAnswers.includes("energiezuinig")) {
-    const zuinig = filtered.filter(k => ["A", "B", "C"].includes(k.energielabel));
-    if (zuinig.length > 0) filtered = zuinig;
-  }
-
-  if (extraAnswers.includes("stil")) {
-    const stil = filtered.filter(k => k.geluidsniveauDb !== null && k.geluidsniveauDb <= STIL_DB_THRESHOLD);
-    if (stil.length > 0) filtered = stil;
-  }
-
-  if (extraAnswers.includes("nofrost")) {
-    const nf = filtered.filter(k => k.automatischOntdooien === "Ja");
-    if (nf.length > 0) filtered = nf;
-  }
-
-  if (extraAnswers.includes("vriesvak")) {
-    const vv = filtered.filter(k => k.heeftVriesvak);
-    if (vv.length > 0) filtered = vv;
-  }
-
-  if (extraAnswers.includes("verszone")) {
-    const vz = filtered.filter(k => k.versZone === "Ja");
-    if (vz.length > 0) filtered = vz;
-  }
-
+  // Per wens versmallen, maar alleen als er dan nog iets overblijft
+  // (gracieus degraderen). Volgorde en regels staan in EXTRA_CHECKS
+  // (data.js), dezelfde definitie die de B2B-embed gebruikt om opties zonder
+  // data automatisch uit te zetten.
+  //
   // Waterdispenser/ijsmaker komen vrijwel uitsluitend voor bij Amerikaanse/
   // extra-brede koelkasten (84% resp. 38-42% dekking daar, vs. 1-4% bij
-  // standaard/inbouw/tafelmodel) — de checkboxes worden in de UI dan ook
-  // alleen bij die types getoond (zie updateExtraOptionsVisibility in
-  // quiz.js), maar de filter zelf blijft generiek/gracieus zoals de rest.
-  if (extraAnswers.includes("waterdispenser")) {
-    const wd = filtered.filter(k => k.waterdispenser === "Ja");
-    if (wd.length > 0) filtered = wd;
+  // standaard/inbouw/tafelmodel) — de vragenpagina toont ze dan ook alleen
+  // bij die types (isBreed in vragen.js), maar de filter zelf blijft
+  // generiek/gracieus zoals de rest.
+  let filtered = [...koelkasten];
+  for (const [wens, voldoet] of Object.entries(EXTRA_CHECKS)) {
+    if (!extraAnswers.includes(wens)) continue;
+    const subset = filtered.filter(voldoet);
+    if (subset.length > 0) filtered = subset;
   }
-
-  if (extraAnswers.includes("ijsmaker")) {
-    const im = filtered.filter(k => k.ijsmaker === "Ja");
-    if (im.length > 0) filtered = im;
-  }
-
   return filtered;
 }
 

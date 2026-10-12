@@ -33,8 +33,8 @@ body {
 .test-head h1, .q3d-head h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
 .test-badge {
   font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--c-accent); background: rgba(9,84,163,.08);
-  border: 1px solid rgba(9,84,163,.18); border-radius: 999px; padding: 4px 10px;
+  color: var(--c-accent); background: color-mix(in srgb, var(--c-accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-accent) 18%, transparent); border-radius: 999px; padding: 4px 10px;
 }
 
 .wrap { max-width: var(--site-max-width, 1240px); margin: 0 auto 56px; padding: 0 16px; }
@@ -137,16 +137,16 @@ body {
   transition: border-color .2s, background .2s, box-shadow .2s, transform .15s;
   box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
-.opt:hover { border-color: rgba(9,84,163,.3); }
+.opt:hover { border-color: color-mix(in srgb, var(--c-accent) 30%, transparent); }
 .opt input { position: absolute; opacity: 0; pointer-events: none; }
 .opt .dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #b9b9bf; flex-shrink: 0; background: #fff; transition: all .2s; }
 .opt.is-check .dot { border-radius: 5px; }
-.opt:has(input:checked) { border-color: rgba(9,84,163,.6); background: #f0f6fd; box-shadow: 0 0 0 3px rgba(9,84,163,.12); }
+.opt:has(input:checked) { border-color: color-mix(in srgb, var(--c-accent) 60%, transparent); background: color-mix(in srgb, var(--c-accent) 6%, #fff); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent) 12%, transparent); }
 .opt:has(input:checked) .dot { background: var(--c-accent); border-color: var(--c-accent); box-shadow: inset 0 0 0 3px #fff; }
 .opt.is-check:has(input:checked) .dot { box-shadow: none; background: var(--c-accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E") center/12px no-repeat; }
-.opt:focus-within { outline: 2px solid rgba(9,84,163,.45); outline-offset: 1px; }
+.opt:focus-within { outline: 2px solid color-mix(in srgb, var(--c-accent) 45%, transparent); outline-offset: 1px; }
 .opt .price { white-space: nowrap; padding-left: 6px; margin-left: auto; font-size: 11.5px; font-weight: 700; letter-spacing: .5px; color: var(--c-text-3); opacity: .7; }
-.opt .advised { margin-left: auto; font-size: 10.5px; font-weight: 700; color: var(--c-accent); background: rgba(9,84,163,.1); padding: 2px 6px; border-radius: 999px; }
+.opt .advised { margin-left: auto; font-size: 10.5px; font-weight: 700; color: var(--c-accent); background: color-mix(in srgb, var(--c-accent) 10%, transparent); padding: 2px 6px; border-radius: 999px; }
 .answers.two .opt { padding: 9px 11px; font-size: 13.5px; }
 .hint { min-height: 18px; font-size: 12.5px; color: #b3261e; margin: 6px 0 0; }
 .nav { display: flex; gap: 8px; margin-top: 8px; }
@@ -155,8 +155,8 @@ body {
   border-radius: 999px; padding: 11px 18px; cursor: pointer; border: 0;
   transition: transform .15s, box-shadow .2s, background .2s, opacity .2s;
 }
-.btn-back { background: rgba(255,255,255,.9); color: var(--c-accent); border: 1.5px solid rgba(9,84,163,.28); }
-.btn-next { flex: 1; background: var(--c-accent); color: #fff; box-shadow: 0 6px 16px rgba(9,84,163,.3); }
+.btn-back { background: rgba(255,255,255,.9); color: var(--c-accent); border: 1.5px solid color-mix(in srgb, var(--c-accent) 28%, transparent); }
+.btn-next { flex: 1; background: var(--c-accent); color: #fff; box-shadow: 0 6px 16px color-mix(in srgb, var(--c-accent) 30%, transparent); }
 .btn:hover { transform: translateY(-1px); }
 .btn[disabled] { opacity: .45; cursor: default; transform: none; }
 
@@ -205,20 +205,20 @@ body {
 }
  
 /* maatlijnen en hotspots op de koelkast */
-.fx line { stroke: #0954a3; stroke-width: 1.6; }
+.fx line { stroke: var(--c-accent); stroke-width: 1.6; }
 .fx .tick { stroke-width: 1.6; }
 .fx .dash { stroke-dasharray: 5 4; }
 .fx .fade { transition: opacity .45s ease; }
 .spot {
   position: absolute; transform: translate(-50%, -50%);
   width: 14px; height: 14px; border-radius: 50%;
-  background: #0954a3; box-shadow: 0 0 0 4px rgba(255,255,255,.9), 0 4px 12px rgba(0,0,0,.25);
+  background: var(--c-accent); box-shadow: 0 0 0 4px rgba(255,255,255,.9), 0 4px 12px rgba(0,0,0,.25);
   opacity: 0; transition: opacity .35s ease, left .6s var(--ease), top .6s var(--ease);
   pointer-events: none;
 }
 .spot::after {
   content: ""; position: absolute; inset: -4px; border-radius: 50%;
-  border: 2px solid rgba(9,84,163,.6); animation: pulse 2s ease-out infinite;
+  border: 2px solid color-mix(in srgb, var(--c-accent) 60%, transparent); animation: pulse 2s ease-out infinite;
 }
 @keyframes pulse { from { transform: scale(1); opacity: 1; } to { transform: scale(2.4); opacity: 0; } }
 .spot.is-on { opacity: 1; }
@@ -320,7 +320,7 @@ body {
 }
 .hud .score span { padding: .35em .6em; background: rgba(12,16,28,.86); }
 .hud .score .t { background: #f2f2f2; color: #111; }
-.hud .score .m { background: #0954a3; font-variant-numeric: tabular-nums; }
+.hud .score .m { background: var(--c-accent); font-variant-numeric: tabular-nums; }
 .hud .speed { position: absolute; right: 5%; bottom: 8%; text-align: right; font-weight: 800; line-height: .9; text-shadow: 0 .1em .4em rgba(0,0,0,.5); }
 .hud .speed b { font-size: 3.2em; font-style: italic; letter-spacing: -.02em; }
 .hud .speed small { display: block; font-size: .8em; opacity: .85; letter-spacing: .1em; }
@@ -332,7 +332,7 @@ body {
   position: absolute; left: 4%; bottom: 9%; display: flex; flex-direction: column; gap: .15em;
 }
 .hud .lower b { background: #fff; color: #111; font-size: 1em; padding: .25em .6em; border-radius: .2em .2em .2em 0; width: fit-content; }
-.hud .lower span { background: rgba(9,84,163,.92); font-size: .85em; padding: .25em .6em; width: fit-content; border-radius: 0 .2em .2em .2em; }
+.hud .lower span { background: color-mix(in srgb, var(--c-accent) 92%, transparent); font-size: .85em; padding: .25em .6em; width: fit-content; border-radius: 0 .2em .2em .2em; }
 
 
 /* toelichting achter een antwoord, bijv. de inhoud in liters */

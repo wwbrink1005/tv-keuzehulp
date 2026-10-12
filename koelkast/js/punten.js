@@ -3,6 +3,7 @@
 // voor "Alle specificaties". Referentiepatroon voor de andere categorieën;
 // de gedeelde bouwstenen en uitgangspunten staan in shared/punten-basis.js.
 
+import { isUitgezet } from "../../shared/klant.js";
 import {
   LABEL_RANG, esc, getal, cm, gemiddelde, leeg, opsomming,
   basisContext, opvallend, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
@@ -116,8 +117,8 @@ export function buildResultPoints(k, answers, ctx) {
   }
 
   // ── 4. Kenmerken waar niet om gevraagd is, en het vangnet ────────────
-  if (k.automatischOntdooien === "Ja") p.voeg(40, "nofrost", `<strong>No Frost</strong>: de vriezer hoeft nooit ontdooid te worden`);
-  if (k.versZone === "Ja") p.voeg(41, "verszone", `<strong>Vers zone</strong> voor groente en vlees`);
+  if (k.automatischOntdooien === "Ja" && !isUitgezet("nofrost")) p.voeg(40, "nofrost", `<strong>No Frost</strong>: de vriezer hoeft nooit ontdooid te worden`);
+  if (k.versZone === "Ja" && !isUitgezet("verszone")) p.voeg(41, "verszone", `<strong>Vers zone</strong> voor groente en vlees`);
   if (k.hoogteMm && k.breedteMm && k.diepteMm) {
     p.voeg(90, "maat", `<strong>${cm(k.hoogteMm)} × ${cm(k.breedteMm)} × ${cm(k.diepteMm)} cm</strong> (h × b × d)`);
   }
@@ -127,7 +128,7 @@ export function buildResultPoints(k, answers, ctx) {
   // Laatste vangnet voor producten zonder energielabel of afmetingen in de
   // catalogus (ongeveer 1 op de 100): plaatsing is altijd bekend.
   if (Number.isFinite(k.geluidsniveauDb)) p.voeg(94, "geluid", `<strong>${getal(k.geluidsniveauDb)} dB</strong> geluidsniveau`);
-  if (k.heeftVriesvak) p.voeg(95, "vriesvak", `<strong>Met vriesvak</strong>`);
+  if (k.heeftVriesvak && !isUitgezet("vriesvak")) p.voeg(95, "vriesvak", `<strong>Met vriesvak</strong>`);
   p.voeg(96, "plaatsing", k.plaatsing === "inbouw"
     ? `<strong>Inbouwmodel</strong>, valt weg in je keukenkast`
     : `<strong>Vrijstaand</strong>, overal in huis te plaatsen`);

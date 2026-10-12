@@ -3,6 +3,7 @@ import { computeDynamicPriceGroups, computeDynamicDimensionGroups, normalizeProd
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 import { computeCounts, renderFilterList } from "../../shared/filters.js";
+import { sleutel, isUitgezet } from "../../shared/klant.js";
 
 const MIN_AANBIEDERS_OPTIONS = [1, 2, 3, 4, 5];
 
@@ -113,7 +114,8 @@ function collectEnergielabelOptions(matches) {
 }
 
 function collectFunctieOptions(matches) {
-  return FUNCTIE_DEFINITIES.filter(f => matches.some(f.check)).map(f => f.key);
+  // Uitgezette opties (B2B-klant zonder die data) ook als filter weglaten.
+  return FUNCTIE_DEFINITIES.filter(f => !isUitgezet(f.key) && matches.some(f.check)).map(f => f.key);
 }
 
 function collectGeluidOptions(matches) {
@@ -443,8 +445,8 @@ export async function initFilters() {
   if (!filtersPanel) return;
 
   // Load state from localStorage
-  const answersData  = localStorage.getItem("koelkast_answers");
-  const bestTypeData = localStorage.getItem("koelkast_bestType");
+  const answersData  = localStorage.getItem(sleutel("koelkast_answers"));
+  const bestTypeData = localStorage.getItem(sleutel("koelkast_bestType"));
 
   filterState.answers  = answersData ? JSON.parse(answersData) : null;
   filterState.bestType = bestTypeData ?? "";
@@ -466,7 +468,7 @@ export async function initFilters() {
   // Fallback: if the live fetch yields nothing, fall back to the matches
   // that were already computed and stored at quiz-submit time.
   if (baseMatches.length === 0) {
-    const storedData = localStorage.getItem("koelkast_filteredMatchedKoelkasten");
+    const storedData = localStorage.getItem(sleutel("koelkast_filteredMatchedKoelkasten"));
     if (storedData) {
       try {
         const storedKoelkasten = JSON.parse(storedData);

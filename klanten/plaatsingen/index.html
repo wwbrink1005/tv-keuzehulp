@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Plaatsingen van de keuzehulp</title>
+<!-- Intern overzicht (B2B): hoe een winkel de keuzehulp kan plaatsen. Op deze
+     pagina staat steeds precies hetzelfde stukje code dat een winkel krijgt;
+     alleen het vak eromheen (wat de winkel zelf bepaalt) wisselt. Niet
+     gelinkt, niet geïndexeerd. -->
+<style>
+  :root {
+    --bg: #f5f5f7; --card: #fff; --tekst: #1d1d1f; --tekst-2: #424245; --tekst-3: #6b7280;
+    --lijn: #e5e7eb; --accent: #0954a3; --accent-licht: #e8f0fe; --goed: #059669; --goed-licht: #e7f6ef;
+    --let-op: #b45309; --let-op-licht: #fef3e2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.55 "Inter", system-ui, -apple-system, sans-serif; color: var(--tekst); background: var(--bg); }
+  .kop { padding: 32px clamp(16px, 4vw, 40px) 8px; max-width: 1180px; margin: 0 auto; }
+  .kop h1 { margin: 0 0 6px; font-size: clamp(24px, 3vw, 32px); letter-spacing: -0.02em; }
+  .kop p { margin: 0; color: var(--tekst-2); max-width: 70ch; }
+
+  .keuze { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--lijn); }
+  .keuze-in { max-width: 1180px; margin: 0 auto; padding: 12px clamp(16px, 4vw, 40px); display: flex; gap: 8px; flex-wrap: wrap; }
+  .keuze button { font: 600 13.5px inherit; font-family: inherit; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--lijn);
+    background: var(--card); color: var(--tekst-2); cursor: pointer; }
+  .keuze button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .keuze button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 20px clamp(16px, 4vw, 40px) 60px; display: grid; gap: 18px; }
+  .uitleg { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+  .blok { background: var(--card); border: 1px solid var(--lijn); border-radius: 16px; padding: 18px 20px; }
+  .blok h2 { margin: 0 0 6px; font-size: 19px; }
+  .blok p { margin: 0 0 10px; color: var(--tekst-2); }
+  .oordeel { display: inline-block; font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px; }
+  .oordeel.goed { background: var(--goed-licht); color: var(--goed); }
+  .oordeel.let-op { background: var(--let-op-licht); color: var(--let-op); }
+  .meting { display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; }
+  .meting span { background: var(--bg); border: 1px solid var(--lijn); border-radius: 8px; padding: 4px 10px; font-variant-numeric: tabular-nums; }
+  .meting b { font-weight: 700; }
+
+  .codekop { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 13px; color: var(--tekst-3); }
+  .codekop button { font: 600 12.5px inherit; font-family: inherit; border: 1px solid var(--lijn); background: var(--card); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+  pre { margin: 0; padding: 12px 14px; background: #0f172a; color: #e2e8f0; border-radius: 10px; overflow-x: auto; font: 12.5px/1.5 ui-monospace, Consolas, monospace; }
+  pre .eigen { color: #93c5fd; }
+  .schuif { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+  .schuif input { flex: 1; accent-color: var(--accent); }
+  [hidden] { display: none !important; }
+
+  /* ── De "winkelpagina" waarop de keuzehulp staat ── */
+  .winkel { background: #fff; border: 1px solid var(--lijn); border-radius: 16px; overflow: hidden; }
+  .winkel-balk { display: flex; align-items: center; gap: 6px; padding: 9px 14px; background: var(--bg); border-bottom: 1px solid var(--lijn); font-size: 12.5px; color: var(--tekst-3); }
+  .winkel-balk i { width: 10px; height: 10px; border-radius: 50%; background: #d4d4d8; }
+  .winkel-balk span { margin-left: 8px; }
+  .winkel-in { padding: 24px; }
+  .winkel-in h3 { margin: 0 0 6px; font: 700 24px Georgia, serif; }
+  .winkel-in .winkel-tekst { margin: 0 0 18px; color: #555; font-family: Georgia, serif; max-width: 62ch; }
+
+  /* Wat de winkel er zelf omheen zet, per variant */
+  .v-gecentreerd { max-width: 960px; margin: 0 auto; }
+  .v-kolommen { display: grid; grid-template-columns: 1fr 1.5fr; gap: 28px; align-items: start; }
+  .v-kolommen .zij { font-family: Georgia, serif; color: #555; }
+  .v-zijbalk { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+  .v-zijbalk .hoofd { font-family: Georgia, serif; color: #555; min-height: 300px; }
+  .v-schuif { margin: 0 auto; }
+  .nep-tekst { height: 10px; border-radius: 4px; background: #eceef1; margin: 0 0 10px; }
+  .popup-knop { font: 700 16px Georgia, serif; padding: 14px 24px; border-radius: 8px; border: 0; background: #C8102E; color: #fff; cursor: pointer; }
+  .popup { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.55); display: none; align-items: flex-start; justify-content: center; padding: 4vh 16px; overflow-y: auto; }
+  .popup.open { display: flex; }
+  .popup-raam { width: min(1100px, 100%); background: #fff; border-radius: 14px; position: relative; padding-top: 44px; }
+  .popup-sluit { position: absolute; top: 8px; right: 10px; border: 0; background: #f1f1f3; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+
+  @media (max-width: 860px) {
+    .uitleg, .v-kolommen, .v-zijbalk { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="kop">
+  <h1>Zo kan een winkel de keuzehulp plaatsen</h1>
+  <p>Op deze pagina staat steeds precies het stukje code dat een winkel krijgt. Wat wisselt is alleen het vak eromheen, en dat bepaalt de winkel zelf. Kies een plaatsing en klik de keuzehulp gerust door: de opmaak past zich aan de breedte aan.</p>
+</header>
+
+<nav class="keuze" aria-label="Kies een plaatsing">
+  <div class="keuze-in" id="keuzes"></div>
+</nav>
+
+<main>
+  <section class="uitleg">
+    <div class="blok">
+      <span class="oordeel" id="oordeel"></span>
+      <h2 id="titel"></h2>
+      <p id="tekst"></p>
+      <div class="meting">
+        <span>Breedte keuzehulp: <b id="mBreedte">-</b></span>
+        <span>Opmaak: <b id="mOpmaak">-</b></span>
+        <span>Hoogte: <b id="mHoogte">-</b></span>
+      </div>
+      <div class="schuif" id="schuif" hidden>
+        <span>320 px</span>
+        <input type="range" id="schuifIn" min="320" max="1180" step="10" value="700" aria-label="Breedte van het vak">
+        <span>1180 px</span>
+      </div>
+    </div>
+    <div class="blok">
+      <div class="codekop"><span>Wat de winkel plakt <span id="codeUitleg"></span></span><button type="button" id="kopieer">Kopieer</button></div>
+      <pre><code id="code"></code></pre>
+    </div>
+  </section>
+
+  <section class="winkel" aria-label="Voorbeeld van een winkelpagina">
+    <div class="winkel-balk"><i></i><i></i><i></i><span>demo-witgoed.nl/koelkast-advies</span></div>
+    <div class="winkel-in" id="plaats"></div>
+  </section>
+</main>
+
+<!-- Alleen voor de variant "Zonder hoogtescript": laat de hoogteberichten
+     niet doorkomen, zodat het effect gelijk is aan een winkel die het
+     script niet heeft geplakt. Staat vóór het klantscript en raakt dat niet. -->
+<script>
+  window.__zonderHoogtescript = false;
+  window.addEventListener("message", function (e) {
+    if (window.__zonderHoogtescript) e.stopImmediatePropagation();
+  }, true);
+</script>
+
+<!-- Het stukje code dat een winkel krijgt, deel 2 (het hoogtescript).
+     Staat hier één keer, letterlijk zoals in de code hierboven. -->
+<script>
+  window.addEventListener("message", function (e) {
+    var f = document.getElementById("keuzehulp");
+    if (e.source === f.contentWindow && e.data && e.data.type === "producthulp-keuzehulp-hoogte") {
+      f.style.height = Math.max(560, e.data.hoogte) + "px";
+    }
+  });
+</script>
+
+<script>
+  // Het stukje code dat een winkel krijgt, deel 1: de iframe. Letterlijk zoals
+  // in de code die we meesturen; alleen lokaal wijst src naar de testserver.
+  var LIVE = "https://producthulp.nl/embed/koelkast/?klant=demowitgoed";
+  var lokaal = ["localhost", "127.0.0.1"].indexOf(location.hostname) >= 0;
+  var SRC = lokaal ? location.origin + "/embed/koelkast/?klant=demowitgoed" : LIVE;
+  var IFRAME = '<iframe id="keuzehulp" src="' + LIVE + '"\n        title="Koelkast keuzehulp" style="width:100%;height:760px;border:0"></iframe>';
+  var SCRIPT = '<script>\n  window.addEventListener("message", function (e) {\n    var f = document.getElementById("keuzehulp");\n    if (e.source === f.contentWindow && e.data && e.data.type === "producthulp-keuzehulp-hoogte") {\n      f.style.height = Math.max(560, e.data.hoogte) + "px";\n    }\n  });\n<\/script>';
+  var SNIPPET = IFRAME + "\n" + SCRIPT;
+
+  function nepTekst(regels) {
+    var s = ""; for (var i = 0; i < regels; i++) s += '<div class="nep-tekst" style="width:' + (60 + (i * 37) % 40) + '%"></div>'; return s;
+  }
+
+  // Per variant: wat de winkel er zelf omheen zet. {{KEUZEHULP}} = het stukje code.
+  var VARIANTEN = [
+    { id: "vol", knop: "Volle breedte", oordeel: ["goed", "Aanrader"],
+      titel: "Over de volle breedte van de pagina",
+      tekst: "De eenvoudigste plaatsing: de code los op een eigen pagina, bijvoorbeeld /koelkast-advies. Op een groot scherm de brede opmaak met de vraag naast de keuken, op een telefoon vanzelf de smalle opmaak.",
+      omheen: '{{KEUZEHULP}}' },
+    { id: "midden", knop: "Gecentreerd, max. breedte", oordeel: ["goed", "Aanrader"],
+      titel: "Gecentreerd met een maximale breedte",
+      tekst: "Voor winkels met een smalle inhoudskolom. Boven ongeveer 900 px blijft de brede opmaak; kies je de maximale breedte smaller, dan krijg je de smalle opmaak.",
+      omheen: '<div style="max-width:960px;margin:0 auto">\n  {{KEUZEHULP}}\n</div>', klasse: "v-gecentreerd" },
+    { id: "kolom", knop: "Naast eigen tekst", oordeel: ["goed", "Prima"],
+      titel: "In een kolom naast eigen tekst",
+      tekst: "De winkel zet zijn eigen uitleg of een foto ernaast. De kolom van de keuzehulp is dan smaller, dus hij krijgt de smalle opmaak, net als op een telefoon. Werkt goed, alleen de 3D-keuken staat dan boven de vraag in plaats van ernaast.",
+      omheen: '<div style="display:grid;grid-template-columns:1fr 1.5fr;gap:28px">\n  <div>…eigen tekst van de winkel…</div>\n  <div>{{KEUZEHULP}}</div>\n</div>', klasse: "v-kolommen",
+      links: '<div class="zij"><h3>Twijfel je?</h3><p>Onze adviseurs helpen je graag, maar met deze keuzehulp weet je in een paar vragen welke koelkast past.</p>' + nepTekst(8) + '</div>' },
+    { id: "zijbalk", knop: "Smalle zijbalk", oordeel: ["let-op", "Afraden"],
+      titel: "In een smalle zijbalk (340 px)",
+      tekst: "Het werkt, maar het is krap: lange productnamen en de filters vragen veel scrollen. Onder ongeveer 340 px zou ik het afraden. Liever een knop in de zijbalk die naar de keuzehulp of een pop-up leidt.",
+      omheen: '<div style="display:grid;grid-template-columns:1fr 340px;gap:28px">\n  <div>…inhoud van de pagina…</div>\n  <aside>{{KEUZEHULP}}</aside>\n</div>', klasse: "v-zijbalk",
+      links: '<div class="hoofd"><h3>Koelkasten</h3>' + nepTekst(14) + '</div>', keuzehulpRechts: true },
+    { id: "schuif", knop: "Sleep zelf de breedte", oordeel: ["goed", "Uitproberen"],
+      titel: "Sleep zelf de breedte",
+      tekst: "Versleep het schuifje en zie bij welke breedte de keuzehulp van de brede naar de smalle opmaak gaat. De breedte van het vak telt, niet die van het scherm.",
+      omheen: '<div style="max-width:…px">\n  {{KEUZEHULP}}\n</div>', klasse: "v-schuif", schuif: true },
+    { id: "popup", knop: "Als pop-up", oordeel: ["goed", "Prima"],
+      titel: "Als pop-up achter een knop",
+      tekst: "De winkel zet een knop op bijvoorbeeld de categoriepagina; de keuzehulp opent in een venster. Handig als hij niet altijd in beeld hoeft. De pop-up zelf (knop, venster, sluitkruisje) bouwt de winkel, of zijn webbouwer; dat zit niet in onze code.",
+      omheen: '<button onclick="…opent het venster…">Vind jouw koelkast</button>\n<div class="pop-up">\n  {{KEUZEHULP}}\n</div>', popup: true },
+    { id: "zonder", knop: "Zonder hoogtescript", oordeel: ["let-op", "Zo niet"],
+      titel: "Als de winkel het hoogtescript vergeet",
+      tekst: "Alleen de iframe-regel, zonder het script eronder. Dan blijft hij op de vaste 760 px en scrol je binnen de keuzehulp: een tweede scrollbalk, en de resultatenlijst voelt krap. Zie het verschil met de andere varianten. Advies: altijd beide delen plakken.",
+      omheen: '{{KEUZEHULP}}', zonderScript: true },
+  ];
+
+  var plaats = document.getElementById("plaats");
+  var huidige = null;
+
+  function codeTonen(v) {
+    var stuk = v.zonderScript ? IFRAME : SNIPPET;
+    var ingesprongen = v.omheen === "{{KEUZEHULP}}" ? stuk : stuk.split("\n").join("\n    ");
+    var html = v.omheen.replace("{{KEUZEHULP}}", "%%K%%");
+    var esc = function (s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+    var delen = html.split("%%K%%");
+    document.getElementById("code").innerHTML =
+      '<span class="eigen">' + esc(delen[0]) + "</span>" + esc(ingesprongen) + '<span class="eigen">' + esc(delen[1] || "") + "</span>";
+    document.getElementById("codeUitleg").textContent = v.omheen === "{{KEUZEHULP}}" ? "" : "(blauw: wat de winkel er zelf omheen zet)";
+  }
+
+  function nieuweIframe(zonderScript) {
+    var w = document.createElement("div");
+    w.innerHTML = IFRAME.replace(LIVE, SRC);
+    window.__zonderHoogtescript = Boolean(zonderScript);
+    return w.firstChild;
+  }
+
+  function toon(id) {
+    var v = VARIANTEN.find(function (x) { return x.id === id; }) || VARIANTEN[0];
+    id = v.id;
+    huidige = v;
+    document.querySelectorAll(".keuze button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.id === id); });
+    var o = document.getElementById("oordeel"); o.className = "oordeel " + v.oordeel[0]; o.textContent = v.oordeel[1];
+    document.getElementById("titel").textContent = v.titel;
+    document.getElementById("tekst").textContent = v.tekst;
+    document.getElementById("schuif").hidden = !v.schuif;
+    codeTonen(v);
+
+    plaats.innerHTML = '<h3>Welke koelkast past bij jou?</h3><p class="winkel-tekst">Eigen tekst van de winkel. Hieronder staat de keuzehulp.</p>';
+    var iframe = nieuweIframe(v.zonderScript);
+
+    if (v.popup) {
+      var knop = document.createElement("button");
+      knop.className = "popup-knop"; knop.textContent = "Vind jouw koelkast";
+      var pop = document.createElement("div"); pop.className = "popup"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Koelkast keuzehulp");
+      pop.innerHTML = '<div class="popup-raam"><button class="popup-sluit" type="button" aria-label="Sluiten">×</button></div>';
+      pop.firstChild.appendChild(iframe);
+      knop.onclick = function () { pop.classList.add("open"); };
+      pop.querySelector(".popup-sluit").onclick = function () { pop.classList.remove("open"); };
+      pop.onclick = function (e) { if (e.target === pop) pop.classList.remove("open"); };
+      plaats.appendChild(knop); plaats.appendChild(pop);
+    } else {
+      var vak = document.createElement("div");
+      if (v.klasse) vak.className = v.klasse;
+      if (v.links) {
+        var links = document.createElement("div"); links.innerHTML = v.links;
+        var rechts = document.createElement("div"); rechts.appendChild(iframe);
+        vak.appendChild(links.firstChild); vak.appendChild(rechts);
+      } else {
+        vak.appendChild(iframe);
+      }
+      if (v.schuif) vak.style.maxWidth = document.getElementById("schuifIn").value + "px";
+      plaats.appendChild(vak);
+    }
+    meet(iframe);
+    try { history.replaceState(null, "", "#" + id); } catch (e) {}
+  }
+
+  var waarnemer;
+  function meet(f) {
+    if (waarnemer) waarnemer.disconnect();
+    waarnemer = new ResizeObserver(function () {
+      var b = Math.round(f.getBoundingClientRect().width), h = Math.round(f.getBoundingClientRect().height);
+      document.getElementById("mBreedte").textContent = b + " px";
+      // Zelfde grens als de keuzehulp zelf (shared/quiz3d.css, max-width 900px).
+      document.getElementById("mOpmaak").textContent = b > 900 ? "breed (vraag naast de keuken)" : "smal (zoals op een telefoon)";
+      document.getElementById("mHoogte").textContent = h + " px" + (huidige && huidige.zonderScript ? " (vast)" : " (groeit mee)");
+    });
+    waarnemer.observe(f);
+  }
+
+  var keuzes = document.getElementById("keuzes");
+  VARIANTEN.forEach(function (v) {
+    var b = document.createElement("button"); b.type = "button"; b.dataset.id = v.id; b.textContent = v.knop;
+    b.onclick = function () { toon(v.id); };
+    keuzes.appendChild(b);
+  });
+
+  document.getElementById("schuifIn").addEventListener("input", function () {
+    var vak = plaats.querySelector(".v-schuif"); if (vak) vak.style.maxWidth = this.value + "px";
+    codeTonen(Object.assign({}, huidige, { omheen: '<div style="max-width:' + this.value + 'px">\n  {{KEUZEHULP}}\n</div>' }));
+  });
+
+  document.getElementById("kopieer").addEventListener("click", function () {
+    var tekst = document.getElementById("code").textContent;
+    var knop = this;
+    (navigator.clipboard ? navigator.clipboard.writeText(tekst) : Promise.reject()).then(function () {
+      knop.textContent = "Gekopieerd"; setTimeout(function () { knop.textContent = "Kopieer"; }, 1600);
+    }).catch(function () { window.prompt("Kopieer de code:", tekst); });
+  });
+
+  function vanHash() { toon((location.hash || "#vol").slice(1).replace(/[^a-z]/g, "") || "vol"); }
+  window.addEventListener("hashchange", vanHash);
+  vanHash();
+</script>
+</body>
+</html>

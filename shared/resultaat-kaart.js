@@ -9,6 +9,12 @@
 // direct klikbaar — dat is het verdienmodel, dus nooit achter een klik.
 
 import { AANBIEDER_LOGOS, normaliseLevertijd, normaliseVerzendkosten, registerProviders } from "./aanbieders.js";
+import { isEmbed } from "./embed-modus.js";
+
+// B2B-embed: geen prijsvergelijking. Eén knop naar de productpagina van de
+// klant, die in het hele venster opent (target _top), niet in de iframe of
+// een nieuw tabblad.
+const DOEL = isEmbed ? 'target="_top"' : 'target="_blank" rel="noopener noreferrer"';
 
 const ICONS = {
   scherm:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>',
@@ -84,7 +90,8 @@ function deliveryHtml(a) {
   const verzending = verzendLabelIndienBekend(a.verzendkosten);
   const delen = [levertijd, verzending].filter(Boolean);
   if (delen.length === 0) return "";
-  return `<p class="rcard-delivery">${TRUCK}<span>Bij ${escapeHtml(a.winkel)}: ${delen.map(escapeHtml).join(" · ")}</span></p>`;
+  const bij = isEmbed ? "" : `Bij ${escapeHtml(a.winkel)}: `;
+  return `<p class="rcard-delivery">${TRUCK}<span>${bij}${delen.map(escapeHtml).join(" · ")}</span></p>`;
 }
 
 function shopsHtml(aanbieders) {
@@ -94,7 +101,8 @@ function shopsHtml(aanbieders) {
   if (lijst.length === 0) return { cta: "", delivery: "", rest: "" };
 
   const [goedkoopste, ...overige] = lijst;
-  const cta = `<a class="rcard-cta" href="${escapeHtml(goedkoopste.url)}" target="_blank" rel="noopener noreferrer">Bekijk bij ${escapeHtml(goedkoopste.winkel)} ${ARROW}</a>`;
+  const knoptekst = isEmbed ? "Bekijk product" : `Bekijk bij ${escapeHtml(goedkoopste.winkel)}`;
+  const cta = `<a class="rcard-cta" href="${escapeHtml(goedkoopste.url)}" ${DOEL} data-winkel="${escapeHtml(goedkoopste.winkel)}" data-prijs="${parsePrijs(goedkoopste.prijs) ?? ""}">${knoptekst} ${ARROW}</a>`;
   const delivery = deliveryHtml(goedkoopste);
 
   const pills = overige.map((a) => {
@@ -102,7 +110,7 @@ function shopsHtml(aanbieders) {
     const { label: verzending } = normaliseVerzendkosten(a.verzendkosten);
     const snel = dagen <= 1 ? `<span class="rcard-shop-fast" aria-hidden="true">${TRUCK}</span>` : "";
     const titel = [levertijd, verzending].filter(Boolean).join(" · ");
-    return `<a class="rcard-shop" href="${escapeHtml(a.url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(titel)}" aria-label="${escapeHtml(a.winkel)}: €${formatPriceLabel(parsePrijs(a.prijs))}${titel ? ", " + escapeHtml(titel) : ""}">${storeHtml(a.winkel)}<span class="rcard-shop-price">€&nbsp;${formatPriceLabel(parsePrijs(a.prijs))}</span>${snel}</a>`;
+    return `<a class="rcard-shop" href="${escapeHtml(a.url)}" target="_blank" rel="noopener noreferrer" data-winkel="${escapeHtml(a.winkel)}" data-prijs="${parsePrijs(a.prijs) ?? ""}" title="${escapeHtml(titel)}" aria-label="${escapeHtml(a.winkel)}: €${formatPriceLabel(parsePrijs(a.prijs))}${titel ? ", " + escapeHtml(titel) : ""}">${storeHtml(a.winkel)}<span class="rcard-shop-price">€&nbsp;${formatPriceLabel(parsePrijs(a.prijs))}</span>${snel}</a>`;
   }).join("");
 
   // Vergelijk-link opent het gedeelde venster uit aanbieders.js (prijs,
@@ -135,7 +143,7 @@ export function buildCardHtml({ product, index = 0, isCheapest = false, specs = 
     <article class="rcard" data-match-index="${index}">
       <div class="rcard-left">
         <div class="rcard-img" aria-hidden="true">
-          <img src="${escapeHtml(afbeelding)}" alt="" role="presentation" ${index < 4 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"'} onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
+          <img src="${escapeHtml(afbeelding)}" alt="" role="presentation" ${index < 4 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"'} onload="this.parentElement.classList.add('is-geladen')" onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
           <button class="tv-preview-btn" type="button" aria-label="Afbeelding vergroten" data-preview-src="${escapeHtml(afbeelding)}" data-preview-name="${naam}" data-preview-imgs="${galerij}">
             <i data-lucide="eye"></i>
           </button>
@@ -149,7 +157,7 @@ export function buildCardHtml({ product, index = 0, isCheapest = false, specs = 
           <p class="rcard-why-title">Waarom dit bij jou past</p>
           <ul class="rcard-why">${punten.map((p) => `<li>${CHECK}<span>${p}</span></li>`).join("")}</ul>` : ""}
         <div class="rcard-price-row">
-          <div class="rcard-price"><span class="rcard-price-label">Vanaf</span> €&nbsp;${formatPriceLabel(laagste)}</div>
+          <div class="rcard-price">${isEmbed ? "" : '<span class="rcard-price-label">Vanaf</span> '}€&nbsp;${formatPriceLabel(laagste)}</div>
           ${cta}
         </div>
         ${delivery}
