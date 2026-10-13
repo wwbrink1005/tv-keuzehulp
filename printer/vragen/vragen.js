@@ -12,6 +12,16 @@ import { fetchProducts } from "../js/supabase.js";
 const camera = makeCamera({ camY: -2.15, camZ: 1.25, shiftY: -0.14 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // geometrie (m) zoals in render/scene.py
 const DZ = 0.75, PX = 0.44, YB = -0.06;
 const PRN = { thuis: { w: 0.43, d: 0.34, h: 0.18 }, foto: { w: 0.45, d: 0.36, h: 0.18 }, zakelijk: { w: 0.43, d: 0.43, h: 0.36 } };
@@ -170,7 +180,7 @@ createQuiz3D({
 
   async finish(st) {
     const answers = { gebruik: st.gebruik ?? "", volume: st.volume ?? "", aio: st.aio ?? "", kleur: st.kleur ?? "", inkt: st.inkt ?? "", extraAnswers: st.extra };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchPrinters(normalizeProducts(raw ?? []), st.gebruik, null, answers);
     localStorage.setItem("printer_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("printer_bestType", result.bestType ?? "");

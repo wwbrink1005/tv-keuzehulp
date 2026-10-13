@@ -13,6 +13,16 @@ import { WATERTANK_MAX } from "../js/data.js";
 const camera = makeCamera({ camX: -0.72, camY: -1.9, camZ: 1.42, shiftX: -0.12, shiftY: -0.12 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // geometrie (m) zoals in render/scene.py: machine op het werkblad (z = 0.9) tegen de muur
 const Z0 = 0.9, KX = -0.66, KYB = -0.07;
 const DIM = { vol: [0.24, 0.40, 0.37], half: [0.28, 0.30, 0.38], caps: [0.14, 0.32, 0.27], filter: [0.21, 0.26, 0.37] };
@@ -204,7 +214,7 @@ createQuiz3D({
 
   async finish(st) {
     const answers = { type: st.type ?? "", hoeveelheid: st.hoeveelheid ?? "", melk: isFilter(st) ? "" : st.melk ?? "", extraAnswers: st.extra };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchKoffiemachines(normalizeProducts(raw ?? []), answers);
     localStorage.setItem("koffiemachine_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("koffiemachine_bestType", result.bestType ?? "");

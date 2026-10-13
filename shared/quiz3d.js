@@ -304,7 +304,11 @@ export function createQuiz3D(cfg) {
     if (st.q === steps() - 1) {
       const btn = $("#next");
       btn.disabled = true; btn.textContent = "Advies berekenen…";
-      return cfg.finish(st);
+      $("#hint").textContent = "";
+      return Promise.resolve().then(() => cfg.finish(st)).catch(() => {
+        btn.disabled = false; btn.textContent = "Opnieuw proberen";
+        $("#hint").textContent = "We konden de producten op dit moment niet ophalen. Controleer je internetverbinding en probeer het opnieuw.";
+      });
     }
     cfg.onNext?.(st, Q.id);
     st.q += 1;

@@ -2,6 +2,7 @@ import { applyMinAanbiedersCascade } from "./matching.js";
 import { parsePrice, qs } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
+import { toonGeenUitslag } from "../../shared/resultaat-status.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
 import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
 import { initFavorieten } from "../../shared/favorieten.js";
@@ -176,7 +177,7 @@ export function initResultPage() {
   const filteredData   = localStorage.getItem(sleutel("koelkast_filteredMatchedKoelkasten"));
   const answersData    = localStorage.getItem(sleutel("koelkast_answers"));
 
-  if (!bestMatchData) return;
+  if (!bestMatchData) { toonGeenUitslag(); return; }
 
   const rawFilteredMatchedKoelkasten = filteredData ? JSON.parse(filteredData) : [];
   const answers                      = answersData  ? JSON.parse(answersData)  : null;

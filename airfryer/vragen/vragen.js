@@ -12,6 +12,16 @@ import { capaciteitLiterMin } from "../js/data.js";
 const camera = makeCamera({ camX: -0.72, camY: -1.9, camZ: 1.42, shiftX: -0.12, shiftY: -0.12 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // geometrie (m) zoals in render/scene.py: airfryer op het werkblad (z = 0.9), plank ervoor
 const Z0 = 0.9, AX = -0.66, AYB = -0.07;
 const SIZES = { klein: [0.25, 0.3, 0.29], gemiddeld: [0.29, 0.35, 0.32], groot: [0.33, 0.39, 0.35], dubbel: [0.42, 0.37, 0.32] };
@@ -167,7 +177,7 @@ createQuiz3D({
 
   async finish(st) {
     const answers = { personen: st.personen ?? "", dubbeleMand: st.dubbeleMand ?? "", gebruik: st.gebruik ?? "", extraAnswers: st.extra };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchAirfryers(normalizeProducts(raw ?? []), answers);
     localStorage.setItem("airfryer_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("airfryer_bestType", result.bestType ?? "");

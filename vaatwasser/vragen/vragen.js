@@ -13,6 +13,16 @@ import { gezinsgrootteMinCouverts, GELUID_BELANGRIJK_DB, GELUID_BELANGRIJK_FALLB
 const camera = makeCamera({ camY: -3.6, camZ: 1.35, shiftX: -0.15, shiftY: -0.18 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // geometrie (m) zoals in render/scene.py: deur scharniert onderaan (z = 0.1) en klapt naar voren
 const HZ = 0.1, DOOR_H = 0.73;
 const GEO = {
@@ -307,7 +317,7 @@ quiz = createQuiz3D({
 
   async finish(st) {
     const answers = { gezinsgrootte: st.gezinsgrootte ?? "", geluid: st.geluid ?? "", energie: st.energie ?? "", extraAnswers: st.extra, programmaAnswers: st.programma, plaatsing: st.plaatsing };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchVaatwassers(normalizeProducts(raw ?? []), answers);
     localStorage.setItem("vaatwasser_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("vaatwasser_bestType", result.bestType ?? "");

@@ -11,6 +11,16 @@ import { fetchProducts } from "../js/supabase.js";
 const camera = makeCamera({ camY: -2.15, camZ: 1.25, shiftY: -0.14 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // schermmaten (m) zoals in render/scene.py
 const MON = {
   compact:   { key: "24", w: 0.531, h: 0.299, inch: "24 inch" },
@@ -176,7 +186,7 @@ createQuiz3D({
   async finish(st) {
     const answers = { gebruik: st.gebruik, schermgrootte: st.schermgrootte ?? "", hz: st.hz ?? "", extraAnswers: st.extra };
     const scores = calculateScores(answers);
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchMonitors(normalizeProducts(raw ?? []), st.schermgrootte, null, answers, scores);
     localStorage.setItem("monitor_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("monitor_bestType", result.bestType ?? "");

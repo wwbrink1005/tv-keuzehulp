@@ -12,6 +12,16 @@ import { woninggrootteMinLooptijd, GELUID_BELANGRIJK_DB, GELUID_BELANGRIJK_FALLB
 const camera = makeCamera({ camY: -3.4, camZ: 1.25, shiftX: -0.12, shiftY: -0.17 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // geometrie (m) zoals in render/scene.py
 const RUG_X1 = 0.35;
 const BOT = { x: 0.62, y: -1.1, rot: -25 };
@@ -241,7 +251,7 @@ createQuiz3D({
 
   async finish(st) {
     const answers = { navigatie: st.navigatie ?? "", dweilen: st.dweilen ?? "", woninggrootte: st.woninggrootte ?? "", geluid: st.geluid ?? "", extraAnswers: st.extra };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchRobotstofzuigers(normalizeProducts(raw ?? []), answers);
     localStorage.setItem("robotstofzuiger_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("robotstofzuiger_bestType", result.bestType ?? "");

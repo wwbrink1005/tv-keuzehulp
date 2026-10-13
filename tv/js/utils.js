@@ -44,6 +44,7 @@ export function getResolutionCategory(tv) {
   const scherpteValue = String(tv?.scherpte ?? "").toLowerCase();
   if (!scherpteValue) return "";
   if (scherpteValue.includes("8k")) return "8K";
+  if (scherpteValue.includes("2.4k")) return "2.4K";
   if (scherpteValue.includes("4k") || scherpteValue.includes("ultra hd")) return "4K";
   return "<4K";
 }
@@ -52,9 +53,11 @@ export function getResolutionTier(tv) {
   const scherpteValue = String(tv?.scherpte ?? "").toLowerCase();
   if (!scherpteValue) return "";
   if (scherpteValue.includes("8k")) return "8K";
+  if (scherpteValue.includes("2.4k")) return "2.4K";
   if (scherpteValue.includes("4k") || scherpteValue.includes("ultra hd")) return "4K";
   if (scherpteValue.includes("full hd")) return "Full HD";
-  if (scherpteValue.includes("hd ready")) return "HD Ready";
+  // WXGA (1366x768) is dezelfde klasse als HD Ready.
+  if (scherpteValue.includes("hd ready") || scherpteValue.includes("wxga")) return "HD Ready";
   return "";
 }
 
@@ -63,6 +66,9 @@ export function formatScherpte(value) {
   const normalized = label.replace(/\s+/g, " ").trim().toLowerCase();
   if (normalized.includes("8k")) {
     return "8K";
+  }
+  if (normalized.includes("2.4k")) {
+    return "2.4K";
   }
   if (normalized.includes("4k") || normalized.includes("ultra hd")) {
     return "4K";

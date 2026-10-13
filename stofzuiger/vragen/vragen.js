@@ -11,6 +11,16 @@ import { fetchProducts } from "../js/supabase.js";
 const camera = makeCamera({ camY: -3.4, camZ: 1.25, shiftX: -0.12, shiftY: -0.17 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // geometrie (m) zoals in render/scene.py
 const RUG = { x0: -1.05, x1: 0.35, y0: -2.0, y1: -0.6 };
 const VAC = { x: 0.88, y: -1.0 };
@@ -236,7 +246,7 @@ createQuiz3D({
       stofzuigerType: st.stofzuigerType ?? "", vloertype: st.vloertype ?? "", huisdieren: st.huisdieren ?? "",
       zak: isSteel(st) ? "" : st.zak ?? "", looptijd: isSteel(st) ? st.looptijd ?? "" : "", geluid: st.geluid ?? "",
     };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchStofzuigers(normalizeProducts(raw ?? []), answers);
     localStorage.setItem("stofzuiger_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("stofzuiger_bestType", result.bestType ?? "");

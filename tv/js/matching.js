@@ -71,8 +71,9 @@ export function applyResolutionFilter(tvs, quality) {
     return tvs;
   }
 
+  // "2.4K Ultra HD" (2560x1440) heet in Icecat ook Ultra HD, maar is geen 4K.
   const isUltraHD = (scherpte) => {
-    return scherpte.includes("Ultra HD") || scherpte.includes("8K");
+    return (scherpte.includes("Ultra HD") || scherpte.includes("8K")) && !scherpte.includes("2.4K");
   };
 
   if (quality === "best") {
@@ -103,47 +104,32 @@ export function applyResolutionFilter(tvs, quality) {
   return tvs;
 }
 
+// Hz-voorkeur als stappen van ondergrenzen, van best naar minst. Eerder waren
+// dit vaste lijsten (120, 144, 165), waardoor tv's met 170, 180 of 240 Hz bij
+// gamen en sport juist wegvielen. Een tv valt in de eerste stap waar hij aan
+// voldoet; de eerste niet-lege stap wint.
+const HZ_STAPPEN = {
+  gamen:      [120, 100, 60, 0],
+  sport:      [100, 60, 0],
+  best:       [100, 60, 0],
+  belangrijk: [60, 0],
+};
+
+export function getHzPreferences(usageAnswers = [], quality = "") {
+  if (usageAnswers.includes("gamen")) return HZ_STAPPEN.gamen;
+  if (usageAnswers.includes("sport")) return HZ_STAPPEN.sport;
+  if (quality === "best") return HZ_STAPPEN.best;
+  if (quality === "belangrijk") return HZ_STAPPEN.belangrijk;
+  return null;
+}
+
 export function applyHzFilter(tvs, usageAnswers, quality) {
-  const hasGamen = usageAnswers.includes("gamen");
-  const hasSport = usageAnswers.includes("sport");
-
-  let hzPreferences = [];
-
-  if (hasGamen) {
-    hzPreferences = [
-      [120, 144, 165],
-      [100],
-      [60],
-      [50]
-    ];
-  } else if (hasSport) {
-    hzPreferences = [
-      [100, 120, 144, 165],
-      [60],
-      [50]
-    ];
-  } else if (quality === "best") {
-    hzPreferences = [
-      [100, 120, 144, 165],
-      [60],
-      [50]
-    ];
-  } else if (quality === "belangrijk") {
-    hzPreferences = [
-      [60, 100, 120, 144, 165],
-      [50]
-    ];
-  } else {
-    return tvs;
+  const stappen = getHzPreferences(usageAnswers, quality);
+  if (!stappen) return tvs;
+  for (const min of stappen) {
+    const filtered = tvs.filter(tv => tv.Hz >= min);
+    if (filtered.length > 0) return filtered;
   }
-
-  for (const hzGroup of hzPreferences) {
-    const filtered = tvs.filter(tv => hzGroup.includes(tv.Hz));
-    if (filtered.length > 0) {
-      return filtered;
-    }
-  }
-
   return tvs;
 }
 
@@ -247,45 +233,6 @@ export function getIdealTypeSet(scores) {
   return new Set(idealTypes);
 }
 
-export function getHzPreferences(usageAnswers = [], quality = "") {
-  const hasGamen = usageAnswers.includes("gamen");
-  const hasSport = usageAnswers.includes("sport");
-
-  if (hasGamen) {
-    return [
-      [120, 144, 165],
-      [100],
-      [60],
-      [50]
-    ];
-  }
-
-  if (hasSport) {
-    return [
-      [100, 120, 144, 165],
-      [60],
-      [50]
-    ];
-  }
-
-  if (quality === "best") {
-    return [
-      [100, 120, 144, 165],
-      [60],
-      [50]
-    ];
-  }
-
-  if (quality === "belangrijk") {
-    return [
-      [60, 100, 120, 144, 165],
-      [50]
-    ];
-  }
-
-  return null;
-}
-
 export function isPerfectMatch(tv, scores, answers, sizeGroup = "") {
   if (!tv || !scores || !answers) return false;
 
@@ -327,7 +274,7 @@ export function isPerfectMatch(tv, scores, answers, sizeGroup = "") {
   let hzMatch = true;
   if (hzPreferences) {
     const hzValue = parseHzValue(tv);
-    hzMatch = hzValue !== null && hzPreferences[0].includes(hzValue);
+    hzMatch = hzValue !== null && hzValue >= hzPreferences[0];
   }
 
   return typeMatch && resolutionMatch && hzMatch;

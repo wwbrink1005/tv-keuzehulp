@@ -1,6 +1,7 @@
 import { applyMinAanbiedersCascade } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
+import { toonGeenUitslag } from "../../shared/resultaat-status.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
 import { fetchProducts } from "./supabase.js";
 import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
@@ -178,7 +179,7 @@ export function initResultPage() {
   const filteredData   = localStorage.getItem("soundbar_filteredMatchedSoundbars");
   const answersData    = localStorage.getItem("soundbar_answers");
 
-  if (!bestMatchData) return;
+  if (!bestMatchData) { toonGeenUitslag(); return; }
 
   const rawFilteredMatchedSoundbars = filteredData ? JSON.parse(filteredData) : [];
   const answers                     = answersData  ? JSON.parse(answersData)  : null;

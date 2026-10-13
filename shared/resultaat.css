@@ -317,6 +317,10 @@ body.filter-drawer-open {
 
 .filter-row:has(input:checked) .filter-count { color: var(--accent); }
 
+/* Optie die met de andere gekozen filters 0 resultaten geeft (shared/filters.js). */
+.filter-row.is-leeg { opacity: 0.4; cursor: default; }
+.filter-row.is-leeg:hover { background: none; }
+
 .filter-search {
 				display: flex;
 				align-items: center;
@@ -2003,3 +2007,81 @@ body.has-menu {
 	.fav-btn.is-pop, .menu-fav.is-pop { animation: none; }
 	.fav-toast, .rspecs-chev { transition: none; }
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   LADEN EN "NOG GEEN RESULTATEN"
+   De resultaatpagina's beginnen met drie grijze voorbeeldkaarten in de HTML;
+   result.js vervangt ze door de echte kaarten. Zonder quizuitslag zet
+   shared/resultaat-status.js er een melding neer.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#resultMatchCount:empty { display: none; }
+
+.rcard-skelet {
+	height: 230px;
+	border-radius: var(--radius-lg);
+	border: 1px solid var(--line);
+	background:
+		linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.65) 50%, transparent 70%) 0 0 / 300% 100%,
+		linear-gradient(#eef0f3, #eef0f3) 20px 20px / 200px 140px no-repeat,
+		linear-gradient(#eef0f3, #eef0f3) 244px 24px / 45% 18px no-repeat,
+		linear-gradient(#f2f3f5, #f2f3f5) 244px 60px / 60% 12px no-repeat,
+		linear-gradient(#f2f3f5, #f2f3f5) 244px 84px / 52% 12px no-repeat,
+		linear-gradient(#f2f3f5, #f2f3f5) 244px 108px / 56% 12px no-repeat,
+		linear-gradient(#eef0f3, #eef0f3) 244px 170px / 22% 28px no-repeat,
+		var(--card-bg);
+	animation: rcardSkeletGlans 1.4s ease-in-out infinite;
+}
+
+@keyframes rcardSkeletGlans {
+	from { background-position: 100% 0, 20px 20px, 244px 24px, 244px 60px, 244px 84px, 244px 108px, 244px 170px, 0 0; }
+	to { background-position: 0 0, 20px 20px, 244px 24px, 244px 60px, 244px 84px, 244px 108px, 244px 170px, 0 0; }
+}
+
+@media (max-width: 700px) {
+	.rcard-skelet {
+		height: 420px;
+		background:
+			linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.65) 50%, transparent 70%) 0 0 / 300% 100%,
+			linear-gradient(#eef0f3, #eef0f3) 16px 16px / calc(100% - 32px) 150px no-repeat,
+			linear-gradient(#eef0f3, #eef0f3) 16px 190px / 70% 18px no-repeat,
+			linear-gradient(#f2f3f5, #f2f3f5) 16px 226px / 85% 12px no-repeat,
+			linear-gradient(#f2f3f5, #f2f3f5) 16px 250px / 75% 12px no-repeat,
+			linear-gradient(#eef0f3, #eef0f3) 16px 330px / calc(100% - 32px) 44px no-repeat,
+			var(--card-bg);
+		animation: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rcard-skelet { animation: none; }
+}
+
+.resultaat-melding {
+	padding: 40px 28px;
+	border-radius: var(--radius-lg);
+	border: 1px solid var(--line);
+	background: var(--card-bg);
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	color: var(--text-secondary);
+	font-size: 15px;
+	line-height: 1.55;
+}
+
+.resultaat-melding p { margin: 0; max-width: 46ch; }
+.resultaat-melding-titel { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+
+.resultaat-melding-knop {
+	margin-top: 6px;
+	padding: 11px 22px;
+	border-radius: 999px;
+	background: var(--accent);
+	color: #ffffff;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.resultaat-melding-knop:hover { background: var(--accent-dark); }

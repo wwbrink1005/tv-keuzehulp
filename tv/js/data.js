@@ -1,6 +1,11 @@
+// Kijkafstand → aanbevolen maatgroep. Gecontroleerd tegen de tabel van Coolblue
+// (coolblue.nl/advies/kijkafstand-tv, okt. 2026): 1 m tot 24", 1,5 m 24-32",
+// 2 m 32-48", 2,5 m 43-55", 3 m 55-75", 3,5 m 65-85", 4 m 77-98". Ons advies
+// valt telkens midden in die range. 1 m en 1,5 m vielen eerst samen in één
+// groep 24-32; daarom is die gesplitst in 24-28 en 32.
 export const distanceToSizeGroup = {
-  "1m": "24-32",
-  "1.5m": "24-32",
+  "1m": "24-28",
+  "1.5m": "32",
   "2m": "40-43",
   "2.5m": "48-50",
   "3m": "58-65",
@@ -20,7 +25,11 @@ export const tvDimensions = {
   "97-115": { width: 401.79, height: 226.01 }
 };
 
+// "24-32" is de oude groep van vóór de splitsing; blijft staan zodat een
+// quizuitslag die nog in iemands browser staat niet leeg uitkomt.
 export const sizeGroupToAllowedSizes = {
+  "24-28": [24, 27, 28],
+  "32": [29, 30, 31, 32],
   "24-32": [24, 27, 28, 29, 30, 31, 32],
   "40-43": [40, 42, 43],
   "48-50": [48, 50],
@@ -28,10 +37,18 @@ export const sizeGroupToAllowedSizes = {
   "58-65": [58, 60, 65],
   "70-77": [70, 75, 77],
   "83-86": [83, 85, 86],
-  "97-115": [97, 98, 100, 115]
+  "97-115": [97, 98, 100, 110, 115]
 };
 
 export const priceGroupsBySize = {
+  "24-28": [
+    { label: "100-300", min: 100, max: 300 },
+    { label: "300-600", min: 300, max: 600 }
+  ],
+  "32": [
+    { label: "100-300", min: 100, max: 300 },
+    { label: "300-600", min: 300, max: 600 }
+  ],
   "24-32": [
     { label: "100-300", min: 100, max: 300 },
     { label: "300-600", min: 300, max: 600 }
@@ -76,6 +93,8 @@ export const priceGroupsBySize = {
 // Types that realistically exist per size group.
 // Only these types are considered during matching for each size group.
 export const availableTypesBySize = {
+  "24-28": ["LED", "QLED"],
+  "32":    ["LED", "QLED"],
   "24-32": ["LED", "QLED"],
   "40-43": ["LED", "QLED", "Mini LED", "OLED"],
   "48-50": ["LED", "QLED", "Mini LED", "OLED"],
@@ -89,6 +108,8 @@ export const availableTypesBySize = {
 // Extra score bonus added to LED to reflect that at small screen sizes
 // the perceptual difference between LED and premium types is minimal.
 export const ledSizeBonuses = {
+  "24-28": 10,
+  "32":    10,
   "24-32": 10,
   "40-43":  3
 };

@@ -10,6 +10,16 @@ import { fetchProducts } from "../js/supabase.js";
 const camera = makeCamera({ camY: -2.15, camZ: 1.25, shiftY: -0.14 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // laptopmaten (m) zoals in render/scene.py: voet breed×diep, scherm breed×hoog
 const LAPTOP = {
   "licht-compact":  { key: "13", bw: 0.300, bd: 0.212, sw: 0.286, sh: 0.179, inch: "13 à 14", kg: "± 1,3 kg" },
@@ -190,7 +200,7 @@ createQuiz3D({
   async finish(st) {
     const answers = { gebruik: st.gebruik, intensiteit: st.intensiteit ?? "", formaat: st.formaat ?? "", opslag: st.opslag ?? "", extraAnswers: st.extra };
     const scores = calculateScores(answers);
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchLaptops(normalizeProducts(raw ?? []), st.formaat, null, answers, scores);
     localStorage.setItem("laptop_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("laptop_bestType", result.bestType ?? "");

@@ -11,6 +11,16 @@ import { fetchProducts } from "../js/supabase.js";
 const camera = makeCamera({ camY: -2.15, camZ: 1.25, shiftY: -0.14 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // geometrie (m) zoals in render/scene.py
 const SCREEN = { w: 0.598, h: 0.336, y: -0.2, z0: 0.86 };
 const TOWER = { x0: 0.38, x1: 0.67, y0: -0.31, z0: 0.762, z1: 1.19 };
@@ -181,7 +191,7 @@ createQuiz3D({
     // zonder tower bestaat de extra's-vraag niet; de huidige keuzehulp vult dan "geen" in
     const answers = { gebruik: st.gebruik, behuizing: st.behuizing ?? "", intensiteit: st.intensiteit ?? "", opslag: st.opslag ?? "", extraAnswers: isTower(st) ? st.extra : ["geen"] };
     const scores = calculateScores(answers);
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchDesktops(normalizeProducts(raw ?? []), st.behuizing, null, answers, scores);
     localStorage.setItem("desktop_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("desktop_bestType", result.bestType ?? "");

@@ -11,6 +11,16 @@ import { fetchProducts } from "../js/supabase.js";
 const camera = makeCamera({ camY: -(1.3 + 2.45) });
 const productsPromise = fetchProducts().catch(() => null);   // alvast ophalen
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // B2B-embed: een extra wens waar de klant (vrijwel) geen producten voor
 // heeft, doet niets (de matching slaat hem stil over). Die zetten we dan
 // automatisch uit, bovenop wat de klant zelf in "uitgezet" heeft staan.
@@ -200,7 +210,7 @@ createQuiz3D({
       gezinsgrootte: st.gezinsgrootte ?? "",
       extraAnswers: st.extra.filter(e => !isUitgezet(e) && (isBreed(st) || !["waterdispenser", "ijsmaker"].includes(e))),
     };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchKoelkasten(normalizeProducts(raw ?? []), answers);
     localStorage.setItem(sleutel("koelkast_bestMatch"), JSON.stringify(result.bestMatch));
     localStorage.setItem(sleutel("koelkast_bestType"), result.bestType ?? "");

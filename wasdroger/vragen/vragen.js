@@ -12,6 +12,16 @@ import { capaciteitGroupToAllowedCapaciteit } from "../js/data.js";
 const camera = makeCamera({ camY: -3.3, camZ: 1.35, shiftX: -0.08, shiftY: -0.075 });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // zelfde bereiken als de matching (data.js), geen losse getallen
 const KG = Object.fromEntries(Object.entries(capaciteitGroupToAllowedCapaciteit).map(([g, r]) =>
   [g, r.displayMin === r.displayMax ? `${r.displayMin} kg` : `${r.displayMin}-${r.displayMax} kg`]));
@@ -253,7 +263,7 @@ quiz = createQuiz3D({
 
   async finish(st) {
     const answers = { geluid: st.geluid ?? "", extraAnswers: st.extra, programmaAnswers: st.programma };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchWasdrogers(normalizeProducts(raw ?? []), st.capaciteitGroup, null, answers);
     localStorage.setItem("wasdroger_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("wasdroger_bestType", result.bestType ?? "");

@@ -11,6 +11,16 @@ import { fetchProducts } from "../js/supabase.js";
 const camera = makeCamera({ camY: -(3 + 2.45) });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // geometrie (meters, zoals in render/scene.py)
 const SCREEN = { w: 2.214, h: 1.245, z0: 0.75, y: -0.03 };      // 100 inch
 const TY = -1.75;                                                  // salontafel
@@ -190,7 +200,7 @@ createQuiz3D({
 
   async finish(st) {
     const answers = { gebruik: st.gebruik ?? "", licht: st.licht ?? "", beeldkwaliteit: st.beeldkwaliteit ?? "", draagbaar: st.draagbaar ?? "", extraAnswers: st.extra };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchBeamers(normalizeProducts(raw ?? []), answers);
     localStorage.setItem("beamer_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("beamer_bestType", result.bestType ?? "");

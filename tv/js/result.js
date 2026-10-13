@@ -1,6 +1,7 @@
 import { applyMinAanbiedersCascade, isPerfectMatch } from "./matching.js";
 import { formatPriceLabel, formatScherpte, parsePrice, qs } from "./utils.js";
 import { normaliseVerzendkosten, resetProvidersRegistry } from "../../shared/aanbieders.js";
+import { toonGeenUitslag } from "../../shared/resultaat-status.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
 import { fetchProducts } from "./supabase.js";
 import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
@@ -490,7 +491,7 @@ export function initResultPage() {
   const filteredTVsData = localStorage.getItem("filteredMatchedTVs");
   const answersData = localStorage.getItem("answers");
 
-  if (!bestMatchData || !bestType) return;
+  if (!bestMatchData || !bestType) { toonGeenUitslag(); return; }
 
   const bestMatch = JSON.parse(bestMatchData);
   const scores = scoresData ? JSON.parse(scoresData) : {};

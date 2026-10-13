@@ -12,6 +12,16 @@ import { fetchProducts } from "../js/supabase.js";
 const camera = makeCamera({ camY: -(1.3 + 2.45) });
 const productsPromise = fetchProducts().catch(() => null);
 
+// Mislukt het ophalen (geen verbinding, database even onbereikbaar), dan één
+// keer opnieuw. Lukt dat ook niet, dan meldt shared/quiz3d.js dat met een
+// knop "Opnieuw proberen", in plaats van door te sturen naar een lege
+// resultaatpagina.
+async function productenOfFout() {
+  const raw = (await productsPromise) ?? await fetchProducts().catch(() => null);
+  if (!raw?.length) throw new Error("producten niet beschikbaar");
+  return raw;
+}
+
 // Nishoogtes alleen tonen als er voorraad in die maat is (zelfde regel als de
 // huidige keuzehulp); zolang de producten nog laden tonen we alle maten.
 let availableNis = null;
@@ -170,7 +180,7 @@ createQuiz3D({
       gezinsgrootte: st.gezinsgrootte ?? "",
       extraAnswers: st.extra,
     };
-    const raw = await productsPromise;
+    const raw = await productenOfFout();
     const result = matchVriezers(normalizeProducts(raw ?? []), answers);
     localStorage.setItem("vriezer_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("vriezer_bestType", result.bestType ?? "");

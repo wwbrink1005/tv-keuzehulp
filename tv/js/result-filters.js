@@ -70,6 +70,50 @@ function getBaseScopedByMinAanbieders() {
   return getBaseMatches().filter(tv => (tv.aanbieders ?? []).length >= filterState.minAanbieders);
 }
 
+// ─── Facetten ────────────────────────────────────────────────────────────────
+// Zoals bij grote webwinkels: binnen één filter is het "of", tussen filters
+// "en". Het aantal naast een optie is wat je krijgt als je die optie aanklikt,
+// gegeven alle ANDERE gekozen filters (de eigen kaart telt niet mee). Een optie
+// met 0 wordt grijs (shared/filters.js). Zo kun je nooit op "geen resultaten"
+// uitkomen door twee filters te combineren.
+const FACETTEN = {
+  size:       { set: () => filterState.sizes,       waarde: tv => tv.grootte },
+  brand:      { set: () => filterState.brands,      waarde: tv => formatBrandLabel(tv.merk) },
+  type:       { set: () => filterState.types,       waarde: tv => tv.type },
+  resolution: { set: () => filterState.resolutions, waarde: tv => getResolutionTier(tv) },
+  hz:         { set: () => filterState.hzOptions,   waarde: tv => tv.Hz },
+  hdmi:       { set: () => filterState.hdmiOptions, waarde: tv => tv.hdmiPoorten },
+  kleur:      { set: () => filterState.kleuren,     waarde: tv => normalizeKleur(tv.kleur) },
+  aanbieder:  { set: () => filterState.aanbieder,   waarde: tv => (tv.aanbieders ?? []).map(a => a.winkel) },
+};
+
+function binnenPrijs(tv) {
+  if (filterState.priceLabels.size === 0) return true;
+  const price = parsePrice(tv.prijs);
+  return getDynamicPriceGroups(filterState.sizeGroup)
+    .filter(g => filterState.priceLabels.has(g.label))
+    .some(g => price >= g.min && price <= g.max);
+}
+
+function voldoetAanFacet(tv, sleutel) {
+  const set = FACETTEN[sleutel].set();
+  if (set.size === 0) return true;
+  const w = FACETTEN[sleutel].waarde(tv);
+  return Array.isArray(w) ? w.some(x => set.has(x)) : set.has(w);
+}
+
+/**
+ * Alle producten die door de gekozen filters komen, behalve het filter
+ * `behalve` ("price", een facet-sleutel, of "min" voor het winkelaantal).
+ */
+function matchesBehalve(behalve) {
+  return getBaseMatches().filter(tv =>
+    (behalve === "price" || binnenPrijs(tv)) &&
+    Object.keys(FACETTEN).every(k => k === behalve || voldoetAanFacet(tv, k)) &&
+    (behalve === "min" || (tv.aanbieders ?? []).length >= filterState.minAanbieders)
+  );
+}
+
 function formatBrandLabel(brand) {
   const raw = String(brand ?? "").trim();
   if (!raw) return "";
@@ -83,10 +127,10 @@ function collectSizeOptions(matches) {
   return Array.from(set).sort((a, b) => a - b);
 }
 
-function renderSizeOptions(container, sizeCard, matches) {
+function renderSizeOptions(container, sizeCard, matches, tellen = matches) {
   const sizes = collectSizeOptions(matches);
   if (sizes.length <= 1) { container.innerHTML = ""; sizeCard.hidden = true; return; }
-  const counts = computeCounts(matches, tv => tv.grootte);
+  const counts = computeCounts(tellen, tv => tv.grootte);
   renderFilterList(container, sizeCard, {
     items: sizes,
     counts,
@@ -120,7 +164,7 @@ function collectResolutionOptions(matches) {
     const tier = getResolutionTier(tv);
     if (tier) set.add(tier);
   });
-  const order = ["HD Ready", "Full HD", "4K", "8K"];
+  const order = ["HD Ready", "Full HD", "2.4K", "4K", "8K"];
   return order.filter(r => set.has(r));
 }
 
@@ -165,10 +209,11 @@ function renderPriceOptions(container, priceCard, sizeGroup) {
   // current quiz answers — otherwise users click a bucket that can never
   // show a result. If there's only one (or zero) non-empty bucket there's
   // nothing meaningful to narrow, so hide the whole filter card.
-  const base = getBaseScopedByMinAanbieders();
+  const base = matchesBehalve("price");
   const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
   const counts = computeCounts(base, tv => groupForPrice(parsePrice(tv.prijs))?.label);
-  const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
+  const opBasis = computeCounts(getBaseScopedByMinAanbieders(), tv => groupForPrice(parsePrice(tv.prijs))?.label);
+  const labels = groups.filter(g => opBasis.has(g.label) || filterState.priceLabels.has(g.label)).map(g => g.label);
 
   if (labels.length <= 1) {
     container.innerHTML = "";
@@ -186,10 +231,10 @@ function renderPriceOptions(container, priceCard, sizeGroup) {
   });
 }
 
-function renderBrandOptions(container, brandCard, matches) {
+function renderBrandOptions(container, brandCard, matches, tellen = matches) {
   const brands = collectBrandOptions(matches);
   if (brands.length === 0) { container.innerHTML = ""; brandCard.hidden = true; return; }
-  const counts = computeCounts(matches, tv => formatBrandLabel(tv.merk));
+  const counts = computeCounts(tellen, tv => formatBrandLabel(tv.merk));
   renderFilterList(container, brandCard, {
     items: brands,
     counts,
@@ -200,10 +245,10 @@ function renderBrandOptions(container, brandCard, matches) {
   });
 }
 
-function renderTypeOptions(container, typeCard, matches) {
+function renderTypeOptions(container, typeCard, matches, tellen = matches) {
   const types = collectTypeOptions(matches);
   if (types.length === 0) { container.innerHTML = ""; typeCard.hidden = true; return; }
-  const counts = computeCounts(matches, tv => tv.type);
+  const counts = computeCounts(tellen, tv => tv.type);
   renderFilterList(container, typeCard, {
     items: types,
     counts,
@@ -213,10 +258,10 @@ function renderTypeOptions(container, typeCard, matches) {
   });
 }
 
-function renderResolutionOptions(container, resolutionCard, matches) {
+function renderResolutionOptions(container, resolutionCard, matches, tellen = matches) {
   const resolutions = collectResolutionOptions(matches);
   if (resolutions.length === 0) { container.innerHTML = ""; resolutionCard.hidden = true; return; }
-  const counts = computeCounts(matches, tv => getResolutionTier(tv));
+  const counts = computeCounts(tellen, tv => getResolutionTier(tv));
   renderFilterList(container, resolutionCard, {
     items: resolutions,
     counts,
@@ -225,10 +270,10 @@ function renderResolutionOptions(container, resolutionCard, matches) {
   });
 }
 
-function renderHzOptions(container, hzCard, matches) {
+function renderHzOptions(container, hzCard, matches, tellen = matches) {
   const hzValues = collectHzOptions(matches);
   if (hzValues.length === 0) { container.innerHTML = ""; hzCard.hidden = true; return; }
-  const counts = computeCounts(matches, tv => tv.Hz);
+  const counts = computeCounts(tellen, tv => tv.Hz);
   renderFilterList(container, hzCard, {
     items: hzValues,
     counts,
@@ -238,10 +283,10 @@ function renderHzOptions(container, hzCard, matches) {
   });
 }
 
-function renderHdmiOptions(container, hdmiCard, matches) {
+function renderHdmiOptions(container, hdmiCard, matches, tellen = matches) {
   const hdmiValues = collectHdmiOptions(matches);
   if (hdmiValues.length === 0) { container.innerHTML = ""; hdmiCard.hidden = true; return; }
-  const counts = computeCounts(matches, tv => tv.hdmiPoorten);
+  const counts = computeCounts(tellen, tv => tv.hdmiPoorten);
   renderFilterList(container, hdmiCard, {
     items: hdmiValues,
     counts,
@@ -251,10 +296,10 @@ function renderHdmiOptions(container, hdmiCard, matches) {
   });
 }
 
-function renderKleurOptions(container, kleurCard, matches) {
+function renderKleurOptions(container, kleurCard, matches, tellen = matches) {
   const kleuren = collectKleurOptions(matches);
   if (kleuren.length === 0) { container.innerHTML = ""; kleurCard.hidden = true; return; }
-  const counts = computeCounts(matches, tv => normalizeKleur(tv.kleur));
+  const counts = computeCounts(tellen, tv => normalizeKleur(tv.kleur));
   renderFilterList(container, kleurCard, {
     items: kleuren,
     counts,
@@ -267,40 +312,11 @@ function renderKleurOptions(container, kleurCard, matches) {
 // waartegen zowel de minAanbieders-opties (met counts) als de cascade-
 // fallback in applyFilters() worden berekend.
 function getFilteredExclMinAanbieders() {
-  let filtered = getPriceScopedMatches();
-
-  if (filterState.sizes.size > 0) {
-    filtered = filtered.filter(tv => filterState.sizes.has(tv.grootte));
-  }
-  if (filterState.brands.size > 0) {
-    filtered = filtered.filter(tv => filterState.brands.has(formatBrandLabel(tv.merk)));
-  }
-  if (filterState.types.size > 0) {
-    filtered = filtered.filter(tv => filterState.types.has(tv.type));
-  }
-  if (filterState.resolutions.size > 0) {
-    filtered = filtered.filter(tv => filterState.resolutions.has(getResolutionTier(tv)));
-  }
-  if (filterState.hzOptions.size > 0) {
-    filtered = filtered.filter(tv => filterState.hzOptions.has(tv.Hz));
-  }
-  if (filterState.hdmiOptions.size > 0) {
-    filtered = filtered.filter(tv => filterState.hdmiOptions.has(tv.hdmiPoorten));
-  }
-  if (filterState.kleuren.size > 0) {
-    filtered = filtered.filter(tv => filterState.kleuren.has(normalizeKleur(tv.kleur)));
-  }
-  if (filterState.aanbieder.size > 0) {
-    filtered = filtered.filter(tv =>
-      (tv.aanbieders ?? []).some(a => filterState.aanbieder.has(a.winkel))
-    );
-  }
-
-  return filtered;
+  return matchesBehalve("min");
 }
 
 function renderMinAanbiedersOptions(container, card) {
-  const matches = getFilteredExclMinAanbieders();
+  const matches = matchesBehalve("min");
   const options = MIN_AANBIEDERS_OPTIONS.map(n => ({
     n,
     count: matches.filter(tv => (tv.aanbieders ?? []).length >= n).length,
@@ -372,10 +388,10 @@ function syncMinAanbiedersUI(n) {
   });
 }
 
-function renderAanbiederOptions(container, aanbiederCard, matches) {
+function renderAanbiederOptions(container, aanbiederCard, matches, tellen = matches) {
   const aanbieders = collectAanbiederOptions(matches);
   if (aanbieders.length === 0) { container.innerHTML = ""; aanbiederCard.hidden = true; return; }
-  const counts = computeCounts(matches, tv => (tv.aanbieders ?? []).map(a => a.winkel));
+  const counts = computeCounts(tellen, tv => (tv.aanbieders ?? []).map(a => a.winkel));
   renderFilterList(container, aanbiederCard, {
     items: aanbieders,
     counts,
@@ -407,20 +423,31 @@ function applyFilters() {
   updateResultMatches(final, filterState.answers, filterState.bestType, filterState.scores, filterState.sizeGroup);
 }
 
+// Basislijst per kaart: een optie verschijnt zolang hij binnen de quizuitslag
+// voorkomt (de lijst springt dus niet), het aantal komt uit matchesBehalve().
+function renderAllSecondary() {
+  const kaart = naam => qs(`.filter-card[data-filter='${naam}']`);
+  const basis = getSecondaryScopedMatches();
+  const teken = (render, container, naam) => {
+    const tellen = matchesBehalve(naam);
+    render(container, kaart(naam), basis, tellen);
+  };
+  // Eerst het winkelaantal: corrigeert filterState.minAanbieders zo nodig,
+  // waarna de andere tellingen de uiteindelijke drempel gebruiken.
+  renderMinAanbiedersOptions(qs("#minAanbiedersFilterOptions"), kaart("min-aanbieders"));
+  teken(renderSizeOptions, qs("#sizeFilterOptions"), "size");
+  teken(renderBrandOptions, qs("#brandFilterOptions"), "brand");
+  teken(renderTypeOptions, qs("#typeFilterOptions"), "type");
+  teken(renderResolutionOptions, qs("#resolutionFilterOptions"), "resolution");
+  teken(renderHzOptions, qs("#hzFilterOptions"), "hz");
+  teken(renderHdmiOptions, qs("#hdmiFilterOptions"), "hdmi");
+  teken(renderKleurOptions, qs("#kleurFilterOptions"), "kleur");
+  teken(renderAanbiederOptions, qs("#aanbiederFilterOptions"), "aanbieder");
+  renderPriceOptions(qs("#priceFilterOptions"), kaart("price"), filterState.sizeGroup);
+}
+
 function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, hdmiContainer, kleurContainer, aanbiederContainer, minAanbiedersContainer) {
-  function renderAllSecondary() {
-    const matches = getSecondaryScopedMatches();
-    renderSizeOptions(sizeContainer, qs(".filter-card[data-filter='size']"), matches);
-    renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), matches);
-    renderTypeOptions(typeContainer, qs(".filter-card[data-filter='type']"), matches);
-    renderResolutionOptions(resolutionContainer, qs(".filter-card[data-filter='resolution']"), matches);
-    renderHzOptions(hzContainer, qs(".filter-card[data-filter='hz']"), matches);
-    renderHdmiOptions(hdmiContainer, qs(".filter-card[data-filter='hdmi']"), matches);
-    renderKleurOptions(kleurContainer, qs(".filter-card[data-filter='kleur']"), matches);
-    renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), matches);
-    renderMinAanbiedersOptions(minAanbiedersContainer, qs(".filter-card[data-filter='min-aanbieders']"));
-    renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.sizeGroup);
-  }
+
 
   minAanbiedersContainer.addEventListener("change", event => {
     const input = event.target.closest("input[type=radio]");
@@ -680,6 +707,9 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
     applyFilters();
   });
 
+  [priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, hdmiContainer, kleurContainer, aanbiederContainer, minAanbiedersContainer]
+    .forEach(c => c.addEventListener("change", () => renderAllSecondary()));
+
   const clearBtn = qs("#clearFiltersBtn");
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
@@ -778,17 +808,7 @@ function initResultFilters() {
       // (default 2, of een fallback als dat geen geldige optie is), zodat
       // zowel de prijs-buckets als getSecondaryScopedMatches() hieronder de
       // uiteindelijke drempel gebruiken.
-      renderMinAanbiedersOptions(minAanbiedersContainer, minAanbiedersCard);
-      renderPriceOptions(priceContainer, priceCard, stored.sizeGroup);
-      const matches = getSecondaryScopedMatches();
-      renderSizeOptions(sizeContainer, sizeCard, matches);
-      renderBrandOptions(brandContainer, brandCard, matches);
-      renderTypeOptions(typeContainer, typeCard, matches);
-      renderResolutionOptions(resolutionContainer, resolutionCard, matches);
-      renderHzOptions(hzContainer, hzCard, matches);
-      renderHdmiOptions(hdmiContainer, hdmiCard, matches);
-      renderKleurOptions(kleurContainer, kleurCard, matches);
-      renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
+      renderAllSecondary();
       initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, hdmiContainer, kleurContainer, aanbiederContainer, minAanbiedersContainer);
       applyFilters();
     })

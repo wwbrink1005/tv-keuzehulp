@@ -1,4 +1,4 @@
-// Testversie van de tv-vragenpagina met een Blender-gerenderde woonkamer.
+// De tv-vragenpagina met een Blender-gerenderde woonkamer.
 // De renders (tv/vragen/img) zijn per kijkafstand en per licht (dag/avond)
 // gemaakt met een camera die recht op de tv-muur kijkt. Daardoor is een tv op die
 // muur in beeld een exacte rechthoek en kunnen we hem met dezelfde cameragegevens
@@ -28,8 +28,8 @@ function project(D, x, y, z) {
 // ───────── inhoud ─────────
 const DIST = { "1m": 1, "1.5m": 1.5, "2m": 2, "2.5m": 2.5, "3m": 3, "3.5m": 3.5, "4m": 4, "bioscoop": 4 };
 const DIST_LABEL = { "1m": "1 meter", "1.5m": "1,5 meter", "2m": "2 meter", "2.5m": "2,5 meter", "3m": "3 meter", "3.5m": "3,5 meter", "4m": "4 meter", "bioscoop": "4 meter" };
-const SIZE_GROUPS = ["24-32", "40-43", "48-50", "55", "58-65", "70-77", "83-86", "97-115"];
-const SIZE_INCH = { "24-32": 32, "40-43": 43, "48-50": 50, "55": 55, "58-65": 65, "70-77": 75, "83-86": 85, "97-115": 100 };
+const SIZE_GROUPS = ["24-28", "32", "40-43", "48-50", "55", "58-65", "70-77", "83-86", "97-115"];
+const SIZE_INCH = { "24-28": 24, "32": 32, "40-43": 43, "48-50": 50, "55": 55, "58-65": 65, "70-77": 75, "83-86": 85, "97-115": 100 };
 const SIZE_LABEL = g => g.replace("-", "–") + " inch";
 
 const tvDims = inch => ({ w: inch * 0.8716 * 0.0254, h: inch * 0.4903 * 0.0254 });
@@ -61,14 +61,14 @@ const QUESTIONS = [
     id: "usage", type: "check", max: 2,
     title: "Waar ga je de tv voor gebruiken?",
     sub: "Kies er maximaal 2. Op het scherm zie je waar het bij elk gebruik om draait.",
-    why: "Voor films en series is een hoge contrastratio cruciaal. Sportkijkers profiteren van een hoge beeldverversing (120 Hz of hoger). Gamers hebben baat bij lage invoervertraging en VRR. Gebruik je de tv voor meer dingen, kies dan \"Een beetje van alles\".",
+    why: "Voor films en series telt vooral contrast: diep zwart in donkere scènes, waar OLED en Mini LED het sterkst in zijn. Voor sport kiezen we een tv met 100 Hz of meer, zodat snelle beelden scherp blijven. Voor gamen 120 Hz of meer, voor vloeiend beeld op een console of pc. Gebruik je de tv voor meer dingen, kies dan \"Een beetje van alles\".",
     options: [["films", "Films en series kijken", "€€€"], ["sport", "Sport kijken", "€€"], ["gamen", "Gamen", "€€"], ["normaal", "Normale televisie kijken", "€"], ["allround", "Een beetje van alles", "€€"]],
   },
   {
     id: "quality", type: "radio",
     title: "Hoe belangrijk vind je de beeldkwaliteit?",
     sub: "Het scherm laat het verschil zien tussen de niveaus.",
-    why: "Wie absoluut het beste wil, kiest doorgaans voor een OLED- of high-end Mini-LED-tv. Wie een goede maar betaalbare keuze maakt, heeft genoeg aan een moderne LCD met degelijk lokaal dimmen. Hoe ambitieuzer je beeldwens, hoe geavanceerder en duurder het geadviseerde model.",
+    why: "Wie het beste beeld wil, komt meestal uit bij een OLED- of Mini LED-tv. Wie goed beeld wil maar niet het duurste, zit vaak goed met een QLED- of Mini LED-tv. Is gewoon prima beeld genoeg, dan volstaat een LED-tv. Kies je voor het beste beeld, dan tonen we alleen 4K-tv's.",
     options: [["best", "Ik wil de best mogelijke beeldkwaliteit", "€€€"], ["belangrijk", "Belangrijk, maar ik hoef niet het beste", "€€"], ["prima", "Als het gewoon prima is ben ik tevreden", "€"]],
   },
   {
@@ -82,7 +82,7 @@ const QUESTIONS = [
     id: "viewing", type: "radio",
     title: "Hoe kijk je meestal tv?",
     sub: "In het bovenaanzicht zie je onder welke hoek iedereen naar het scherm kijkt.",
-    why: "De kijkhoek bepaalt hoeveel de beeldkwaliteit afneemt naarmate je verder opzij zit. OLED- en IPS-panelen blijven ook schuin van opzij goed. Standaard VA-panelen verliezen dan kleur en contrast. Zit je altijd recht voor het scherm, dan kun je hierop besparen.",
+    why: "Hoe schuiner je kijkt, hoe meer kleur en contrast er bij veel tv's wegvallen. OLED blijft ook van opzij goed; bij LED- en QLED-tv's zie je het verschil eerder. Zit je altijd recht voor het scherm, dan kun je hierop besparen.",
     options: [["recht", "Met 1 of 2 mensen recht voor de tv", "€€"], ["meerdere", "Met meerdere mensen die niet recht voor de tv zitten", "€€€"], ["nvt", "Dit is voor mij niet belangrijk", "€"]],
   },
   {
@@ -96,13 +96,13 @@ const QUESTIONS = [
 
 const USAGE_CAPTION = {
   films: ["Films en series", "Donkere scènes vragen om hoog contrast en diep zwart, anders worden ze grijs en vlak."],
-  sport: ["Sport", "Snelle beelden blijven scherp bij 100/120 Hz. Een bal die uitsmeert is het eerste wat opvalt."],
-  gamen: ["Gamen", "Lage input lag en VRR zorgen dat het beeld direct en zonder haperen reageert."],
+  sport: ["Sport", "Snelle beelden blijven scherp vanaf 100 Hz. Een bal die uitsmeert is het eerste wat opvalt."],
+  gamen: ["Gamen", "Met 120 Hz of meer blijft het beeld vloeiend, ook bij snelle actie op een console of pc."],
   normaal: ["Gewoon tv kijken", "Nieuws, programma's en series: een goede basis is genoeg, daar hoeft geen topmodel voor."],
 };
 const QUALITY = {
   best: { label: "Topniveau", text: "OLED of high-end Mini-LED: diep zwart, rijke kleuren en veel detail in licht en donker.", filter: "contrast(1.1) saturate(1.12)" },
-  belangrijk: { label: "Goed beeld", text: "Een sterke LCD met lokaal dimmen: mooi beeld, net iets minder diepte in het donker.", filter: "contrast(.96) saturate(.97) brightness(1.02)" },
+  belangrijk: { label: "Goed beeld", text: "Een QLED- of Mini LED-tv: mooi en helder beeld, net iets minder diepte in het donker dan OLED.", filter: "contrast(.96) saturate(.97) brightness(1.02)" },
   prima: { label: "Prima beeld", text: "Een degelijk instapmodel: prima voor dagelijks kijken, wat vlakker in contrast en kleur.", filter: "contrast(.84) saturate(.82) brightness(1.06) blur(.35px)" },
 };
 const TIMING_CAPTION = {
@@ -487,8 +487,7 @@ function renderQuestion(dir = 1) {
     if (Q.id === "sizeGroup") {
       const adv = advisedGroup();
       opts = SIZE_GROUPS.map(g => [g, SIZE_LABEL(g), g === adv ? "advies" : ""]);
-      const shown = adv === "48-50" ? "48–55" : SIZE_LABEL(adv).replace(" inch", "");
-      sub = `Vanaf ${DIST_LABEL[st.distance]} adviseren we ${shown} inch. De tv hangt op ware grootte aan de muur; kies gerust een andere maat.`;
+      sub = `Vanaf ${DIST_LABEL[st.distance]} adviseren we ${SIZE_LABEL(adv)}. De tv hangt op ware grootte aan de muur; kies gerust een andere maat.`;
     }
     const sel = st[Q.id];
     const isChecked = v => Array.isArray(sel) ? sel.includes(v) : sel === v;
@@ -592,8 +591,17 @@ function finish() {
     viewing: st.viewing ?? "", extraAnswers: st.extra,
   };
   const scores = calculateScores(answers);
-  prefetch().then(raw => {
-    const tvs = normalizeProducts(raw ?? []);
+  $("#hint").textContent = "";
+  // Mislukt het ophalen, dan één keer opnieuw; lukt dat ook niet, dan een
+  // melding met "Opnieuw proberen" in plaats van een lege resultaatpagina.
+  prefetch().then(raw => raw ?? (productsPromise = null, prefetch())).then(raw => {
+    if (!raw?.length) {
+      btn.disabled = false; btn.textContent = "Opnieuw proberen";
+      $("#hint").textContent = "We konden de tv's op dit moment niet ophalen. Controleer je internetverbinding en probeer het opnieuw.";
+      productsPromise = null;
+      return;
+    }
+    const tvs = normalizeProducts(raw);
     const result = matchTVs(tvs, st.sizeGroup, null, answers, scores);
     localStorage.setItem("bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("bestType", result.bestType ?? "");
@@ -601,7 +609,7 @@ function finish() {
     localStorage.setItem("filteredMatchedTVs", JSON.stringify(result.filteredMatchedTVs));
     localStorage.setItem("answers", JSON.stringify(answers));
     localStorage.setItem("selectedSizeGroup", st.sizeGroup ?? "");
-    window.location.href = "tv/resultaat";
+    window.location.href = "tv/resultaat/";
   });
 }
 

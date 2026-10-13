@@ -54,6 +54,10 @@ export function renderFilterList(container, card, opts) {
     searchPlaceholder = "Zoeken...",
   } = opts;
 
+  // Zoekterm bewaren: de kaart wordt na elke filterkeuze opnieuw opgebouwd
+  // (de aantallen veranderen dan), en dan mag een half getypte zoekterm niet
+  // verdwijnen.
+  const vorigeZoekterm = container.querySelector(".filter-search-input")?.value ?? "";
   container.innerHTML = "";
 
   if (!items || items.length === 0) {
@@ -89,6 +93,15 @@ export function renderFilterList(container, card, opts) {
 
     label.append(input, check, labelText);
 
+    // Een optie die met de huidige andere filters 0 resultaten geeft, is niet
+    // te kiezen (zoals bij grote webwinkels): anders kom je op "geen
+    // resultaten" uit. Een al gekozen optie blijft wel klikbaar, zodat je hem
+    // altijd kunt uitzetten.
+    if (count === 0 && value !== "all" && !input.checked) {
+      input.disabled = true;
+      label.classList.add("is-leeg");
+    }
+
     if (count !== undefined) {
       const countEl = document.createElement("span");
       countEl.className = "filter-count";
@@ -118,13 +131,16 @@ export function renderFilterList(container, card, opts) {
     container.appendChild(listTarget);
 
     const searchInput = search.querySelector("input");
-    searchInput.addEventListener("input", () => {
+    const pasZoekToe = () => {
       const term = searchInput.value.trim().toLowerCase();
       listTarget.querySelectorAll(".filter-row").forEach(row => {
         const text = row.querySelector(".filter-label")?.textContent.toLowerCase() ?? "";
         row.hidden = term.length > 0 && !text.includes(term);
       });
-    });
+    };
+    searchInput.addEventListener("input", pasZoekToe);
+    searchInput.value = vorigeZoekterm;
+    if (vorigeZoekterm) queueMicrotask(pasZoekToe);
   } else {
     const list = document.createElement("div");
     list.className = "filter-list";
