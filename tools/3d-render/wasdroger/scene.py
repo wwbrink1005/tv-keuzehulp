@@ -599,7 +599,15 @@ def basket(name, cx, cy, fill_cols, rot=0.3):
             bpy.data.objects.remove(o)
         elif o.type == "MESH":
             out.append(o)
-            cm = o.modifiers.new("col", "COLLISION"); o.collision.thickness_outer = 0.015
+    # precies op de vloer: laagste punt van het model op z = 0 (de vaste hoogte liet hem zweven)
+    bpy.context.view_layer.update()
+    zmin = min((o.matrix_world @ Vector(c)).z for o in out for c in o.bound_box)
+    for o in out:
+        if o.parent is None:
+            o.location.z -= zmin
+    bpy.context.view_layer.update()
+    for o in out:
+        cm = o.modifiers.new("col", "COLLISION"); o.collision.thickness_outer = 0.015
     fl = bpy.data.objects.get("floor")
     if fl: fl.modifiers.new("col", "COLLISION")
     cloths = []

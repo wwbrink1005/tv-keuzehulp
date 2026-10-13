@@ -201,7 +201,12 @@ quiz = createQuiz3D({
     const g = st.capaciteitGroup;
     const list = ["bijkeuken", isTop(st) ? "top" : (LAYER[g] ?? "wm-9")];
     // de berg was per week, alleen bij de capaciteitsvraag
-    if (st.q === 0 && g) list.push(...["mand1", "mand2", "mand3"].slice(0, { klein: 1, gemiddeld: 2, groot: 3 }[g]));
+    // de berg was per week, alleen bij de capaciteitsvraag; per machinemaat gerenderd, zodat de
+    // schaduw van de manden op de juiste wasmachine valt
+    if (st.q === 0 && g) {
+      const kg = { klein: 7, gemiddeld: 9, groot: 10 }[g];
+      list.push(...["mand1", "mand2", "mand3"].slice(0, { klein: 1, gemiddeld: 2, groot: 3 }[g]).map(m => `${m}-${kg}`));
+    }
     return list;
   },
 
@@ -259,5 +264,5 @@ quiz = createQuiz3D({
     window.location.href = "wasmachine/resultaat/";
   },
 
-  preload: ["wm-9", "wm-7", "wm-10", "mand1", "mand2", "mand3", "top"],
+  preload: ["wm-9", "wm-7", "wm-10", "mand1-9", "mand2-9", "mand1-7", "mand1-10", "mand2-10", "mand3-10", "top"],
 });
