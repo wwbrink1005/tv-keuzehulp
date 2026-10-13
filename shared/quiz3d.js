@@ -190,6 +190,10 @@ export function createQuiz3D(cfg) {
     tags.querySelectorAll(".tag, .spot-label, .lens").forEach(el => {
       const kind = Object.keys(SHIFT).find(k => el.classList.contains(k));
       const [sx, sy] = SHIFT[kind];
+      // eerst de schuifanimatie uit: het element is net nieuw getekend, en zonder dit glijdt
+      // het zichtbaar van de oude naar de bijgestelde plek (bijv. het vergrootglas dat elke
+      // paar seconden opnieuw wordt opgebouwd)
+      el.style.transition = "none";
       const w = el.offsetWidth, h = el.offsetHeight;
       const useRight = el.style.right !== "" && el.style.left === "";
       const ax = useRight ? W - parseFloat(el.style.right) : parseFloat(el.style.left);

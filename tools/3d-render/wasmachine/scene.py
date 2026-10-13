@@ -555,12 +555,15 @@ if lay in ("wm-7", "wm-9", "wm-10"):
     WM = frontloader(depth, door_r)
 elif lay == "top":
     WM = toploader()
-elif lay == "mand1":
-    WM = basket("m1", 0.55, -0.38, [(0.1, 0.17, 0.3), (0.8, 0.78, 0.73), (0.5, 0.24, 0.15), (0.28, 0.35, 0.26)])
-elif lay == "mand2":
-    WM = basket("m2", 0.93, -0.38, [(0.78, 0.76, 0.7), (0.3, 0.36, 0.27), (0.12, 0.12, 0.13), (0.6, 0.45, 0.35)])
-elif lay == "mand3":
-    WM = basket("m3", 1.31, -0.4, [(0.55, 0.26, 0.17), (0.82, 0.8, 0.75), (0.1, 0.17, 0.3), (0.62, 0.58, 0.5)])
+elif lay in ("mand1", "mand2", "mand3"):
+    # De manden staan op de pagina naast elkaar (mand1, mand1+2 of alle drie). De zon werpt
+    # hun schaduw naar links: de manden links van deze mand zijn daarom mee-gebouwd als
+    # schaduwvanger, zodat de schaduw op die mand valt en niet als donkere waas eroverheen.
+    MANDEN = [lambda: basket("m1", 0.55, -0.38, [(0.1, 0.17, 0.3), (0.8, 0.78, 0.73), (0.5, 0.24, 0.15), (0.28, 0.35, 0.26)]), lambda: basket("m2", 0.93, -0.38, [(0.78, 0.76, 0.7), (0.3, 0.36, 0.27), (0.12, 0.12, 0.13), (0.6, 0.45, 0.35)]), lambda: basket("m3", 1.31, -0.4, [(0.55, 0.26, 0.17), (0.82, 0.8, 0.75), (0.1, 0.17, 0.3), (0.62, 0.58, 0.5)])]
+    k = int(lay[-1]) - 1
+    for j in range(k):
+        MANDEN[j]()
+    WM = MANDEN[k]()
 
 if lay != "none" and WM:
     keep = set(o.name for o in WM)
