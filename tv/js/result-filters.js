@@ -58,8 +58,13 @@ function getPriceScopedMatches() {
 // drempel, zodat de getoonde aantallen kloppen met wat er na alle filters
 // daadwerkelijk overblijft — niet ook nog 1-winkel-producten meetellen die
 // het minAanbieders-filter er sowieso al uitzeeft.
+// Welke opties een filterkaart toont: alles uit de quizuitslag (alleen de
+// winkelregel telt mee), NIET beperkt door de andere gekozen filters. Zo
+// blijft een optie die door bv. een prijskeuze op 0 komt grijs in beeld
+// staan in plaats van te verdwijnen. Het aantal erachter telt wel met alle
+// andere filters.
 function getSecondaryScopedMatches() {
-  return getPriceScopedMatches().filter(tv => (tv.aanbieders ?? []).length >= filterState.minAanbieders);
+  return getBaseScopedByMinAanbieders();
 }
 
 // Voor de prijsfilter-kaart zelf: die moet, net als de andere secundaire

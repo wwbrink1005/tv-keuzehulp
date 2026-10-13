@@ -112,8 +112,13 @@ function getPriceScopedMatches() {
   });
 }
 
+// Welke opties een filterkaart toont: alles uit de quizuitslag (alleen de
+// winkelregel telt mee), NIET beperkt door de andere gekozen filters. Zo
+// blijft een optie die door bv. een prijskeuze op 0 komt grijs in beeld
+// staan in plaats van te verdwijnen. Het aantal erachter telt wel met alle
+// andere filters (zie zonderSelectie/telOpties).
 function getSecondaryScopedMatches() {
-  return getPriceScopedMatches().filter(k => (k.aanbieders ?? []).length >= filterState.minAanbieders);
+  return getBaseScopedByMinAanbieders();
 }
 
 function getBaseScopedByMinAanbieders() {

@@ -87,8 +87,13 @@ function getPriceScopedMatches() {
 
 // Basis voor de tellingen op alle secundaire filterkaarten: prijs-gescoped
 // én al beperkt tot de huidige "aantal winkels"-drempel.
+// Welke opties een filterkaart toont: alles uit de quizuitslag (alleen de
+// winkelregel telt mee), NIET beperkt door de andere gekozen filters. Zo
+// blijft een optie die door bv. een prijskeuze op 0 komt grijs in beeld
+// staan in plaats van te verdwijnen. Het aantal erachter telt wel met alle
+// andere filters.
 function getSecondaryScopedMatches() {
-  return getPriceScopedMatches().filter(s => (s.aanbieders ?? []).length >= filterState.minAanbieders);
+  return getBaseScopedByMinAanbieders();
 }
 
 function getBaseScopedByMinAanbieders() {
