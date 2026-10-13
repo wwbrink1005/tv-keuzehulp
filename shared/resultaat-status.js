@@ -22,3 +22,23 @@ export function toonGeenUitslag() {
   const teller = document.querySelector("#resultMatchCount");
   if (teller) teller.textContent = "";
 }
+
+/**
+ * De gekozen filters samen leveren niets op (bv. een merk dat net niet bij de
+ * gekozen winkel ligt). Net als bij grote webwinkels: zeggen wat er aan de
+ * hand is en één klik om de filters te wissen.
+ * @param {HTMLElement} container  #otherMatchesGrid
+ * @param {string} meervoud        "tv's", "koelkasten", ...
+ */
+export function toonGeenFilterResultaat(container, meervoud) {
+  if (!container) return;
+  container.innerHTML = `
+    <div class="resultaat-melding">
+      <p class="resultaat-melding-titel">Geen ${meervoud} met deze filters</p>
+      <p>Deze combinatie van filters levert niets op. Zet een filter uit, of begin opnieuw met alle ${meervoud} die bij je passen.</p>
+      <button type="button" class="resultaat-melding-knop" data-wis-filters>Wis alle filters</button>
+    </div>`;
+  container.querySelector("[data-wis-filters]")?.addEventListener("click", () => {
+    document.querySelector("#clearFiltersBtn")?.click();
+  });
+}

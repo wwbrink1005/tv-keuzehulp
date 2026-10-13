@@ -1,7 +1,7 @@
 import { applyMinAanbiedersCascade } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
-import { toonGeenUitslag } from "../../shared/resultaat-status.js";
+import { toonGeenUitslag, toonGeenFilterResultaat } from "../../shared/resultaat-status.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
 import { fetchProducts } from "./supabase.js";
 import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
@@ -38,7 +38,7 @@ function displayOtherMatchesRedesign(filteredMatchedWasmachines) {
   if (!container) return;
 
   if (filteredMatchedWasmachines.length === 0) {
-    container.innerHTML = '<p class="no-matches">Geen passende wasmachines gevonden.</p>';
+    toonGeenFilterResultaat(container, "wasmachines");
     return;
   }
 

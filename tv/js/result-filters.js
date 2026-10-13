@@ -49,7 +49,7 @@ function getPriceScopedMatches() {
   const groups = getDynamicPriceGroups(filterState.sizeGroup).filter(g => filterState.priceLabels.has(g.label));
   return base.filter(tv => {
     const price = parsePrice(tv.prijs);
-    return groups.some(g => price >= g.min && price <= g.max);
+    return groups.some(g => price >= g.min && (price < g.max || g.max === Number.POSITIVE_INFINITY));
   });
 }
 
@@ -92,7 +92,7 @@ function binnenPrijs(tv) {
   const price = parsePrice(tv.prijs);
   return getDynamicPriceGroups(filterState.sizeGroup)
     .filter(g => filterState.priceLabels.has(g.label))
-    .some(g => price >= g.min && price <= g.max);
+    .some(g => price >= g.min && (price < g.max || g.max === Number.POSITIVE_INFINITY));
 }
 
 function voldoetAanFacet(tv, sleutel) {
@@ -210,7 +210,7 @@ function renderPriceOptions(container, priceCard, sizeGroup) {
   // show a result. If there's only one (or zero) non-empty bucket there's
   // nothing meaningful to narrow, so hide the whole filter card.
   const base = matchesBehalve("price");
-  const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
+  const groupForPrice = price => groups.find(g => price >= g.min && (price < g.max || g.max === Number.POSITIVE_INFINITY));
   const counts = computeCounts(base, tv => groupForPrice(parsePrice(tv.prijs))?.label);
   const opBasis = computeCounts(getBaseScopedByMinAanbieders(), tv => groupForPrice(parsePrice(tv.prijs))?.label);
   const labels = groups.filter(g => opBasis.has(g.label) || filterState.priceLabels.has(g.label)).map(g => g.label);
@@ -427,14 +427,15 @@ function applyFilters() {
 // voorkomt (de lijst springt dus niet), het aantal komt uit matchesBehalve().
 function renderAllSecondary() {
   const kaart = naam => qs(`.filter-card[data-filter='${naam}']`);
+  // Eerst het winkelaantal: corrigeert filterState.minAanbieders zo nodig
+  // (bv. naar 1 als elke tv maar bij één winkel ligt). Pas daarna de basis
+  // bepalen, anders is die leeg en verdwijnen alle andere filterkaarten.
+  renderMinAanbiedersOptions(qs("#minAanbiedersFilterOptions"), kaart("min-aanbieders"));
   const basis = getSecondaryScopedMatches();
   const teken = (render, container, naam) => {
     const tellen = matchesBehalve(naam);
     render(container, kaart(naam), basis, tellen);
   };
-  // Eerst het winkelaantal: corrigeert filterState.minAanbieders zo nodig,
-  // waarna de andere tellingen de uiteindelijke drempel gebruiken.
-  renderMinAanbiedersOptions(qs("#minAanbiedersFilterOptions"), kaart("min-aanbieders"));
   teken(renderSizeOptions, qs("#sizeFilterOptions"), "size");
   teken(renderBrandOptions, qs("#brandFilterOptions"), "brand");
   teken(renderTypeOptions, qs("#typeFilterOptions"), "type");

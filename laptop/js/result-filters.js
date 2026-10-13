@@ -5,6 +5,40 @@ import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
+
+// ─── Tellen zoals bij grote webwinkels ───────────────────────────────────────
+// Binnen één filter is het "of", tussen filters "en". Het aantal naast een
+// optie is wat je krijgt als je hem aanklikt, gegeven alle ANDERE gekozen
+// filters: de eigen selectie van die kaart telt even niet mee. Een optie met 0
+// wordt grijs (shared/filters.js), zodat je nooit op "geen resultaten" uitkomt.
+// Kaarten waar meerdere keuzes "en" betekenen (alle gekozen functies tegelijk)
+// tellen per optie wat er overblijft als je hem erbij aanvinkt.
+const EN_FILTERS = new Set(["functies", "programmas", "varianten"]);
+
+const genoegWinkels = p => (p.aanbieders ?? []).length >= filterState.minAanbieders;
+
+/** Producten door alle filters, behalve de selectie in `set` (en het winkelaantal). */
+function zonderSelectie(set) {
+  if (!set || set.size === 0) return filterKeten().filter(genoegWinkels);
+  const bewaard = [...set];
+  set.clear();
+  const uit = filterKeten().filter(genoegWinkels);
+  bewaard.forEach(v => set.add(v));
+  return uit;
+}
+
+function telOpties(filterName, items, productValueFn) {
+  const set = filterState[filterName];
+  if (!EN_FILTERS.has(filterName) || !set) return computeCounts(zonderSelectie(set), productValueFn);
+  return new Map(items.map(v => {
+    const had = set.has(v);
+    set.add(v);
+    const n = filterKeten().filter(genoegWinkels).length;
+    if (!had) set.delete(v);
+    return [v, n];
+  }));
+}
+
 const MIN_AANBIEDERS_OPTIONS = [1, 2, 3, 4, 5];
 
 const filterState = {
@@ -52,7 +86,7 @@ function getPriceScopedMatches() {
   const groups = getDynamicPriceGroups(filterState.sizeGroup).filter(g => filterState.priceLabels.has(g.label));
   return base.filter(l => {
     const price = parsePrice(l.prijs);
-    return groups.some(g => price >= g.min && price <= g.max);
+    return groups.some(g => price >= g.min && (price < g.max || g.max === Number.POSITIVE_INFINITY));
   });
 }
 
@@ -158,7 +192,7 @@ function collectAanbiederOptions(matches) {
 function renderCheckboxFilter(container, card, items, matches, productValueFn, filterName, allLabelText, labelFn) {
   if (items.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
   const stateSet = filterState[filterName];
-  const counts = computeCounts(matches, productValueFn);
+  const counts = telOpties(filterName, items, productValueFn);
   renderFilterList(container, card, {
     items,
     counts,
@@ -177,9 +211,10 @@ function renderPriceOptions(container, priceCard, sizeGroup) {
   // show a result. If there's only one (or zero) non-empty bucket there's
   // nothing meaningful to narrow, so hide the whole filter card.
   const base = getBaseScopedByMinAanbieders();
-  const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
-  const counts = computeCounts(base, l => groupForPrice(parsePrice(l.prijs))?.label);
-  const labels = groups.filter(g => counts.has(g.label)).map(g => g.label);
+  const groupForPrice = price => groups.find(g => price >= g.min && (price < g.max || g.max === Number.POSITIVE_INFINITY));
+  const counts = computeCounts(zonderSelectie(filterState.priceLabels), l => groupForPrice(parsePrice(l.prijs))?.label);
+  const opBasis = computeCounts(base, l => groupForPrice(parsePrice(l.prijs))?.label);
+  const labels = groups.filter(g => opBasis.has(g.label) || filterState.priceLabels.has(g.label)).map(g => g.label);
 
   if (labels.length <= 1) {
     container.innerHTML = "";
@@ -198,7 +233,7 @@ function renderPriceOptions(container, priceCard, sizeGroup) {
 }
 
 function renderMinAanbiedersOptions(container, card) {
-  const matches = getPriceScopedMatches();
+  const matches = filterKeten();
   const options = MIN_AANBIEDERS_OPTIONS.map(n => ({
     n,
     count: matches.filter(l => (l.aanbieders ?? []).length >= n).length,
@@ -276,7 +311,9 @@ function renderRamOptions(container, card, matches) {
   // "X GB of meer" i.p.v. exacte match — zie applyFilters(): met meerdere
   // aangevinkte waarden geldt de laagste als ondergrens (die dekt de hogere
   // al), dus "16 GB" aanvinken sluit 24/32 GB niet meer ten onrechte uit.
-  renderCheckboxFilter(container, card, collectRamOptions(matches), matches, l => l.werkgeheugen, "ramOptions", "Alle", r => `${r}+ GB`);
+  // Tellen met dezelfde betekenis: een laptop met 32 GB telt mee bij "16+ GB" én "32+ GB".
+  const opties = collectRamOptions(matches);
+  renderCheckboxFilter(container, card, opties, matches, l => opties.filter(r => l.werkgeheugen >= r), "ramOptions", "Alle", r => `${r}+ GB`);
 }
 
 function renderResolutionOptions(container, card, matches) {
@@ -317,7 +354,7 @@ function updateClearFiltersBtn() {
   btn.hidden = !hasActive;
 }
 
-function applyFilters() {
+function filterKeten() {
   let filtered = getPriceScopedMatches();
 
   if (filterState.sizes.size > 0) {
@@ -367,6 +404,12 @@ function applyFilters() {
     );
   }
 
+  return filtered;
+}
+
+function applyFilters() {
+  const filtered = filterKeten();
+
   const { effectiveMin, result: final } = applyMinAanbiedersCascade(filtered, filterState.minAanbieders);
   if (effectiveMin !== filterState.minAanbieders) {
     syncMinAanbiedersUI(effectiveMin);
@@ -403,6 +446,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
   const minAanbiedersCard = qs(".filter-card[data-filter='min-aanbieders']");
 
   function renderAllSecondary() {
+    renderMinAanbiedersOptions(minAanbiedersContainer, minAanbiedersCard);
     const matches = getSecondaryScopedMatches();
     renderSizeOptions(sizeContainer, sizeCard, matches);
     renderBrandOptions(brandContainer, brandCard, matches);
@@ -415,7 +459,6 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
     renderKleurOptions(kleurContainer, kleurCard, matches);
     renderOsOptions(osContainer, osCard, matches);
     renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
-    renderMinAanbiedersOptions(minAanbiedersContainer, minAanbiedersCard);
     renderPriceOptions(priceContainer, priceCard, filterState.sizeGroup);
   }
 
@@ -475,6 +518,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
         else { const allInput = container.querySelector('input[value="all"]'); if (allInput) allInput.checked = false; }
       }
       applyFilters();
+      renderAllSecondary();
     });
   }
 

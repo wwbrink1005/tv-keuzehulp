@@ -2,7 +2,7 @@ import { applyMinAanbiedersCascade } from "./matching.js";
 import { parsePrice, qs } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
-import { toonGeenUitslag } from "../../shared/resultaat-status.js";
+import { toonGeenUitslag, toonGeenFilterResultaat } from "../../shared/resultaat-status.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
 import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
 import { initFavorieten } from "../../shared/favorieten.js";
@@ -39,7 +39,7 @@ function displayOtherMatchesRedesign(lijst) {
   if (!container) return;
 
   if (lijst.length === 0) {
-    container.innerHTML = '<p class="no-matches">Geen passende koelkasten gevonden.</p>';
+    toonGeenFilterResultaat(container, "koelkasten");
     return;
   }
 

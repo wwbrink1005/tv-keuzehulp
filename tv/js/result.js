@@ -1,7 +1,7 @@
 import { applyMinAanbiedersCascade, isPerfectMatch } from "./matching.js";
 import { formatPriceLabel, formatScherpte, parsePrice, qs } from "./utils.js";
 import { normaliseVerzendkosten, resetProvidersRegistry } from "../../shared/aanbieders.js";
-import { toonGeenUitslag } from "../../shared/resultaat-status.js";
+import { toonGeenUitslag, toonGeenFilterResultaat } from "../../shared/resultaat-status.js";
 import { buildCardHtml } from "../../shared/resultaat-kaart.js";
 import { fetchProducts } from "./supabase.js";
 import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
@@ -201,7 +201,7 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
   if (!container) return;
 
   if (filteredMatchedTVs.length === 0) {
-    container.innerHTML = "<p class=\"no-matches\">Geen passende TV's gevonden.</p>";
+    toonGeenFilterResultaat(container, "tv's");
     return;
   }
 

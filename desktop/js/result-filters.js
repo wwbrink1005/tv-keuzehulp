@@ -5,6 +5,40 @@ import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
 import { computeCounts, renderFilterList } from "../../shared/filters.js";
 
+
+// ─── Tellen zoals bij grote webwinkels ───────────────────────────────────────
+// Binnen één filter is het "of", tussen filters "en". Het aantal naast een
+// optie is wat je krijgt als je hem aanklikt, gegeven alle ANDERE gekozen
+// filters: de eigen selectie van die kaart telt even niet mee. Een optie met 0
+// wordt grijs (shared/filters.js), zodat je nooit op "geen resultaten" uitkomt.
+// Kaarten waar meerdere keuzes "en" betekenen (alle gekozen functies tegelijk)
+// tellen per optie wat er overblijft als je hem erbij aanvinkt.
+const EN_FILTERS = new Set(["functies", "programmas", "varianten"]);
+
+const genoegWinkels = p => (p.aanbieders ?? []).length >= filterState.minAanbieders;
+
+/** Producten door alle filters, behalve de selectie in `set` (en het winkelaantal). */
+function zonderSelectie(set) {
+  if (!set || set.size === 0) return filterKeten().filter(genoegWinkels);
+  const bewaard = [...set];
+  set.clear();
+  const uit = filterKeten().filter(genoegWinkels);
+  bewaard.forEach(v => set.add(v));
+  return uit;
+}
+
+function telOpties(filterName, items, productValueFn) {
+  const set = filterState[filterName];
+  if (!EN_FILTERS.has(filterName) || !set) return computeCounts(zonderSelectie(set), productValueFn);
+  return new Map(items.map(v => {
+    const had = set.has(v);
+    set.add(v);
+    const n = filterKeten().filter(genoegWinkels).length;
+    if (!had) set.delete(v);
+    return [v, n];
+  }));
+}
+
 const MIN_AANBIEDERS_OPTIONS = [1, 2, 3, 4, 5];
 
 const filterState = {
@@ -60,7 +94,7 @@ function getPriceScopedMatches() {
   const groups = getDynamicPriceGroups(filterState.behuizingType).filter(g => filterState.priceLabels.has(g.label));
   return base.filter(d => {
     const price = parsePrice(d.prijs);
-    return groups.some(g => price >= g.min && price <= g.max);
+    return groups.some(g => price >= g.min && (price < g.max || g.max === Number.POSITIVE_INFINITY));
   });
 }
 
@@ -148,7 +182,7 @@ function collectAanbiederOptions(matches) {
 function renderFilterOptions(container, card, items, matches, productValueFn, filterName, labelFn) {
   if (items.length === 0) { container.innerHTML = ""; card.hidden = true; return; }
   const stateSet = filterState[filterName];
-  const counts = computeCounts(matches, productValueFn);
+  const counts = telOpties(filterName, items, productValueFn);
   renderFilterList(container, card, { items, counts, filterName, stateSet, labelFn });
 }
 
@@ -160,9 +194,10 @@ function renderPriceOptions(container, card, behuizingType) {
   // show a result. If there's only one (or zero) non-empty bucket there's
   // nothing meaningful to narrow, so hide the whole filter card.
   const base = getBaseScopedByMinAanbieders();
-  const groupForPrice = price => groups.find(g => price >= g.min && price <= g.max);
-  const counts = computeCounts(base, d => groupForPrice(parsePrice(d.prijs))?.label);
-  const relevant = groups.filter(g => counts.has(g.label)).map(g => g.label);
+  const groupForPrice = price => groups.find(g => price >= g.min && (price < g.max || g.max === Number.POSITIVE_INFINITY));
+  const counts = computeCounts(zonderSelectie(filterState.priceLabels), d => groupForPrice(parsePrice(d.prijs))?.label);
+  const opBasis = computeCounts(base, d => groupForPrice(parsePrice(d.prijs))?.label);
+  const relevant = groups.filter(g => opBasis.has(g.label) || filterState.priceLabels.has(g.label)).map(g => g.label);
 
   if (relevant.length <= 1) { container.innerHTML = ""; card.hidden = true; return; }
 
@@ -177,7 +212,7 @@ function renderPriceOptions(container, card, behuizingType) {
 }
 
 function renderMinAanbiedersOptions(container, card) {
-  const matches = getPriceScopedMatches();
+  const matches = filterKeten();
   const options = MIN_AANBIEDERS_OPTIONS.map(n => ({
     n,
     count: matches.filter(d => (d.aanbieders ?? []).length >= n).length,
@@ -305,7 +340,7 @@ function updateClearFiltersBtn() {
   btn.hidden = !hasActive;
 }
 
-function applyFilters() {
+function filterKeten() {
   let filtered = getPriceScopedMatches();
 
   if (filterState.behuizingTypes.size > 0) {
@@ -352,6 +387,12 @@ function applyFilters() {
     );
   }
 
+  return filtered;
+}
+
+function applyFilters() {
+  const filtered = filterKeten();
+
   const { effectiveMin, result: final } = applyMinAanbiedersCascade(filtered, filterState.minAanbieders);
   if (effectiveMin !== filterState.minAanbieders) {
     syncMinAanbiedersUI(effectiveMin);
@@ -374,6 +415,7 @@ function syncMinAanbiedersUI(n) {
 
 function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gpuTierContainer, ramContainer, opslagContainer, osContainer, processorFabrikantContainer, functieContainer, kleurContainer, aanbiederContainer, minAanbiedersContainer) {
   function renderAllSecondary() {
+    renderMinAanbiedersOptions(minAanbiedersContainer, qs(".filter-card[data-filter='min-aanbieders']"));
     const matches = getSecondaryScopedMatches();
     renderBehuizingOptions(behuizingContainer, qs(".filter-card[data-filter='behuizing']"), matches);
     renderBrandOptions(brandContainer, qs(".filter-card[data-filter='brand']"), matches);
@@ -385,7 +427,6 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
     renderFunctieOptions(functieContainer, qs(".filter-card[data-filter='functies']"), matches);
     renderKleurOptions(kleurContainer, qs(".filter-card[data-filter='kleur']"), matches);
     renderAanbiederOptions(aanbiederContainer, qs(".filter-card[data-filter='aanbieder']"), matches);
-    renderMinAanbiedersOptions(minAanbiedersContainer, qs(".filter-card[data-filter='min-aanbieders']"));
     renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.behuizingType);
   }
 
@@ -450,6 +491,7 @@ function initFilterEvents(priceContainer, behuizingContainer, brandContainer, gp
         }
       }
       applyFilters();
+      renderAllSecondary();
     });
   }
 
