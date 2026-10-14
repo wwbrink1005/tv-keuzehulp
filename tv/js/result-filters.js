@@ -875,8 +875,11 @@ function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
       toontBuiten = !toontBuiten;
       filterState.baseMatches = toontBuiten ? buitenLijst : binnenLijst;
       filterState.bestType = toontBuiten ? zonderGrens.bestType : binnen.bestType;
-      renderAllSecondary();
-      applyFilters();
+      // Andere lijst = verse start: alle filters terug naar standaard (ook "Aantal winkels"
+      // naar 2+, dat bij de vorige lijst automatisch verlaagd kan zijn). Zelfde als "Wis filters".
+      const wis = qs("#clearFiltersBtn");
+      if (wis) wis.click();
+      else { renderAllSecondary(); applyFilters(); }
       teken();
       qs("#resultTitle")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
