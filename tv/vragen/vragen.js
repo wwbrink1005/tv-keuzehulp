@@ -98,7 +98,12 @@ const IDX = Object.fromEntries(QUESTIONS.map((q, i) => [q.id, i]));
 const QID = () => QUESTIONS[st.q]?.id;
 const LAST = QUESTIONS.length - 1;
 const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
-const budgetOpties = g => [...(budgetCapsBySize[g] ?? []).map(c => [String(c), `Tot ${euro(c)}`]), ["geen", "Maakt niet uit"]];
+// twee maximumbedragen plus een open bovenste optie zonder grens ("geen" = alle tv's van de maat)
+const budgetOpties = g => {
+  const caps = budgetCapsBySize[g] ?? [];
+  return [...caps.map(c => [String(c), `Tot ${euro(c)}`]), ["geen", caps.length ? `Meer dan ${euro(caps[caps.length - 1])}` : "Geen maximum"]];
+};
+const openLabel = g => { const caps = budgetCapsBySize[g] ?? []; return caps.length ? `Meer dan ${euro(caps[caps.length - 1])}` : "Geen maximum"; };
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
 
 // Wat het gekozen budget betekent in de gekozen maat, uit de live catalogus (null zolang die laadt).
@@ -113,9 +118,9 @@ function budgetInfo(g, cap) {
 function budgetTag(g) {
   if (!st.budget) return "";
   const cap = capVan(st.budget), info = budgetInfo(g, cap);
-  const kop = cap ? `Tot ${euro(cap)}` : "Elk budget";
+  const kop = cap ? `Tot ${euro(cap)}` : openLabel(g);
   if (!info) return `<b>${kop}</b>`;
-  return `<b>${kop}</b><span class="muted">${info.n} van de ${info.totaal} tv's</span>`;
+  return `<b>${kop}</b><span class="muted">${cap ? `${info.n} van de ${info.totaal} tv's` : `alle ${info.totaal} tv's`}</span>`;
 }
 
 const USAGE_CAPTION = {
@@ -384,8 +389,8 @@ function updateCaption(key) {
     case "budget": {
       const cap = capVan(st.budget), info = budgetInfo(st.sizeGroup, cap);
       if (!st.budget) { t = "Jouw budget"; s = "Kies wat je maximaal wilt uitgeven. Je krijgt de beste tv binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."; }
-      else if (!info) { t = cap ? `Tot ${euro(cap)}` : "Geen maximum"; s = "We zoeken de beste tv binnen dit bedrag."; }
-      else if (!cap) { t = "Geen maximum"; s = `Alle ${info.totaal} tv's van deze maat doen mee. We kiezen puur op je wensen.`; }
+      else if (!info) { t = cap ? `Tot ${euro(cap)}` : openLabel(st.sizeGroup); s = cap ? "We zoeken de beste tv binnen dit bedrag." : "Geen bovengrens: we kiezen puur op je wensen."; }
+      else if (!cap) { t = openLabel(st.sizeGroup); s = `Geen bovengrens: alle ${info.totaal} tv's van deze maat doen mee, ook de duurste. We kiezen puur op je wensen.`; }
       else if (!info.n) { t = `Tot ${euro(cap)}`; s = "In deze maat is er geen tv binnen dit bedrag. We tonen dan de tv's die het best bij je passen, net erboven."; }
       else { t = `Tot ${euro(cap)}`; s = `${info.n} van de ${info.totaal} tv's van deze maat passen binnen dit bedrag. Past een duurdere tv beter bij je wensen, dan zie je dat bij je resultaten.`; }
       break;
