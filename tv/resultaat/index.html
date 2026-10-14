@@ -1129,13 +1129,13 @@
 				}
 }
    
-/* budget uit de quiz: "Meer budget?" en de melding als er niets binnen het budget past */
-.budget-note { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 12px; padding: 12px 16px; border-radius: 14px; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent); }
-.budget-note[hidden] { display: none; }
-.budget-note p { margin: 0; flex: 1 1 320px; font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
-.budget-note strong { color: var(--text-primary); }
-.budget-note-btn { flex: none; height: 34px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--accent); background: #fff; color: var(--accent); font: 600 13px/1 inherit; font-family: inherit; cursor: pointer; transition: background .18s ease, color .18s ease; }
-.budget-note-btn:hover { background: var(--accent); color: #fff; }
+/* budget uit de quiz: kaart tussen de resultaten ("Meer budget?" of "niets binnen budget") */
+.budget-kaart { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding: 18px 22px; border-radius: 20px; background: var(--accent-soft); border: 1.5px dashed color-mix(in srgb, var(--accent) 35%, transparent); }
+.budget-kaart p, .budget-kaart-tekst { margin: 0; flex: 1 1 340px; font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+.budget-kaart strong { display: block; color: var(--text-primary); font-size: 15px; margin-bottom: 2px; }
+.budget-kaart p strong { display: inline; font-size: inherit; }
+.budget-kaart-btn { flex: none; height: 40px; padding: 0 18px; border-radius: 999px; border: none; background: var(--accent); color: #fff; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: filter .18s ease; }
+.budget-kaart-btn:hover { filter: brightness(1.1); }
 </style>
 	</head>
 	<body>
@@ -1181,8 +1181,7 @@
 			<div class="results-head-main">
 				<div class="results-heading">
 					<h1 id="resultTitle" class="result-title"><span id="resultTitleText">Tv's die bij je passen</span><span id="resultMatchCount" class="result-count-badge"></span></h1>
-					<p class="results-trust">Prijzen vergeleken bij Bol, Coolblue, MediaMarkt, EP en meer<span id="priceUpdateNote">, bijgewerkt <span id="lastUpdateTime"></span></span> &middot; <button class="results-explainer-btn" type="button" id="explainerToggleBtn" aria-expanded="false" aria-controls="explainerBody">Hoe werkt dit?</button></p>
-					<div id="budgetNote" class="budget-note" role="status" hidden></div>
+					<p class="results-trust">Prijzen vergeleken bij Bol, Coolblue, MediaMarkt, EP en meer<span id="priceUpdateNote">, bijgewerkt <span id="lastUpdateTime"></span></span></p>
 				</div>
 				<div class="results-toolbar">
 				<div id="sortControl" class="sort-control">
@@ -1269,12 +1268,6 @@
 					</div>
 				</aside>
 
-				<!-- Results Heading -->
-				<div class="results-explainer" id="resultsExplainer">
-			<div class="results-explainer-body" id="explainerBody">
-				<p>Hieronder vind je alle tv's die passen bij de keuzes die je hebt gemaakt en het beste aansluiten op jouw wensen. Staan er nog veel opties in de lijst? Gebruik de filters aan de linkerkant om verder te verfijnen op bijvoorbeeld schermgrootte, beeldtype of prijs.<br><br>We stelden vooraf bewust geen budgetvraag, zodat een prijsplafond niet de beste match voor je wegfiltert. Wil je toch alleen tv's binnen een bepaalde prijscategorie zien? Gebruik dan het filter "Prijscategorie" hiernaast.</p>
-			</div>
-		</div>
 
 				<!-- Results Content -->
 				<div class="results-content">
@@ -1562,29 +1555,6 @@
 		})();
 		</script>
 
-		<!-- Uitleg over de keuzes toggle -->
-		<script>
-		(function () {
-			var explainer = document.getElementById('resultsExplainer');
-			var toggleBtn = document.getElementById('explainerToggleBtn');
-			var body = document.getElementById('explainerBody');
-			var moreBtn = document.getElementById('explainerMoreBtn');
-			if (toggleBtn && body) {
-				toggleBtn.addEventListener('click', function () {
-					var open = body.classList.toggle('is-open');
-					toggleBtn.classList.toggle('is-open', open);
-					toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-				});
-			}
-			if (moreBtn && explainer) {
-				moreBtn.addEventListener('click', function () {
-					var expanded = explainer.classList.toggle('is-expanded');
-					moreBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-					moreBtn.querySelector('span').textContent = expanded ? 'Minder' : 'Meer';
-				});
-			}
-		})();
-		</script>
 
 		<!-- Vult ", voor het laatst op ..." in de uitleg-box met het echte
 		     moment waarop de pipeline de catalogus voor het laatst heeft

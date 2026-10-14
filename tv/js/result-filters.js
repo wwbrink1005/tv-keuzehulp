@@ -836,51 +836,73 @@ function initResultFilters() {
 
 // ───────── budget: "Meer budget?" en het vangnet als er niets binnen past ─────────
 const TYPE_VOORDEEL = {
-  "OLED": "diep zwart, rijk contrast en een brede kijkhoek",
-  "Mini LED": "fel beeld met sterk contrast, ook overdag",
-  "QLED": "helder beeld en levendige kleuren",
-  "Neo QLED": "fel beeld met sterk contrast, ook overdag",
-  "LED": "een degelijk en betaalbaar beeld",
+  "OLED": "Diep zwart, rijk contrast en een brede kijkhoek",
+  "Mini LED": "Fel beeld met sterk contrast, ook overdag",
+  "QLED": "Helder beeld en levendige kleuren",
+  "Neo QLED": "Fel beeld met sterk contrast, ook overdag",
+  "LED": "Een degelijk en betaalbaar beeld",
 };
 const euroLabel = n => "€" + Math.round(n).toLocaleString("nl-NL");
 
 function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
-  const note = qs("#budgetNote");
-  if (!note) return;
   const binnenLijst = binnen.filteredMatchedTVs ?? [];
   const buitenLijst = zonderGrens.filteredMatchedTVs ?? [];
+  const kaart = document.createElement("div");
+  kaart.className = "budget-kaart";
+  kaart.setAttribute("role", "note");
 
   if (budgetZonderMatch) {
-    note.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we in deze maat geen tv.</strong> Dit zijn de tv's die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
-    note.hidden = false;
+    kaart.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we in deze maat geen tv.</strong> Dit zijn de tv's die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
+    plaatsBudgetKaart(kaart);
     return;
   }
 
   // Alleen tonen als er zonder budgetgrens een ander, beter passend type wint.
   const anderType = zonderGrens.bestType && zonderGrens.bestType !== binnen.bestType;
   const goedkoopsteBuiten = buitenLijst.map(t => parsePrice(t.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
-  if (!anderType || !goedkoopsteBuiten || goedkoopsteBuiten <= cap) { note.hidden = true; return; }
+  if (!anderType || !goedkoopsteBuiten || goedkoopsteBuiten <= cap) return;
 
   const type = zonderGrens.bestType;
   const meer = goedkoopsteBuiten - cap;
   let toontBuiten = false;
   const teken = () => {
-    note.innerHTML = toontBuiten
-      ? `<p><strong>Je ziet nu ${type}-tv's boven je budget</strong> (vanaf ${euroLabel(goedkoopsteBuiten)}).</p>
-         <button type="button" class="budget-note-btn">Terug naar tv's tot ${euroLabel(cap)}</button>`
-      : `<p><strong>Meer budget?</strong> Zonder grens past een <strong>${type}</strong> het best bij je wensen: ${TYPE_VOORDEEL[type] ?? "een stap beter beeld"}. Die begint bij ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</p>
-         <button type="button" class="budget-note-btn">Bekijk ${type}-tv's</button>`;
-    note.querySelector(".budget-note-btn").addEventListener("click", () => {
+    kaart.innerHTML = toontBuiten
+      ? `<div class="budget-kaart-tekst"><strong>Je ziet nu ${type}-tv's boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
+         <button type="button" class="budget-kaart-btn">Terug naar tv's tot ${euroLabel(cap)}</button>`
+      : `<div class="budget-kaart-tekst"><strong>Meer budget? Dan past een ${type} het best bij je wensen</strong><span>${TYPE_VOORDEEL[type] ?? "Een stap beter beeld"}. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+         <button type="button" class="budget-kaart-btn">Bekijk ${type}-tv's</button>`;
+    kaart.querySelector(".budget-kaart-btn").addEventListener("click", () => {
       toontBuiten = !toontBuiten;
       filterState.baseMatches = toontBuiten ? buitenLijst : binnenLijst;
       filterState.bestType = toontBuiten ? zonderGrens.bestType : binnen.bestType;
       renderAllSecondary();
       applyFilters();
       teken();
+      qs("#resultTitle")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   };
   teken();
-  note.hidden = false;
+  plaatsBudgetKaart(kaart);
+}
+
+// De lijst wordt bij elk filter en elke sortering opnieuw getekend (innerHTML): zet de kaart
+// daarna steeds terug na de derde tv (of na de laatste als er minder zijn). Hij hoort bij
+// de lijst, zodat de kop en de filterkolom niet verschuiven.
+function plaatsBudgetKaart(kaart) {
+  const grid = qs("#otherMatchesGrid");
+  if (!grid) return;
+  const zet = () => {
+    const items = [...grid.children].filter(el => el !== kaart && !el.classList.contains("rcard-skelet"));
+    if (!items.length) return;
+    const na = items[Math.min(2, items.length - 1)];
+    if (na.nextElementSibling === kaart) return;
+    waker.disconnect();
+    na.after(kaart);
+    waker.observe(grid, { childList: true });
+  };
+  const waker = new MutationObserver(zet);
+  waker.observe(grid, { childList: true });
+  zet();
 }
 
 document.addEventListener("DOMContentLoaded", initResultFilters);

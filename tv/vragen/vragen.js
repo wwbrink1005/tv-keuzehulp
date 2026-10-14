@@ -108,18 +108,14 @@ function budgetInfo(g, cap) {
   const maten = sizeGroupToAllowedSizes[g] ?? [];
   const inMaat = catalogus.filter(t => maten.includes(t.grootte));
   const binnen = cap ? inMaat.filter(t => parsePrice(t.prijs) <= cap) : inMaat;
-  const telling = {};
-  binnen.forEach(t => { const ty = t.type === "Neo QLED" ? "QLED" : t.type; telling[ty] = (telling[ty] || 0) + 1; });
-  const types = Object.entries(telling).sort((a, b) => b[1] - a[1]).map(([t]) => t);
-  const oled = inMaat.filter(t => t.type === "OLED").map(t => parsePrice(t.prijs)).filter(Number.isFinite);
-  return { n: binnen.length, types, oledVanaf: oled.length ? Math.min(...oled) : null };
+  return { n: binnen.length, totaal: inMaat.length };
 }
 function budgetTag(g) {
   if (!st.budget) return "";
   const cap = capVan(st.budget), info = budgetInfo(g, cap);
   const kop = cap ? `Tot ${euro(cap)}` : "Elk budget";
   if (!info) return `<b>${kop}</b>`;
-  return `<b>${kop}</b><span class="muted">${info.n} tv's${info.types.length ? ": " + info.types.slice(0, 3).join(", ") : ""}</span>`;
+  return `<b>${kop}</b><span class="muted">${info.n} van de ${info.totaal} tv's</span>`;
 }
 
 const USAGE_CAPTION = {
@@ -389,13 +385,9 @@ function updateCaption(key) {
       const cap = capVan(st.budget), info = budgetInfo(st.sizeGroup, cap);
       if (!st.budget) { t = "Jouw budget"; s = "Kies wat je maximaal wilt uitgeven. Je krijgt de beste tv binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."; }
       else if (!info) { t = cap ? `Tot ${euro(cap)}` : "Geen maximum"; s = "We zoeken de beste tv binnen dit bedrag."; }
-      else {
-        t = `${cap ? `Tot ${euro(cap)}` : "Geen maximum"}: ${info.n} tv's`;
-        if (!info.n) s = "In deze maat is er geen tv binnen dit bedrag. We tonen dan de tv's die het best bij je passen, net erboven.";
-        else if (info.oledVanaf == null) s = "In deze maat zijn er geen OLED-tv's. We zoeken de beste LED, QLED of Mini LED voor je.";
-        else if (!cap || info.oledVanaf <= cap) s = `Binnen dit bedrag kan het ook een OLED worden. Die begint in deze maat bij ${euro(info.oledVanaf)}.`;
-        else s = `OLED begint in deze maat bij ${euro(info.oledVanaf)}. Binnen je budget zoeken we de beste LED, QLED of Mini LED.`;
-      }
+      else if (!cap) { t = "Geen maximum"; s = `Alle ${info.totaal} tv's van deze maat doen mee. We kiezen puur op je wensen.`; }
+      else if (!info.n) { t = `Tot ${euro(cap)}`; s = "In deze maat is er geen tv binnen dit bedrag. We tonen dan de tv's die het best bij je passen, net erboven."; }
+      else { t = `Tot ${euro(cap)}`; s = `${info.n} van de ${info.totaal} tv's van deze maat passen binnen dit bedrag. Past een duurdere tv beter bij je wensen, dan zie je dat bij je resultaten.`; }
       break;
     }
     case "usage": [t, s] = USAGE_CAPTION[key] ?? ["Waarvoor gebruik je de tv?", "Kies wat je het meest doet. Het scherm laat zien waar het om draait."];
