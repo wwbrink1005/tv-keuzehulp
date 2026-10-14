@@ -98,7 +98,10 @@ export const priceGroupsByType = {
 export const scoringSystem = {
   gebruik: {
     dagelijks: { Budget: 10, Mid: 8,  Krachtig: 4,  Topklasse: 1  },
-    werk:      { Budget: 7,  Mid: 9,  Krachtig: 7,  Topklasse: 4  },
+    // De tier is hier de videokaart (de catalogus heeft bijna geen
+    // processorgegevens). Werk heeft geen losse videokaart nodig: Budget
+    // (geïntegreerde graphics) voorop. Eerder kreeg "werk" vooral gaming-pc's.
+    werk:      { Budget: 9,  Mid: 7,  Krachtig: 5,  Topklasse: 3  },
     gaming:    { Budget: 1,  Mid: 5,  Krachtig: 9,  Topklasse: 10 },
     creatief:  { Budget: 2,  Mid: 6,  Krachtig: 9,  Topklasse: 10 },
     // Voor wie te veel doelen heeft om er 2 te kiezen: 1 gebalanceerde score
@@ -108,7 +111,9 @@ export const scoringSystem = {
   },
   intensiteit: {
     licht:     { Budget: 10, Mid: 7,  Krachtig: 3,  Topklasse: 1  },
-    gemiddeld: { Budget: 5,  Mid: 10, Krachtig: 8,  Topklasse: 4  },
+    // Gemiddeld gebruik zegt op zich niets over een videokaart; die komt pas
+    // in beeld bij gamen of creatief werk (zie scoringSystem.gebruik).
+    gemiddeld: { Budget: 8,  Mid: 8,  Krachtig: 6,  Topklasse: 3  },
     intensief: { Budget: 1,  Mid: 5,  Krachtig: 9,  Topklasse: 10 }
   }
 };

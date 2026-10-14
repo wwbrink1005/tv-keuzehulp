@@ -67,10 +67,14 @@ export function applyOpslagFilter(desktops, opslag) {
 // patroon als laptop. ram_gb werd tot nu toe alleen als infobullet gebruikt,
 // nooit om te filteren — waardoor bv. "intensief" + "gaming" een desktop met
 // een sterke GPU maar slechts 8 GB RAM als top-match kon opleveren.
+// Werkgeheugen is een voorkeur: alleen toepassen als er genoeg keus overblijft,
+// en een onbekend werkgeheugen (0 in de catalogus) sluit niet uit.
+const vergelijkbaar = lijst => lijst.filter(d => (d.aanbieders ?? []).length >= 2).length;
+
 export function applyRamFilter(desktops, intensiteit) {
   if (intensiteit === "gemiddeld" || intensiteit === "intensief") {
-    const medium = desktops.filter(d => d.ram >= 16);
-    if (medium.length > 0) return medium;
+    const medium = desktops.filter(d => !d.ram || d.ram >= 16);
+    if (medium.length > 0 && (vergelijkbaar(medium) >= 3 || vergelijkbaar(medium) >= vergelijkbaar(desktops))) return medium;
     return desktops;
   }
 
@@ -108,6 +112,22 @@ export function applyExtraFilter(desktops, extraAnswers) {
 
 // ─── Main matching function ───────────────────────────────────────────────────
 
+// Strikte versie van de expliciete wensen: opslag, videokaart bij gamen, RGB,
+// waterkoeling. Zie matchDesktops, stap 2a.
+function voldoetAanAlleWensen(desktops, answers) {
+  const opslag = answers.opslag ?? "";
+  const gebruik = Array.isArray(answers.gebruik) ? answers.gebruik : [];
+  const extra = Array.isArray(answers.extraAnswers) ? answers.extraAnswers : [];
+  return desktops.filter(d =>
+    (opslag !== "veel" || d.opslag >= 2000) &&
+    (opslag !== "gemiddeld" || d.opslag >= 1000) &&
+    (!gebruik.includes("gaming") || d.gpuTier !== "Budget") &&
+    (!extra.includes("rgb") || d.rgb === "Ja") &&
+    (!extra.includes("waterkoeling") || d.waterkoeling === "Ja") &&
+    (!extra.includes("wifi") || (Boolean(d.wifi) && d.wifi !== "Nee"))
+  );
+}
+
 export function matchDesktops(desktops, behuizingType, priceGroup, answers, scores) {
   if (!Array.isArray(desktops)) {
     return { bestMatch: null, bestType: null, filteredMatchedDesktops: [] };
@@ -144,7 +164,31 @@ export function matchDesktops(desktops, behuizingType, priceGroup, answers, scor
   let bestType = null;
   const tiersSoFar = [];
 
-  for (let i = 0; i < sortedTiers.length; i++) {
+  // 2a. Tiers in volgorde van score, alleen desktops die aan ALLE wensen
+  // voldoen, aangevuld tot MIN_RESULTS. Wie niet gamet of creatief werkt,
+  // krijgt daarbij geen pc's met losse videokaart bijgemengd zolang er al
+  // pc's zonder zijn (eerder zat in 113 van de 198 combinaties met "werk" of
+  // "dagelijks" een gaming-pc tussen de resultaten).
+  const gebruik = Array.isArray(answers.gebruik) ? answers.gebruik : [];
+  const wilGpu = gebruik.includes("gaming") || gebruik.includes("creatief");
+  let strikt = [];
+  const striktTiers = [];
+  for (const [tier] of sortedTiers) {
+    if (!wilGpu && tier !== "Budget" && strikt.some(d => d.gpuTier === "Budget")) break;
+    const kandidaten = voldoetAanAlleWensen(filtered.filter(d => d.gpuTier === tier), answers);
+    if (vergelijkbaar(kandidaten) === 0) continue;
+    strikt = strikt.concat(kandidaten);
+    striktTiers.push(tier);
+    if (vergelijkbaar(strikt) >= MIN_RESULTS) break;
+  }
+  if (strikt.length) {
+    matchedDesktops = applyRamFilter(strikt, answers.intensiteit ?? "");
+    bestType = striktTiers.join(" / ");
+  }
+
+  // 2b. Kan dat nergens: de oude cascade, waarin een wens die er niet is
+  // gracieus wegvalt.
+  for (let i = 0; i < sortedTiers.length && !strikt.length; i++) {
     const [tier] = sortedTiers[i];
     tiersSoFar.push(tier);
 

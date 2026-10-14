@@ -1,4 +1,4 @@
-// Testversie van de desktop-vragenpagina op de 3D-werkplek. Basisrender = het
+// De desktop-vragenpagina op de 3D-werkplek. Basisrender = het
 // bureau; de pc (tower met glazen zijpaneel, mini-pc of all-in-one) is een
 // transparante laag (render/scene.py). De gewone 27"-monitor hergebruiken we uit
 // de monitor-test. Vraag 5 (extra's) bestaat alleen bij een tower, net als in de
@@ -71,8 +71,8 @@ const Q = [
     id: "extra", type: "check", exclusive: "geen",
     title: "Wat is nog meer belangrijk voor jou?",
     sub: "Het zijpaneel gaat eraf: je keuzes verschijnen in de tower.",
-    why: "RGB-verlichting geeft je setup een stijlvolle uitstraling. Waterkoeling zorgt voor lagere temperaturen bij intensief gebruik. Wifi is handig als je geen kabel naar je router wilt trekken.",
-    options: [{ v: "rgb", label: "Verlichting in de behuizing (RGB)", price: "€€" }, { v: "waterkoeling", label: "Waterkoeling", price: "€€€" }, { v: "wifi", label: "Ingebouwde wifi", price: "€" }, { v: "geen", label: "Geen extra wensen", price: "€" }],
+    why: "RGB-verlichting geeft je setup een stijlvolle uitstraling. Waterkoeling zorgt voor lagere temperaturen bij intensief gebruik. ",
+    options: [{ v: "rgb", label: "Verlichting in de behuizing (RGB)", price: "€€" }, { v: "waterkoeling", label: "Waterkoeling", price: "€€€" }, { v: "geen", label: "Geen extra wensen", price: "€" }],
   },
 ];
 
