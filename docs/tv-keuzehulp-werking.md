@@ -32,8 +32,13 @@ winkels**:
 - Noemt minstens de helft van de namen "OLED", dan is het een **OLED**.
 - Noemt minstens de helft "QLED" of "QNED", dan is een "LED" eigenlijk een **QLED**.
 
-Ook het **modeljaar** halen we uit de namen ("(2025)", "- 2026"), en de **HDR-formaten**
-(Dolby Vision, HDR10+) uit de database.
+De namen bij **bol tellen niet mee**: die zitten het vaakst naast (bol noemde de Philips
+MLED910, een Mini LED uit 2025, "QLED" en "2026"). Zegt alleen bol iets, dan houden we wat
+Icecat zegt.
+
+Ook het **modeljaar** halen we uit de namen ("(2025)", "- 2026"): eerst uit de titel, anders
+het jaar dat de meeste winkels noemen. Geen jaar bekend? Dan telt het jaar niet mee (geen
+pluspunt, geen minpunt). De **HDR-formaten** (Dolby Vision, HDR10+) komen uit de database.
 
 *Code: `tv/js/supabase.js` (typeUitNamen, jaarUitNamen) en `tv/js/utils.js`.*
 

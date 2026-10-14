@@ -99,8 +99,12 @@ const NAAM_MINI = /mini[\s-]?led|true rgb|rgb[\s-]?(led|tv|mini)/i;
 const NAAM_OLED = /(^|[^q])oled/i;
 const NAAM_QLED = /qled|qned|nanocell/i;
 
+// bol's productnamen tellen niet mee: die zitten het vaakst naast (de Philips MLED910
+// heette daar "QLED" en "2026", terwijl het een Mini LED uit 2025 is).
 function productNamen(row) {
-  const winkels = Array.isArray(row.aanbieders) ? row.aanbieders.map((a) => a?.productnaam) : [];
+  const winkels = Array.isArray(row.aanbieders)
+    ? row.aanbieders.filter((a) => !/\bbol\b/i.test(String(a?.winkel ?? ""))).map((a) => a?.productnaam)
+    : [];
   return [row.titel, ...winkels].filter(Boolean).map(String);
 }
 
@@ -117,9 +121,8 @@ function typeUitNamen(namen, type) {
 /**
  * Modeljaar uit de productnamen ("(2025)", "- 2026"). De titel gaat voor; staat
  * daar geen jaar in, dan het jaar dat de meeste winkels noemen, en bij een
- * gelijke stand het oudste. Winkelnamen zitten er soms naast: bol noemde de
- * Philips MLED910 (2025) "2026" (en ook "QLED"), terwijl titel, Expert en EP
- * 2025 zeiden. Het nieuwste jaar laten winnen maakte hem ten onrechte "nieuw".
+ * gelijke stand het oudste. Het nieuwste jaar laten winnen maakte de Philips
+ * MLED910 (2025) ten onrechte "nieuw" door één winkelnaam met 2026.
  */
 const jarenIn = (n) => [...String(n).matchAll(/\b(20[12]\d)\b/g)].map((m) => Number(m[1]));
 
