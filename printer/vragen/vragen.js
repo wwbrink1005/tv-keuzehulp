@@ -47,7 +47,7 @@ const Q = [
     id: "gebruik", type: "radio",
     title: "Waarvoor ga je de printer vooral gebruiken?",
     sub: "De printer op het bureau wisselt mee.",
-    why: "Thuisgebruik (documenten, af en toe een foto) vraagt om een compacte, betaalbare inkjetprinter. Vooral foto's afdrukken vraagt om een fotoprinter met meer kleuren en hogere afdrukkwaliteit. Zakelijk gebruik vraagt om een snellere, robuustere printer (vaak laser) met functies als automatische documentinvoer en dubbelzijdig printen.",
+    why: "Thuisgebruik (documenten, af en toe een foto) vraagt om een betaalbare inkjetprinter, of een compacte laserprinter als je vooral tekst print. Vooral foto's afdrukken vraagt om een fotoprinter met meer kleuren en hogere afdrukkwaliteit. Zakelijk gebruik vraagt om een snellere, robuustere printer (vaak laser) met functies als automatische documentinvoer en dubbelzijdig printen.",
     options: [{ v: "thuis", label: "Thuisgebruik, zoals documenten en schoolwerk", price: "€" }, { v: "foto", label: "Vooral foto's en kleurrijk werk", price: "€€€" }, { v: "zakelijk", label: "Zakelijk, extra snel printen", price: "€€€" }],
   },
   {
@@ -68,14 +68,14 @@ const Q = [
     id: "kleur", type: "radio",
     title: "Print je weleens in kleur, of is zwart-wit genoeg?",
     sub: "Het geprinte vel laat het verschil zien.",
-    why: "Print je vooral tekstdocumenten, dan is zwart-wit vaak voldoende en goedkoper in gebruik. Wil je ook foto's, kleurendocumenten of presentaties printen, dan zoeken we gericht naar printers die in kleur kunnen printen.",
+    why: "Print je vooral tekstdocumenten, dan is zwart-wit vaak voldoende. We kijken dan eerst naar zwart-witprinters (meestal laser): goedkoper per pagina en er droogt geen inkt in. Wil je ook foto's, kleurendocumenten of presentaties printen, dan zoeken we gericht naar printers die in kleur kunnen printen.",
     options: [{ v: "nee", label: "Alleen zwart-wit", price: "€" }, { v: "ja", label: "Ook in kleur", price: "€€" }],
   },
   {
     id: "inkt", type: "radio",
     title: "Wat vind je belangrijker: een lage aanschafprijs of lage kosten per pagina?",
     sub: "Zie waar de inkt zit.",
-    why: "Printers met een navulbaar inktsysteem (zoals EcoTank of Smart Tank) kosten meer bij aanschaf, maar de inkt is daarna veel goedkoper per pagina. Printers met losse cartridges zijn goedkoper in aanschaf, maar de cartridges zijn relatief duur.",
+    why: "Printers met een navulbaar inktsysteem (zoals EcoTank of Smart Tank) kosten meer bij aanschaf, maar de inkt is daarna veel goedkoper per pagina. Een laserprinter met toner is ook voordelig per pagina. Printers met losse cartridges zijn goedkoper in aanschaf, maar de cartridges zijn relatief duur.",
     options: [{ v: "aanschafprijs", label: "Lage aanschafprijs is belangrijker", price: "€" }, { v: "tank", label: "Lage kosten per pagina", price: "€€€" }],
   },
   {
@@ -165,15 +165,15 @@ createQuiz3D({
   caption(st) {
     switch (st.q) {
       case 0: return {
-        thuis: ["Thuisgebruik", "Een compacte inkjetprinter: betaalbaar en ruim genoeg voor documenten en af en toe een foto."],
+        thuis: ["Thuisgebruik", "Een betaalbare inkjetprinter, of een compacte laserprinter als je vooral tekst print."],
         foto: ["Foto's", "Een fotoprinter met meer inktkleuren voor rijke, scherpe afdrukken."],
         zakelijk: ["Zakelijk", "Een snelle, robuuste (laser)printer die veel werk aankan."],
       }[st.gebruik] ?? ["Jouw werkplek", "Kies waarvoor je de printer gebruikt; de printer op het bureau wisselt mee."];
       case 1: return st.volume === "veel" ? ["Grote oplages", "Dan zoeken we een printer die snel is en veel papier aankan."] : st.volume ? ["Af en toe printen", "Een instapmodel is dan ruim voldoende."] : ["Oplage", "Kies hoeveel je meestal print."];
       case 2: return st.aio === "ja" ? ["All-in-one", "Met een scanner bovenop kun je ook scannen en kopiëren."] : st.aio ? ["Alleen printen", "Zonder scanner: compacter en voordeliger."] : ["Scannen en kopiëren", "Een all-in-one heeft een scanner bovenop."];
-      case 3: return st.kleur === "ja" ? ["Ook in kleur", "Foto's, grafieken en presentaties komen in kleur uit de printer."] : st.kleur ? ["Alleen zwart-wit", "Voor tekst is zwart-wit genoeg en goedkoper per pagina."] : ["Kleur", "Kies of je ook in kleur print."];
+      case 3: return st.kleur === "ja" ? ["Ook in kleur", "Foto's, grafieken en presentaties komen in kleur uit de printer."] : st.kleur ? ["Alleen zwart-wit", "Voor tekst is zwart-wit genoeg. We kijken eerst naar zwart-witprinters: goedkoper per pagina."] : ["Kleur", "Kies of je ook in kleur print."];
       case 4: if (st.inkt === "tank" && isLaser(st)) return ["Lage kosten per pagina", "Een laserprinter heeft geen inkt maar toner. Voordelig per pagina zijn modellen met grote tonercartridges."];
-        return st.inkt === "tank" ? ["Navulbare inkttanks", "Iets duurder bij aanschaf, daarna veel goedkoper per pagina. Je ziet het inktpeil aan de voorkant."] : st.inkt ? ["Losse cartridges", "Goedkoper in aanschaf; de cartridges zelf zijn relatief duur."] : ["Inkt", "Kies wat je belangrijker vindt."];
+        return st.inkt === "tank" ? ["Navulbare inkttanks", "Iets duurder bij aanschaf, daarna veel goedkoper per pagina. Een laserprinter met toner kan ook."] : st.inkt ? ["Losse cartridges", "Goedkoper in aanschaf; de cartridges zelf zijn relatief duur."] : ["Inkt", "Kies wat je belangrijker vindt."];
       default: return st.extra.some(e => e !== "geen") ? ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."] : ["Extra's", "Vink aan wat je belangrijk vindt."];
     }
   },

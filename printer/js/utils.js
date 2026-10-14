@@ -1,4 +1,4 @@
-import { classifyGebruik } from "./data.js";
+import { classifyGebruik, isKantoorprinter, pastBijGebruik } from "./data.js";
 
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -58,6 +58,7 @@ export function normalizeProducts(rawProducts) {
     const afbeeldingen = Array.isArray(product.icecat_afbeeldingen) ? product.icecat_afbeeldingen : [];
 
     if (!product.merk || !product.printtechnologie) return [];
+    if (!isKantoorprinter(product.printtechnologie, naam)) return [];
 
     const gebruikType = classifyGebruik(product.printtechnologie, product.marktPositionering, product.printkleuren);
     if (!gebruikType) return [];
@@ -116,7 +117,7 @@ function floorNice(value) {
  */
 export function computeDynamicPriceGroups(printers, gebruik) {
   const prices = printers
-    .filter(p => p.gebruikType === gebruik)
+    .filter(p => pastBijGebruik(p, gebruik))
     .map(p => parsePrice(p.prijs))
     .filter(p => Number.isFinite(p) && p > 0)
     .sort((a, b) => a - b);

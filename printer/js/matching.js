@@ -1,4 +1,4 @@
-import { VEEL_VOLUME_MIN_SNELHEID, isInktTankSysteem } from "./data.js";
+import { VEEL_VOLUME_MIN_SNELHEID, isInktTankSysteem, isLaser, pastBijGebruik } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 export const DEFAULT_MIN_AANBIEDERS = 2;
@@ -22,12 +22,29 @@ export function calculateScores() {
   return {};
 }
 
+const vergelijkbaar = lijst => lijst.filter(p => (p.aanbieders ?? []).length >= 2).length;
+const MIN_KEUZE = 3;
+
+// Een expliciete wens versmalt zodra er minstens 1 vergelijkbare printer
+// (2+ winkels) overblijft; anders zou de min-aanbieders-stap terugvallen tot
+// printers die maar bij 1 winkel te koop zijn.
+function wens(lijst, sub) {
+  if (vergelijkbaar(sub) > 0) return sub;
+  if (sub.length > 0 && vergelijkbaar(lijst) === 0) return sub;
+  return lijst;
+}
+
+// Een voorkeur (geen harde wens) alleen toepassen als er genoeg keus blijft.
+function zacht(lijst, sub) {
+  const n = vergelijkbaar(sub);
+  return n >= MIN_KEUZE || (n > 0 && n >= vergelijkbaar(lijst)) ? sub : lijst;
+}
+
 // ─── Volume (printvolume) voorkeur ─────────────────────────────────────────────
 
 export function applyVolumeFilter(printers, volume) {
   if (volume === "veel") {
-    const snel = printers.filter(p => (parseInt(p.printsnelheidZwart, 10) || 0) >= VEEL_VOLUME_MIN_SNELHEID);
-    if (snel.length > 0) return snel;
+    return wens(printers, printers.filter(p => (parseInt(p.printsnelheidZwart, 10) || 0) >= VEEL_VOLUME_MIN_SNELHEID));
   }
   // "gemiddeld"/onbeantwoord → geen filter nodig: dat vraagt niet om een
   // specifieke printer, de goedkoopste uit het aanbod is prima.
@@ -38,11 +55,13 @@ export function applyVolumeFilter(printers, volume) {
 
 export function applyKleurFilter(printers, kleurBelangrijk) {
   if (kleurBelangrijk === "ja") {
-    const kleurenPrinters = printers.filter(p => p.kanKleurenPrinten === "Ja");
-    if (kleurenPrinters.length > 0) return kleurenPrinters;
-    return printers;
+    return wens(printers, printers.filter(p => p.kanKleurenPrinten === "Ja"));
   }
-  // "nee" of onbeantwoord → geen filter (zwart-wit is voor iedereen prima)
+  // "Alleen zwart-wit": een zwart-witprinter is goedkoper in gebruik, maar een
+  // kleurenprinter kan het ook. Daarom een voorkeur, geen eis.
+  if (kleurBelangrijk === "nee") {
+    return zacht(printers, printers.filter(p => p.kanKleurenPrinten !== "Ja"));
+  }
   return printers;
 }
 
@@ -53,14 +72,18 @@ export function applyKleurFilter(printers, kleurBelangrijk) {
 // "thuis" narrowt, in plaats van dat alle "€"-antwoorden nog steeds de volle
 // €49-959-range opleveren. Beide kanten degraderen gracieus naar het
 // ongefilterde aanbod als de voorkeur toevallig 0 treffers oplevert.
+// Lage kosten per pagina hebben zowel inkttankprinters als laserprinters
+// (toner); eerder telde alleen een inkttank, waardoor een laser nooit paste.
+export function lageKostenPerPagina(printer) {
+  return isInktTankSysteem(printer.naam) || isLaser(printer);
+}
+
 export function applyInktFilter(printers, inktVoorkeur) {
   if (inktVoorkeur === "tank") {
-    const tank = printers.filter(p => isInktTankSysteem(p.naam));
-    if (tank.length > 0) return tank;
+    return wens(printers, printers.filter(lageKostenPerPagina));
   }
   if (inktVoorkeur === "aanschafprijs") {
-    const cartridge = printers.filter(p => !isInktTankSysteem(p.naam));
-    if (cartridge.length > 0) return cartridge;
+    return zacht(printers, printers.filter(p => !isInktTankSysteem(p.naam)));
   }
   return printers;
 }
@@ -71,8 +94,7 @@ export function applyInktFilter(printers, inktVoorkeur) {
 
 export function applyAioFilter(printers, aio) {
   if (aio === "ja") {
-    const aioPrinters = printers.filter(p => p.scannen === "Ja" && p.kopieren === "Ja");
-    if (aioPrinters.length > 0) return aioPrinters;
+    return wens(printers, printers.filter(p => p.scannen === "Ja" && p.kopieren === "Ja"));
   }
   return printers;
 }
@@ -87,20 +109,9 @@ export function applyExtraFilter(printers, extraAnswers) {
 
   let filtered = [...printers];
 
-  if (extraAnswers.includes("adf")) {
-    const adf = filtered.filter(p => p.adf === "Ja");
-    if (adf.length > 0) filtered = adf;
-  }
-
-  if (extraAnswers.includes("display")) {
-    const display = filtered.filter(p => p.display === "Ja");
-    if (display.length > 0) filtered = display;
-  }
-
-  if (extraAnswers.includes("bluetooth")) {
-    const bt = filtered.filter(p => p.bluetooth === "Ja");
-    if (bt.length > 0) filtered = bt;
-  }
+  if (extraAnswers.includes("adf")) filtered = wens(filtered, filtered.filter(p => p.adf === "Ja"));
+  if (extraAnswers.includes("display")) filtered = wens(filtered, filtered.filter(p => p.display === "Ja"));
+  if (extraAnswers.includes("bluetooth")) filtered = wens(filtered, filtered.filter(p => p.bluetooth === "Ja"));
 
   return filtered;
 }
@@ -116,8 +127,8 @@ export function matchPrinters(printers, gebruik, priceGroup, answers) {
   const filtered = printers.filter(p => {
     const price = parsePrice(p.prijs);
     return (
-      p.gebruikType === gebruik &&
-      (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max))
+      pastBijGebruik(p, gebruik) &&
+      (!priceGroup || (price >= priceGroup.min && (price < priceGroup.max || priceGroup.max === Infinity)))
     );
   });
 
@@ -125,20 +136,18 @@ export function matchPrinters(printers, gebruik, priceGroup, answers) {
     return { bestMatch: null, bestType: null, filteredMatchedPrinters: [] };
   }
 
-  // 2. Apply volume (printvolume) voorkeur
+  // 2. Eerst de wensen: snel printen, kleur, all-in-one, lage kosten per
+  // pagina en de extra's.
   let candidates = applyVolumeFilter(filtered, answers.volume ?? "");
-
-  // 3. Apply kleur filter
-  candidates = applyKleurFilter(candidates, answers.kleur ?? "");
-
-  // 4. Apply all-in-one voorkeur
+  if (answers.kleur === "ja") candidates = applyKleurFilter(candidates, "ja");
   candidates = applyAioFilter(candidates, answers.aio ?? "");
-
-  // 5. Apply inktsysteem voorkeur
-  candidates = applyInktFilter(candidates, answers.inkt ?? "");
-
-  // 6. Apply extra voorkeuren (ADF/display/bluetooth)
+  if (answers.inkt === "tank") candidates = applyInktFilter(candidates, "tank");
   candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
+
+  // 3. Dan de voorkeuren, die een wens nooit mogen verdringen: alleen
+  // zwart-wit, en een lage aanschafprijs (geen duurdere inkttankprinter).
+  if (answers.kleur === "nee") candidates = applyKleurFilter(candidates, "nee");
+  if (answers.inkt === "aanschafprijs") candidates = applyInktFilter(candidates, "aanschafprijs");
 
   const matchedPrinters = candidates.length > 0 ? candidates : filtered;
 

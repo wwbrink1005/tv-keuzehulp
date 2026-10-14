@@ -30,10 +30,25 @@ export const priceGroupsByGebruik = {
  * (thuis/foto/zakelijk) — geen aparte "gemengd"-tussenvorm meer, zie
  * matching.js voor waarom.
  */
+// Kassa-, label- en matrixprinters zitten ook in de feed, maar zijn geen
+// printer voor thuis of op kantoor (eerder kregen thuisgebruikers o.a.
+// "POS-printer"s en thermische labelprinters te zien).
+// "Thermische inkjet" is gewone inkjet (HP) en blijft dus.
+const GEEN_KANTOORPRINTER_TECH = /^(direct )?thermisch$|thermo transfer|thermische (overdracht|overzetting)|stippen|matrix/i;
+const GEEN_KANTOORPRINTER_NAAM = /\bPOS\b|bonprinter|kassaprinter|labelprinter|etiketten|label printer|receipt|kaart ?printer|designjet|plotter/i;
+
+export function isKantoorprinter(printtechnologie, naam) {
+  return !GEEN_KANTOORPRINTER_TECH.test(String(printtechnologie ?? "")) &&
+    !GEEN_KANTOORPRINTER_NAAM.test(String(naam ?? ""));
+}
+
 export function classifyGebruik(printtechnologie, marktPositionering, printkleuren) {
   const tech = String(printtechnologie ?? "").toLowerCase();
   const markt = String(marktPositionering ?? "").toLowerCase();
   const kleurenAantal = String(printkleuren ?? "").split(",").map(s => s.trim()).filter(Boolean).length;
+
+  // Sublimatie- en ZINK-printers zijn kleine fotoprinters (Canon Selphy e.d.).
+  if (tech.includes("sublimatie") || tech.includes("zink")) return "foto";
 
   // "LED" is Brother's eigen naam voor hun laserprinter-technologie (LED-array
   // i.p.v. laserdiode, functioneel dezelfde toner-klasse) — zonder deze check
@@ -42,6 +57,19 @@ export function classifyGebruik(printtechnologie, marktPositionering, printkleur
   if (kleurenAantal >= 5) return "foto";
   if (tech) return "thuis";
   return null;
+}
+
+// Een laserprinter die Icecat als "Thuis & kantoor" positioneert, past ook
+// bij thuisgebruik: wie veel tekst print en weinig kleur nodig heeft, is daar
+// juist goedkoper uit. Eerder kwamen lasers alleen bij "zakelijk" in beeld.
+export function pastBijGebruik(printer, gebruik) {
+  if (printer.gebruikType === gebruik) return true;
+  if (gebruik !== "thuis" || printer.gebruikType !== "zakelijk") return false;
+  return /thuis/i.test(String(printer.marktPositionering ?? ""));
+}
+
+export function isLaser(printer) {
+  return /laser|led/i.test(String(printer.printtechnologie ?? ""));
 }
 
 // ─── Inktsysteem (tank vs. cartridge) ──────────────────────────────────────

@@ -5,7 +5,7 @@ import {
   esc, getal, ja,
   maakContext, vergelijk, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
-import { isInktTankSysteem, VEEL_VOLUME_MIN_SNELHEID } from "./data.js";
+import { isInktTankSysteem, isLaser, VEEL_VOLUME_MIN_SNELHEID } from "./data.js";
 
 const GEBRUIK_LABEL = { thuis: "Thuisgebruik", zakelijk: "Zakelijk gebruik", foto: "Fotoprinter" };
 const ppm = (v) => parseInt(v, 10) || NaN;
@@ -24,6 +24,7 @@ export function buildResultPoints(pr, answers, ctx) {
   const wensen = Array.isArray(a.extraAnswers) ? a.extraAnswers : [];
   const wil = (x) => wensen.includes(x);
   const tank = isInktTankSysteem(pr.naam);
+  const laser = isLaser(pr);
 
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
@@ -31,6 +32,8 @@ export function buildResultPoints(pr, answers, ctx) {
   if (a.kleur === "ja" && ja(pr.kanKleurenPrinten)) vink("kleur", "print in kleur");
   if (a.aio === "ja" && ja(pr.scannen) && ja(pr.kopieren)) vink("aio", "ook scannen en kopiëren");
   if (a.inkt === "tank" && tank) vink("inkt", "navulbare inkttanks");
+  if (a.inkt === "tank" && laser) vink("inkt", "voordelig per pagina met toner");
+  if (a.kleur === "nee" && !ja(pr.kanKleurenPrinten)) vink("kleur", "zwart-witprinter");
   if (a.volume === "veel" && ppm(pr.printsnelheidZwart) >= VEEL_VOLUME_MIN_SNELHEID) vink("snelheid", "snel");
   if (wil("adf") && ja(pr.adf)) vink("adf", "documentinvoer");
   if (wil("display") && ja(pr.display)) vink("display", "display");
@@ -46,6 +49,7 @@ export function buildResultPoints(pr, answers, ctx) {
 
   // 3. Inkt vertaald naar de kosten
   if (tank) p.voeg(30, "inkt", `<strong>Navulbare inkttanks</strong>: veel lagere kosten per pagina dan cartridges`);
+  else if (laser) p.voeg(31, "inkt", `<strong>Toner</strong> in plaats van inkt: voordelig per pagina en droogt niet in`);
 
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
   if (ja(pr.duplex)) p.voeg(40, "duplex", `<strong>Dubbelzijdig printen</strong> zonder omdraaien`);
@@ -63,7 +67,9 @@ export function buildResultPoints(pr, answers, ctx) {
 export function buildSpecChips(pr) {
   const specs = [];
   if (pr.printtechnologie) specs.push(pr.printtechnologie);
-  if (pr.gebruikType) specs.push(GEBRUIK_LABEL[pr.gebruikType] ?? pr.gebruikType);
+  // Een laser voor "Thuis & kantoor" past ook bij thuisgebruik (zie pastBijGebruik).
+  if (pr.gebruikType === "zakelijk" && /thuis/i.test(pr.marktPositionering ?? "")) specs.push("Thuis en kantoor");
+  else if (pr.gebruikType) specs.push(GEBRUIK_LABEL[pr.gebruikType] ?? pr.gebruikType);
   if (pr.printsnelheidZwart) specs.push(`${pr.printsnelheidZwart} ppm`);
   if (pr.kanKleurenPrinten === "Ja") specs.push("Kleur");
   return specs;
