@@ -334,35 +334,50 @@ for o in _lid:
     o.data.transform(Matrix.Translation(o.location - hv))
     o.location = hv
 
-# ── printers, gemodelleerd naar echte apparaten ──
-# inkjet (thuis/foto): onderkast + scannerunit met naad, gestructureerd deksel,
-#   kantelbaar bedieningspaneel met kleurenscherm, uitvoerlade met verlengstuk en
-#   papierstop, papierinvoer achterop die schuin omhoog steekt.
-# laser (zakelijk): papierlade onderin, uitvoerruimte onder de scanner (die op een
-#   zijkolom rust), documentinvoer bovenop, schuin touchscreen.
+# ── printers, gemodelleerd naar echte apparaten (v2, oktober 2026) ──
+# Wordt door scene.py ingelezen. Zelfde plaatsing en maten als v1, zodat de overlays in
+# vragen.js (vellen op de lade/uitvoerbak, punten voor display/ADF/bluetooth) blijven kloppen.
+#
+# inkjet thuis (wit) en foto (zwart), naar HP DeskJet/ENVY en Canon PIXMA:
+#   kast met afgeronde verticale hoeken en strakke bovenrand, verzonken uitvoeropening
+#   met uitschuifbare lade (verlengstuk + papierstop), naadlijnen van voorklep en cassette,
+#   glanzend zwart bedieningspaneel met witte lichtjes (foto: kleurenscherm), scanner
+#   met gestructureerd deksel en greepinkeping, inkttanks rechtsvoor (EcoTank-stijl).
+# laser zakelijk (wit/grijs), naar HP LaserJet Pro en Brother HL/MFC:
+#   uitvoerbak in de bovenkant met opstaande rand en papierstop, grote voorklep met
+#   greep, papiercassette met papierniveau-venster, schuin LCD-paneel; als all-in-one met
+#   uitvoerruimte onder de scanner, zijkolom, documentinvoer en schuin touchscreen.
 PX = 0.44
 YB = -0.06
 
-def plastic(name, color, rough=0.45, grain=0.06, metal=0.0):
+def plastic(name, color, rough=0.45, grain=0.06, metal=0.0, coat=0.0, scale=1400):
     """Kunststof met een fijne korrel (voorkomt het gladde 'CG'-uiterlijk)."""
     m = bpy.data.materials.new(name); m.use_nodes = True
     N = m.node_tree.nodes; L = m.node_tree.links
     b = N["Principled BSDF"]
     b.inputs["Base Color"].default_value = (*color, 1); b.inputs["Roughness"].default_value = rough
-    b.inputs["Metallic"].default_value = metal
-    tc = N.new("ShaderNodeTexCoord"); nz = N.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 1400
+    b.inputs["Metallic"].default_value = metal; b.inputs["Coat Weight"].default_value = coat
+    tc = N.new("ShaderNodeTexCoord"); nz = N.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = scale
     bu = N.new("ShaderNodeBump"); bu.inputs["Strength"].default_value = grain; bu.inputs["Distance"].default_value = 0.0004
     L.new(tc.outputs["Object"], nz.inputs["Vector"]); L.new(nz.outputs["Fac"], bu.inputs["Height"]); L.new(bu.outputs["Normal"], b.inputs["Normal"])
     return m
 
-M_SEAM = flat("p_seam", (0.015, 0.015, 0.016), 0.7)
-M_SLOT = flat("p_slot", (0.008, 0.008, 0.009), 0.85)
-M_GLOSS = flat("p_gloss", (0.02, 0.02, 0.022), 0.08)
+def glow(name, color, strength, base=(0.02, 0.02, 0.022)):
+    m = bpy.data.materials.new(name); m.use_nodes = True
+    b = m.node_tree.nodes["Principled BSDF"]
+    b.inputs["Base Color"].default_value = (*base, 1); b.inputs["Roughness"].default_value = 0.2
+    b.inputs["Emission Color"].default_value = (*color, 1); b.inputs["Emission Strength"].default_value = strength
+    return m
+
+M_SEAM = flat("p_seam", (0.012, 0.012, 0.013), 0.7)
+M_SLOT = flat("p_slot", (0.006, 0.006, 0.007), 0.9)
 M_PAPER = flat("p_paper", (0.93, 0.93, 0.91), 0.7)
-M_LCD = flat("p_lcd", (0.02, 0.03, 0.05), 0.05, emission=(0.35, 0.6, 1.0), estrength=0.7)
-M_LCD2 = flat("p_lcd2", (0.02, 0.03, 0.05), 0.05, emission=(0.9, 0.95, 1.0), estrength=0.5)
-M_BTN = flat("p_btn", (0.2, 0.2, 0.21), 0.4)
-M_PWR = flat("p_pwr", (0.1, 0.1, 0.1), 0.4, emission=(0.3, 0.8, 1.0), estrength=2)
+M_GLASSBLK = plastic("p_glassblk", (0.008, 0.008, 0.009), 0.08, grain=0.0, coat=1.0)
+M_ICON = glow("p_icon", (1.0, 1.0, 1.0), 1.4)
+M_ICON_DIM = glow("p_icon_dim", (1.0, 1.0, 1.0), 0.35)
+M_PWR = glow("p_pwr", (0.35, 0.75, 1.0), 2.5)
+M_RUB = flat("p_rub", (0.02, 0.02, 0.02), 0.8)
+M_CHROME = flat("p_chrome", (0.75, 0.75, 0.77), 0.18, 1.0)
 
 def rot_x(objs, pivot, deg):
     pv = Vector(pivot)
@@ -370,6 +385,53 @@ def rot_x(objs, pivot, deg):
         o.data.transform(Matrix.Translation(o.location - pv))
         o.location = pv
         o.rotation_euler = (math.radians(deg), 0, 0)
+
+def rbox(name, x0, x1, y0, y1, z0, z1, r, mat, edge=0.003, segs=8):
+    """Blok met afgeronde verticale hoeken (straal r) en een smalle afronding op de
+    boven- en onderrand: de vorm van een echt apparaat i.p.v. een overal ronde zeep."""
+    bm_ = bmesh.new()
+    pts = []
+    for cx, cy, a0 in ((x1 - r, y1 - r, 0), (x0 + r, y1 - r, 90), (x0 + r, y0 + r, 180), (x1 - r, y0 + r, 270)):
+        for i in range(segs + 1):
+            a = math.radians(a0 + 90 * i / segs)
+            pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+    bot = [bm_.verts.new((x, y, z0)) for x, y in pts]
+    top = [bm_.verts.new((x, y, z1)) for x, y in pts]
+    bm_.faces.new(list(reversed(bot))); bm_.faces.new(top)
+    n = len(pts)
+    for i in range(n):
+        bm_.faces.new((bot[i], bot[(i + 1) % n], top[(i + 1) % n], top[i]))
+    me = bpy.data.meshes.new(name); bm_.to_mesh(me); bm_.free()
+    o = bpy.data.objects.new(name, me); scene.collection.objects.link(o); me.materials.append(mat)
+    if edge:
+        bv = o.modifiers.new("bev", "BEVEL"); bv.width = edge; bv.segments = 3
+        bv.limit_method = "ANGLE"; bv.angle_limit = math.radians(60)
+    for p in me.polygons:
+        p.use_smooth = True
+    # alleen afgevlakt waar het rond hoort: harde randen boven/onder behouden
+    bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
+    try:
+        bpy.ops.object.shade_smooth_by_angle(angle=math.radians(40))
+    except Exception:
+        pass
+    return o
+
+def carve(obj, x0, x1, y0, y1, z0, z1):
+    """Verzonken uitsparing (bv. de uitvoeropening) echt uit de kast snijden."""
+    c = box("cut_" + obj.name, x0, x1, y0, y1, z0, z1, M_SLOT)
+    bpy.context.view_layer.objects.active = obj
+    keep = [m_ for m_ in obj.modifiers]
+    for m_ in keep:
+        bpy.ops.object.modifier_apply(modifier=m_.name)
+    bo = obj.modifiers.new("hole", "BOOLEAN"); bo.operation = "DIFFERENCE"; bo.object = c; bo.solver = "EXACT"
+    bpy.ops.object.modifier_apply(modifier=bo.name)
+    bpy.data.objects.remove(c)
+    return obj
+
+def icon_dot(name, x, y, z, r, mat):
+    o = cyl(name, r, 0, 0.0008, 0, 0, mat, 24)
+    o.rotation_euler = (math.radians(90), 0, 0); o.location = (x, y, z)
+    return o
 
 prn = []
 lay = A.layer
@@ -384,117 +446,174 @@ def inkjet(k, aio_, part):
     yf = YB - d
     hb = 0.125                         # hoogte onderkast
     top = DZ + hb + (0.052 if aio_ else 0.012)
-    M_B = plastic("ink_body", (0.03, 0.03, 0.032) if foto else (0.82, 0.82, 0.8), 0.38 if foto else 0.45)
-    M_A = plastic("ink_accent", (0.13, 0.13, 0.14) if foto else (0.36, 0.37, 0.38), 0.4)
-    M_LID = plastic("ink_lid", (0.05, 0.05, 0.055) if foto else (0.7, 0.7, 0.69), 0.55, grain=0.25)
+    if foto:
+        M_B = plastic("ink_body", (0.022, 0.022, 0.024), 0.32, coat=0.25)
+        M_T = plastic("ink_trim", (0.06, 0.06, 0.065), 0.42)
+        M_LID = plastic("ink_lid", (0.03, 0.03, 0.033), 0.6, grain=0.35, scale=600)
+        M_TRAY = plastic("ink_tray", (0.05, 0.05, 0.055), 0.35)
+    else:
+        M_B = plastic("ink_body", (0.86, 0.86, 0.85), 0.42)
+        M_T = plastic("ink_trim", (0.42, 0.43, 0.44), 0.45)
+        M_LID = plastic("ink_lid", (0.8, 0.8, 0.79), 0.6, grain=0.35, scale=600)
+        M_TRAY = plastic("ink_tray", (0.56, 0.57, 0.58), 0.4)
+    # uitvoeropening links van het midden; rechts is plaats voor de inkttanks
+    ox0, ox1 = PX - 0.135, PX + 0.105
     out = []
     if part == "body":
-        out.append(box("ink_base", x0, x1, yf, YB, DZ + 0.008, DZ + hb, M_B, bevel=0.016, segs=6))
+        base = rbox("ink_base", x0, x1, yf, YB, DZ + 0.006, DZ + hb, 0.026, M_B, edge=0.004)
+        carve(base, ox0, ox1, yf - 0.02, yf + 0.06, DZ + 0.03, DZ + 0.078)
+        out.append(base)
+        # binnenkant van de opening: donker, met de papiergeleiding achterin
+        out.append(box("ink_cav_back", ox0, ox1, yf + 0.056, yf + 0.06, DZ + 0.03, DZ + 0.078, M_SLOT))
+        out.append(box("ink_cav_roof", ox0, ox1, yf, yf + 0.06, DZ + 0.0765, DZ + 0.078, M_SLOT))
+        out.append(box("ink_cav_paper", ox0 + 0.02, ox1 - 0.02, yf + 0.02, yf + 0.056, DZ + 0.06, DZ + 0.0615, M_PAPER))
+        # uitschuifbare lade met zijranden, verlengstuk en opgeklapte papierstop
+        out.append(box("ink_tray", ox0 + 0.01, ox1 - 0.01, yf - 0.15, yf + 0.05, DZ + 0.038, DZ + 0.043, M_TRAY, bevel=0.002, segs=2))
+        for sx in (ox0 + 0.01, ox1 - 0.016):
+            out.append(box("ink_tray_rail", sx, sx + 0.006, yf - 0.15, yf + 0.01, DZ + 0.043, DZ + 0.049, M_TRAY, bevel=0.002, segs=2))
+        out.append(box("ink_tray_ext", ox0 + 0.025, ox1 - 0.025, yf - 0.232, yf - 0.145, DZ + 0.0385, DZ + 0.042, M_TRAY, bevel=0.0015, segs=2))
+        stop = [box("ink_stop", PX - 0.045, PX + 0.035, -0.002, 0.002, 0, 0.03, M_TRAY, bevel=0.0015, segs=2)]
+        for o in stop:
+            o.location = (o.location.x, o.location.y + yf - 0.23, o.location.z + DZ + 0.042)
+        rot_x(stop, (0, yf - 0.23, DZ + 0.042), 12)
+        out += stop
+        # naadlijnen: voorklep boven de opening, papiercassette onderin, ventilatiesleuf
+        out.append(box("ink_seam_door", x0 + 0.03, x1 - 0.03, yf - 0.0005, yf + 0.003, DZ + 0.088, DZ + 0.0895, M_SEAM))
+        out.append(box("ink_seam_cas", x0 + 0.03, x1 - 0.03, yf - 0.0005, yf + 0.003, DZ + 0.02, DZ + 0.0215, M_SEAM))
+        out.append(box("ink_cas_grip", ox0 + 0.08, ox0 + 0.16, yf - 0.0006, yf + 0.003, DZ + 0.011, DZ + 0.018, M_SEAM, bevel=0.002))
         for fx in (x0 + 0.04, x1 - 0.04):
             for fy in (yf + 0.04, YB - 0.04):
-                out.append(cyl("ink_foot", 0.012, DZ, DZ + 0.008, fx, fy, M_SEAM, 16))
-        # accentband onderaan de voorkant
-        out.append(box("ink_band", x0 + 0.01, x1 - 0.01, yf - 0.002, yf + 0.01, DZ + 0.012, DZ + 0.03, M_A, bevel=0.004))
-        # uitvoeropening met lade, verlengstuk en papierstop
-        out.append(box("ink_slot", PX - 0.155, PX + 0.155, yf - 0.003, yf + 0.03, DZ + 0.04, DZ + 0.066, M_SLOT, bevel=0.003))
-        out.append(box("ink_tray", PX - 0.125, PX + 0.125, yf - 0.15, yf + 0.03, DZ + 0.041, DZ + 0.046, M_A, bevel=0.003, segs=2))
-        out.append(box("ink_tray_ext", PX - 0.11, PX + 0.11, yf - 0.23, yf - 0.14, DZ + 0.042, DZ + 0.046, M_A, bevel=0.003, segs=2))
-        out.append(box("ink_stop", PX - 0.04, PX + 0.04, yf - 0.232, yf - 0.226, DZ + 0.046, DZ + 0.066, M_A, bevel=0.002))
-        # naad tussen onderkast en scanner, scannerunit en gestructureerd deksel
+                out.append(cyl("ink_foot", 0.012, DZ, DZ + 0.006, fx, fy, M_RUB, 16))
+        # bovenkant: scanner met gestructureerd deksel (all-in-one) of gesloten afdekkap
         if aio_:
-            out.append(box("ink_seam", x0 + 0.006, x1 - 0.006, yf + 0.006, YB - 0.006, DZ + hb - 0.004, DZ + hb + 0.004, M_SEAM))
-            out.append(box("ink_scan", x0 + 0.002, x1 - 0.002, yf + 0.004, YB, DZ + hb + 0.003, DZ + hb + 0.042, M_B, bevel=0.012, segs=5))
-            out.append(box("ink_lid", x0 + 0.004, x1 - 0.004, yf + 0.006, YB - 0.002, DZ + hb + 0.041, top, M_LID, bevel=0.01, segs=4))
-            out.append(box("ink_lidlip", PX - 0.06, PX + 0.06, yf + 0.003, yf + 0.012, top - 0.012, top - 0.004, M_SEAM, bevel=0.003))
+            out.append(box("ink_seam_scan", x0 + 0.012, x1 - 0.012, yf + 0.008, YB - 0.008, DZ + hb - 0.002, DZ + hb + 0.004, M_SEAM))
+            out.append(rbox("ink_scan", x0 + 0.002, x1 - 0.002, yf + 0.004, YB, DZ + hb + 0.003, DZ + hb + 0.04, 0.024, M_B, edge=0.003))
+            out.append(box("ink_seam_lid", x0 + 0.01, x1 - 0.01, yf + 0.0065, YB - 0.006, DZ + hb + 0.039, DZ + hb + 0.0415, M_SEAM))
+            out.append(rbox("ink_lid", x0 + 0.004, x1 - 0.004, yf + 0.006, YB - 0.002, DZ + hb + 0.041, top, 0.022, M_LID, edge=0.004))
+            out.append(box("ink_lid_notch", PX - 0.05, PX + 0.05, yf + 0.0045, yf + 0.012, top - 0.008, top - 0.002, M_SEAM, bevel=0.003))
         else:
-            out.append(box("ink_cover", x0 + 0.01, x1 - 0.01, yf + 0.02, YB - 0.01, DZ + hb - 0.001, top, M_LID, bevel=0.008, segs=4))
-        # bedieningspaneel: kantelbare strook linksvoor met kleurenscherm en knoppen
-        pz = DZ + hb - 0.035
-        panel = [box("ink_panel", x0 + 0.02, x0 + 0.17, yf - 0.03, yf + 0.004, pz, pz + 0.03, M_B if not foto else M_A, bevel=0.006, segs=4),
-                 box("ink_lcd", x0 + 0.03, x0 + 0.1, yf - 0.031, yf - 0.029, pz + 0.006, pz + 0.025, M_LCD)]
-        for i in range(3):
-            bx = x0 + 0.115 + i * 0.017
-            panel.append(box("ink_btn", bx - 0.0055, bx + 0.0055, yf - 0.034, yf - 0.03, pz + 0.01, pz + 0.021, M_BTN if i else M_PWR, bevel=0.002, segs=2))
-        rot_x(panel, (0, yf, pz), -28)
+            out.append(box("ink_seam_top", x0 + 0.012, x1 - 0.012, yf + 0.008, YB - 0.008, DZ + hb - 0.002, DZ + hb + 0.002, M_SEAM))
+            out.append(rbox("ink_cover", x0 + 0.006, x1 - 0.006, yf + 0.006, YB - 0.004, DZ + hb, top, 0.022, M_LID, edge=0.004))
+        # bedieningspaneel linksboven op de voorrand: glanzend zwart, iets schuin, met lichtjes
+        pz = DZ + hb - 0.034
+        pnl_x0, pnl_x1 = x0 + 0.018, x0 + 0.17
+        panel = [box("ink_panel", pnl_x0, pnl_x1, yf - 0.006, yf + 0.01, pz - 0.004, pz + 0.032, M_GLASSBLK, bevel=0.003, segs=3)]
+        if foto:
+            # kleurenscherm van 2,7 inch met een fotoreeks erop
+            lcd = bpy.data.materials.new("ink_lcd"); lcd.use_nodes = True
+            Nn = lcd.node_tree.nodes; Ll = lcd.node_tree.links; bb = Nn["Principled BSDF"]
+            gr = Nn.new("ShaderNodeTexGradient"); tc = Nn.new("ShaderNodeTexCoord"); ramp = Nn.new("ShaderNodeValToRGB")
+            ramp.color_ramp.elements[0].color = (0.05, 0.25, 0.55, 1); ramp.color_ramp.elements[1].color = (0.95, 0.6, 0.25, 1)
+            Ll.new(tc.outputs["Generated"], gr.inputs["Vector"]); Ll.new(gr.outputs["Fac"], ramp.inputs["Fac"])
+            Ll.new(ramp.outputs["Color"], bb.inputs["Emission Color"]); bb.inputs["Emission Strength"].default_value = 0.9
+            bb.inputs["Base Color"].default_value = (0.01, 0.01, 0.01, 1); bb.inputs["Roughness"].default_value = 0.05
+            panel.append(box("ink_lcd", pnl_x0 + 0.012, pnl_x0 + 0.072, yf - 0.0068, yf - 0.0058, pz + 0.002, pz + 0.027, lcd))
+            ix0 = pnl_x0 + 0.085
+        else:
+            ix0 = pnl_x0 + 0.016
+        # witte aanraaklichtjes (wifi, kopie, annuleren, info) en een blauwe aan/uit-ring
+        n_ic = 4 if foto else 6
+        for i in range(n_ic):
+            panel.append(icon_dot("ink_icon", ix0 + i * 0.016, yf - 0.0066, pz + 0.014, 0.0036, M_ICON if i % 2 == 0 else M_ICON_DIM))
+        panel.append(icon_dot("ink_pwr", pnl_x1 - 0.014, yf - 0.0066, pz + 0.014, 0.005, M_PWR))
+        rot_x(panel, (0, yf, pz), -12)
         out += panel
-        # papierinvoer achterop: schuine steun met papier erin
-        feeder = [box("ink_feed", PX - 0.135, PX + 0.135, -0.004, 0.004, 0, 0.19, M_A, bevel=0.004, segs=3),
-                  box("ink_feed_paper", PX - 0.105, PX + 0.105, -0.012, -0.004, 0.02, 0.2, M_PAPER),
-                  box("ink_feed_guide", PX - 0.11, PX - 0.1, -0.02, -0.004, 0.0, 0.08, M_A, bevel=0.002)]
-        for o in feeder:
-            o.location = (o.location.x, o.location.y + YB - 0.03, o.location.z + top - 0.01)
-        rot_x(feeder, (0, YB - 0.03, top - 0.01), -18)
-        out += feeder
-        # klein logoplaatje op de scanner-/bovenrand
-        out.append(box("ink_logo", PX + 0.08, PX + 0.13, yf - 0.001, yf + 0.001, top - 0.03, top - 0.022, flat("logo", (0.45, 0.45, 0.46), 0.3, 1.0)))
+        # rond embleem rechts op de voorklep (geen merk)
+        out.append(icon_dot("ink_logo", x1 - 0.05, yf - 0.0002, DZ + 0.1, 0.008, M_CHROME))
     elif part == "tank":
-        # geïntegreerd tankvenster rechtsvoor met vier (foto: zes) inktkleuren
+        # EcoTank-stijl: tankvenster rechtsvoor, doorzichtige tanks met inktpeil en streepjes
         inks = [(0.02, 0.02, 0.02), (0.0, 0.55, 0.85), (0.85, 0.05, 0.45), (0.95, 0.8, 0.05)]
         if foto:
             inks += [(0.4, 0.75, 0.95), (0.95, 0.5, 0.75)]
-        wx0 = x1 - 0.028 - 0.016 * len(inks); wx1 = x1 - 0.02
-        out.append(box("tank_frame", wx0 - 0.008, wx1 + 0.008, yf - 0.006, yf + 0.004, DZ + 0.034, DZ + 0.118, plastic("tank_fr", (0.03, 0.03, 0.032), 0.35), bevel=0.004, segs=3))
+        step = 0.013 if foto else 0.016
+        wx1 = x1 - 0.022; wx0 = wx1 - step * len(inks)
+        out.append(box("tank_frame", wx0 - 0.007, wx1 + 0.007, yf - 0.006, yf + 0.004, DZ + 0.03, DZ + 0.112,
+                       plastic("tank_fr", (0.03, 0.03, 0.032), 0.35, coat=0.3), bevel=0.004, segs=3))
         glass = bpy.data.materials.new("tank_glass"); glass.use_nodes = True
-        g = glass.node_tree.nodes["Principled BSDF"]; g.inputs["Base Color"].default_value = (0.8, 0.82, 0.85, 1)
-        g.inputs["Roughness"].default_value = 0.05; g.inputs["Transmission Weight"].default_value = 0.9
+        g = glass.node_tree.nodes["Principled BSDF"]; g.inputs["Base Color"].default_value = (0.85, 0.87, 0.9, 1)
+        g.inputs["Roughness"].default_value = 0.12; g.inputs["Transmission Weight"].default_value = 0.85
         for i, c in enumerate(inks):
-            tx = wx0 + i * 0.016
-            M_T = flat(f"ink{i}", c, 0.2)
-            lvl = 0.035 + 0.035 * ((i * 37) % 10) / 10
-            out.append(box(f"tank_ink{i}", tx + 0.002, tx + 0.013, yf - 0.008, yf - 0.004, DZ + 0.04, DZ + 0.04 + lvl, M_T))
-            out.append(box(f"tank_win{i}", tx + 0.001, tx + 0.014, yf - 0.009, yf - 0.007, DZ + 0.038, DZ + 0.112, glass, bevel=0.002))
+            tx = wx0 + i * step
+            lvl = 0.035 + 0.032 * ((i * 37) % 10) / 10
+            out.append(box(f"tank_ink{i}", tx + 0.0025, tx + step - 0.0025, yf - 0.0085, yf - 0.0045, DZ + 0.038, DZ + 0.038 + lvl, plastic(f"ink{i}", c, 0.15, grain=0.0, coat=0.6)))
+            out.append(box(f"tank_win{i}", tx + 0.0015, tx + step - 0.0015, yf - 0.0095, yf - 0.0075, DZ + 0.036, DZ + 0.104, glass, bevel=0.0015, segs=2))
+            for z_ in (DZ + 0.046, DZ + 0.094):   # min/max-streepje
+                out.append(box("tank_mark", tx + 0.002, tx + 0.005, yf - 0.0098, yf - 0.0094, z_, z_ + 0.001, M_ICON_DIM))
     elif part == "adf":
-        # documentinvoer op het scannerdeksel, met invoerlade en een paar vellen
-        out.append(box("adf_body", x0 + 0.04, x1 - 0.04, yf + 0.03, YB - 0.01, top, top + 0.05, M_B, bevel=0.012, segs=4))
-        out.append(box("adf_tray", PX - 0.12, PX + 0.12, yf + 0.1, YB - 0.02, top + 0.05, top + 0.055, M_A, bevel=0.003))
-        out.append(box("adf_paper", PX - 0.105, PX + 0.105, yf + 0.11, YB - 0.03, top + 0.055, top + 0.058, M_PAPER))
-        out.append(box("adf_slot", PX - 0.12, PX + 0.12, yf + 0.028, yf + 0.032, top + 0.012, top + 0.028, M_SLOT))
+        # documentinvoer op het scannerdeksel: kap links, schuin oplopende invoerlade met papier
+        out.append(rbox("adf_body", x0 + 0.03, x1 - 0.03, yf + 0.03, YB - 0.01, top, top + 0.045, 0.02, M_B, edge=0.004))
+        out.append(rbox("adf_hood", x0 + 0.03, x0 + 0.12, yf + 0.03, YB - 0.01, top + 0.045, top + 0.06, 0.018, M_T, edge=0.004))
+        out.append(box("adf_tray", x0 + 0.13, x1 - 0.04, yf + 0.08, YB - 0.02, top + 0.045, top + 0.048, M_T, bevel=0.002))
+        out.append(box("adf_paperstack", x0 + 0.15, x1 - 0.06, yf + 0.09, YB - 0.025, top + 0.046, top + 0.05, M_PAPER))
+        out.append(box("adf_slot", x0 + 0.13, x1 - 0.05, yf + 0.028, yf + 0.032, top + 0.012, top + 0.028, M_SLOT))
     return out
 
 def laser(aio_):
     w, d = 0.43, 0.43
     x0, x1 = PX - w / 2, PX + w / 2
     yf = YB - d
-    M_B = plastic("las_body", (0.84, 0.84, 0.83), 0.45)
-    M_A = plastic("las_accent", (0.28, 0.29, 0.3), 0.42)
+    M_B = plastic("las_body", (0.86, 0.86, 0.855), 0.45)
+    M_G = plastic("las_grey", (0.33, 0.34, 0.35), 0.45)
+    M_D = plastic("las_dark", (0.06, 0.06, 0.065), 0.4)
     out = []
     body_top = DZ + (0.24 if aio_ else 0.28)
-    out.append(box("las_body", x0, x1, yf + 0.004, YB, DZ + 0.008, body_top, M_B, bevel=0.012, segs=5))
-    # papierlade onderin met greep en naden
-    out.append(box("las_drawer", x0 + 0.012, x1 - 0.012, yf - 0.002, yf + 0.01, DZ + 0.015, DZ + 0.105, M_B, bevel=0.005, segs=3))
-    out.append(box("las_drawer_seam", x0 + 0.01, x1 - 0.01, yf + 0.001, yf + 0.006, DZ + 0.105, DZ + 0.109, M_SEAM))
-    out.append(box("las_grip", PX - 0.06, PX + 0.06, yf - 0.004, yf + 0.002, DZ + 0.085, DZ + 0.097, M_SLOT, bevel=0.004))
-    out.append(box("las_frontpanel", x0 + 0.02, x1 - 0.02, yf - 0.001, yf + 0.004, DZ + 0.13, body_top - 0.02, M_B, bevel=0.004))
-    out.append(box("las_frontseam", x0 + 0.02, x1 - 0.02, yf - 0.002, yf + 0.003, DZ + 0.125, DZ + 0.128, M_SEAM))
+    # kast: grijze onderband (cassette), witte bovenbouw
+    out.append(rbox("las_low", x0, x1, yf + 0.004, YB, DZ + 0.006, DZ + 0.112, 0.02, M_G, edge=0.003))
+    out.append(rbox("las_body", x0, x1, yf + 0.004, YB, DZ + 0.112, body_top, 0.02, M_B, edge=0.004))
+    out.append(box("las_seam_low", x0 + 0.01, x1 - 0.01, yf + 0.002, yf + 0.006, DZ + 0.111, DZ + 0.114, M_SEAM))
+    # papiercassette: greepuitsparing en papierniveau-venster
+    out.append(box("las_cas_grip", PX - 0.07, PX + 0.07, yf + 0.0005, yf + 0.006, DZ + 0.075, DZ + 0.092, M_SLOT, bevel=0.004))
+    out.append(box("las_cas_level", x1 - 0.06, x1 - 0.03, yf + 0.001, yf + 0.006, DZ + 0.03, DZ + 0.075, M_D, bevel=0.002))
+    out.append(box("las_cas_mark", x1 - 0.051, x1 - 0.039, yf, yf + 0.002, DZ + 0.035, DZ + 0.06, M_PAPER))
+    # grote voorklep met naden en greep bovenaan
+    out.append(box("las_door_seam_l", x0 + 0.03, x0 + 0.033, yf + 0.0035, yf + 0.0065, DZ + 0.128, body_top - 0.03, M_SEAM))
+    out.append(box("las_door_seam_r", x1 - 0.033, x1 - 0.03, yf + 0.0035, yf + 0.0065, DZ + 0.128, body_top - 0.03, M_SEAM))
+    out.append(box("las_door_seam_t", x0 + 0.03, x1 - 0.03, yf + 0.0035, yf + 0.0065, body_top - 0.033, body_top - 0.03, M_SEAM))
+    out.append(box("las_door_grip", PX - 0.08, PX + 0.08, yf + 0.0015, yf + 0.007, body_top - 0.055, body_top - 0.042, M_SLOT, bevel=0.004))
+    out.append(icon_dot("las_pwr", x1 - 0.045, yf + 0.0035, DZ + 0.165, 0.005, M_PWR))
     for fx in (x0 + 0.04, x1 - 0.04):
         for fy in (yf + 0.04, YB - 0.04):
-            out.append(cyl("las_foot", 0.012, DZ, DZ + 0.008, fx, fy, M_SEAM, 16))
-    out.append(cyl("las_pwr", 0.006, 0, 0.003, 0, 0, M_PWR, 24))
-    out[-1].rotation_euler = (math.radians(90), 0, 0); out[-1].location = (x1 - 0.035, yf - 0.002, DZ + 0.16)
+            out.append(cyl("las_foot", 0.012, DZ, DZ + 0.006, fx, fy, M_RUB, 16))
     if aio_:
-        # uitvoerruimte onder de scanner: vloer + zijkolom rechts + achterwand
-        out.append(box("las_out_floor", x0 + 0.01, x1 - 0.07, yf + 0.03, YB - 0.02, body_top - 0.004, body_top + 0.002, M_A, bevel=0.003))
-        out.append(box("las_column", x1 - 0.07, x1, yf + 0.004, YB, body_top - 0.01, DZ + 0.31, M_B, bevel=0.01, segs=4))
-        out.append(box("las_back", x0, x1, YB - 0.07, YB, body_top - 0.01, DZ + 0.31, M_B, bevel=0.006))
-        out.append(box("las_scan", x0 + 0.002, x1 - 0.002, yf + 0.006, YB, DZ + 0.305, DZ + 0.35, M_B, bevel=0.012, segs=5))
-        out.append(box("las_scan_seam", x0 + 0.01, x1 - 0.01, yf + 0.006, YB - 0.01, DZ + 0.302, DZ + 0.306, M_SEAM))
-        # documentinvoer (ADF) bovenop
-        out.append(box("las_adf", x0 + 0.01, x1 - 0.01, yf + 0.03, YB - 0.004, DZ + 0.35, DZ + 0.405, M_B, bevel=0.012, segs=4))
-        out.append(box("las_adf_hood", x0 + 0.02, x0 + 0.13, yf + 0.03, YB - 0.01, DZ + 0.4, DZ + 0.415, M_A, bevel=0.008, segs=3))
-        out.append(box("las_adf_tray", x0 + 0.13, x1 - 0.03, yf + 0.08, YB - 0.02, DZ + 0.405, DZ + 0.41, M_A, bevel=0.003))
-        out.append(box("las_adf_paper", x0 + 0.16, x1 - 0.05, yf + 0.09, YB - 0.03, DZ + 0.41, DZ + 0.414, M_PAPER))
-        # schuin touchscreen vooraan
-        pz = DZ + 0.315
-        panel = [box("las_panel", PX + 0.04, PX + 0.17, yf - 0.045, yf + 0.004, pz, pz + 0.012, plastic("las_pnl", (0.06, 0.06, 0.065), 0.35), bevel=0.006, segs=3),
-                 box("las_touch", PX + 0.05, PX + 0.16, yf - 0.04, yf - 0.004, pz + 0.012, pz + 0.0135, M_LCD)]
+        # uitvoerruimte onder de scanner: vloer, zijkolom rechts, achterwand
+        out.append(box("las_out_floor", x0 + 0.012, x1 - 0.072, yf + 0.03, YB - 0.02, body_top - 0.003, body_top + 0.002, M_D, bevel=0.002))
+        out.append(box("las_out_slot", x0 + 0.04, x1 - 0.1, YB - 0.075, YB - 0.07, body_top + 0.01, body_top + 0.02, M_SLOT))
+        out.append(rbox("las_column", x1 - 0.072, x1, yf + 0.004, YB, body_top - 0.01, DZ + 0.31, 0.02, M_B, edge=0.003))
+        out.append(box("las_back", x0, x1 - 0.06, YB - 0.07, YB, body_top - 0.01, DZ + 0.31, M_B, bevel=0.004))
+        out.append(box("las_seam_scan", x0 + 0.01, x1 - 0.01, yf + 0.006, YB - 0.01, DZ + 0.302, DZ + 0.306, M_SEAM))
+        out.append(rbox("las_scan", x0 + 0.002, x1 - 0.002, yf + 0.006, YB, DZ + 0.305, DZ + 0.35, 0.02, M_B, edge=0.004))
+        # documentinvoer (ADF) bovenop: kap links, invoerlade met papier, uitvoerlade eronder
+        out.append(rbox("las_adf", x0 + 0.01, x1 - 0.01, yf + 0.03, YB - 0.004, DZ + 0.35, DZ + 0.395, 0.018, M_B, edge=0.004))
+        out.append(rbox("las_adf_hood", x0 + 0.015, x0 + 0.12, yf + 0.03, YB - 0.01, DZ + 0.395, DZ + 0.415, 0.016, M_G, edge=0.004))
+        out.append(box("las_adf_tray", x0 + 0.125, x1 - 0.025, yf + 0.07, YB - 0.02, DZ + 0.395, DZ + 0.4, M_G, bevel=0.002))
+        out.append(box("las_adf_paper", x0 + 0.15, x1 - 0.045, yf + 0.085, YB - 0.03, DZ + 0.4, DZ + 0.405, M_PAPER))
+        # schuin touchscreen vooraan, glanzend zwart met menu-tegels
+        pz = DZ + 0.312
+        panel = [box("las_panel", PX + 0.03, PX + 0.175, yf - 0.05, yf + 0.004, pz, pz + 0.012, M_GLASSBLK, bevel=0.005, segs=3)]
+        scr = bpy.data.materials.new("las_scr"); scr.use_nodes = True
+        bs = scr.node_tree.nodes["Principled BSDF"]; bs.inputs["Base Color"].default_value = (0.01, 0.01, 0.012, 1)
+        bs.inputs["Emission Color"].default_value = (0.22, 0.42, 0.75, 1); bs.inputs["Emission Strength"].default_value = 0.6
+        panel.append(box("las_touch", PX + 0.04, PX + 0.165, yf - 0.044, yf - 0.006, pz + 0.012, pz + 0.0128, scr))
+        for i in range(3):
+            panel.append(box("las_tile", PX + 0.05 + i * 0.038, PX + 0.08 + i * 0.038, yf - 0.032, yf - 0.016, pz + 0.0129, pz + 0.0132, M_ICON_DIM))
         rot_x(panel, (0, yf, pz), 22)
         out += panel
     else:
-        # uitvoerbak in de bovenkant + klein bedieningspaneel rechts
-        out.append(box("las_bin", PX - 0.13, PX + 0.07, yf + 0.06, YB - 0.1, body_top - 0.012, body_top + 0.001, M_A, bevel=0.004))
-        out.append(box("las_bin_flap", PX - 0.08, PX + 0.02, yf + 0.058, yf + 0.062, body_top, body_top + 0.035, M_A, bevel=0.002))
-        out.append(box("las_panel", PX + 0.1, x1 - 0.02, yf + 0.03, yf + 0.13, body_top - 0.002, body_top + 0.006, M_A, bevel=0.004))
-        out.append(box("las_lcd", PX + 0.11, x1 - 0.03, yf + 0.045, yf + 0.09, body_top + 0.006, body_top + 0.0075, M_LCD))
+        # uitvoerbak in de bovenkant: donker vlak met opstaande rand, papieruitvoer achterin
+        out.append(box("las_bin", PX - 0.14, PX + 0.09, yf + 0.055, YB - 0.075, body_top - 0.001, body_top + 0.001, M_D, bevel=0.003))
+        out.append(box("las_bin_rim", PX - 0.145, PX + 0.095, YB - 0.08, YB - 0.06, body_top, body_top + 0.022, M_B, bevel=0.004))
+        out.append(box("las_bin_slot", PX - 0.12, PX + 0.07, YB - 0.081, YB - 0.078, body_top + 0.004, body_top + 0.012, M_SLOT))
+        out.append(box("las_bin_flap", PX - 0.065, PX + 0.015, yf + 0.052, yf + 0.056, body_top, body_top + 0.03, M_G, bevel=0.002))
+        # LCD-paneel rechts op de bovenkant, iets schuin, met knoppen
+        pz = body_top
+        panel = [box("las_pnl", PX + 0.11, x1 - 0.015, yf + 0.025, yf + 0.13, pz - 0.002, pz + 0.012, M_GLASSBLK, bevel=0.004, segs=3)]
+        lcd = bpy.data.materials.new("las_lcd"); lcd.use_nodes = True
+        bl = lcd.node_tree.nodes["Principled BSDF"]; bl.inputs["Base Color"].default_value = (0.02, 0.03, 0.03, 1)
+        bl.inputs["Emission Color"].default_value = (0.6, 0.8, 0.9, 1); bl.inputs["Emission Strength"].default_value = 0.45
+        panel.append(box("las_lcd", PX + 0.12, x1 - 0.025, yf + 0.07, yf + 0.115, pz + 0.012, pz + 0.0128, lcd))
+        for i in range(3):
+            panel.append(box("las_key", PX + 0.122 + i * 0.022, PX + 0.136 + i * 0.022, yf + 0.035, yf + 0.06, pz + 0.012, pz + 0.0135, M_ICON_DIM, bevel=0.001, segs=1))
+        out += panel
     return out
 
 if kind in ("thuis", "foto"):
