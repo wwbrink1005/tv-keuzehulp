@@ -40,6 +40,22 @@ export const sizeGroupToAllowedSizes = {
   "97-115": [97, 98, 100, 110, 115]
 };
 
+// Budgetvraag in de quiz ("Wat wil je maximaal uitgeven?"): drie maximumbedragen per maat
+// plus "Maakt niet uit". Afgeleid uit de live catalogus (12-10-2026): de laagste grens ligt
+// rond het 30e percentiel, de grenzen liggen bewust rond het punt waar OLED begint (55":
+// €849, 58-65": €1.199, 70-77": €1.999). Herzien als de prijzen flink verschuiven.
+export const budgetCapsBySize = {
+  "24-28": [200, 300, 500],
+  "32": [250, 350, 500],
+  "40-43": [350, 500, 800],
+  "48-50": [500, 750, 1200],
+  "55": [600, 900, 1400],
+  "58-65": [800, 1200, 1800],
+  "70-77": [1000, 1500, 2500],
+  "83-86": [1500, 2200, 3500],
+  "97-115": [2500, 4000, 7000],
+};
+
 export const priceGroupsBySize = {
   "24-28": [
     { label: "100-300", min: 100, max: 300 },

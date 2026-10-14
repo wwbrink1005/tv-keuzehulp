@@ -783,8 +783,18 @@ function initResultFilters() {
       // restricting the pool here can wipe out all results when ambilight
       // TVs don't satisfy the Hz/resolution filters.
       const answersForFilter = { ...filterState.answers, ambilight: "" };
-      const result = computeMatchForPriceGroup(tvs, stored.sizeGroup, null, answersForFilter, filterState.scores);
+      // Budget uit de quiz (maximumbedrag) is een echte grens, net als in de quiz zelf.
+      // Past er in deze maat niets binnen, dan zonder grens (zelfde vangnet als de quiz).
+      const cap = Number(filterState.answers?.budget) || null;
+      const zonderGrens = computeMatchForPriceGroup(tvs, stored.sizeGroup, null, answersForFilter, filterState.scores);
+      let result = cap ? computeMatchForPriceGroup(tvs, stored.sizeGroup, { min: 0, max: cap }, answersForFilter, filterState.scores) : zonderGrens;
+      const budgetZonderMatch = Boolean(cap && !(result.filteredMatchedTVs?.length));
+      if (budgetZonderMatch) result = zonderGrens;
       filterState.baseMatches = Array.isArray(result.filteredMatchedTVs) ? result.filteredMatchedTVs : [];
+      if (cap) {
+        filterState.bestType = result.bestType || filterState.bestType;
+        initBudgetNote(cap, result, zonderGrens, budgetZonderMatch);
+      }
 
       // Fallback: if the live computation yields nothing, seed the pool with
       // the TVs that were already matched during the quiz. This ensures the
@@ -821,6 +831,56 @@ function initResultFilters() {
     .catch(() => {
       [priceCard, sizeCard, brandCard, typeCard, resolutionCard, hzCard, hdmiCard, kleurCard, aanbiederCard, minAanbiedersCard].forEach(card => { card.hidden = true; });
     });
+}
+
+
+// ───────── budget: "Meer budget?" en het vangnet als er niets binnen past ─────────
+const TYPE_VOORDEEL = {
+  "OLED": "diep zwart, rijk contrast en een brede kijkhoek",
+  "Mini LED": "fel beeld met sterk contrast, ook overdag",
+  "QLED": "helder beeld en levendige kleuren",
+  "Neo QLED": "fel beeld met sterk contrast, ook overdag",
+  "LED": "een degelijk en betaalbaar beeld",
+};
+const euroLabel = n => "€" + Math.round(n).toLocaleString("nl-NL");
+
+function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
+  const note = qs("#budgetNote");
+  if (!note) return;
+  const binnenLijst = binnen.filteredMatchedTVs ?? [];
+  const buitenLijst = zonderGrens.filteredMatchedTVs ?? [];
+
+  if (budgetZonderMatch) {
+    note.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we in deze maat geen tv.</strong> Dit zijn de tv's die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
+    note.hidden = false;
+    return;
+  }
+
+  // Alleen tonen als er zonder budgetgrens een ander, beter passend type wint.
+  const anderType = zonderGrens.bestType && zonderGrens.bestType !== binnen.bestType;
+  const goedkoopsteBuiten = buitenLijst.map(t => parsePrice(t.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
+  if (!anderType || !goedkoopsteBuiten || goedkoopsteBuiten <= cap) { note.hidden = true; return; }
+
+  const type = zonderGrens.bestType;
+  const meer = goedkoopsteBuiten - cap;
+  let toontBuiten = false;
+  const teken = () => {
+    note.innerHTML = toontBuiten
+      ? `<p><strong>Je ziet nu ${type}-tv's boven je budget</strong> (vanaf ${euroLabel(goedkoopsteBuiten)}).</p>
+         <button type="button" class="budget-note-btn">Terug naar tv's tot ${euroLabel(cap)}</button>`
+      : `<p><strong>Meer budget?</strong> Zonder grens past een <strong>${type}</strong> het best bij je wensen: ${TYPE_VOORDEEL[type] ?? "een stap beter beeld"}. Die begint bij ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</p>
+         <button type="button" class="budget-note-btn">Bekijk ${type}-tv's</button>`;
+    note.querySelector(".budget-note-btn").addEventListener("click", () => {
+      toontBuiten = !toontBuiten;
+      filterState.baseMatches = toontBuiten ? buitenLijst : binnenLijst;
+      filterState.bestType = toontBuiten ? zonderGrens.bestType : binnen.bestType;
+      renderAllSecondary();
+      applyFilters();
+      teken();
+    });
+  };
+  teken();
+  note.hidden = false;
 }
 
 document.addEventListener("DOMContentLoaded", initResultFilters);

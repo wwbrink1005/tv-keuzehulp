@@ -3,9 +3,9 @@
 // gemaakt met een camera die recht op de tv-muur kijkt. Daardoor is een tv op die
 // muur in beeld een exacte rechthoek en kunnen we hem met dezelfde cameragegevens
 // als in Blender op ware grootte over de render leggen.
-import { distanceToSizeGroup } from "../js/data.js";
+import { distanceToSizeGroup, budgetCapsBySize, sizeGroupToAllowedSizes } from "../js/data.js";
 import { calculateScores, matchTVs } from "../js/matching.js";
-import { normalizeProducts } from "../js/utils.js";
+import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -58,6 +58,13 @@ const QUESTIONS = [
     options: [],
   },
   {
+    id: "budget", type: "radio", two: true,
+    title: "Wat wil je maximaal uitgeven?",
+    sub: "",
+    why: "Met je budget zoeken we de beste tv die je ook echt wilt kopen. Past het type dat het best bij je wensen past niet binnen je bedrag, dan krijg je de beste keuze binnen je budget. Op de resultaatpagina laten we dan zien wat je voor meer geld krijgt.",
+    options: [],
+  },
+  {
     id: "usage", type: "check", max: 2,
     title: "Waar ga je de tv voor gebruiken?",
     sub: "Kies er maximaal 2. Op het scherm zie je waar het bij elk gebruik om draait.",
@@ -85,14 +92,35 @@ const QUESTIONS = [
     why: "Hoe schuiner je kijkt, hoe meer kleur en contrast er bij veel tv's wegvallen. OLED blijft ook van opzij goed; bij LED- en QLED-tv's zie je het verschil eerder. Zit je altijd recht voor het scherm, dan kun je hierop besparen.",
     options: [["recht", "Met 1 of 2 mensen recht voor de tv", "€€"], ["meerdere", "Met meerdere mensen die niet recht voor de tv zitten", "€€€"], ["nvt", "Dit is voor mij niet belangrijk", "€"]],
   },
-  {
-    id: "extra", type: "check", max: 2,
-    title: "Welke van de volgende dingen is extra belangrijk voor je tv?",
-    sub: "Kies er maximaal 2.",
-    why: "Perfecte zwarttinten zijn het specialisme van OLED: elk pixel kan afzonderlijk uit. Extreme helderheid is het domein van Mini-LED/QLED-tv's met krachtige achtergrondverlichting. Je kunt meerdere opties aanvinken.",
-    options: [["zwart", "Diepe zwarttinten voor donkere beelden", "€€€"], ["helderheid", "Extra helderheid", "€€"], ["kleur", "Levendige, mooie kleuren", "€€"], ["niks", "Niks van dit alles", "€"]],
-  },
 ];
+
+const IDX = Object.fromEntries(QUESTIONS.map((q, i) => [q.id, i]));
+const QID = () => QUESTIONS[st.q]?.id;
+const LAST = QUESTIONS.length - 1;
+const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const budgetOpties = g => [...(budgetCapsBySize[g] ?? []).map(c => [String(c), `Tot ${euro(c)}`]), ["geen", "Maakt niet uit"]];
+const capVan = v => (v && v !== "geen" ? Number(v) : null);
+
+// Wat het gekozen budget betekent in de gekozen maat, uit de live catalogus (null zolang die laadt).
+let catalogus = null;
+function budgetInfo(g, cap) {
+  if (!catalogus || !g) return null;
+  const maten = sizeGroupToAllowedSizes[g] ?? [];
+  const inMaat = catalogus.filter(t => maten.includes(t.grootte));
+  const binnen = cap ? inMaat.filter(t => parsePrice(t.prijs) <= cap) : inMaat;
+  const telling = {};
+  binnen.forEach(t => { const ty = t.type === "Neo QLED" ? "QLED" : t.type; telling[ty] = (telling[ty] || 0) + 1; });
+  const types = Object.entries(telling).sort((a, b) => b[1] - a[1]).map(([t]) => t);
+  const oled = inMaat.filter(t => t.type === "OLED").map(t => parsePrice(t.prijs)).filter(Number.isFinite);
+  return { n: binnen.length, types, oledVanaf: oled.length ? Math.min(...oled) : null };
+}
+function budgetTag(g) {
+  if (!st.budget) return "";
+  const cap = capVan(st.budget), info = budgetInfo(g, cap);
+  const kop = cap ? `Tot ${euro(cap)}` : "Elk budget";
+  if (!info) return `<b>${kop}</b>`;
+  return `<b>${kop}</b><span class="muted">${info.n} tv's${info.types.length ? ": " + info.types.slice(0, 3).join(", ") : ""}</span>`;
+}
 
 const USAGE_CAPTION = {
   films: ["Films en series", "Donkere scènes vragen om hoog contrast en diep zwart, anders worden ze grijs en vlak."],
@@ -111,15 +139,9 @@ const TIMING_CAPTION = {
   beide: ["Overdag én 's avonds", "We zoeken een tv die in beide situaties overeind blijft: helder genoeg, met goed contrast."],
   nvt: ["Geen voorkeur", "Dan weegt het kijkmoment niet mee in het advies."],
 };
-const EXTRA_CAPTION = {
-  zwart: ["Diep zwart", "Een sterrenhemel is de ultieme test: echt zwart, met lichtpuntjes zonder waas eromheen."],
-  helderheid: ["Extra helderheid", "Heldere tv's houden kleur en detail, ook met de zon op het scherm."],
-  kleur: ["Levendige kleuren", "Neon, lichtreclames en zonsondergangen: een breed kleurbereik laat ze echt knallen."],
-  niks: ["Niks extra", "Prima, dan houden we het advies in balans."],
-};
 
 // ───────── staat ─────────
-const st = { q: 0, distance: null, sizeGroup: null, usage: [], quality: null, timing: null, viewing: null, extra: [] };
+const st = { q: 0, distance: null, sizeGroup: null, budget: null, usage: [], quality: null, timing: null, viewing: null };
 let cycleTimer = null, cycleIdx = 0;
 let lightTimer = null, lightAlt = "day";
 
@@ -220,7 +242,7 @@ function setRoom(light, D) {
 let screenState = { key: null, front: 0 };
 function setScreen(key) {
   // filmbalken alleen bij de gebruiksvraag: elders lijkt de tv er kleiner door
-  $("#letterbox").classList.toggle("is-on", key === "films" && st.q === 2);
+  $("#letterbox").classList.toggle("is-on", key === "films" && QID() === "usage");
   if (screenState.key === key) return;
   screenState.key = key;
   const src = screenSrc(key);
@@ -240,23 +262,19 @@ function currentD() { return st.distance ? DIST[st.distance] : 3; }
 function advisedGroup() { return st.distance ? distanceToSizeGroup[st.distance] : null; }
 
 function currentLight() {
-  if (st.q === 4 && st.timing === "beide") return lightAlt;
-  if (st.q >= 4 && st.timing === "avonds") return "night";
+  if (QID() === "timing" && st.timing === "beide") return lightAlt;
+  if (st.q >= IDX.timing && st.timing === "avonds") return "night";
   return "day";
 }
 
 function contentKeys() {
-  const q = st.q;
-  if (q === 2) {
+  const id = QID();
+  if (id === "usage") {
     const u = st.usage.includes("allround") ? ["films", "sport", "gamen", "normaal"] : st.usage;
     return u.length ? u : ["films", "sport", "gamen", "normaal"];
   }
-  if (q === 6) {
-    const e = st.extra.filter(x => x !== "niks");
-    return e.length ? e : ["zwart", "helderheid", "kleur"];
-  }
-  if (q === 4 && st.timing === "overdag") return ["helderheid"];
-  if (q === 5) return ["normaal"];
+  if (id === "timing" && st.timing === "overdag") return ["helderheid"];
+  if (id === "viewing" || id === "budget") return ["normaal"];
   return ["films"];
 }
 
@@ -284,33 +302,35 @@ function render(animatePlan = true) {
     tv.classList.add("is-on");
     Object.assign(glow.style, { left: `${tl.x - pw * 0.28}px`, top: `${tl.y - ph * 0.35}px`, width: `${pw * 1.56}px`, height: `${ph * 1.7}px` });
     glow.style.opacity = night ? ".85" : ".16";
-    const sheen = night ? .1 : (st.q >= 4 && st.timing === "overdag" ? 1 : .45);
+    const sheen = night ? .1 : (st.q >= IDX.timing && st.timing === "overdag" ? 1 : .45);
     $("#screen").style.setProperty("--sheen", sheen);
 
     // label boven de tv
-    tvTag.innerHTML = `<b>${SIZE_INCH[group]} inch</b><span class="muted">${cm(w)} × ${cm(h)} cm</span>`;
+    tvTag.innerHTML = QID() === "budget"
+      ? budgetTag(group)
+      : `<b>${SIZE_INCH[group]} inch</b><span class="muted">${cm(w)} × ${cm(h)} cm</span>`;
     Object.assign(tvTag.style, { left: `${(tl.x + br.x) / 2}px`, top: `${tl.y - 10}px` });
-    tvTag.classList.toggle("is-on", st.q === 1);
+    tvTag.classList.toggle("is-on", QID() === "sizeGroup" || (QID() === "budget" && !!st.budget));
   } else {
     tv.classList.remove("is-on"); glow.style.opacity = "0"; tvTag.classList.remove("is-on");
   }
 
   // spookkader: het advies bij vraag 1, of het advies naast een afwijkende keuze bij vraag 2
   const adv = advisedGroup();
-  const ghostOn = adv && (st.q === 0 || (st.q === 1 && st.sizeGroup && st.sizeGroup !== adv));
+  const ghostOn = adv && (QID() === "distance" || (QID() === "sizeGroup" && st.sizeGroup && st.sizeGroup !== adv));
   if (ghostOn) {
     const { w, h } = tvDims(SIZE_INCH[adv]);
     const tl = toPx(L, project(D, -w / 2, TV_FRONT_Y, TV_BOTTOM + h));
     const br = toPx(L, project(D, w / 2, TV_FRONT_Y, TV_BOTTOM));
     Object.assign(ghost.style, { left: `${tl.x}px`, top: `${tl.y}px`, width: `${br.x - tl.x}px`, height: `${br.y - tl.y}px` });
     ghost.classList.add("is-on");
-    ghostTag.innerHTML = st.q === 0
+    ghostTag.innerHTML = QID() === "distance"
       ? `Advies: <b>${SIZE_LABEL(adv)}</b>`
       : `<span class="muted">Advies</span> <b>${SIZE_INCH[adv]} inch</b>`;
-    const tagTop = st.q === 1 ? br.y + 34 : tl.y - 10;
+    const tagTop = QID() === "sizeGroup" ? br.y + 34 : tl.y - 10;
     Object.assign(ghostTag.style, { left: `${(tl.x + br.x) / 2}px`, top: `${tagTop}px` });
     // bij vraag 2 spreekt het kader voor zich; alleen bij vraag 1 een label
-    ghostTag.classList.toggle("is-on", st.q === 0);
+    ghostTag.classList.toggle("is-on", QID() === "distance");
   } else {
     ghost.classList.remove("is-on"); ghostTag.classList.remove("is-on");
   }
@@ -329,18 +349,18 @@ function render(animatePlan = true) {
   }
 
   // beeldkwaliteit alleen bij de kwaliteitsvraag demonstreren
-  const filt = st.q === 3 && st.quality ? QUALITY[st.quality].filter : "none";
+  const filt = QID() === "quality" && st.quality ? QUALITY[st.quality].filter : "none";
   scr.forEach(i => { i.style.filter = filt; });
 
   // dag/avond afwisselen bij "beide"
   clearInterval(lightTimer);
-  if (st.q === 4 && st.timing === "beide") {
+  if (QID() === "timing" && st.timing === "beide") {
     lightTimer = setInterval(() => { lightAlt = lightAlt === "day" ? "night" : "day"; render(false); }, 3400);
   }
 
-  $("#progress").style.width = `${((st.q + 1) / 7) * 100}%`;
+  $("#progress").style.width = `${((st.q + 1) / QUESTIONS.length) * 100}%`;
   // bovenaanzicht alleen waar het iets toevoegt: afstand, grootte en kijkhoek
-  plan.classList.toggle("is-hidden", ![0, 1, 5].includes(st.q));
+  plan.classList.toggle("is-hidden", !["distance", "sizeGroup", "viewing"].includes(QID()));
   drawPlan(animatePlan);
 }
 
@@ -349,13 +369,13 @@ let lastCaption = "";
 function updateCaption(key) {
   let t = "", s = "";
   const d = st.distance ? DIST_LABEL[st.distance] : null;
-  switch (st.q) {
-    case 0:
+  switch (QID()) {
+    case "distance":
       if (!st.distance) { t = "Jouw woonkamer"; s = "Kies een kijkafstand. De bank schuift mee en we tekenen de tv-maat die daarbij past op de muur."; }
       else if (st.distance === "bioscoop") { t = "Thuisbioscoop"; s = "Zo groot als het kan: vanaf 4 meter past een scherm van 97 tot 115 inch. Het gestippelde kader toont die maat op ware grootte."; }
       else { t = `Kijkafstand ${d}`; s = `Daarbij past een tv van ${SIZE_LABEL(advisedGroup())}. Het gestippelde kader toont die maat op ware grootte.`; }
       break;
-    case 1: {
+    case "sizeGroup": {
       const g = st.sizeGroup;
       t = `${SIZE_INCH[g]} inch vanaf ${d}`;
       s = g === advisedGroup()
@@ -365,26 +385,34 @@ function updateCaption(key) {
           : "Kleiner dan ons advies: rustig in de kamer, maar je mist van deze afstand wat detail.");
       break;
     }
-    case 2: [t, s] = USAGE_CAPTION[key] ?? ["Waarvoor gebruik je de tv?", "Kies wat je het meest doet. Het scherm laat zien waar het om draait."];
+    case "budget": {
+      const cap = capVan(st.budget), info = budgetInfo(st.sizeGroup, cap);
+      if (!st.budget) { t = "Jouw budget"; s = "Kies wat je maximaal wilt uitgeven. Je krijgt de beste tv binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."; }
+      else if (!info) { t = cap ? `Tot ${euro(cap)}` : "Geen maximum"; s = "We zoeken de beste tv binnen dit bedrag."; }
+      else {
+        t = `${cap ? `Tot ${euro(cap)}` : "Geen maximum"}: ${info.n} tv's`;
+        if (!info.n) s = "In deze maat is er geen tv binnen dit bedrag. We tonen dan de tv's die het best bij je passen, net erboven.";
+        else if (info.oledVanaf == null) s = "In deze maat zijn er geen OLED-tv's. We zoeken de beste LED, QLED of Mini LED voor je.";
+        else if (!cap || info.oledVanaf <= cap) s = `Binnen dit bedrag kan het ook een OLED worden. Die begint in deze maat bij ${euro(info.oledVanaf)}.`;
+        else s = `OLED begint in deze maat bij ${euro(info.oledVanaf)}. Binnen je budget zoeken we de beste LED, QLED of Mini LED.`;
+      }
+      break;
+    }
+    case "usage": [t, s] = USAGE_CAPTION[key] ?? ["Waarvoor gebruik je de tv?", "Kies wat je het meest doet. Het scherm laat zien waar het om draait."];
       if (!st.usage.length) { t = "Waarvoor gebruik je de tv?"; s = "Films, sport, gamen of gewoon tv: elk gebruik stelt andere eisen aan het scherm."; }
       break;
-    case 3:
+    case "quality":
       if (st.quality) { t = QUALITY[st.quality].label; s = QUALITY[st.quality].text; }
       else { t = "Beeldkwaliteit"; s = "Kies een niveau en zie op het scherm wat het verschil in contrast en kleur doet."; }
       break;
-    case 4:
+    case "timing":
       if (st.timing) [t, s] = TIMING_CAPTION[st.timing];
       else { t = "Licht in de kamer"; s = "Daglicht en avondlicht vragen iets anders van een tv. Kies wanneer je meestal kijkt."; }
       break;
-    case 5:
+    case "viewing":
       if (st.viewing === "meerdere") { t = "Schuin kijken"; s = "Wie aan de zijkant zit, kijkt onder een flinke hoek. Kies dan een paneel met brede kijkhoek, zoals OLED."; }
       else if (st.viewing === "recht") { t = "Recht ervoor"; s = "Iedereen kijkt vrijwel recht op het scherm. Dan maakt het paneeltype weinig uit en kun je besparen."; }
       else { t = "Kijkhoek"; s = "Hoe schuiner je kijkt, hoe meer kleur en contrast wegvallen bij veel tv's. Het bovenaanzicht toont de hoeken."; }
-      break;
-    case 6:
-      if (st.extra.length && !(st.extra.length === 1 && st.extra[0] === "niks")) [t, s] = EXTRA_CAPTION[key] ?? EXTRA_CAPTION.zwart;
-      else if (st.extra.includes("niks")) [t, s] = EXTRA_CAPTION.niks;
-      else [t, s] = EXTRA_CAPTION[key] ?? ["Extra's", ""];
       break;
   }
   const html = `<strong>${t}</strong>${s}`;
@@ -423,7 +451,7 @@ function armchairPos(D) {
 }
 
 function paintPlan(D, w) {
-  const q = st.q;
+  const q = st.q, kijkhoek = QID() === "viewing";
   const H = py(P.y1) + 6;
   planSvg.setAttribute("viewBox", `0 0 ${px(P.x1) + 8} ${H}`);
   const ink = "#1d1d1f", accent = "#0954a3";
@@ -437,7 +465,7 @@ function paintPlan(D, w) {
   if (w) g += `<rect x="${px(-w / 2)}" y="${py(-0.02) - 1}" width="${w * P.s}" height="3" rx="1" fill="${ink}"/>`;
   // extra zitplek aan de zijkant, alleen bij de kijkhoekvraag
   const ac = armchairPos(D);
-  if (q === 5 && st.viewing === "meerdere") g += `<circle cx="${px(ac.x)}" cy="${py(ac.y)}" r="${0.3 * P.s}" fill="#d9d2c6" stroke="#a79d8e" stroke-dasharray="2 2"/>`;
+  if (kijkhoek && st.viewing === "meerdere") g += `<circle cx="${px(ac.x)}" cy="${py(ac.y)}" r="${0.3 * P.s}" fill="#d9d2c6" stroke="#a79d8e" stroke-dasharray="2 2"/>`;
   // bank (rugleuning aan de achterkant, zitting richting tv)
   const yb = -D - 0.45;
   g += `<rect x="${px(-1.18)}" y="${py(yb + 0.98)}" width="${2.36 * P.s}" height="${0.98 * P.s}" rx="5" fill="#a39a8c"/>`;
@@ -446,19 +474,19 @@ function paintPlan(D, w) {
   // kijklijnen
   const tvc = { x: 0, y: -0.02 };
   const seats = [];
-  if (q === 5 && st.viewing === "meerdere") {
+  if (kijkhoek && st.viewing === "meerdere") {
     seats.push({ x: -0.72, y: -D }, { x: 0.72, y: -D }, { x: ac.x - 0.05, y: ac.y - 0.05 });
-  } else if (q === 5 && st.viewing === "recht") {
+  } else if (kijkhoek && st.viewing === "recht") {
     seats.push({ x: -0.3, y: -D }, { x: 0.3, y: -D });
   } else if (q <= 1) {
     seats.push({ x: 0, y: -D });
   }
   seats.forEach(s => {
     const ang = Math.round(Math.atan2(Math.abs(s.x - tvc.x), Math.abs(s.y - tvc.y)) * 180 / Math.PI);
-    const col = q === 5 ? (ang < 20 ? "#2e8b57" : ang < 35 ? "#d08a16" : "#c4452d") : accent;
-    g += `<line x1="${px(s.x)}" y1="${py(s.y)}" x2="${px(tvc.x)}" y2="${py(tvc.y)}" stroke="${col}" stroke-width="1.5" stroke-dasharray="${q === 5 ? "0" : "3 3"}" opacity=".9"/>`;
+    const col = kijkhoek ? (ang < 20 ? "#2e8b57" : ang < 35 ? "#d08a16" : "#c4452d") : accent;
+    g += `<line x1="${px(s.x)}" y1="${py(s.y)}" x2="${px(tvc.x)}" y2="${py(tvc.y)}" stroke="${col}" stroke-width="1.5" stroke-dasharray="${kijkhoek ? "0" : "3 3"}" opacity=".9"/>`;
     g += `<circle cx="${px(s.x)}" cy="${py(s.y)}" r="4.2" fill="#fff" stroke="${col}" stroke-width="2"/>`;
-    if (q === 5) {
+    if (kijkhoek) {
       const lx = px(s.x), ly = py(s.y) + (s.x > 1.3 ? -9 : 17);
       g += `<text x="${lx}" y="${ly}" font-size="10.5" font-weight="700" fill="${col}" text-anchor="middle" font-family="Inter,sans-serif" stroke="#fff" stroke-width="3" paint-order="stroke">${ang}°</text>`;
     }
@@ -481,13 +509,17 @@ function renderQuestion(dir = 1) {
   const body = $("#qBody");
   body.classList.add("is-out");
   setTimeout(() => {
-    $("#step").textContent = `Vraag ${st.q + 1} van 7`;
+    $("#step").textContent = `Vraag ${st.q + 1} van ${QUESTIONS.length}`;
     let opts = Q.options;
     let sub = Q.sub;
     if (Q.id === "sizeGroup") {
       const adv = advisedGroup();
       opts = SIZE_GROUPS.map(g => [g, SIZE_LABEL(g), g === adv ? "advies" : ""]);
       sub = `Vanaf ${DIST_LABEL[st.distance]} adviseren we ${SIZE_LABEL(adv)}. De tv hangt op ware grootte aan de muur; kies gerust een andere maat.`;
+    }
+    if (Q.id === "budget") {
+      opts = budgetOpties(st.sizeGroup);
+      sub = `Bedragen voor een tv van ${SIZE_LABEL(st.sizeGroup)}. Je krijgt de beste tv binnen je budget.`;
     }
     const sel = st[Q.id];
     const isChecked = v => Array.isArray(sel) ? sel.includes(v) : sel === v;
@@ -508,7 +540,7 @@ function renderQuestion(dir = 1) {
       <p class="hint" id="hint"></p>
       <div class="nav">
         ${st.q > 0 ? `<button class="btn btn-back" type="button" id="back">Terug</button>` : ""}
-        <button class="btn btn-next" type="button" id="next">${st.q === 6 ? "Bekijk mijn advies" : "Volgende"}</button>
+        <button class="btn btn-next" type="button" id="next">${st.q === LAST ? "Bekijk mijn advies" : "Volgende"}</button>
       </div>`;
     body.classList.remove("is-out");
 
@@ -560,8 +592,10 @@ function next() {
     $("#hint").textContent = Q.type === "check" ? "Kies minimaal 1 antwoord." : "Kies een antwoord om verder te gaan.";
     return;
   }
-  if (st.q === 6) return finish();
+  if (st.q === LAST) return finish();
   if (Q.id === "distance") st.sizeGroup = advisedGroup();
+  // andere maat gekozen: een eerder gekozen bedrag hoort misschien niet meer bij de opties
+  if (Q.id === "sizeGroup" && !budgetOpties(st.sizeGroup).some(([v]) => v === st.budget)) st.budget = null;
   st.q += 1;
   cycleIdx = 0;
   renderQuestion(1);
@@ -588,7 +622,7 @@ function finish() {
   btn.disabled = true; btn.textContent = "Advies berekenen…";
   const answers = {
     usageAnswers: st.usage, quality: st.quality ?? "", timing: st.timing ?? "",
-    viewing: st.viewing ?? "", extraAnswers: st.extra,
+    viewing: st.viewing ?? "", extraAnswers: [], budget: capVan(st.budget),
   };
   const scores = calculateScores(answers);
   $("#hint").textContent = "";
@@ -602,7 +636,10 @@ function finish() {
       return;
     }
     const tvs = normalizeProducts(raw);
-    const result = matchTVs(tvs, st.sizeGroup, null, answers, scores);
+    // Beste match binnen het budget; matchTVs valt zelf terug op het volgende type dat er
+    // wel binnen past. Past er in deze maat helemaal niets binnen, dan zonder grens.
+    let result = matchTVs(tvs, st.sizeGroup, answers.budget ? { min: 0, max: answers.budget } : null, answers, scores);
+    if (answers.budget && !result.bestMatch) result = matchTVs(tvs, st.sizeGroup, null, answers, scores);
     localStorage.setItem("bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("bestType", result.bestType ?? "");
     localStorage.setItem("scores", JSON.stringify(scores));
@@ -627,15 +664,19 @@ function warmCache() {
 // Alleen voor het testen van losse stappen: #q=3&distance=3m&usage=films,sport
 if (location.hash.length > 1) {
   const h = new URLSearchParams(location.hash.slice(1));
-  ["distance", "sizeGroup", "quality", "timing", "viewing"].forEach(k => { if (h.get(k)) st[k] = h.get(k); });
-  ["usage", "extra"].forEach(k => { if (h.get(k)) st[k] = h.get(k).split(","); });
+  ["distance", "sizeGroup", "budget", "quality", "timing", "viewing"].forEach(k => { if (h.get(k)) st[k] = h.get(k); });
+  ["usage"].forEach(k => { if (h.get(k)) st[k] = h.get(k).split(","); });
   if (st.distance && !st.sizeGroup) st.sizeGroup = advisedGroup();
-  st.q = Math.max(0, Math.min(6, (parseInt(h.get("q"), 10) || 1) - 1));
+  st.q = Math.max(0, Math.min(LAST, (parseInt(h.get("q"), 10) || 1) - 1));
 }
 
 renderQuestion(0);
 render(false);
-prefetch();
+prefetch().then(raw => {
+  if (!raw?.length) return;
+  catalogus = normalizeProducts(raw);
+  if (QID() === "budget") render(false);
+});
 window.addEventListener("load", warmCache);
 let rt;
 window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => render(false), 60); });
