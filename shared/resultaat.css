@@ -1585,7 +1585,7 @@ body.has-menu {
 	   later in de DOM en zou anders bóven de knoppen liggen en de tik
 	   afvangen — vandaar de expliciete z-index. */
 	.results-head .restart-toggle,
-	.results-head #infoTriggerMobile { position: relative; z-index: 3; }
+	.results-head #infoTriggerMobile { position: relative; z-index: 30; } /* boven de sorteerbalk (z-index 20), anders valt die over het popover-venster */
 	.results-head .restart-toggle { grid-column: 2; grid-row: 1; align-self: start; justify-self: end; }
 	.results-head #infoTriggerMobile { grid-column: 2; grid-row: 1; align-self: start; justify-self: end; margin-right: 36px; }
 	.results-head .restart-popover { left: auto; right: 0; }
