@@ -429,7 +429,8 @@ function drawPlan(animate) {
   if (!animate || (from.D === D && from.w === w)) { planAnim.D = D; planAnim.w = w; paintPlan(D, w); return; }
   const t0 = performance.now(), dur = 750;
   const step = now => {
-    const k = Math.min(1, (now - t0) / dur);
+    // het rAF-tijdstip kan net vóór t0 liggen: dan zou k (en de tv-breedte) even negatief zijn
+    const k = Math.max(0, Math.min(1, (now - t0) / dur));
     const e = 1 - Math.pow(1 - k, 3);
     planAnim.D = from.D + (D - from.D) * e; planAnim.w = from.w + (w - from.w) * e;
     paintPlan(planAnim.D, planAnim.w);

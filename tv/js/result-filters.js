@@ -886,7 +886,7 @@ function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
 }
 
 // De lijst wordt bij elk filter en elke sortering opnieuw getekend (innerHTML): zet de kaart
-// daarna steeds terug na de derde tv (of na de laatste als er minder zijn). Hij hoort bij
+// daarna steeds terug direct na de eerste tv. Hij hoort bij
 // de lijst, zodat de kop en de filterkolom niet verschuiven.
 function plaatsBudgetKaart(kaart) {
   const grid = qs("#otherMatchesGrid");
@@ -894,7 +894,7 @@ function plaatsBudgetKaart(kaart) {
   const zet = () => {
     const items = [...grid.children].filter(el => el !== kaart && !el.classList.contains("rcard-skelet"));
     if (!items.length) return;
-    const na = items[Math.min(2, items.length - 1)];
+    const na = items[0];
     if (na.nextElementSibling === kaart) return;
     waker.disconnect();
     na.after(kaart);
