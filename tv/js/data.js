@@ -41,7 +41,7 @@ export const sizeGroupToAllowedSizes = {
 };
 
 // Budgetvraag in de quiz ("Wat wil je maximaal uitgeven?"): twee maximumbedragen per maat,
-// plus een derde optie "Meer dan <tweede bedrag>" zonder bovengrens (alle tv's van de maat).
+// plus een derde optie "Geen maximum" zonder bovengrens (alle tv's van de maat).
 // Afgeleid uit de live catalogus (14-10-2026): grenzen rond een derde en twee derde van de
 // prijzen, afgerond, en waar het kan net boven waar OLED begint (55": €849, 58-65": €1.199).
 // Herzien als de prijzen flink verschuiven.

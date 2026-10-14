@@ -98,12 +98,9 @@ const IDX = Object.fromEntries(QUESTIONS.map((q, i) => [q.id, i]));
 const QID = () => QUESTIONS[st.q]?.id;
 const LAST = QUESTIONS.length - 1;
 const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
-// twee maximumbedragen plus een open bovenste optie zonder grens ("geen" = alle tv's van de maat)
-const budgetOpties = g => {
-  const caps = budgetCapsBySize[g] ?? [];
-  return [...caps.map(c => [String(c), `Tot ${euro(c)}`]), ["geen", caps.length ? `Meer dan ${euro(caps[caps.length - 1])}` : "Geen maximum"]];
-};
-const openLabel = g => { const caps = budgetCapsBySize[g] ?? []; return caps.length ? `Meer dan ${euro(caps[caps.length - 1])}` : "Geen maximum"; };
+// twee maximumbedragen plus "Geen maximum" ("geen" = geen plafond, alle tv's van de maat);
+// alle opties in de taal van de vraag ("maximaal"), zodat niets als ondergrens leest
+const budgetOpties = g => [...(budgetCapsBySize[g] ?? []).map(c => [String(c), `Tot ${euro(c)}`]), ["geen", "Geen maximum"]];
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
 
 // Wat het gekozen budget betekent in de gekozen maat, uit de live catalogus (null zolang die laadt).
@@ -113,14 +110,20 @@ function budgetInfo(g, cap) {
   const maten = sizeGroupToAllowedSizes[g] ?? [];
   const inMaat = catalogus.filter(t => maten.includes(t.grootte));
   const binnen = cap ? inMaat.filter(t => parsePrice(t.prijs) <= cap) : inMaat;
-  return { n: binnen.length, totaal: inMaat.length };
+  const prijzen = binnen.map(t => parsePrice(t.prijs)).filter(Number.isFinite);
+  const alle = inMaat.map(t => parsePrice(t.prijs)).filter(Number.isFinite);
+  return {
+    n: binnen.length, totaal: inMaat.length,
+    vanaf: prijzen.length ? Math.min(...prijzen) : null,
+    tot: alle.length ? Math.max(...alle) : null,
+  };
 }
 function budgetTag(g) {
   if (!st.budget) return "";
   const cap = capVan(st.budget), info = budgetInfo(g, cap);
-  const kop = cap ? `Tot ${euro(cap)}` : openLabel(g);
+  const kop = cap ? `Tot ${euro(cap)}` : "Geen maximum";
   if (!info) return `<b>${kop}</b>`;
-  return `<b>${kop}</b><span class="muted">${cap ? `${info.n} van de ${info.totaal} tv's` : `alle ${info.totaal} tv's`}</span>`;
+  return `<b>${kop}</b><span class="muted">${cap ? `${info.n} tv's` : `alle ${info.totaal} tv's`}</span>`;
 }
 
 const USAGE_CAPTION = {
@@ -389,10 +392,10 @@ function updateCaption(key) {
     case "budget": {
       const cap = capVan(st.budget), info = budgetInfo(st.sizeGroup, cap);
       if (!st.budget) { t = "Jouw budget"; s = "Kies wat je maximaal wilt uitgeven. Je krijgt de beste tv binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."; }
-      else if (!info) { t = cap ? `Tot ${euro(cap)}` : openLabel(st.sizeGroup); s = cap ? "We zoeken de beste tv binnen dit bedrag." : "Geen bovengrens: we kiezen puur op je wensen."; }
-      else if (!cap) { t = openLabel(st.sizeGroup); s = `Geen bovengrens: alle ${info.totaal} tv's van deze maat doen mee, ook de duurste. We kiezen puur op je wensen.`; }
+      else if (!info) { t = cap ? `Tot ${euro(cap)}` : "Geen maximum"; s = cap ? "We zoeken de beste tv binnen dit bedrag." : "We kiezen puur op je wensen."; }
+      else if (!cap) { t = "Geen maximum"; s = `Alle ${info.totaal} tv's doen mee, van ${euro(info.vanaf)} tot ${euro(info.tot)}. We kiezen puur op je wensen.`; }
       else if (!info.n) { t = `Tot ${euro(cap)}`; s = "In deze maat is er geen tv binnen dit bedrag. We tonen dan de tv's die het best bij je passen, net erboven."; }
-      else { t = `Tot ${euro(cap)}`; s = `${info.n} van de ${info.totaal} tv's van deze maat passen binnen dit bedrag. Past een duurdere tv beter bij je wensen, dan zie je dat bij je resultaten.`; }
+      else { t = `Tot ${euro(cap)}`; s = `${info.n} van de ${info.totaal} tv's van deze maat kosten ${euro(cap)} of minder, vanaf ${euro(info.vanaf)}. We zoeken de beste die bij je wensen past.`; }
       break;
     }
     case "usage": [t, s] = USAGE_CAPTION[key] ?? ["Waarvoor gebruik je de tv?", "Kies wat je het meest doet. Het scherm laat zien waar het om draait."];
