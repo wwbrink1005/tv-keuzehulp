@@ -133,89 +133,148 @@ export function applyHzFilter(tvs, usageAnswers, quality) {
   return tvs;
 }
 
+// ───────── Matching per tv (sinds 14-10-2026) ─────────
+// Vroeger won één type alles (vaak met 1 of 2 punten verschil) en gingen de
+// resolutie- en Hz-wens er als harde filters overheen: in 20% van de
+// antwoordcombinaties bleef er 1 tv over terwijl er gemiddeld 30 binnen maat
+// en budget waren. Nu zijn alleen maat en budget harde grenzen; elke tv krijgt
+// een passcore en de lijst bestaat uit alles wat dicht bij de top zit.
+//
+// Passcore = 100
+//   - 3 per punt dat het type van de tv achterloopt op het best passende type
+//   - resolutie onder de wens (beste beeld: geen 4K −30; belangrijk: HD Ready −20)
+//   - Hz onder de wens (gamen: 120+, sport: 100+, beste beeld: 100+)
+//   + HDR-formaten bij films of beste beeld (Dolby Vision, HDR10+)
+//   + nieuw model, − ouder model (jaar uit de productnaam)
+//   + prijs: bij "prima" wint goedkoper, bij "beste beeld" het duurdere model
+//     binnen hetzelfde type (prijs is het enige signaal voor de modelserie dat
+//     bij bijna elke tv bekend is)
+// `wens` is dezelfde score zonder het prijsdeel: die is vergelijkbaar tussen
+// lijsten met en zonder budget (voor de "Meer budget?"-kaart).
+const PUNTEN_PER_TYPEPUNT = 3;
+export const BAND_BESTE = 4;   // binnen zoveel punten van de top = even goed → goedkoopste is de beste match
+const BAND_LIJST = 10;         // de lijst: alles binnen zoveel punten van de top
+const MIN_LIJST = 5;           // en minstens zoveel tv's als de maat en het budget er hebben
+const MAX_LIJST = 30;          // maar nooit meer dan 30 zichtbare (2+ winkels); zonder budget en met gemengde wensen werden het er tot 150
+
+function typeScores(scores, sizeGroup) {
+  const s = { ...scores };
+  s.LED = (Number(s.LED) || 0) + (ledSizeBonuses[sizeGroup] ?? 0);
+  s["Neo QLED"] = Math.max(Number(s.QLED) || 0, Number(s["Mini LED"]) || 0);
+  return s;
+}
+
+function hzStraf(hz, gebruik, quality) {
+  if (gebruik.includes("gamen")) return hz >= 120 ? 0 : hz >= 100 ? 12 : 25;
+  if (gebruik.includes("sport")) return hz >= 100 ? 0 : 15;
+  if (quality === "best") return hz >= 100 ? 0 : 4;
+  return 0;
+}
+
+function resolutieStraf(tv, quality) {
+  const tier = getResolutionTier(tv);
+  if (quality === "best") return tier === "4K" || tier === "8K" ? 0 : 30;
+  if (quality === "belangrijk") return tier === "4K" || tier === "8K" || tier === "Full HD" ? 0 : 20;
+  return 0;
+}
+
+function hdrBonus(tv, gebruik, quality) {
+  if (!gebruik.includes("films") && quality !== "best") return 0;
+  return (tv.dolbyVision ? 3 : 0) + (tv.hdr10plus ? 1 : 0);
+}
+
+function jaarBonus(tv) {
+  if (!tv.jaar) return 0;
+  const nu = new Date().getFullYear();
+  if (tv.jaar >= nu - 1) return 2;
+  if (tv.jaar === nu - 2) return 0;
+  return -3;
+}
+
+// Plek van een prijs binnen een lijst: 0 = goedkoopste, 1 = duurste.
+function prijsPlek(lijst) {
+  const prijzen = lijst.map(tv => parsePrice(tv.prijs)).sort((a, b) => a - b);
+  return prijs => (prijzen.length < 2 ? 0 : prijzen.filter(p => p < prijs).length / (prijzen.length - 1));
+}
+
+export function scoreTVs(pool, sizeGroup, answers, scores) {
+  const ts = typeScores(scores, sizeGroup);
+  const beschikbaar = availableTypesBySize[sizeGroup] ?? ["LED", "QLED", "Mini LED", "OLED"];
+  const topType = Math.max(...beschikbaar.map(t => Number(ts[t]) || 0));
+  const gebruik = answers.usageAnswers ?? [];
+  const quality = answers.quality ?? "";
+  const plekAlle = prijsPlek(pool);
+  const plekPerType = {};
+  for (const tv of pool) (plekPerType[tv.type] ??= []).push(tv);
+  for (const t of Object.keys(plekPerType)) plekPerType[t] = prijsPlek(plekPerType[t]);
+
+  return pool.map(tv => {
+    const typeAchter = Math.max(0, topType - (Number(ts[tv.type]) || 0));
+    const hz = parseHzValue(tv) ?? 60;
+    const wens = 100
+      - typeAchter * PUNTEN_PER_TYPEPUNT
+      - resolutieStraf(tv, quality)
+      - hzStraf(hz, gebruik, quality)
+      + hdrBonus(tv, gebruik, quality)
+      + jaarBonus(tv);
+    const prijs = parsePrice(tv.prijs);
+    const prijsDeel =
+      quality === "prima" ? -8 * plekAlle(prijs) :
+      quality === "belangrijk" ? -3 * plekAlle(prijs) :
+      quality === "best" ? 4 * plekPerType[tv.type](prijs) : 0;
+    return { ...tv, wens: Math.round(wens * 10) / 10, fit: Math.round((wens + prijsDeel) * 10) / 10 };
+  });
+}
+
+/** Beste match: de goedkoopste van de tv's die even goed passen als de beste. */
+export function kiesBesteMatch(lijst) {
+  const metScore = (lijst ?? []).filter(tv => Number.isFinite(tv?.fit));
+  if (!metScore.length) return null;
+  const top = Math.max(...metScore.map(tv => tv.fit));
+  return metScore
+    .filter(tv => tv.fit >= top - BAND_BESTE)
+    .reduce((a, b) => {
+      const pa = parsePrice(a.prijs), pb = parsePrice(b.prijs);
+      return pb < pa || (pb === pa && b.fit > a.fit) ? b : a;
+    });
+}
+
 export function matchTVs(tvs, sizeGroup, priceGroup, answers, scores) {
-  if (!Array.isArray(tvs) || !sizeGroup) {
-    return { bestMatch: null, bestType: null, filteredMatchedTVs: [] };
-  }
+  const leeg = { bestMatch: null, bestType: null, filteredMatchedTVs: [], topWens: null };
+  if (!Array.isArray(tvs) || !sizeGroup) return leeg;
 
   const allowedSizes = sizeGroupToAllowedSizes[sizeGroup] || [];
-  let filteredTVs = tvs.filter(tv => {
+  const pool = tvs.filter(tv => {
     const price = parsePrice(tv.prijs);
     return (
       allowedSizes.includes(tv.grootte) &&
       (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max))
     );
   });
+  if (pool.length === 0) return leeg;
 
-  if (filteredTVs.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedTVs: [] };
+  const gescoord = scoreTVs(pool, sizeGroup, answers ?? {}, scores ?? {}).sort((a, b) => b.fit - a.fit);
+  const top = gescoord[0].fit;
+  // Alles binnen de band, maar door tot er minstens MIN_LIJST tv's in zitten die ook
+  // door het standaardfilter "2+ winkels" op de resultaatpagina komen; anders bleven
+  // er daar soms maar 2 over van een lijst van 5.
+  const lijst = [];
+  let zichtbaar = 0;
+  for (const tv of gescoord) {
+    if (zichtbaar >= MAX_LIJST) break;
+    if (tv.fit < top - BAND_LIJST && zichtbaar >= MIN_LIJST) break;
+    lijst.push(tv);
+    if ((tv.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS) zichtbaar++;
   }
+  lijst.sort((a, b) => parsePrice(a.prijs) - parsePrice(b.prijs));
 
-  // Apply LED size bonus: at small screen sizes the perceptual difference between
-  // LED and premium types is minimal, so we boost LED's effective score.
-  const sizeBonus = ledSizeBonuses[sizeGroup] ?? 0;
-  const availableTypes = availableTypesBySize[sizeGroup] ?? Object.keys(scores);
-  const adjustedScores = { ...scores };
-  if (sizeBonus > 0) {
-    adjustedScores["LED"] = (Number(adjustedScores["LED"]) || 0) + sizeBonus;
-  }
-
-  const sortedTypes = Object.entries(adjustedScores)
-    .filter(([type]) => availableTypes.includes(type))
-    .sort((a, b) => Number(b[1]) - Number(a[1]));
-  let localBestMatch = null;
-  let bestType = null;
-  let matchedTVs = [];
-
-  for (let i = 0; i < sortedTypes.length; i++) {
-    const [, score] = sortedTypes[i];
-    const typesWithSameScore = sortedTypes
-      .filter(([, s]) => Number(s) === Number(score))
-      .map(([t]) => t);
-
-    // Bij een gelijke stand tussen types (kan bij tot 15% van alle
-    // antwoordcombinaties voorkomen, in het ergste geval een volledige
-    // 4-weg-gelijkspel tussen LED/Mini LED/QLED/OLED) voegen we ze niet meer
-    // samen — dat maakt de resultatenlijst juist breder in plaats van
-    // specifieker (getest: tot 174 tv's zonder enige type-filtering). We
-    // evalueren elk geteld type apart en kiezen de kleinste niet-lege set,
-    // zelfde patroon als monitor/laptop/soundbar.
-    let bestTypeCandidates = null;
-    let bestTypeName = null;
-
-    for (const candidateType of typesWithSameScore) {
-      let tvsOfType = filteredTVs.filter(tv => {
-        if (tv.type === candidateType) return true;
-        if (tv.type === "Neo QLED" && (candidateType === "QLED" || candidateType === "Mini LED")) return true;
-        return false;
-      });
-      if (tvsOfType.length === 0) continue;
-
-      tvsOfType = applyResolutionFilter(tvsOfType, answers.quality ?? "");
-      tvsOfType = applyHzFilter(tvsOfType, answers.usageAnswers ?? [], answers.quality ?? "");
-      if (tvsOfType.length === 0) continue;
-
-      if (bestTypeCandidates === null || tvsOfType.length < bestTypeCandidates.length) {
-        bestTypeCandidates = tvsOfType;
-        bestTypeName = candidateType;
-      }
-    }
-
-    if (bestTypeCandidates === null) continue;
-
-    matchedTVs = bestTypeCandidates;
-
-    localBestMatch = matchedTVs.reduce((cheapest, tv) => {
-      const tvPrice = parsePrice(tv.prijs);
-      const cheapestPrice = parsePrice(cheapest.prijs);
-      return tvPrice < cheapestPrice ? tv : cheapest;
-    });
-
-    bestType = bestTypeName;
-    break;
-  }
-
-  return { bestMatch: localBestMatch, bestType, filteredMatchedTVs: matchedTVs };
+  const bestMatch = kiesBesteMatch(lijst);
+  return {
+    bestMatch,
+    bestType: bestMatch?.type ?? null,
+    filteredMatchedTVs: lijst,
+    topWens: Math.max(...lijst.map(tv => tv.wens)),
+  };
 }
 
 export function computeMatchForPriceGroup(tvs, sizeGroup, priceGroup, answers, scores) {

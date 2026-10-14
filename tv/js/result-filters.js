@@ -1,5 +1,5 @@
 import { priceGroupsBySize, sizeGroupToAllowedSizes } from "./data.js";
-import { computeMatchForPriceGroup, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
+import { computeMatchForPriceGroup, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS, BAND_BESTE, kiesBesteMatch } from "./matching.js";
 import { computeDynamicPriceGroups, getResolutionTier, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
@@ -17,6 +17,8 @@ const filterState = {
   hdmiOptions: new Set(),
   kleuren: new Set(),
   aanbieder: new Set(),
+  hdr: new Set(),
+  jaren: new Set(),
   minAanbieders: DEFAULT_MIN_AANBIEDERS,
   baseMatches: [],
   answers: null,
@@ -90,7 +92,55 @@ const FACETTEN = {
   hdmi:       { set: () => filterState.hdmiOptions, waarde: tv => tv.hdmiPoorten },
   kleur:      { set: () => filterState.kleuren,     waarde: tv => normalizeKleur(tv.kleur) },
   aanbieder:  { set: () => filterState.aanbieder,   waarde: tv => (tv.aanbieders ?? []).map(a => a.winkel) },
+  hdr:        { set: () => filterState.hdr,         waarde: tv => hdrFormaten(tv) },
+  jaar:       { set: () => filterState.jaren,       waarde: tv => tv.jaar },
 };
+
+function hdrFormaten(tv) {
+  return [tv.dolbyVision && "Dolby Vision", tv.hdr10plus && "HDR10+"].filter(Boolean);
+}
+
+// HDR-formaten en modeljaar (14-10-2026, tellen mee in de matching). Generieke
+// opzet zoals bij monitor, in plaats van nog twee keer de lange variant hieronder.
+const EXTRA_FILTERS = [
+  { naam: "hdr", set: () => filterState.hdr, waarden: hdrFormaten, parse: v => v,
+    sorteer: (a, b) => a.localeCompare(b), allLabel: "Alle tv's" },
+  { naam: "jaar", set: () => filterState.jaren, waarden: tv => (tv.jaar ? [tv.jaar] : []), parse: v => parseInt(v, 10),
+    sorteer: (a, b) => b - a, allLabel: "Alle jaren" },
+];
+
+function renderExtraFilter(f) {
+  const container = qs(`#${f.naam}FilterOptions`);
+  const kaart = qs(`.filter-card[data-filter='${f.naam}']`);
+  if (!container || !kaart) return;
+  const items = [...new Set(getSecondaryScopedMatches().flatMap(f.waarden))].sort(f.sorteer);
+  renderFilterList(container, kaart, {
+    items,
+    counts: computeCounts(matchesBehalve(f.naam), f.waarden),
+    filterName: `${f.naam}Filter`,
+    stateSet: f.set(),
+    allLabel: f.allLabel,
+  });
+}
+
+function initExtraFilter(f) {
+  const container = qs(`#${f.naam}FilterOptions`);
+  if (!container) return;
+  container.addEventListener("change", event => {
+    const input = event.target.closest("input[type=checkbox]");
+    if (!input) return;
+    const set = f.set();
+    if (input.value === "all") {
+      if (input.checked) set.clear();
+      else if (set.size === 0) input.checked = true;
+    } else {
+      const w = f.parse(input.value);
+      if (input.checked) set.add(w); else set.delete(w);
+    }
+    applyFilters();
+    renderAllSecondary();
+  });
+}
 
 function binnenPrijs(tv) {
   if (filterState.priceLabels.size === 0) return true;
@@ -410,7 +460,7 @@ function updateClearFiltersBtn() {
   if (!btn) return;
   const hasActive = filterState.priceLabels.size > 0 || filterState.sizes.size > 0 || filterState.brands.size > 0 || filterState.types.size > 0 ||
     filterState.resolutions.size > 0 || filterState.hzOptions.size > 0 || filterState.hdmiOptions.size > 0 ||
-    filterState.kleuren.size > 0 ||
+    filterState.kleuren.size > 0 || filterState.hdr.size > 0 || filterState.jaren.size > 0 ||
     filterState.aanbieder.size > 0 ||
     filterState.minAanbieders !== DEFAULT_MIN_AANBIEDERS;
   btn.hidden = !hasActive;
@@ -449,6 +499,7 @@ function renderAllSecondary() {
   teken(renderHdmiOptions, qs("#hdmiFilterOptions"), "hdmi");
   teken(renderKleurOptions, qs("#kleurFilterOptions"), "kleur");
   teken(renderAanbiederOptions, qs("#aanbiederFilterOptions"), "aanbieder");
+  EXTRA_FILTERS.forEach(renderExtraFilter);
   renderPriceOptions(qs("#priceFilterOptions"), kaart("price"), filterState.sizeGroup);
 }
 
@@ -715,6 +766,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
 
   [priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, hdmiContainer, kleurContainer, aanbiederContainer, minAanbiedersContainer]
     .forEach(c => c.addEventListener("change", () => renderAllSecondary()));
+  EXTRA_FILTERS.forEach(initExtraFilter);
 
   const clearBtn = qs("#clearFiltersBtn");
   if (clearBtn) {
@@ -728,6 +780,8 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
       filterState.hdmiOptions.clear();
       filterState.kleuren.clear();
       filterState.aanbieder.clear();
+      filterState.hdr.clear();
+      filterState.jaren.clear();
       filterState.minAanbieders = DEFAULT_MIN_AANBIEDERS;
       renderPriceOptions(priceContainer, qs(".filter-card[data-filter='price']"), filterState.sizeGroup);
       renderAllSecondary();
@@ -857,24 +911,30 @@ function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
     return;
   }
 
-  // Alleen tonen als er zonder budgetgrens een ander, beter passend type wint.
-  const anderType = zonderGrens.bestType && zonderGrens.bestType !== binnen.bestType;
-  const goedkoopsteBuiten = buitenLijst.map(t => parsePrice(t.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
-  if (!anderType || !goedkoopsteBuiten || goedkoopsteBuiten <= cap) return;
-
-  const type = zonderGrens.bestType;
+  // Alleen tonen als er boven het budget tv's zijn die duidelijk beter bij de wensen
+  // passen (passcore zonder prijsdeel, zie matching.js). Die vormen dan de andere lijst.
+  const drempel = (binnen.topWens ?? -Infinity) + BAND_BESTE;
+  const beter = buitenLijst.filter(t => parsePrice(t.prijs) > cap && t.wens >= drempel);
+  const goedkoopsteBuiten = beter.map(t => parsePrice(t.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
+  if (!goedkoopsteBuiten) return;
+  const buitenBeste = kiesBesteMatch(beter);
+  const type = buitenBeste?.type ?? zonderGrens.bestType;
+  const anderType = type !== binnen.bestType;
   const meer = goedkoopsteBuiten - cap;
   let toontBuiten = false;
   const teken = () => {
     kaart.innerHTML = toontBuiten
-      ? `<div class="budget-kaart-tekst"><strong>Je ziet nu ${type}-tv's boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
+      ? `<div class="budget-kaart-tekst"><strong>Je ziet nu tv's boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
          <button type="button" class="budget-kaart-btn">Terug naar tv's tot ${euroLabel(cap)}</button>`
-      : `<div class="budget-kaart-tekst"><strong>Meer budget? Dan past een ${type} het best bij je wensen</strong><span>${TYPE_VOORDEEL[type] ?? "Een stap beter beeld"}. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
-         <button type="button" class="budget-kaart-btn">Bekijk ${type}-tv's</button>`;
+      : anderType
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan past een ${type} nog beter bij je wensen</strong><span>${TYPE_VOORDEEL[type] ?? "Een stap beter beeld"}. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+         <button type="button" class="budget-kaart-btn">Bekijk deze tv's</button>`
+        : `<div class="budget-kaart-tekst"><strong>Meer budget? Er zijn tv's die nog beter bij je wensen passen</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+         <button type="button" class="budget-kaart-btn">Bekijk deze tv's</button>`;
     kaart.querySelector(".budget-kaart-btn").addEventListener("click", () => {
       toontBuiten = !toontBuiten;
-      filterState.baseMatches = toontBuiten ? buitenLijst : binnenLijst;
-      filterState.bestType = toontBuiten ? zonderGrens.bestType : binnen.bestType;
+      filterState.baseMatches = toontBuiten ? beter : binnenLijst;
+      filterState.bestType = toontBuiten ? type : binnen.bestType;
       // Andere lijst = verse start: alle filters terug naar standaard (ook "Aantal winkels"
       // naar 2+, dat bij de vorige lijst automatisch verlaagd kan zijn). Zelfde als "Wis filters".
       const wis = qs("#clearFiltersBtn");

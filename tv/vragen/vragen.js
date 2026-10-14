@@ -637,8 +637,8 @@ function finish() {
       return;
     }
     const tvs = normalizeProducts(raw);
-    // Beste match binnen het budget; matchTVs valt zelf terug op het volgende type dat er
-    // wel binnen past. Past er in deze maat helemaal niets binnen, dan zonder grens.
+    // Beste match binnen het budget (matchTVs scoort elke tv binnen maat en budget).
+    // Past er in deze maat helemaal niets binnen, dan zonder grens.
     let result = matchTVs(tvs, st.sizeGroup, answers.budget ? { min: 0, max: answers.budget } : null, answers, scores);
     if (answers.budget && !result.bestMatch) result = matchTVs(tvs, st.sizeGroup, null, answers, scores);
     localStorage.setItem("bestMatch", JSON.stringify(result.bestMatch));

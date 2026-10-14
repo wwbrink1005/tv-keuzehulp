@@ -87,11 +87,45 @@ function adaptAanbieders(row) {
  * Adapts a single televisies row to the shape that normalizeProducts() expects.
  * Returns null when the row cannot be mapped (unknown type or missing size).
  */
+/**
+ * Icecat's "Display technologie" klopt bij zo'n 15% van de tv's niet (gemeten
+ * 14-10-2026): Mini LED- en RGB-tv's staan als "LED" of "QLED", QLED-tv's als
+ * "LED", en een Full HD-tv van €279 als "OLED". De productnamen van de winkels
+ * zeggen het wel goed, dus die gaan voor. Alleen bij een duidelijk signaal:
+ * Mini LED/RGB in één naam is genoeg (zo heet niets anders), OLED en QLED
+ * moeten in minstens de helft van de namen staan.
+ */
+const NAAM_MINI = /mini[\s-]?led|true rgb|rgb[\s-]?(led|tv|mini)/i;
+const NAAM_OLED = /(^|[^q])oled/i;
+const NAAM_QLED = /qled|qned|nanocell/i;
+
+function productNamen(row) {
+  const winkels = Array.isArray(row.aanbieders) ? row.aanbieders.map((a) => a?.productnaam) : [];
+  return [row.titel, ...winkels].filter(Boolean).map(String);
+}
+
+function typeUitNamen(namen, type) {
+  if (!namen.length || type === "Neo QLED") return type;
+  const aandeel = (re) => namen.filter((n) => re.test(n)).length / namen.length;
+  if (aandeel(NAAM_MINI) > 0) return "Mini LED";
+  if (type !== "OLED" && aandeel(NAAM_OLED) >= 0.5) return "OLED";
+  if (type === "OLED" && aandeel(NAAM_OLED) === 0) return aandeel(NAAM_QLED) > 0 ? "QLED" : "LED";
+  if ((type === "LED" || !type) && aandeel(NAAM_QLED) >= 0.5) return "QLED";
+  return type;
+}
+
+/** Modeljaar uit de productnamen ("(2025)", "- 2026"); het nieuwste telt. */
+function jaarUitNamen(namen) {
+  const jaren = namen.flatMap((n) => [...n.matchAll(/\b(20[12]\d)\b/g)].map((m) => Number(m[1])));
+  return jaren.length ? Math.max(...jaren) : null;
+}
+
 function adaptRow(row) {
   const grootte = parseSchermInch(row.scherm_inch);
   if (!grootte) return null;
 
-  const type = TECHNOLOGIE_MAP[row.display_technologie];
+  const namen = productNamen(row);
+  const type = typeUitNamen(namen, TECHNOLOGIE_MAP[row.display_technologie]);
   if (!type) return null;
 
   return {
@@ -101,6 +135,8 @@ function adaptRow(row) {
     grootte,
     merk:                row.merk,
     scherpte:            mapScherpte(row.scherm_type),
+    hdr:                 row.hdr ?? "",
+    jaar:                jaarUitNamen(namen),
     hz:                  parseRefreshRate(row.refresh_rate),
     hdmiPoorten:         parseHdmiPoorten(row.hdmi_poorten),
     kleur:               row.kleur ?? "",

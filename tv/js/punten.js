@@ -36,11 +36,15 @@ function kijkPunten(tv, a) {
   const uit = [];
   const premium = type === "OLED" || type === "Neo QLED" || type === "Mini LED";
   if (gebruik.includes("films") && (premium || type === "QLED")) uit.push("Sterk beeld voor <strong>films en series</strong>");
-  if (gebruik.includes("sport") && hz >= 100) uit.push(`<strong>${hz} Hz</strong>: snelle beelden bij sport blijven scherp`);
+  if (gebruik.includes("sport") && hz >= 100 && !(gebruik.includes("gamen") && hz >= 120)) uit.push(`<strong>${hz} Hz</strong>: snelle beelden bij sport blijven scherp`);
   if (gebruik.includes("gamen") && hz >= 120) uit.push(`<strong>${hz} Hz</strong>: vloeiend gamen op een console of pc`);
   if (a.timing === "avonds" && (type === "OLED" || type === "Neo QLED" || type === "Mini LED")) uit.push("Diep zwart <strong>'s avonds in het donker</strong>");
   if (a.timing === "overdag" && (type === "QLED" || type === "Neo QLED" || type === "Mini LED")) uit.push("Fel genoeg voor <strong>een lichte kamer overdag</strong>");
   if (a.viewing === "meerdere" && type === "OLED") uit.push("Goed beeld <strong>vanaf de zijkant</strong>, ook voor wie schuin zit");
+  // Zelfde signalen als de matching (matching.js: hdrBonus, jaarBonus)
+  if ((gebruik.includes("films") || a.quality === "best") && tv.dolbyVision) uit.push("<strong>Dolby Vision</strong>: films en series zoals de maker ze bedoelde");
+  else if ((gebruik.includes("films") || a.quality === "best") && tv.hdr10plus) uit.push("<strong>HDR10+</strong> voor meer detail in lichte en donkere scènes");
+  if (tv.jaar && tv.jaar >= new Date().getFullYear() - 1) uit.push(`<strong>Nieuw model</strong> uit ${tv.jaar}`);
   if (extra.includes("zwart") && (type === "OLED" || type === "Neo QLED" || type === "Mini LED")) uit.push("<strong>Diepe zwarttinten</strong>");
   // Niet nog een keer als "fel genoeg voor overdag" er al staat.
   if (extra.includes("helderheid") && a.timing !== "overdag" && (type === "QLED" || type === "Neo QLED" || type === "Mini LED")) uit.push("<strong>Opvallend helder</strong> beeld");
@@ -59,10 +63,12 @@ export function buildResultPoints(tv, answers, ctx) {
   // als losse punten in plaats van één samengevoegde regel. Maximaal 2
   // bovenaan; de rest pas na de vergelijkingen, anders is elke kaart met
   // hetzelfde paneeltype gelijk.
-  kijkPunten(tv, a).forEach((t, i) => p.voeg(i < 2 ? 12 + i : 27 + i, `kijk-${i}`, t));
+  const kijk = kijkPunten(tv, a);
+  kijk.forEach((t, i) => p.voeg(i < 2 ? 12 + i : 27 + i, `kijk-${i}`, t));
 
-  // 2. Wat deze kaart onderscheidt binnen de lijst
-  vergelijk(p, ctx, "hz", hz ?? NaN, {
+  // 2. Wat deze kaart onderscheidt binnen de lijst (Hz niet als het al bij sport/gamen staat)
+  const hzGenoemd = kijk.some(t => t.includes(" Hz</strong>"));
+  if (!hzGenoemd) vergelijk(p, ctx, "hz", hz ?? NaN, {
     laagBeter: false, overtreffend: "vloeiendste", fmt: (x) => `<strong>${getal(x)} Hz</strong>`,
   });
   vergelijk(p, ctx, "hdmi", tv.hdmiPoorten ?? NaN, {
@@ -75,7 +81,7 @@ export function buildResultPoints(tv, answers, ctx) {
   const res = getResolutionCategory(tv);
   if (res === "8K" || res === "4K") p.voeg(41, "scherpte", `<strong>${esc(formatScherpte(tv.scherpte))}</strong>: scherp, ook van dichtbij`);
   if (Number.isFinite(inch(tv))) p.voeg(90, "grootte", `<strong>${inch(tv)} inch</strong> scherm`);
-  if (hz) p.voeg(91, "hz", `<strong>${getal(hz)} Hz</strong> beeldverversing`);
+  if (hz && !hzGenoemd) p.voeg(91, "hz", `<strong>${getal(hz)} Hz</strong> beeldverversing`);
   if (Number.isFinite(tv.hdmiPoorten)) p.voeg(92, "hdmi", `<strong>${getal(tv.hdmiPoorten)} HDMI-poorten</strong> voor console, soundbar en kastje`);
   if (type) p.voeg(93, "paneel", `<strong>${esc(type)}</strong>-scherm`);
   if (tv.merk) p.voeg(94, "merk", `Van <strong>${esc(tv.merk)}</strong>`);
@@ -100,15 +106,28 @@ export function buildSpecChips(tv) {
   return specs;
 }
 
+// "High Dynamic Range 10+ (HDR10 Plus), Dolby Vision, ..." → "Dolby Vision, HDR10+, HDR10, HLG"
+function hdrTekst(hdr) {
+  const s = String(hdr ?? "");
+  if (!s) return null;
+  const formaten = [
+    [/dolby vision/i, "Dolby Vision"], [/hdr10 ?(\+|plus)|10\+/i, "HDR10+"],
+    [/hdr10(?! ?(\+|plus))|\(hdr10\)/i, "HDR10"], [/hlg|hybrid log/i, "HLG"],
+  ].filter(([re]) => re.test(s)).map(([, naam]) => naam);
+  return formaten.length ? formaten.join(", ") : null;
+}
+
 export function buildAlleSpecs(tv, raw) {
   const hz = parseHzValue(tv);
   return schoonSpecs([
     { titel: "Beeld", rijen: [
       ["Schermgrootte", Number.isFinite(inch(tv)) ? `${inch(tv)} inch` : null],
       ["Paneel", tv.type], ["Scherpte", tv.scherpte], ["Beeldverversing", hz ? `${hz} Hz` : null],
+      ["HDR", hdrTekst(raw?.hdr ?? tv.hdr)],
     ] },
     { titel: "Overig", rijen: [
       ["HDMI-poorten", Number.isFinite(tv.hdmiPoorten) ? String(tv.hdmiPoorten) : null],
+      ["Modeljaar", tv.jaar ?? raw?.jaar ? String(tv.jaar ?? raw.jaar) : null],
       ["Kleur", tv.kleur], ["Merk", tv.merk], ["EAN", raw?.ean],
     ] },
   ]);

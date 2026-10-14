@@ -1,4 +1,4 @@
-import { applyMinAanbiedersCascade, isPerfectMatch } from "./matching.js";
+import { applyMinAanbiedersCascade, isPerfectMatch, kiesBesteMatch } from "./matching.js";
 import { formatPriceLabel, formatScherpte, parsePrice, qs } from "./utils.js";
 import { normaliseVerzendkosten, resetProvidersRegistry } from "../../shared/aanbieders.js";
 import { toonGeenUitslag, toonGeenFilterResultaat } from "../../shared/resultaat-status.js";
@@ -208,15 +208,17 @@ function displayOtherMatchesRedesign(filteredMatchedTVs) {
   const prices = filteredMatchedTVs.map(tv => parsePrice(tv.prijs));
   const minPrice = Math.min(...prices);
   const ctx = buildContext(filteredMatchedTVs);
+  const beste = kiesBesteMatch(filteredMatchedTVs);
 
   container.innerHTML = filteredMatchedTVs
     .map((tv, index) => {
       const price = parsePrice(tv.prijs);
       const isCheapest = price === minPrice;
+      const isBeste = tv === beste;
       const specs = buildSpecChips(tv);
       const points = buildResultPoints(tv, currentAnswers, ctx);
 
-      return buildCardHtml({ product: tv, index, isCheapest, specs, points });
+      return buildCardHtml({ product: tv, index, isCheapest, isBeste, specs, points });
     })
     .join("");
 
@@ -272,11 +274,19 @@ function setResultState(matches, answers, type, sizeGroup) {
   currentSizeGroup = sizeGroup || "";
 }
 
+// Op prijs, met de beste match (uit de huidige, eventueel gefilterde lijst)
+// bovenaan bij "laag-hoog"; bij "hoog-laag" staat hij gewoon op zijn plek.
 function sortMatchesByPrice(matches, sortValue) {
   const list = Array.isArray(matches) ? [...matches] : [];
   list.sort((a, b) => parsePrice(a.prijs) - parsePrice(b.prijs));
   if (sortValue === "price-desc") {
     list.reverse();
+    return list;
+  }
+  const beste = kiesBesteMatch(list);
+  if (beste) {
+    list.splice(list.indexOf(beste), 1);
+    list.unshift(beste);
   }
   return list;
 }

@@ -128,10 +128,11 @@ function shopsHtml(aanbieders) {
  * @param {object} o.product     genormaliseerd product (naam, prijs, afbeelding, afbeeldingen, aanbieders)
  * @param {number} o.index       positie in de lijst (voor lazy-loading van afbeeldingen)
  * @param {boolean} o.isCheapest goedkoopste van de lijst → badge
+ * @param {boolean} o.isBeste    beste match volgens de matching → badge en accentrand (nu alleen tv)
  * @param {string[]} o.specs     korte spec-strings (uit de categorie-eigen buildSpecList)
  * @param {string[]} o.points    USP-regels (uit de categorie-eigen buildResultPoints); de eerste 3 worden getoond
  */
-export function buildCardHtml({ product, index = 0, isCheapest = false, specs = [], points = [] }) {
+export function buildCardHtml({ product, index = 0, isCheapest = false, isBeste = false, specs = [], points = [] }) {
   const naam = escapeHtml(product.naam);
   const afbeelding = product.afbeelding || "";
   const galerij = JSON.stringify(product.afbeeldingen || []).replace(/"/g, "&quot;");
@@ -140,7 +141,7 @@ export function buildCardHtml({ product, index = 0, isCheapest = false, specs = 
   const punten = (Array.isArray(points) ? points : []).filter(Boolean).slice(0, MAX_PUNTEN);
 
   return `
-    <article class="rcard" data-match-index="${index}">
+    <article class="rcard${isBeste ? " is-beste-match" : ""}" data-match-index="${index}">
       <div class="rcard-left">
         <div class="rcard-img" aria-hidden="true">
           <img src="${escapeHtml(afbeelding)}" alt="" role="presentation" ${index < 4 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"'} onload="this.parentElement.classList.add('is-geladen')" onerror="this.onerror=null;this.src=window.IMG_FALLBACK;">
@@ -151,7 +152,7 @@ export function buildCardHtml({ product, index = 0, isCheapest = false, specs = 
         ${chipsHtml(specs)}
       </div>
       <div class="rcard-body">
-        ${isCheapest ? '<div class="rcard-badges"><span class="rcard-badge-cheap">Goedkoopste keuze</span></div>' : ""}
+        ${isBeste || isCheapest ? `<div class="rcard-badges">${isBeste ? '<span class="rcard-badge-best">Beste match</span>' : ""}${isCheapest ? '<span class="rcard-badge-cheap">Goedkoopste keuze</span>' : ""}</div>` : ""}
         <h3 class="rcard-name">${naam}</h3>
         ${punten.length ? `
           <p class="rcard-why-title">Waarom dit bij jou past</p>

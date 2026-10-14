@@ -1330,6 +1330,21 @@ body.has-menu {
 
 .rcard-badges { display: flex; gap: 8px; flex-wrap: wrap; }
 
+/* "Beste match": de tv die het best bij de antwoorden past (nu alleen tv) */
+.rcard-badge-best {
+	display: inline-flex;
+	align-items: center;
+	background: var(--accent);
+	color: #fff;
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	padding: 3px 9px;
+	border-radius: 999px;
+}
+.rcard.is-beste-match { box-shadow: 0 0 0 2px var(--accent); }
+
 .rcard-badge-cheap {
 	display: inline-flex;
 	align-items: center;
