@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <div class="mobile-nav-links">
         <a class="mobile-nav-link" href="./">Home</a>
-        <a class="mobile-nav-link" href="favorieten/">Favorieten (<span data-fav-teller>0</span>)</a>
+        <a class="mobile-nav-link" href="favorieten/"><span>Favorieten (<span data-fav-teller>0</span>)</span></a>
 
         <!-- Mobile categories accordion -->
         <button
