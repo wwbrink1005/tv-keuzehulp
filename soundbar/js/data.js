@@ -70,7 +70,8 @@ export function getSoundbarTier(soundbar) {
   const hasAtmos = decoders.includes("atmos") || decoders.includes("dts:x") || decoders.includes("dts x");
 
   if (height > 0 || hasAtmos) return "Premium";
-  if (main >= 5) return "HomeCinema";
+  // 5.x/7.x zonder Atmos (maar 1 in de catalogus, okt. 2026) viel als eigen
+  // tier "HomeCinema" nooit in de prijzen; hoort qua gebruik bij Allround.
   if (main >= 3) return "Allround";
   return "Compact";
 }
@@ -89,9 +90,14 @@ export function getKanalenGroep(soundbar) {
   const parts = String(soundbar.kanalen || "2.0").split(".").map(n => parseInt(n, 10) || 0);
   const main   = parts[0] || 2;
   const height = parts[2] || 0;
+  // Dolby Atmos/DTS:X geeft ook zonder losse kanalen een omringend geluid
+  // (virtueel). Zonder deze regel stond bv. een Sonos Arc Ultra (kanalen niet
+  // in de catalogus) onder "Tv-geluid verbeteren".
+  const decoders = String(soundbar.audio_decoders || "").toLowerCase();
+  const hasAtmos = decoders.includes("atmos") || decoders.includes("dts:x") || decoders.includes("dts x");
 
   if (height > 0) return "Rondom geluid + boven";
-  if (main >= 5) return "Rondom geluid";
+  if (main >= 5 || hasAtmos) return "Rondom geluid";
   return "Tv-geluid verbeteren";
 }
 

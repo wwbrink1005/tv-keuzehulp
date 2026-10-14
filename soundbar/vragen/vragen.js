@@ -1,4 +1,4 @@
-// Testversie van de soundbar-vragenpagina in de 3D-woonkamer.
+// De soundbar-vragenpagina in de 3D-woonkamer.
 // Basisrender = de kamer (render/scene.py, --d 0.9); soundbar (3 breedtes) en
 // subwoofer zijn losse transparante renders mét hun schaduw, die als lagen over
 // de kamer vallen. De tv is net als in de tv-test een laag die we met dezelfde
@@ -51,7 +51,7 @@ const Q_GEBRUIK = {
   id: "gebruik", type: "radio",
   title: "Waarvoor ga je de soundbar vooral gebruiken?",
   sub: "Op de tv zie je waar het bij elk gebruik om draait.",
-  why: "Je belangrijkste gebruik bepaalt welk type soundbar het beste past. Vooral tv-kijken vraagt om een compacte bar die spraak beter verstaanbaar maakt. Films en series komen het best tot hun recht met veel kanalen en eventueel Dolby Atmos. Voor muziek is een breed, krachtig geluidsbeeld belangrijker. Gamen profiteert van surround-geluid om vijanden te kunnen lokaliseren.",
+  why: "Je belangrijkste gebruik bepaalt welk type soundbar het beste past. Voor vooral tv-kijken is een eenvoudige, betaalbare soundbar al een grote stap vooruit: stemmen worden veel beter verstaanbaar. Films en series komen het best tot hun recht met meer kanalen en Dolby Atmos. Voor muziek kiezen we een soundbar met een middenkanaal of Atmos voor een vol geluidsbeeld. Bij gamen helpt Dolby Atmos om te horen waar geluid vandaan komt.",
   options: [{ v: "tv", label: "Vooral tv-kijken, spraak beter verstaanbaar", price: "€" }, { v: "films", label: "Films & series met veel impact", price: "€€€" }, { v: "muziek", label: "Muziek luisteren", price: "€€" }, { v: "gaming", label: "Gamen", price: "€€€" }],
 };
 const Q_SUB = {
@@ -164,7 +164,7 @@ createQuiz3D({
         return [BREEDTE_LABEL[barGroup(st)].split(",")[0], `De soundbar is ${breedteGroepLabels[barGroup(st)].omschrijving}; je tv is ${cm} cm breed.`];
       case 2:
         return {
-          tv: ["Tv-kijken", "Een soundbar met spraakverbetering maakt stemmen duidelijk verstaanbaar, ook zachtjes."],
+          tv: ["Tv-kijken", "Al een eenvoudige soundbar maakt stemmen veel beter verstaanbaar dan de speakers van je tv."],
           films: ["Films en series", "Meer kanalen en eventueel Dolby Atmos geven echt bioscoopgevoel."],
           muziek: ["Muziek", "Een breed, vol geluidsbeeld en streaming via WiFi maken het af."],
           gaming: ["Gamen", "Surround helpt je te horen waar geluid vandaan komt."],

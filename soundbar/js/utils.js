@@ -37,6 +37,12 @@ export function getStoredSelection() {
 /**
  * Normalizes raw soundbar products from Supabase to a consistent internal shape.
  */
+// Producten die de feed als soundbar aanlevert maar geen tv-soundbar zijn:
+// muurbeugels, vergaderspeakers en speakerbalken voor een pc-monitor (gevonden
+// bij de doorlichting van okt. 2026). Op de titel, want een eigen veld
+// daarvoor bestaat niet in de catalogus.
+const GEEN_TV_SOUNDBAR = /speaker ?steun|muurbeugel|wandbeugel|beugel|houder|mspeaker|luidsprekerbalk|slim soundbar - sb/i;
+
 export function normalizeProducts(rawProducts) {
   if (!Array.isArray(rawProducts)) return [];
 
@@ -49,6 +55,7 @@ export function normalizeProducts(rawProducts) {
 
     const naam = String(product.titel || "").trim() || aanbieders.map(a => String(a.productnaam || "").trim()).find(Boolean) || "";
     if (!naam) return [];
+    if (GEEN_TV_SOUNDBAR.test(naam)) return [];
 
     const prijs = Math.min(...aanbieders.map(a => a.prijs));
 

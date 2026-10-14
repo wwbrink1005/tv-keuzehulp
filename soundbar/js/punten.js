@@ -37,7 +37,7 @@ export function buildResultPoints(s, answers, ctx) {
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
   if (a.subwoofer === "ja" && ja(s.subwoofer_meegeleverd)) vink("sub", "losse subwoofer");
-  if (a.subwoofer === "nee" && !ja(s.subwoofer_meegeleverd)) vink("sub", "compact, zonder subwoofer");
+  if (a.subwoofer === "nee" && !ja(s.subwoofer_meegeleverd)) vink("sub", "zonder losse subwoofer");
   if (wil("surround") && atmos(s)) vink("atmos", "Dolby Atmos");
   if (wil("wandmontage") && ja(s.wandmontage)) vink("muur", "aan de muur te hangen");
   if (wil("streaming") && ja(s.wifi)) vink("wifi", "wifi-streaming");

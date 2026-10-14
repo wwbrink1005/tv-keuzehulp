@@ -85,6 +85,27 @@ export function applyExtraFilter(soundbars, extraAnswers) {
   return filtered;
 }
 
+// Strikte versie van de wensfilters: alleen soundbars die aan ÁLLE wensen
+// voldoen (subwoofer + extra's), zonder terug te vallen. Gebruikt om eerst een
+// tier te zoeken waarin alle wensen vervuld worden, voordat er een wens mag
+// wegvallen (zie matchSoundbars).
+const heeftAtmos = sb => {
+  const d = String(sb.audio_decoders || "").toLowerCase();
+  return d.includes("atmos") || d.includes("dts:x") || d.includes("dts x");
+};
+
+function voldoetAanAlleWensen(soundbars, answers) {
+  const sub = answers.subwoofer ?? "";
+  const extra = Array.isArray(answers.extraAnswers) ? answers.extraAnswers : [];
+  return soundbars.filter(sb =>
+    (sub !== "ja" || sb.subwoofer_meegeleverd === "Ja") &&
+    (sub !== "nee" || sb.subwoofer_meegeleverd === "Nee") &&
+    (!extra.includes("surround") || heeftAtmos(sb)) &&
+    (!extra.includes("wandmontage") || sb.wandmontage === "Ja") &&
+    (!extra.includes("streaming") || sb.wifi === "Ja")
+  );
+}
+
 // ─── Main matching function ───────────────────────────────────────────────────
 
 export function matchSoundbars(soundbars, breedteGroup, priceGroup, answers, scores) {
@@ -115,7 +136,25 @@ export function matchSoundbars(soundbars, breedteGroup, priceGroup, answers, sco
   let matchedSoundbars = [];
   let bestType = null;
 
-  for (let i = 0; i < sortedTiers.length; i++) {
+  // 2a. Eerst de best scorende tier waarin ALLE wensen vervuld kunnen worden.
+  // De tier komt uit het gebruik (een voorkeur), de wensen zijn expliciet
+  // aangevinkt: die gaan voor. Zonder deze stap viel bv. "Dolby Atmos" bij
+  // "vooral tv-kijken" stil weg (die tier heeft per definitie geen Atmos),
+  // terwijl er in dezelfde breedte wel Atmos-soundbars waren.
+  const scoresAflopend = [...new Set(sortedTiers.map(([, s]) => Number(s)))];
+  for (const score of scoresAflopend) {
+    const tiers = sortedTiers.filter(([, s]) => Number(s) === score).map(([t]) => t);
+    let beste = null, besteNaam = null;
+    for (const tier of tiers) {
+      const kandidaten = voldoetAanAlleWensen(filtered.filter(sb => getSoundbarTier(sb) === tier), answers);
+      if (kandidaten.length && (!beste || kandidaten.length < beste.length)) { beste = kandidaten; besteNaam = tier; }
+    }
+    if (beste) { matchedSoundbars = beste; bestType = besteNaam; break; }
+  }
+
+  // 2b. Kan dat in geen enkele tier: de best scorende tier, waarbij een wens
+  // die daar niet bestaat wegvalt (gracieuze degradatie).
+  for (let i = 0; i < sortedTiers.length && matchedSoundbars.length === 0; i++) {
     const [, topScore] = sortedTiers[i];
     const tiersWithTopScore = sortedTiers
       .filter(([, s]) => Number(s) === Number(topScore))
