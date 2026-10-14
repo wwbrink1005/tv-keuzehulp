@@ -114,10 +114,22 @@ function typeUitNamen(namen, type) {
   return type;
 }
 
-/** Modeljaar uit de productnamen ("(2025)", "- 2026"); het nieuwste telt. */
-function jaarUitNamen(namen) {
-  const jaren = namen.flatMap((n) => [...n.matchAll(/\b(20[12]\d)\b/g)].map((m) => Number(m[1])));
-  return jaren.length ? Math.max(...jaren) : null;
+/**
+ * Modeljaar uit de productnamen ("(2025)", "- 2026"). De titel gaat voor; staat
+ * daar geen jaar in, dan het jaar dat de meeste winkels noemen, en bij een
+ * gelijke stand het oudste. Winkelnamen zitten er soms naast: bol noemde de
+ * Philips MLED910 (2025) "2026" (en ook "QLED"), terwijl titel, Expert en EP
+ * 2025 zeiden. Het nieuwste jaar laten winnen maakte hem ten onrechte "nieuw".
+ */
+const jarenIn = (n) => [...String(n).matchAll(/\b(20[12]\d)\b/g)].map((m) => Number(m[1]));
+
+function jaarUitNamen(namen, titel) {
+  const uitTitel = jarenIn(titel ?? "");
+  if (uitTitel.length) return Math.max(...uitTitel);
+  const stemmen = new Map();
+  for (const n of namen) for (const j of new Set(jarenIn(n))) stemmen.set(j, (stemmen.get(j) ?? 0) + 1);
+  if (!stemmen.size) return null;
+  return [...stemmen].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0];
 }
 
 function adaptRow(row) {
@@ -136,7 +148,7 @@ function adaptRow(row) {
     merk:                row.merk,
     scherpte:            mapScherpte(row.scherm_type),
     hdr:                 row.hdr ?? "",
-    jaar:                jaarUitNamen(namen),
+    jaar:                jaarUitNamen(namen, row.titel),
     hz:                  parseRefreshRate(row.refresh_rate),
     hdmiPoorten:         parseHdmiPoorten(row.hdmi_poorten),
     kleur:               row.kleur ?? "",
