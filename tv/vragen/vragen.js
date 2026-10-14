@@ -98,9 +98,9 @@ const IDX = Object.fromEntries(QUESTIONS.map((q, i) => [q.id, i]));
 const QID = () => QUESTIONS[st.q]?.id;
 const LAST = QUESTIONS.length - 1;
 const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
-// twee maximumbedragen plus "Geen maximum" ("geen" = geen plafond, alle tv's van de maat);
+// twee maximumbedragen plus "Geen voorkeur" ("geen" = geen plafond, alle tv's van de maat);
 // alle opties in de taal van de vraag ("maximaal"), zodat niets als ondergrens leest
-const budgetOpties = g => [...(budgetCapsBySize[g] ?? []).map(c => [String(c), `Tot ${euro(c)}`]), ["geen", "Geen maximum"]];
+const budgetOpties = g => [...(budgetCapsBySize[g] ?? []).map(c => [String(c), `Tot ${euro(c)}`]), ["geen", "Geen voorkeur"]];
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
 
 // Wat het gekozen budget betekent in de gekozen maat, uit de live catalogus (null zolang die laadt).
@@ -121,7 +121,7 @@ function budgetInfo(g, cap) {
 function budgetTag(g) {
   if (!st.budget) return "";
   const cap = capVan(st.budget), info = budgetInfo(g, cap);
-  const kop = cap ? `Tot ${euro(cap)}` : "Geen maximum";
+  const kop = cap ? `Tot ${euro(cap)}` : "Geen voorkeur";
   if (!info) return `<b>${kop}</b>`;
   return `<b>${kop}</b><span class="muted">${cap ? `${info.n} tv's` : `alle ${info.totaal} tv's`}</span>`;
 }
@@ -392,8 +392,8 @@ function updateCaption(key) {
     case "budget": {
       const cap = capVan(st.budget), info = budgetInfo(st.sizeGroup, cap);
       if (!st.budget) { t = "Jouw budget"; s = "Kies wat je maximaal wilt uitgeven. Je krijgt de beste tv binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."; }
-      else if (!info) { t = cap ? `Tot ${euro(cap)}` : "Geen maximum"; s = cap ? "We zoeken de beste tv binnen dit bedrag." : "We kiezen puur op je wensen."; }
-      else if (!cap) { t = "Geen maximum"; s = `Alle ${info.totaal} tv's doen mee, van ${euro(info.vanaf)} tot ${euro(info.tot)}. We kiezen puur op je wensen.`; }
+      else if (!info) { t = cap ? `Tot ${euro(cap)}` : "Geen voorkeur"; s = cap ? "We zoeken de beste tv binnen dit bedrag." : "We kiezen puur op je wensen."; }
+      else if (!cap) { t = "Geen voorkeur"; s = `Alle ${info.totaal} tv's doen mee, van ${euro(info.vanaf)} tot ${euro(info.tot)}. We kiezen puur op je wensen.`; }
       else if (!info.n) { t = `Tot ${euro(cap)}`; s = "In deze maat is er geen tv binnen dit bedrag. We tonen dan de tv's die het best bij je passen, net erboven."; }
       else { t = `Tot ${euro(cap)}`; s = `${info.n} van de ${info.totaal} tv's van deze maat kosten ${euro(cap)} of minder, vanaf ${euro(info.vanaf)}. We zoeken de beste die bij je wensen past.`; }
       break;

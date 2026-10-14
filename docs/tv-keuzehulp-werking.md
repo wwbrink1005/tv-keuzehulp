@@ -69,19 +69,19 @@ een harde grens.
 
 ### Vraag 3: het budget
 
-Per maat zijn er drie opties: twee maximumbedragen en "Geen maximum".
+Per maat zijn er drie opties: twee maximumbedragen en "Geen voorkeur".
 
 | Maat | Opties |
 |---|---|
-| 24 tot 28 inch | tot €200, tot €300, geen maximum |
-| 32 inch | tot €250, tot €350, geen maximum |
-| 40 tot 43 inch | tot €350, tot €500, geen maximum |
-| 48 tot 50 inch | tot €500, tot €800, geen maximum |
-| 55 inch | tot €600, tot €1.000, geen maximum |
-| 58 tot 65 inch | tot €800, tot €1.200, geen maximum |
-| 70 tot 77 inch | tot €1.000, tot €1.500, geen maximum |
-| 83 tot 86 inch | tot €1.500, tot €2.500, geen maximum |
-| 97 tot 115 inch | tot €2.500, tot €4.000, geen maximum |
+| 24 tot 28 inch | tot €200, tot €300, geen voorkeur |
+| 32 inch | tot €250, tot €350, geen voorkeur |
+| 40 tot 43 inch | tot €350, tot €500, geen voorkeur |
+| 48 tot 50 inch | tot €500, tot €800, geen voorkeur |
+| 55 inch | tot €600, tot €1.000, geen voorkeur |
+| 58 tot 65 inch | tot €800, tot €1.200, geen voorkeur |
+| 70 tot 77 inch | tot €1.000, tot €1.500, geen voorkeur |
+| 83 tot 86 inch | tot €1.500, tot €2.500, geen voorkeur |
+| 97 tot 115 inch | tot €2.500, tot €4.000, geen voorkeur |
 
 Onder de vraag ziet de bezoeker hoeveel tv's binnen het bedrag vallen ("53 van de 148 tv's").
 Past er in die maat **niets** binnen het budget, dan laten we toch de best passende tv's zien,
