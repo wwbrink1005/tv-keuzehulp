@@ -366,6 +366,7 @@ function initSortControl() {
       const option = event.target.closest(".sort-option");
       if (!option) return;
       const value = option.dataset.value || "price-asc";
+      window.phTrackEvent?.("sorteren", { categorie: "tv", volgorde: value });
       applySortAndRender(value);
       setSortOpen(false);
     });

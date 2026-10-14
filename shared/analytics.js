@@ -43,10 +43,18 @@
       if (hostname === window.location.hostname) return;
 
       const info = getCategoryAndStage();
+      // Plek in de resultatenlijst (1 = bovenaan) en of het de "Beste match" was (tv).
+      // Een resultaatpagina kan extra context meegeven via window.phResultaatContext().
+      const kaart = link.closest(".rcard");
+      const kaarten = kaart?.parentElement ? [...kaart.parentElement.querySelectorAll(":scope > .rcard")] : [];
+      let extra = {};
+      try { extra = window.phResultaatContext?.() ?? {}; } catch { extra = {}; }
       window.phTrackEvent?.("affiliate_klik", {
         categorie: info?.category ?? "onbekend",
         aanbieder: link.dataset.winkel || hostname,
-        prijs: link.dataset.prijs || ""
+        prijs: link.dataset.prijs || "",
+        ...(kaart ? { positie: kaarten.indexOf(kaart) + 1, beste_match: kaart.classList.contains("is-beste-match") ? "ja" : "nee" } : {}),
+        ...extra
       });
     }, true);
   }

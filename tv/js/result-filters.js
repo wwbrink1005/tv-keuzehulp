@@ -766,6 +766,12 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, typeCon
 
   [priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, hdmiContainer, kleurContainer, aanbiederContainer, minAanbiedersContainer]
     .forEach(c => c.addEventListener("change", () => renderAllSecondary()));
+  // Meting: welk filter mensen aanklikken (veel filteren = de lijst was nog niet goed genoeg)
+  qsAll(".filter-card").forEach(card => card.addEventListener("change", event => {
+    const input = event.target.closest("input");
+    if (!input) return;
+    meet("filter_gebruikt", { filter: card.dataset.filter || "", waarde: input.value === "all" ? "alle" : String(input.value).slice(0, 40) });
+  }));
   EXTRA_FILTERS.forEach(initExtraFilter);
 
   const clearBtn = qs("#clearFiltersBtn");
@@ -881,6 +887,7 @@ function initResultFilters() {
       renderAllSecondary();
       initFilterEvents(priceContainer, sizeContainer, brandContainer, typeContainer, resolutionContainer, hzContainer, hdmiContainer, kleurContainer, aanbiederContainer, minAanbiedersContainer);
       applyFilters();
+      initMeting(cap);
     })
     .catch(() => {
       [priceCard, sizeCard, brandCard, typeCard, resolutionCard, hzCard, hdmiCard, kleurCard, aanbiederCard, minAanbiedersCard].forEach(card => { card.hidden = true; });
@@ -906,6 +913,7 @@ function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
   kaart.setAttribute("role", "note");
 
   if (budgetZonderMatch) {
+    meet("budget_kaart", { actie: "niets_binnen_budget" });
     kaart.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we in deze maat geen tv.</strong> Dit zijn de tv's die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
     plaatsBudgetKaart(kaart);
     return;
@@ -933,6 +941,8 @@ function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
          <button type="button" class="budget-kaart-btn">Bekijk deze tv's</button>`;
     kaart.querySelector(".budget-kaart-btn").addEventListener("click", () => {
       toontBuiten = !toontBuiten;
+      meet("budget_kaart", { actie: toontBuiten ? "klik_meer_budget" : "klik_terug", type });
+      lijstSoort = toontBuiten ? "boven_budget" : "binnen_budget";
       filterState.baseMatches = toontBuiten ? beter : binnenLijst;
       filterState.bestType = toontBuiten ? type : binnen.bestType;
       // Andere lijst = verse start: alle filters terug naar standaard (ook "Aantal winkels"
@@ -946,6 +956,7 @@ function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
   };
   teken();
   plaatsBudgetKaart(kaart);
+  meet("budget_kaart", { actie: "getoond", type, meer_euro: Math.round(meer) });
 }
 
 // De lijst wordt bij elk filter en elke sortering opnieuw getekend (innerHTML): zet de kaart
@@ -966,6 +977,23 @@ function plaatsBudgetKaart(kaart) {
   const waker = new MutationObserver(zet);
   waker.observe(grid, { childList: true });
   zet();
+}
+
+// ───────── meting (Umami, via shared/consent.js) ─────────
+const qsAll = sel => [...document.querySelectorAll(sel)];
+const meet = (naam, props) => window.phTrackEvent?.(naam, { categorie: "tv", ...props });
+let lijstSoort = "binnen_budget";
+
+function initMeting(cap) {
+  const budget = cap ? String(cap) : "geen_voorkeur";
+  const zichtbaar = () => qsAll("#otherMatchesGrid > .rcard").length;
+  // Meegestuurd met elke winkelklik (shared/analytics.js)
+  window.phResultaatContext = () => ({ budget, lijst: zichtbaar(), lijst_soort: lijstSoort });
+  const beste = document.querySelector("#otherMatchesGrid > .rcard.is-beste-match");
+  meet("resultaat_getoond", {
+    budget, maat: filterState.sizeGroup, lijst: zichtbaar(),
+    beste_type: beste ? (filterState.baseMatches.find(tv => tv.naam === beste.querySelector(".rcard-name")?.textContent)?.type ?? "") : "",
+  });
 }
 
 document.addEventListener("DOMContentLoaded", initResultFilters);

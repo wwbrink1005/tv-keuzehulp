@@ -593,6 +593,11 @@ function next() {
     $("#hint").textContent = Q.type === "check" ? "Kies minimaal 1 antwoord." : "Kies een antwoord om verder te gaan.";
     return;
   }
+  // Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)
+  window.phTrackEvent?.("quiz_stap", {
+    categorie: "tv", stap: Q.id, nr: st.q + 1,
+    antwoord: Array.isArray(v) ? [...v].sort().join("+") : String(v),
+  });
   if (st.q === LAST) return finish();
   if (Q.id === "distance") st.sizeGroup = advisedGroup();
   // andere maat gekozen: een eerder gekozen bedrag hoort misschien niet meer bij de opties

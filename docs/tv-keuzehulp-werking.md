@@ -249,6 +249,35 @@ Vraag het aan Claude: "draai de simulatie van de tv-matching opnieuw".
 
 ---
 
+## 9. Wat we meten (Umami)
+
+Sinds 14-10-2026 sturen de vragen- en resultaatpagina deze events naar Umami:
+
+| Event | Wanneer | Extra gegevens |
+|---|---|---|
+| `quiz_gestart` | Vragenpagina geopend | |
+| `quiz_stap` | Elke beantwoorde vraag | welke vraag (`stap`), nummer, `antwoord` |
+| `quiz_voltooid` | Resultaatpagina geopend | |
+| `resultaat_getoond` | Lijst staat klaar | `budget`, `maat`, aantal tv's (`lijst`), type van de Beste match |
+| `affiliate_klik` | Klik naar een winkel | winkel, prijs, `positie` (1 = bovenaan), `beste_match` (ja/nee), `budget`, `lijst`, `lijst_soort` (binnen/boven budget) |
+| `budget_kaart` | "Meer budget?"-kaart | `actie`: getoond, klik_meer_budget, klik_terug, niets_binnen_budget |
+| `filter_gebruikt` | Filter aangeklikt | welk `filter` en welke `waarde` |
+| `sorteren` | Andere volgorde gekozen | `volgorde` |
+
+Alle events hebben ook `kanaal` (bijvoorbeeld google/cpc). Zelf testen zonder mee te tellen:
+open de site één keer met `?nietmeten` erachter.
+
+**De belangrijkste vragen en waar je het ziet:**
+- *Klikken mensen op de Beste match?* `affiliate_klik` met `beste_match` = ja, gedeeld door alle kliks.
+- *Haken mensen af bij de budgetvraag?* `quiz_stap` per `stap`: hoeveel er bij `budget` nog zijn t.o.v. `sizeGroup`.
+- *Is de lijst goed genoeg?* Hoe vaak `filter_gebruikt` en `sorteren` voorkomen per `resultaat_getoond`.
+- *Werkt "Meer budget?"* `budget_kaart` klik_meer_budget gedeeld door getoond.
+
+Tel in Umami bij voorkeur **unieke bezoekers** (trechter: vragenpagina → quiz_voltooid →
+affiliate_klik), niet losse events: een herladen pagina telt anders dubbel.
+
+---
+
 ## Snelle verwijzing: welk bestand doet wat
 
 | Bestand | Wat erin staat |
