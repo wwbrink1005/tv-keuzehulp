@@ -63,7 +63,7 @@ const filterState = {
 };
 
 const FUNCTIE_DEFINITIES = [
-  { key: "curved", label: "Gebogen scherm", check: m => m.gebogen === "Gebogen" },
+  { key: "curved", label: "Gebogen scherm", check: m => m.gebogen === "Ja" },
   { key: "speakers", label: "Ingebouwde speakers", check: m => m.speakers === "Ja" },
   { key: "usbc", label: "USB-C", check: m => m.usb_c === "Ja" },
 ];
@@ -480,7 +480,7 @@ export async function initFilters() {
   }
 
   // Full, non-price-filtered matchset (priceGroup = null → no restriction).
-  filterState.priceGroups = computeDynamicPriceGroups(allMonitors, filterState.sizeGroup, sizeGroupToAllowedSizes);
+  filterState.priceGroups = computeDynamicPriceGroups(allMonitors, filterState.sizeGroup);
   const liveResult = matchMonitors(allMonitors, filterState.sizeGroup, null, filterState.answers, filterState.scores);
   let baseMatches = Array.isArray(liveResult.filteredMatchedMonitors) ? liveResult.filteredMatchedMonitors : [];
 

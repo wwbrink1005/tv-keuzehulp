@@ -1,13 +1,14 @@
 // monitor/js/punten.js — kaartinhoud voor resultaat- en favorietenpagina.
 // Zelfde opzet als koelkast/js/punten.js; bouwstenen in shared/punten-basis.js.
 //
-// Let op: `hdr` en `gebogen` staan in de catalogus bij elke monitor op "Nee"
-// (geen echte data) en worden daarom nergens gebruikt.
+// Let op: `hdr` staat in de catalogus bij elke monitor op "Nee" (geen echte
+// data) en wordt daarom nergens gebruikt. `gebogen` komt uit de titel (utils.js).
 
 import {
   esc, getal, ja,
   maakContext, vergelijk, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
+import { is4KOfMeer } from "./data.js";
 
 const RES_RANG = { HD: 1, "Full HD": 2, WUXGA: 2.5, QHD: 3, UWQHD: 3.5, "4K": 4, "5K": 5, "5K Ultrawide": 5 };
 const ms = (m) => parseFloat(String(m.responstijd ?? "").replace(",", "."));
@@ -36,7 +37,8 @@ export function buildResultPoints(m, answers, ctx) {
   const hzWens = HZ_WENS[a.hz];
   if (hzWens && m.hz >= hzWens[0] && m.hz < hzWens[1]) vink("hz", `${getal(m.hz)} Hz`);
   if (a.schermgrootte === "ultrawide" && ultrawide(m)) vink("vorm", "ultrawide");
-  if (wil("4k") && m.resolutie === "4K") vink("res", "4K");
+  if (wil("4k") && is4KOfMeer(m)) vink("res", m.resolutie === "4K" ? "4K" : "4K of scherper");
+  if (wil("gebogen") && m.gebogen === "Ja") vink("vorm", "gebogen scherm");
   if (wil("usb-c") && ja(m.usb_c)) vink("usbc", "USB-C");
   if (wil("speakers") && ja(m.speakers)) vink("speakers", "ingebouwde speakers");
   zochtRegel(p, delen);

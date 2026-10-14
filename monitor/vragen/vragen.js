@@ -1,4 +1,4 @@
-// Testversie van de monitor-vragenpagina op de 3D-werkplek (zelfde bureau als de
+// De monitor-vragenpagina op de 3D-werkplek (zelfde bureau als de
 // laptop-test, met toetsenbord en muis). Basisrender = het bureau; de monitor
 // (24/27/32/34 inch, vlak of gebogen) is een transparante laag
 // (render/scene.py). Beeld op het scherm zet placeQuad() er precies op.
@@ -36,7 +36,7 @@ const Q = [
     title: "Hoe groot wil je het scherm?",
     sub: "De monitor op het bureau wisselt mee.",
     why: "De schermgrootte bepaalt hoeveel werkruimte je hebt. Een 24\" monitor is compact en past op elk bureau. Een 27\" is de populairste maat voor thuis en kantoor. Een 32\" biedt extra ruimte voor multitasking. Een ultrawide (34\"+) geeft een breed panoramisch beeld, ideaal voor meerdere vensters naast elkaar.",
-    options: [{ v: "compact", label: "Compact, 24 inch", price: "€" }, { v: "standaard", label: "Standaard, 27 inch", price: "€€" }, { v: "groot", label: "Groot, 32 inch", price: "€€" }, { v: "ultrawide", label: "Extra breed scherm (ultrawide), 34 inch of breder", price: "€€€" }],
+    options: [{ v: "compact", label: "Compact, 24 inch", price: "€" }, { v: "standaard", label: "Standaard, 27 inch", price: "€€" }, { v: "groot", label: "Groot, 32 inch of groter", price: "€€" }, { v: "ultrawide", label: "Extra breed scherm (ultrawide), 34 inch of breder", price: "€€€" }],
   },
   {
     id: "gebruik", type: "check", max: 2, exclusive: "algemeen",

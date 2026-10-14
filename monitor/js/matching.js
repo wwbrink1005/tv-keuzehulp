@@ -1,4 +1,4 @@
-import { getMonitorTier, scoringSystem, sizeGroupToAllowedSizes, TIER_ORDER } from "./data.js";
+import { getMonitorTier, scoringSystem, inMaatGroep, is4KOfMeer, TIER_ORDER } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 export const DEFAULT_MIN_AANBIEDERS = 2;
@@ -73,6 +73,20 @@ export function applyHzFilter(monitors, hz) {
 }
 
 // ─── Extra preferences ────────────────────────────────────────────────────────
+// Strikte versie van alle wensen (Hz-bereik en extra's): alleen monitoren die
+// aan ALLES voldoen. Zie matchMonitors, stap 2a.
+const HZ_BEREIK = { soepel: [75, 120], vloeiend: [120, 240], extreem: [240, Infinity] };
+function voldoetAanAlleWensen(monitors, answers) {
+  const hz = HZ_BEREIK[answers.hz ?? ""];
+  const extra = Array.isArray(answers.extraAnswers) ? answers.extraAnswers : [];
+  return monitors.filter(m =>
+    (!hz || (m.hz >= hz[0] && m.hz < hz[1])) &&
+    (!extra.includes("usb-c") || m.usb_c === "Ja") &&
+    (!extra.includes("gebogen") || m.gebogen === "Ja") &&
+    (!extra.includes("speakers") || m.speakers === "Ja") &&
+    (!extra.includes("4k") || is4KOfMeer(m))
+  );
+}
 
 export function applyExtraFilter(monitors, extraAnswers) {
   if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
@@ -97,7 +111,7 @@ export function applyExtraFilter(monitors, extraAnswers) {
   }
 
   if (extraAnswers.includes("4k")) {
-    const fourk = filtered.filter(m => m.resolutie === "4K");
+    const fourk = filtered.filter(is4KOfMeer);
     if (fourk.length > 0) filtered = fourk;
   }
 
@@ -111,13 +125,11 @@ export function matchMonitors(monitors, sizeGroup, priceGroup, answers, scores) 
     return { bestMatch: null, bestType: null, filteredMatchedMonitors: [] };
   }
 
-  const allowedSizes = sizeGroupToAllowedSizes[sizeGroup] || [];
-
   // 1. Filter by size + price
   let filtered = monitors.filter(m => {
     const price = parsePrice(m.prijs);
     return (
-      allowedSizes.includes(m.schermdiagonaal) &&
+      inMaatGroep(m, sizeGroup) &&
       (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max))
     );
   });
@@ -133,7 +145,24 @@ export function matchMonitors(monitors, sizeGroup, priceGroup, answers, scores) 
   let matchedMonitors = [];
   let bestType = null;
 
-  for (let i = 0; i < sortedTiers.length; i++) {
+  // 2a. Eerst de best scorende tier waarin ALLE wensen (Hz, USB-C, gebogen,
+  // speakers, 4K) vervuld worden; bij een gelijke stand de kleinste niet-lege
+  // set (zelfde regel als hieronder). Zonder deze stap viel bv. 4K of de
+  // gekozen Hz weg terwijl er in dezelfde maat wél zulke monitoren waren.
+  const vergelijkbaar = lijst => lijst.filter(m => (m.aanbieders ?? []).length >= 2).length;
+  const scoresAflopend = [...new Set(sortedTiers.map(([, s]) => Number(s)))];
+  for (const score of scoresAflopend) {
+    let beste = null, besteNaam = null;
+    for (const [tier] of sortedTiers.filter(([, s]) => Number(s) === score)) {
+      const kandidaten = voldoetAanAlleWensen(filtered.filter(m => getMonitorTier(m) === tier), answers);
+      if (vergelijkbaar(kandidaten) && (!beste || kandidaten.length < beste.length)) { beste = kandidaten; besteNaam = tier; }
+    }
+    if (beste) { matchedMonitors = beste; bestType = besteNaam; break; }
+  }
+
+  // 2b. Kan dat in geen enkele tier: de oude cascade, waarin een wens die er
+  // niet is gracieus wegvalt.
+  for (let i = 0; i < sortedTiers.length && matchedMonitors.length === 0; i++) {
     const [, topScore] = sortedTiers[i];
     const tiersWithTopScore = sortedTiers
       .filter(([, s]) => Number(s) === Number(topScore))

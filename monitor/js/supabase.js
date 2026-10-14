@@ -34,10 +34,11 @@ function parseHz(value) {
 function parseResolutie(value) {
   if (!value) return "";
   const s = String(value).toLowerCase().replace(/\s+/g, "");
+  // Ultrawide eerst: "uwqhd" bevat ook "qhd" en werd daardoor als QHD gezien.
+  if (s.includes("3440x1440") || s.includes("uwqhd")) return "UWQHD";
+  if (s.includes("2560x1080") || s.includes("uwfhd")) return "UWFHD";
   if (s.includes("3840x2160") || s.includes("uhd") || s.includes("4k")) return "4K";
   if (s.includes("2560x1440") || s.includes("qhd")) return "QHD";
-  if (s.includes("2560x1080") || s.includes("uwfhd")) return "UWFHD";
-  if (s.includes("3440x1440") || s.includes("uwqhd")) return "UWQHD";
   if (s.includes("5120x1440")) return "5K Ultrawide";
   if (s.includes("1920x1200") || s.includes("wuxga")) return "WUXGA";
   if (s.includes("1920x1080") || s.includes("fhd") || s.includes("fullhd")) return "Full HD";

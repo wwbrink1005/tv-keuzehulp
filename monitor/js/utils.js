@@ -1,3 +1,4 @@
+import { inMaatGroep } from "./data.js";
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -57,6 +58,8 @@ export function normalizeProducts(rawProducts) {
 
     const schermdiagonaal = parseFloat(product.schermdiagonaal);
     if (Number.isNaN(schermdiagonaal) || schermdiagonaal <= 0) return [];
+    // 50 inch en groter zijn tv's of reclameschermen, geen monitoren.
+    if (schermdiagonaal >= 50) return [];
 
     if (!product.merk) return [];
 
@@ -75,7 +78,9 @@ export function normalizeProducts(rawProducts) {
       hdmi_poorten:   product.hdmi_poorten   ?? 0,
       dp_poorten:     product.dp_poorten     ?? 0,
       speakers:       product.speakers       ?? "Nee",
-      gebogen:        product.gebogen        ?? "Nee",
+      // Het gebogen-veld uit Icecat staat bij elke monitor op "Nee"; de titel
+      // zegt het wel ("Curved", "gebogen", kromming als "1500R").
+      gebogen:        product.gebogen === "Ja" || /curved|gebogen|\b\d{4}R\b/i.test(naam) ? "Ja" : "Nee",
       usb_c:          product.usb_c          ?? "Nee",
       beeldverhouding: product.beeldverhouding ?? "",
       afbeelding,
@@ -108,10 +113,9 @@ function floorNice(value) {
 /**
  * Dynamically computes 2–3 price buckets from actual monitor prices in the given size group.
  */
-export function computeDynamicPriceGroups(monitors, sizeGroup, allowedSizes) {
-  const sizes = allowedSizes[sizeGroup] || [];
+export function computeDynamicPriceGroups(monitors, sizeGroup) {
   const prices = monitors
-    .filter(m => sizes.includes(m.schermdiagonaal))
+    .filter(m => inMaatGroep(m, sizeGroup))
     .map(m => parsePrice(m.prijs))
     .filter(p => Number.isFinite(p) && p > 0)
     .sort((a, b) => a - b);
