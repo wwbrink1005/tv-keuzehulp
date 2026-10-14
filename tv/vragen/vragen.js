@@ -58,7 +58,7 @@ const QUESTIONS = [
     options: [],
   },
   {
-    id: "budget", type: "radio", two: true,
+    id: "budget", type: "radio",
     title: "Wat wil je maximaal uitgeven?",
     sub: "",
     why: "Met je budget zoeken we de beste tv die je ook echt wilt kopen. Past het type dat het best bij je wensen past niet binnen je bedrag, dan krijg je de beste keuze binnen je budget. Op de resultaatpagina laten we dan zien wat je voor meer geld krijgt.",

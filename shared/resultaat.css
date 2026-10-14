@@ -133,7 +133,7 @@ body.filter-drawer-open {
 				display: flex;
 				align-items: center;
 				position: relative;
-				z-index: 2;
+				z-index: 20; /* boven de kaarten: het uitklapmenu van sorteren valt over de kaarten (en hun hartje, z-index 2) heen */
 			}
 
 .sort-control {
