@@ -291,9 +291,16 @@ export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
   // wens gaat voor. Zonder deze stap viel bv. "scherp scherm" of de videokaart
   // bij gamen in ruim 900 van de 3.168 antwoordcombinaties weg terwijl er wél
   // passende laptops waren. Daarna de zachte filters (gewicht, geheugen, chip).
+  // Volgorde bij een gelijke stand: bij zwaar of zeer zwaar gebruik eerst de
+  // krachtigste tier (anders kreeg bv. "werk, zwaar, compact" altijd de
+  // middenklasse en verschenen krachtige zakelijke 14-inchers nooit), anders
+  // eerst de goedkoopste.
+  const zwaar = answers.intensiteit === "zwaar" || answers.intensiteit === "extreem";
+  const tierVolgorde = zwaar ? [...TIER_ORDER].reverse() : TIER_ORDER;
+
   const scoresAflopend = [...new Set(sortedTiers.map(([, s]) => Number(s)))];
   for (const score of scoresAflopend) {
-    const tiers = TIER_ORDER.filter(t => sortedTiers.some(([n, s]) => n === t && Number(s) === score));
+    const tiers = tierVolgorde.filter(t => sortedTiers.some(([n, s]) => n === t && Number(s) === score));
     for (const tier of tiers) {
       let poging = voldoetAanAlleWensen(
         filtered.filter(l => getProcessorTier(l.processor, l.processor_familie) === tier), answers);
@@ -323,7 +330,7 @@ export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
     // conservatiefste eerst (TIER_ORDER), en gebruiken we de eerste die na
     // alle filters daadwerkelijk treffers overhoudt. Zo blijft de resultaten-
     // lijst net zo scherp als bij een ondubbelzinnig antwoord.
-    const tiersInVolgorde = TIER_ORDER.filter(t => tiersWithTopScore.includes(t));
+    const tiersInVolgorde = tierVolgorde.filter(t => tiersWithTopScore.includes(t));
 
     let candidates = [];
     let gekozenTier = null;
