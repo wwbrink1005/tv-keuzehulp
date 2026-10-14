@@ -1,8 +1,11 @@
 // ─── Size groups (keyed by formaat answer) ──────────────────────────────────
+// Alle laptopmaten in de catalogus (okt. 2026) horen bij een groep; eerder
+// vielen o.a. 13,8" (Surface), 15,3" en 18" (gaming) er buiten en verschenen
+// ruim 200 laptops nooit. Schermen van 23 inch en groter zijn geen laptops.
 export const sizeGroupToAllowedSizes = {
-  "licht-compact":  [13, 13.3, 14],
-  "middenweg":      [15, 15.6, 16],
-  "groot-krachtig": [17, 17.3]
+  "licht-compact":  [10.1, 10.9, 11.6, 12, 12.2, 13, 13.3, 13.4, 13.6, 13.8, 14, 14.5],
+  "middenweg":      [15, 15.1, 15.3, 15.6, 16],
+  "groot-krachtig": [17, 17.3, 18, 18.4]
 };
 
 // ─── Static fallback price groups per formaat ────────────────────────────────
@@ -73,10 +76,22 @@ function tierFromFamilieNummer(familie) {
 }
 
 export function getProcessorTier(processor, processorFamilie) {
+  const raw = String(processor ?? "").trim();
+
+  // Apple heeft geen processorfamilie in Icecat en viel daardoor altijd op
+  // "Mid", ook een MacBook Pro met M5 Max. M Max = topklasse, M Pro =
+  // krachtig, gewone M = middenklasse, A-chip (MacBook Neo, telefoonchip in
+  // Apple's goedkoopste laptop) = budget.
+  if (/\bapple\b/i.test(raw) || /^\s*[MA]\d+\b/.test(raw)) {
+    if (/\bM\d+\s+(max|ultra)\b/i.test(raw)) return "Topklasse";
+    if (/\bM\d+\s+pro\b/i.test(raw)) return "Krachtig";
+    if (/\bA\d+\b/.test(raw)) return "Budget";
+    return "Mid";
+  }
+
   const uitFamilie = tierFromFamilieNummer(processorFamilie);
   if (uitFamilie) return uitFamilie;
 
-  const raw = String(processor ?? "").trim();
   for (const [tier, procs] of Object.entries(PROCESSOR_TIERS)) {
     if (procs.some(p => raw.toLowerCase().includes(p.toLowerCase()))) return tier;
   }

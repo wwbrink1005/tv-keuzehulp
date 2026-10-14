@@ -58,11 +58,14 @@ export function normalizeProducts(rawProducts) {
     const schermdiagonaal = parseFloat(product.schermdiagonaal);
     if (Number.isNaN(schermdiagonaal)) return [];
 
-    const werkgeheugen = parseInt(product.werkgeheugen, 10);
-    if (Number.isNaN(werkgeheugen)) return [];
+    // Werkgeheugen en opslag ontbreken bij o.a. veel MacBooks in Icecat; zo'n
+    // laptop niet weggooien maar zonder die gegevens tonen (null). Onder de 4 GB
+    // is een invoerfout (er stond bv. "2" bij een M4 Pro).
+    const ram = parseInt(product.werkgeheugen, 10);
+    const werkgeheugen = Number.isFinite(ram) && ram >= 4 ? ram : null;
 
-    const opslag = parseInt(product.opslag, 10);
-    if (Number.isNaN(opslag)) return [];
+    const opsl = parseInt(product.opslag, 10);
+    const opslag = Number.isFinite(opsl) && opsl > 0 ? opsl : null;
 
     const hz = parseInt(String(product.hz).replace(/[^0-9]/g, ""), 10);
     if (Number.isNaN(hz)) return [];
@@ -70,9 +73,13 @@ export function normalizeProducts(rawProducts) {
     const gewicht = parseFloat(product.gewicht);
     // gewicht may be missing for some laptops; don't reject if NaN
 
-    if (!product.merk || !product.processor || !product.paneeltype || !product.resolutie) {
+    // Paneeltype is alleen nodig voor een filter en een punt: niet verplicht
+    // (ontbrak o.a. bij de Surface Pro). Processor of processorfamilie wel.
+    if (!product.merk || !(product.processor || product.processor_familie) || !product.resolutie) {
       return [];
     }
+    // Schermen van 23 inch en groter zijn geen laptops (all-in-ones in de feed).
+    if (schermdiagonaal >= 20) return [];
 
     return [{
       merk:           product.merk,
@@ -85,9 +92,9 @@ export function normalizeProducts(rawProducts) {
       usb_c:          product.usb_c ?? "Nee",
       hdmi:           parseInt(product.hdmi, 10) || 0,
       resolutie:      product.resolutie,
-      paneeltype:     product.paneeltype,
+      paneeltype:     product.paneeltype ?? "",
       hz,
-      processor:      product.processor,
+      processor:      product.processor ?? "",
       processor_familie: product.processor_familie ?? "",
       gpu:            product.gpu ?? "",
       gewicht:        Number.isFinite(gewicht) ? gewicht : null,

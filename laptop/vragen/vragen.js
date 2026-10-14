@@ -1,4 +1,4 @@
-// Testversie van de laptop-vragenpagina op een 3D-werkplek. Basisrender = het
+// De laptop-vragenpagina op een 3D-werkplek. Basisrender = het
 // bureau (render/scene.py); de laptop (13/15/17 inch) is een transparante laag.
 // Wat er op het scherm staat, zetten we met placeQuad() in perspectief op het
 // schuine laptopscherm, met dezelfde camera als in Blender. Motor: shared/quiz3d.js.
@@ -24,7 +24,7 @@ async function productenOfFout() {
 const LAPTOP = {
   "licht-compact":  { key: "13", bw: 0.300, bd: 0.212, sw: 0.286, sh: 0.179, inch: "13 à 14", kg: "± 1,3 kg" },
   middenweg:        { key: "15", bw: 0.358, bd: 0.245, sw: 0.345, sh: 0.194, inch: "15 à 16", kg: "± 1,8 kg" },
-  "groot-krachtig": { key: "17", bw: 0.398, bd: 0.268, sw: 0.383, sh: 0.215, inch: "17", kg: "± 2,5 kg" },
+  "groot-krachtig": { key: "17", bw: 0.398, bd: 0.268, sw: 0.383, sh: 0.215, inch: "17 à 18", kg: "± 2,5 kg" },
 };
 const DZ = 0.75, T = 0.016, LY = -0.33, TILT = 18 * Math.PI / 180;
 
@@ -41,8 +41,8 @@ const Q = [
     id: "formaat", type: "radio",
     title: "Hoe gebruik je je laptop het liefst?",
     sub: "De laptop op het bureau wisselt mee van formaat.",
-    why: "Het formaat en gewicht van je laptop bepalen hoeveel comfort je hebt onderweg en thuis. Een lichte compacte laptop (13 à 14 inch) is ideaal voor dagelijks meenemen. Een middenweg (15 à 16 inch) biedt een goede balans. Een grote krachtige laptop (17 inch) is het prettigst voor thuisgebruik met groot scherm.",
-    options: [{ v: "licht-compact", label: "Licht en compact, 13 tot 14 inch", price: "€" }, { v: "middenweg", label: "Middenweg, 15 tot 16 inch", price: "€€" }, { v: "groot-krachtig", label: "Groot en krachtig, 17 inch", price: "€€€" }],
+    why: "Het formaat en gewicht van je laptop bepalen hoeveel comfort je hebt onderweg en thuis. Een lichte compacte laptop (13 à 14 inch) is ideaal voor dagelijks meenemen. Een middenweg (15 à 16 inch) biedt een goede balans. Een grote krachtige laptop (17 à 18 inch) is het prettigst voor thuisgebruik met groot scherm.",
+    options: [{ v: "licht-compact", label: "Licht en compact, 13 tot 14 inch", price: "€" }, { v: "middenweg", label: "Middenweg, 15 tot 16 inch", price: "€€" }, { v: "groot-krachtig", label: "Groot en krachtig, 17 tot 18 inch", price: "€€€" }],
   },
   {
     id: "gebruik", type: "check", max: 2, exclusive: "allround",

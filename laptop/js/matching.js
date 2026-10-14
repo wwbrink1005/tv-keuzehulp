@@ -49,24 +49,32 @@ export function calculateScores(answers) {
   return scores;
 }
 
+// ─── Zachte filters: niet terug tot 1 of 2 laptops ───────────────────────────
+// Gewicht, werkgeheugen en zuinige/krachtige chip zijn voorkeuren, geen eisen.
+// Eerder werd elke voorkeur toegepast zolang er ook maar 1 laptop overbleef,
+// met als gevolg dat de helft van de bezoekers 2 laptops of minder te zien
+// kreeg (doorlichting okt. 2026). Nu alleen als er minstens MIN_KEUZE laptops
+// bij 2+ winkels overblijven, of als het niets kost (de lijst was al zo klein).
+const MIN_KEUZE = 3;
+const vergelijkbaar = lijst => lijst.filter(l => (l.aanbieders ?? []).length >= 2).length;
+function zacht(lijst, gefilterd) {
+  if (gefilterd.length === 0) return lijst;
+  const n = vergelijkbaar(gefilterd);
+  return n >= MIN_KEUZE || n >= vergelijkbaar(lijst) ? gefilterd : lijst;
+}
+
 // ─── Formaat filter (size + portability combined) ────────────────────────────
 
 export function applyFormaatFilter(laptops, formaat) {
   if (formaat === "licht-compact") {
-    // Prefer very light laptops
-    const light = laptops.filter(l => l.gewicht !== null && l.gewicht <= 1.6);
-    if (light.length > 0) return light;
-
-    const medium = laptops.filter(l => l.gewicht !== null && l.gewicht <= 1.9);
-    if (medium.length > 0) return medium;
-
-    return laptops;
+    // Liefst heel licht, anders licht, anders alles.
+    const light = zacht(laptops, laptops.filter(l => l.gewicht !== null && l.gewicht <= 1.6));
+    if (light !== laptops) return light;
+    return zacht(laptops, laptops.filter(l => l.gewicht !== null && l.gewicht <= 1.9));
   }
 
   if (formaat === "middenweg") {
-    const filtered = laptops.filter(l => l.gewicht === null || l.gewicht <= 2.2);
-    if (filtered.length > 0) return filtered;
-    return laptops;
+    return zacht(laptops, laptops.filter(l => l.gewicht === null || l.gewicht <= 2.2));
   }
 
   // "groot-krachtig" → no weight filter
@@ -109,18 +117,17 @@ export function applyOpslagFilter(laptops, opslag) {
 // "gemiddeld" als "intensief" verwijdert vooral de paar 4/8 GB-uitschieters
 // die in hogere tiers lekken, zonder overig goed aanbod weg te filteren.
 export function applyRamFilter(laptops, intensiteit) {
+  // Onbekend werkgeheugen (o.a. veel MacBooks in Icecat) is geen reden om
+  // een laptop weg te laten.
+  const minstens = gb => l => l.werkgeheugen === null || l.werkgeheugen >= gb;
   if (intensiteit === "extreem") {
-    const hoog = laptops.filter(l => l.werkgeheugen >= 32);
-    if (hoog.length > 0) return hoog;
-    const medium = laptops.filter(l => l.werkgeheugen >= 16);
-    if (medium.length > 0) return medium;
-    return laptops;
+    const hoog = zacht(laptops, laptops.filter(minstens(32)));
+    if (hoog !== laptops) return hoog;
+    return zacht(laptops, laptops.filter(minstens(16)));
   }
 
   if (intensiteit === "normaal" || intensiteit === "zwaar") {
-    const medium = laptops.filter(l => l.werkgeheugen >= 16);
-    if (medium.length > 0) return medium;
-    return laptops;
+    return zacht(laptops, laptops.filter(minstens(16)));
   }
 
   // "licht" → geen RAM-eis (8 GB is prima)
@@ -146,15 +153,11 @@ function processorSuffixKlasse(processor) {
 
 export function applyProcessorClassFilter(laptops, intensiteit) {
   if (intensiteit === "zwaar" || intensiteit === "extreem") {
-    const nietZuinig = laptops.filter(l => processorSuffixKlasse(l.processor) !== "efficient");
-    if (nietZuinig.length > 0) return nietZuinig;
-    return laptops;
+    return zacht(laptops, laptops.filter(l => processorSuffixKlasse(l.processor) !== "efficient"));
   }
 
   if (intensiteit === "licht" || intensiteit === "normaal") {
-    const nietZwaar = laptops.filter(l => processorSuffixKlasse(l.processor) !== "performance");
-    if (nietZwaar.length > 0) return nietZwaar;
-    return laptops;
+    return zacht(laptops, laptops.filter(l => processorSuffixKlasse(l.processor) !== "performance"));
   }
 
   return laptops;
@@ -177,17 +180,47 @@ export function heeftDedicatedGpu(gpu) {
   return raw !== "" && raw.toLowerCase() !== "niet beschikbaar";
 }
 
+// Gamen vraagt een losse videokaart. Voor creatief werk (foto, video) volstaat
+// ook de ingebouwde grafische chip van een Apple M Pro/Max: die zijn daar juist
+// sterk in. Zonder deze uitzondering verscheen een MacBook Pro 16 nooit.
+function voldoetAanGpuWens(l, gebruik) {
+  if (!Array.isArray(gebruik)) return true;
+  if (gebruik.includes("gaming")) return heeftDedicatedGpu(l.gpu);
+  if (gebruik.includes("creatief")) return heeftDedicatedGpu(l.gpu) || /\bM\d+\s+(pro|max|ultra)\b/i.test(l.processor ?? "");
+  return true;
+}
+
 export function applyGpuFilter(laptops, gebruikAnswers) {
   const wilDedicatedGpu = Array.isArray(gebruikAnswers)
     && (gebruikAnswers.includes("gaming") || gebruikAnswers.includes("creatief"));
   if (!wilDedicatedGpu) return laptops;
 
-  const metGpu = laptops.filter(l => heeftDedicatedGpu(l.gpu));
+  const metGpu = laptops.filter(l => voldoetAanGpuWens(l, gebruikAnswers));
   if (metGpu.length > 0) return metGpu;
   return laptops;
 }
 
 // ─── Extra preferences ────────────────────────────────────────────────────────
+// Resoluties boven Full HD zoals ze in de catalogus heten. Eerder stond hier
+// "Quad HD", dat nergens voorkomt: alleen 4K telde dan als scherp scherm.
+const SCHERP = new Set(["QHD", "QHD+", "4K"]);
+
+// Strikte versie van de expliciete wensen (opslag, videokaart bij gamen of
+// creatief werk, touchscreen, USB-C, scherp scherm): alleen laptops die aan
+// ALLES voldoen. Zie matchLaptops, stap 2a.
+function voldoetAanAlleWensen(laptops, answers) {
+  const opslag = answers.opslag ?? "";
+  const gebruik = Array.isArray(answers.gebruik) ? answers.gebruik : [];
+  const extra = Array.isArray(answers.extraAnswers) ? answers.extraAnswers : [];
+  return laptops.filter(l =>
+    (opslag !== "veel" || l.opslag >= 1000) &&
+    (opslag !== "gemiddeld" || l.opslag >= 512) &&
+    voldoetAanGpuWens(l, gebruik) &&
+    (!extra.includes("touchscreen") || l.touchscreen === "Ja") &&
+    (!extra.includes("usb-c") || l.usb_c === "Ja") &&
+    (!extra.includes("scherp-beeldscherm") || l.paneeltype === "OLED" || SCHERP.has(l.resolutie))
+  );
+}
 
 export function applyExtraFilter(laptops, extraAnswers) {
   if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
@@ -211,7 +244,7 @@ export function applyExtraFilter(laptops, extraAnswers) {
     const oled = filtered.filter(l => l.paneeltype === "OLED");
     if (oled.length > 0) { filtered = oled; }
     else {
-      const hires = filtered.filter(l => l.resolutie === "4K" || l.resolutie === "Quad HD");
+      const hires = filtered.filter(l => SCHERP.has(l.resolutie));
       if (hires.length > 0) { filtered = hires; }
       else {
         const ips = filtered.filter(l => l.paneeltype === "IPS");
@@ -252,7 +285,32 @@ export function matchLaptops(laptops, sizeGroup, priceGroup, answers, scores) {
   let matchedLaptops = [];
   let bestType = null;
 
-  for (let i = 0; i < sortedTiers.length; i++) {
+  // 2a. De best scorende tier waarin ALLE expliciete wensen vervuld kunnen
+  // worden (bij gelijke score de goedkoopste tier eerst, zoals hieronder). De
+  // tier komt uit gebruik/intensiteit/formaat (een voorkeur); een aangevinkte
+  // wens gaat voor. Zonder deze stap viel bv. "scherp scherm" of de videokaart
+  // bij gamen in ruim 900 van de 3.168 antwoordcombinaties weg terwijl er wél
+  // passende laptops waren. Daarna de zachte filters (gewicht, geheugen, chip).
+  const scoresAflopend = [...new Set(sortedTiers.map(([, s]) => Number(s)))];
+  for (const score of scoresAflopend) {
+    const tiers = TIER_ORDER.filter(t => sortedTiers.some(([n, s]) => n === t && Number(s) === score));
+    for (const tier of tiers) {
+      let poging = voldoetAanAlleWensen(
+        filtered.filter(l => getProcessorTier(l.processor, l.processor_familie) === tier), answers);
+      if (vergelijkbaar(poging) === 0) continue;
+      poging = applyFormaatFilter(poging, answers.formaat ?? "");
+      poging = applyRamFilter(poging, answers.intensiteit ?? "");
+      poging = applyProcessorClassFilter(poging, answers.intensiteit ?? "");
+      matchedLaptops = poging;
+      bestType = tier;
+      break;
+    }
+    if (matchedLaptops.length) break;
+  }
+
+  // 2b. Kan dat in geen enkele tier: de oude cascade, waarin een wens die er
+  // niet is gracieus wegvalt.
+  for (let i = 0; i < sortedTiers.length && matchedLaptops.length === 0; i++) {
     const [, topScore] = sortedTiers[i];
     const tiersWithTopScore = sortedTiers
       .filter(([, s]) => Number(s) === Number(topScore))
