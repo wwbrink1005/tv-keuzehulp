@@ -192,7 +192,8 @@ def append_model(mid, loc, rot_z=0.0, scale=1.0):
 # Warm grijsbeige stuc, lichte gietvloer, een zwevend karamel tv-meubel en de bank.
 # Geen raam in beeld: het zonlicht valt door een onzichtbaar "raamgat" links,
 # zodat er één zachte lichtbaan over de muur valt.
-M_WALL = pbr("wall2", "white_plaster_02", 1.3, base=(0.74, 0.645, 0.52), var=0.07, bump=0.12)
+# overdag lichter warm grijsbeige (zelfde toon als de werkplek); 's avonds de oude, donkerdere tint
+M_WALL = pbr("wall2", "white_plaster_02", 1.3, base=(0.74, 0.645, 0.52) if NIGHT else (0.82, 0.75, 0.65), var=0.07, bump=0.12)
 M_CEIL = flat("ceil2", (0.78, 0.74, 0.68), 0.9)
 M_FLOOR = pbr("floor3", "laminate_floor_02", 1.7, tint=(1.06, 1.0, 0.93), tint_mix=1.0, bump=0.25, rough_add=0.1)
 M_LAK = pbr("lak2", "white_oak_veneer", 0.7, base=(0.40, 0.22, 0.125), var=0.16, bump=0.02, rough_add=0.3)
@@ -311,7 +312,7 @@ def light(name, kind, loc, energy, color, size=None, target=None, sx=None, sy=No
         o.rotation_euler = dvec.to_track_quat("-Z", "Y").to_euler()
     return o
 
-fill = light("fill_ceiling", "AREA", (-0.3, -D / 2 - 0.3, CEIL - 0.02), 32 if not NIGHT else 8,
+fill = light("fill_ceiling", "AREA", (-0.3, -D / 2 - 0.3, CEIL - 0.02), 55 if not NIGHT else 8,
              (1.0, 0.95, 0.88) if not NIGHT else (1.0, 0.75, 0.5), target=(-0.3, -D / 2 - 0.3, 0), sx=4.0, sy=max(1.5, D))
 fill.visible_camera = False
 if NIGHT:
@@ -320,7 +321,7 @@ if NIGHT:
     wash = light("wash", "SPOT", (-2.2, -1.2, 2.6), 60, (1.0, 0.7, 0.42), target=(-2.2, 0, 1.2))
     wash.data.spot_size = math.radians(70); wash.data.spot_blend = 1.0; wash.data.shadow_soft_size = 0.3
 else:
-    sun = bpy.data.lights.new("sun", "SUN"); sun.energy = 2.3; sun.angle = math.radians(7)
+    sun = bpy.data.lights.new("sun", "SUN"); sun.energy = 3.6; sun.angle = math.radians(7)
     sun.color = (1.0, 0.92, 0.82)
     so = bpy.data.objects.new("sun", sun); scene.collection.objects.link(so)
     Ld = Vector((0.6, 0.6, -0.35)).normalized()
