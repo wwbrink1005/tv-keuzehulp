@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <!-- Bottom bar -->
       <div class="footer-bottom">
-        <p class="footer-bottom-left">&copy; ${year} producthulp.nl &mdash; Alle rechten voorbehouden</p>
+        <p class="footer-bottom-left">&copy; ${year} Producthulp &mdash; KvK 42193243 &mdash; Alle rechten voorbehouden</p>
         <div class="footer-bottom-right">
           <a href="disclaimer">Disclaimer</a>
           <a href="privacy">Privacy</a>
