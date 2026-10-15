@@ -951,7 +951,7 @@ function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
       if (wis) wis.click();
       else { renderAllSecondary(); applyFilters(); }
       teken();
-      qs("#resultTitle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   };
   teken();
