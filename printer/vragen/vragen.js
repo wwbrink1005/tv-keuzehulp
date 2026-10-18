@@ -319,7 +319,8 @@ function meetStap(st, id) {
 const EIS = {
   kleur: { soms: p => p.kanKleurenPrinten === "Ja", vaak: p => p.kanKleurenPrinten === "Ja" },
   scan: { los: p => p.aio, stapel: p => p.aio && p.adf === "Ja" },
-  extra: { duplex: p => p.duplexAuto === true, compact: p => p.compact === true, lade: p => heeftGroteLade(p) === true, a3: p => p.a3 === true },
+  // Onbekend (Icecat weet het niet) telt als mogelijk: alleen grijs als het zeker niet kan.
+  extra: { duplex: p => p.duplexAuto !== false, compact: p => p.compact !== false, lade: p => heeftGroteLade(p) !== false, a3: p => p.a3 !== false },
 };
 function eisenVoor(st, id, behalve) {
   const tot = Q.findIndex(q => q.id === id);

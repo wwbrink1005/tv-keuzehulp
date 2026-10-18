@@ -193,6 +193,51 @@ function osOpties(st) {
 }
 const osKiesbaar = (st, v) => !osOpties(st).find(o => o.v === v)?.disabled;
 
+// ───────── opslag en extra's grijs als geen laptop ze waar kan maken ─────────
+// Zelfde idee als bij het besturingssysteem en de printer: grijs als er binnen
+// formaat, budget en systeem geen laptop bij 2+ winkels is die eraan voldoet
+// samen met je eerdere wensen (videokaart bij gamen, opslag) en de al
+// aangevinkte extra's (bv. "Numeriek toetsenblok" bij een Mac).
+const losseGpu = l => { const g = String(l.gpu ?? "").trim().toLowerCase(); return g !== "" && g !== "niet beschikbaar"; };
+// Onbekend (Icecat weet het niet) telt als mogelijk: alleen grijs als het zeker niet kan.
+const EIS = {
+  opslag: { gemiddeld: l => l.opslag == null || l.opslag >= 512, veel: l => l.opslag == null || l.opslag >= 1000 },
+  extra: Object.fromEntries(["accu", "touchscreen", "scherp-beeldscherm", "numpad", "vingerafdruk"].map(e => [e, l => heeftExtra(l, e) !== false])),
+};
+function gebruikEis(st) {
+  const g = st.gebruik ?? [];
+  if (g.includes("gaming")) return losseGpu;
+  if (g.includes("creatief")) return l => losseGpu(l) || /\bM\d+\s+(pro|max|ultra)\b/i.test(l.processor ?? "");
+  return null;
+}
+function metBeschikbaarheid(st, id, opties) {
+  if (!catalogus || !EIS[id]) return opties;
+  const cap = capVan(st.budget), os = OS_SYSTEEM[st.os], maten = sizeGroupToAllowedSizes[st.formaat] ?? [];
+  let vergelijkbaar = catalogus.filter(l => (l.aanbieders ?? []).length >= 2 && maten.includes(l.schermdiagonaal));
+  if (os && vergelijkbaar.some(l => l.os === os)) vergelijkbaar = vergelijkbaar.filter(l => l.os === os);
+  const binnen = cap ? vergelijkbaar.filter(l => parsePrice(l.prijs) <= cap) : vergelijkbaar;
+  const tot = Q.findIndex(q => q.id === id);
+  return opties.map(o => {
+    const eis = EIS[id][o.v];
+    if (!eis) return o;
+    let andere = [gebruikEis(st)];
+    Q.slice(0, tot).forEach(q => { if (EIS[q.id]) andere.push(EIS[q.id][st[q.id]]); });
+    if (id === "extra") (st.extra ?? []).filter(v => v !== o.v).forEach(v => andere.push(EIS.extra[v]));
+    andere = andere.filter(Boolean);
+    // Eerdere wensen die samen al onmogelijk zijn, laat de matching toch vallen
+    // (bv. gamen tot €800): dan tellen ze hier ook niet mee.
+    if (!binnen.some(l => andere.every(f => f(l)))) andere = [];
+    if (binnen.some(l => eis(l) && andere.every(f => f(l)))) return o;
+    const erboven = vergelijkbaar.filter(l => eis(l) && andere.every(f => f(l))).map(l => parsePrice(l.prijs));
+    const systeemMist = os && !catalogus.some(l => l.os === os && eis(l)) && catalogus.some(eis);
+    const note = cap && erboven.length ? `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`
+      : systeemMist ? `Geen enkele ${OS_LAPTOPNAAM[st.os]} heeft dit.`
+      : andere.length ? "Niet in combinatie met je andere keuzes."
+      : `Niet in ${lap(st).inch} inch.`;
+    return { ...o, disabled: true, note };
+  });
+}
+
 function budgetCaption(st) {
   const cap = capVan(st.budget), info = budgetInfo(st.formaat, cap);
   if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste laptop binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
@@ -333,7 +378,7 @@ const quiz = createQuiz3D({
   imgPath: n => `laptop/vragen/img/${n}.webp`,
   question: st => (QID(st) === "budget" ? { ...Q[st.q], options: budgetOpties(st.formaat) }
     : QID(st) === "os" ? { ...Q[st.q], options: osOpties(st) }
-    : Q[st.q]),
+    : { ...Q[st.q], options: metBeschikbaarheid(st, QID(st), Q[st.q].options) }),
   setup, afterRender,
   images: st => ["bureau", lap(st).key + (metNumpad(st) ? "n" : "")],
   focus: st => ({ x: 0, y: LY, z: 0.85, zoom: st.q === 0 ? 1.9 : 2.4 }),
@@ -433,6 +478,6 @@ productsPromise.then(raw => {
   if (!raw?.length) return;
   catalogus = normalizeProducts(raw);
   if (quiz.st.os && !osKiesbaar(quiz.st, quiz.st.os)) quiz.st.os = null;
-  if (QID(quiz.st) === "os") quiz.renderQuestion();   // grijze opties pas nu bekend
+  if (QID(quiz.st) === "os" || EIS[QID(quiz.st)]) quiz.renderQuestion();   // grijze opties pas nu bekend
   if (["budget", "os", "extra"].includes(QID(quiz.st))) quiz.render();
 });
