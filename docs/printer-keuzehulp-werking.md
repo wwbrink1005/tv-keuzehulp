@@ -60,7 +60,7 @@ Verder herkennen we:
 | 2 | Wat wil je maximaal uitgeven? | Tot €X / Tot €Y / Geen voorkeur | **Harde grens** |
 | 3 | Hoeveel print je? | Af en toe / Regelmatig / Veel | Punten per soort, plus snelheid |
 | 4 | Print je in kleur of is zwart-wit genoeg? | Alleen zwart-wit / Soms in kleur / Vaak in kleur | Punten per soort; kleur is een **wens** |
-| 5 | Wil je ook scannen en kopiëren? | Nee / Af en toe een vel / Ook documenten van meerdere pagina's (documentinvoer) | **Wens** |
+| 5 | Wil je ook scannen en kopiëren? | Nee / Eén vel tegelijk / Ook een hele stapel in één keer (documentinvoer) | **Wens** |
 | 6 | Wat vind je belangrijker? | Lage aanschafprijs / Goedkoop printen / Maakt niet uit | Punten per soort, plus hoe zwaar de prijs telt |
 | 7 | Wat is nog meer belangrijk? (meerdere) | Automatisch dubbelzijdig / Compact / Grote papierlade / A3 | **Wensen** |
 

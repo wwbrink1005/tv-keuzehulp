@@ -123,8 +123,8 @@ const Q = [
     why: "Een all-in-one printer kan ook scannen en kopiëren: je legt een vel op de glasplaat onder het deksel. Scan of kopieer je vaak documenten van meerdere pagina's, zoals contracten of administratie, dan is een documentinvoer handig: je legt de hele stapel bovenop en hij haalt de vellen er zelf één voor één doorheen.",
     options: [
       { v: "nee", label: "Nee, alleen printen", price: "€" },
-      { v: "los", label: "Ja, af en toe een vel, zoals een formulier of paspoort", price: "€€" },
-      { v: "stapel", label: "Ja, ook documenten van meerdere pagina's in één keer", price: "€€€" },
+      { v: "los", label: "Ja, één vel tegelijk is genoeg", price: "€€" },
+      { v: "stapel", label: "Ja, ook een hele stapel in één keer", price: "€€€" },
     ],
   },
   {
