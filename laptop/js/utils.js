@@ -67,8 +67,9 @@ export function normalizeProducts(rawProducts) {
     const opsl = parseInt(product.opslag, 10);
     const opslag = Number.isFinite(opsl) && opsl > 0 ? opsl : null;
 
-    const hz = parseInt(String(product.hz).replace(/[^0-9]/g, ""), 10);
-    if (Number.isNaN(hz)) return [];
+    // Verversing (Hz) is bij ongeveer de helft bekend; onbekend = null.
+    const hzGetal = parseInt(String(product.hz ?? "").replace(/[^0-9]/g, ""), 10);
+    const hz = Number.isFinite(hzGetal) && hzGetal >= 30 ? hzGetal : null;
 
     const gewicht = parseFloat(product.gewicht);
     // gewicht may be missing for some laptops; don't reject if NaN
@@ -98,7 +99,13 @@ export function normalizeProducts(rawProducts) {
       processor_familie: product.processor_familie ?? "",
       gpu:            product.gpu ?? "",
       gewicht:        Number.isFinite(gewicht) ? gewicht : null,
-      os:             product.os ?? "",
+      // Besturingssysteem: Apple is altijd macOS, een Chromebook ChromeOS.
+      os:             product.os || (/^apple$/i.test(product.merk) ? "macOS" : /chromebook/i.test(`${product.typeProduct} ${naam}`) ? "Chrome OS" : ""),
+      accuWh:         Number.isFinite(product.accuWh) ? product.accuWh : null,
+      accuUren:       parseInt(product.accuUren, 10) || null,
+      numeriekToetsenblok: product.numeriekToetsenblok ?? "",
+      vingerafdruk:   product.vingerafdruk ?? "",
+      typeProduct:    product.typeProduct ?? "",
       kleur:          product.kleur ?? "",
       afbeelding,
       afbeeldingen,

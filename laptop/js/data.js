@@ -8,6 +8,28 @@ export const sizeGroupToAllowedSizes = {
   "groot-krachtig": [17, 17.3, 18, 18.4]
 };
 
+// ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
+// Twee maximumbedragen per formaat plus "Geen voorkeur". Uit de live catalogus
+// (okt. 2026, laptops bij 2+ winkels): de helft kost meer dan €1.700, rond een
+// derde zit onder €1.300 (17-18 inch: onder €900). Herzien als de prijzen
+// flink verschuiven.
+export const budgetCapsBySize = {
+  "licht-compact":  [1000, 1500],
+  "middenweg":      [1000, 1500],
+  "groot-krachtig": [1000, 2000],
+};
+
+// ─── Lange accuduur ─────────────────────────────────────────────────────────
+// Icecat geeft bij bijna alle laptops de batterijcapaciteit (Wh), Apple de
+// uren video. Een losse videokaart trekt de accu leeg, hoe groot ook.
+// Mediaan zonder videokaart: 58 Wh. true = lang, false = niet, null = onbekend.
+export function isLangeAccu(l, dedicatedGpu) {
+  if (Number(l.accuUren) >= 15) return true;
+  if (dedicatedGpu) return false;
+  if (Number.isFinite(l.accuWh)) return l.accuWh >= 60 ? true : l.accuWh < 55 ? false : null;
+  return null;
+}
+
 // ─── Static fallback price groups per formaat ────────────────────────────────
 export const priceGroupsBySize = {
   "licht-compact": [

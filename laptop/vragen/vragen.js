@@ -4,8 +4,9 @@
 // schuine laptopscherm, met dezelfde camera als in Blender. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, dimLine, spotColumn, placeQuad } from "../../shared/quiz3d.js";
 import { calculateScores, matchLaptops } from "../js/matching.js";
-import { normalizeProducts } from "../js/utils.js";
+import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
+import { budgetCapsBySize, sizeGroupToAllowedSizes } from "../js/data.js";
 
 const camera = makeCamera({ camY: -2.15, camZ: 1.25, shiftY: -0.14 });
 const productsPromise = fetchProducts().catch(() => null);
@@ -45,6 +46,25 @@ const Q = [
     options: [{ v: "licht-compact", label: "Licht en compact, 13 tot 14 inch", price: "€" }, { v: "middenweg", label: "Middenweg, 15 tot 16 inch", price: "€€" }, { v: "groot-krachtig", label: "Groot en krachtig, 17 tot 18 inch", price: "€€€" }],
   },
   {
+    id: "budget", type: "radio",
+    title: "Wat wil je maximaal uitgeven?",
+    sub: st => `Bedragen voor een laptop van ${lap(st).inch} inch. Je krijgt de beste laptop binnen je budget.`,
+    why: "Met je budget zoeken we de beste laptop die je ook echt wilt kopen. Past een laptop die nog beter bij je wensen past net niet binnen je bedrag, dan laten we dat op de resultaatpagina zien.",
+    options: [],   // per formaat, zie question() hieronder
+  },
+  {
+    id: "os", type: "radio",
+    title: "Windows, Mac of Chromebook?",
+    sub: "Kies het systeem dat je wilt gebruiken.",
+    why: "Windows draait de meeste programma's en games. Een Mac (macOS) is fijn als je al een iPhone hebt en gaat lang mee op een acculading. Een Chromebook is eenvoudig en goedkoop, maar werkt vooral met apps en programma's uit de browser. Maakt het je niet uit, dan kijken we naar alle laptops.",
+    options: [
+      { v: "windows", label: "Windows", price: "€€" },
+      { v: "mac", label: "Mac", price: "€€€" },
+      { v: "chromebook", label: "Chromebook", price: "€" },
+      { v: "egal", label: "Maakt niet uit", price: "€€" },
+    ],
+  },
+  {
     id: "gebruik", type: "check", max: 2, exclusive: "allround",
     title: "Waar ga je je laptop voor gebruiken?",
     sub: "Kies er maximaal 2. Het scherm laat zien wat je doet.",
@@ -69,8 +89,8 @@ const Q = [
     id: "extra", type: "check", exclusive: "geen",
     title: "Wat is nog meer belangrijk voor jou?",
     sub: "Je keuzes verschijnen op de laptop.",
-    why: "Een touchscreen maakt bediening intuïtiever. USB-C is handig voor modern opladen en accessoires. Een scherp beeldscherm (OLED of hoge resolutie) is prettig voor foto's, video en lang werken.",
-    options: [{ v: "touchscreen", label: "Touchscreen", price: "€€€" }, { v: "usb-c", label: "USB-C (data en opladen)", price: "€" }, { v: "scherp-beeldscherm", label: "Hoge resolutie scherm", price: "€€€" }, { v: "geen", label: "Geen extra wensen", price: "€" }],
+    why: "Een lange accuduur is fijn als je de laptop vaak meeneemt. Een touchscreen maakt bediening intuïtiever. Een scherp beeldscherm (OLED of hoge resolutie) is prettig voor foto's, video en lang werken. Een numeriek toetsenblok is handig als je veel cijfers invoert. Met een vingerafdruklezer log je in zonder wachtwoord. Opladen via USB-C kan bij bijna elke laptop, daar hoef je niet op te letten.",
+    options: [{ v: "accu", label: "Lange accuduur", price: "€€" }, { v: "touchscreen", label: "Touchscreen", price: "€€€" }, { v: "scherp-beeldscherm", label: "Scherp scherm (OLED of hoge resolutie)", price: "€€€" }, { v: "numpad", label: "Numeriek toetsenblok", price: "€" }, { v: "vingerafdruk", label: "Vingerafdruklezer", price: "€€" }, { v: "geen", label: "Geen extra wensen", price: "€" }],
   },
 ];
 
@@ -82,6 +102,32 @@ const STORE = {
 };
 
 const lap = st => LAPTOP[st.formaat || "middenweg"];
+const QID = st => Q[st.q]?.id;
+
+// ───────── budget ─────────
+const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const budgetOpties = g => [...(budgetCapsBySize[g] ?? budgetCapsBySize.middenweg).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }];
+const capVan = v => (v && v !== "geen" ? Number(v) : null);
+// Wat het gekozen budget betekent in het gekozen formaat, uit de live catalogus
+// (null zolang die laadt). Telt de laptops die je standaard ziet (2+ winkels).
+let catalogus = null;
+function budgetInfo(g, cap) {
+  if (!catalogus || !g) return null;
+  const maten = sizeGroupToAllowedSizes[g] ?? [];
+  const inMaat = catalogus.filter(l => maten.includes(l.schermdiagonaal) && (l.aanbieders ?? []).length >= 2);
+  const binnen = cap ? inMaat.filter(l => parsePrice(l.prijs) <= cap) : inMaat;
+  const prijzen = binnen.map(l => parsePrice(l.prijs)).filter(Number.isFinite);
+  const alle = inMaat.map(l => parsePrice(l.prijs)).filter(Number.isFinite);
+  return { n: binnen.length, totaal: inMaat.length, vanaf: prijzen.length ? Math.min(...prijzen) : null, tot: alle.length ? Math.max(...alle) : null };
+}
+function budgetCaption(st) {
+  const cap = capVan(st.budget), info = budgetInfo(st.formaat, cap);
+  if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste laptop binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
+  if (!info) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", cap ? "We zoeken de beste laptop binnen dit bedrag." : "We kiezen puur op je wensen."];
+  if (!cap) return ["Geen voorkeur", `Alle ${info.totaal} laptops van dit formaat doen mee, van ${euro(info.vanaf)} tot ${euro(info.tot)}. We kiezen puur op je wensen.`];
+  if (!info.n) return [`Tot ${euro(cap)}`, "Binnen dit bedrag vonden we geen laptop van dit formaat. We tonen dan de laptops die het best bij je passen, net erboven."];
+  return [`Tot ${euro(cap)}`, `${info.n} van de ${info.totaal} laptops van dit formaat kosten ${euro(cap)} of minder, vanaf ${euro(info.vanaf)}. We zoeken de beste die bij je wensen past.`];
+}
 const usages = st => (st.gebruik.includes("allround") || !st.gebruik.length ? ["dagelijks", "werk", "creatief", "gaming"] : st.gebruik);
 let cycle = 0, cycleTimer = null;
 
@@ -126,17 +172,18 @@ function afterRender(ctx) {
   const pts = screenCorners(l).map(p => ctx.toPx(...p));
   placeQuad(scr, SW, Math.round(SW * l.sh / l.sw), pts);
   clearInterval(cycleTimer);
-  if (st.q === 0) showView("bureaublad");
-  else if (st.q === 1) {
+  const id = QID(st);
+  if (id === "formaat" || id === "budget" || id === "os") showView("bureaublad");
+  else if (id === "gebruik") {
     const u = usages(st);
     cycle %= u.length; showView(u[cycle]);
     if (u.length > 1) cycleTimer = setInterval(() => { cycle = (cycle + 1) % u.length; showView(u[cycle]); }, 2800);
-  } else if (st.q === 2) {
+  } else if (id === "intensiteit") {
     const [cpu, ram] = LOAD[st.intensiteit] ?? [20, 30];
     scr.querySelector("#cpuV").textContent = `${cpu}%`; scr.querySelector("#cpuB").style.width = `${cpu}%`;
     scr.querySelector("#ramV").textContent = `${ram}%`; scr.querySelector("#ramB").style.width = `${ram}%`;
     showView("prestaties");
-  } else if (st.q === 3) {
+  } else if (id === "opslag") {
     const [title, text, free] = STORE[st.opslag] ?? ["Opslag", "Kies hoeveel ruimte je nodig hebt.", 50];
     scr.querySelector("#stT").textContent = title; scr.querySelector("#stP").textContent = text;
     scr.querySelector("#stPhotos").style.width = `${82 - free}%`;
@@ -144,12 +191,12 @@ function afterRender(ctx) {
   } else showView(usages(st)[0]);
 }
 
-createQuiz3D({
+const quiz = createQuiz3D({
   camera,
-  steps: 5,
-  state: { formaat: null, gebruik: [], intensiteit: null, opslag: null, extra: [] },
+  steps: Q.length,
+  state: { formaat: null, budget: null, os: null, gebruik: [], intensiteit: null, opslag: null, extra: [] },
   imgPath: n => `laptop/vragen/img/${n}.webp`,
-  question: st => Q[st.q],
+  question: st => (QID(st) === "budget" ? { ...Q[st.q], options: budgetOpties(st.formaat) } : Q[st.q]),
   setup, afterRender,
   images: st => ["bureau", lap(st).key],
   focus: st => ({ x: 0, y: LY, z: 0.85, zoom: st.q === 0 ? 1.9 : 2.4 }),
@@ -164,44 +211,61 @@ createQuiz3D({
     if (st.q === 0 && st.formaat) {
       add(dimLine(ctx, [-l.bw / 2, LY - l.bd / 2 - 0.1, DZ + 0.002], [l.bw / 2, LY - l.bd / 2 - 0.1, DZ + 0.002], `<b>${l.inch} inch</b> · ${Math.round(l.bw * 100)} cm · ${l.kg}`));
     }
-    if (st.q === 4) {
+    if (QID(st) === "extra") {
       const c = screenCorners(l);
       const mid = (a, b) => a.map((v, i) => (v + b[i]) / 2);
       const pts = [];
       if (st.extra.includes("scherp-beeldscherm")) pts.push({ ...xyz(mid(c[0], c[1])), label: "<b>Hoge resolutie</b>: haarscherp beeld" });
       if (st.extra.includes("touchscreen")) pts.push({ ...xyz(mid(mid(c[0], c[2]), mid(c[1], c[3]))), label: "<b>Touchscreen</b>: bedienen met je vinger" });
-      if (st.extra.includes("usb-c")) pts.push({ x: l.bw / 2, y: LY, z: DZ + 0.008, label: "<b>USB-C</b>: laden en data via één poort" });
       // punten liggen op verschillende hoogtes; daarom per punt een eigen bereik
       pts.forEach((p, i) => add(spotColumn(ctx, [p], { zBot: p.z, zTop: p.z, edgeX: l.bw / 2 + 0.03 + i * 0.001, edgeY: LY })));
     }
     return { svg, html };
   },
 
-  hideCaption: (st, mobile) => st.q === 4 && !mobile,
+  hideCaption: (st, mobile) => QID(st) === "extra" && !mobile,
 
   caption(st) {
     const l = lap(st);
-    switch (st.q) {
-      case 0: return st.formaat ? [`${l.inch} inch`, `Ongeveer ${Math.round(l.bw * 100)} cm breed en ${l.kg}. ${st.formaat === "licht-compact" ? "Makkelijk mee te nemen." : st.formaat === "middenweg" ? "Een goede balans tussen scherm en gewicht." : "Het meeste scherm, vooral voor thuis."}`] : ["Jouw werkplek", "Kies het formaat; de laptop op het bureau wisselt mee."];
-      case 1: return st.gebruik.length ? ["Jouw gebruik", "Het scherm wisselt tussen wat je gekozen hebt. Zwaarder gebruik vraagt om meer rekenkracht."] : ["Gebruik", "Kies waar je de laptop voor gebruikt; het scherm laat het zien."];
-      case 2: return {
+    switch (QID(st)) {
+      case "formaat": return st.formaat ? [`${l.inch} inch`, `Ongeveer ${Math.round(l.bw * 100)} cm breed en ${l.kg}. ${st.formaat === "licht-compact" ? "Makkelijk mee te nemen." : st.formaat === "middenweg" ? "Een goede balans tussen scherm en gewicht." : "Het meeste scherm, vooral voor thuis."}`] : ["Jouw werkplek", "Kies het formaat; de laptop op het bureau wisselt mee."];
+      case "budget": return budgetCaption(st);
+      case "os": return {
+        windows: ["Windows", "Draait de meeste programma's en games."],
+        mac: ["Mac", "Werkt fijn samen met je iPhone en gaat lang mee op een acculading."],
+        chromebook: ["Chromebook", "Eenvoudig en voordelig; je werkt vooral met apps en in de browser."],
+        egal: ["Maakt niet uit", "We kijken naar alle laptops."],
+      }[st.os] ?? ["Besturingssysteem", "Kies Windows, Mac of Chromebook."];
+      case "gebruik": return st.gebruik.length ? ["Jouw gebruik", "Het scherm wisselt tussen wat je gekozen hebt. Zwaarder gebruik vraagt om meer rekenkracht."] : ["Gebruik", "Kies waar je de laptop voor gebruikt; het scherm laat het zien."];
+      case "intensiteit": return {
         licht: ["Licht gebruik", "Surfen en mailen: een zuinige processor en 8 GB werkgeheugen zijn genoeg."],
         normaal: ["Normaal gebruik", "Kantoorwerk met veel tabbladen: een vlotte processor en 16 GB werkgeheugen."],
         zwaar: ["Zwaar gebruik", "Fotobewerking en veel programma's tegelijk: meer rekenkracht en geheugen."],
         extreem: ["Zeer zwaar", "Video, 3D of gamen: de snelste processor, veel geheugen en een losse videokaart."],
       }[st.intensiteit] ?? ["Belasting", "Kies hoe zwaar je de laptop gebruikt en zie de meters meelopen."];
-      case 3: return st.opslag ? [STORE[st.opslag][0], STORE[st.opslag][1]] : ["Opslag", "Kies hoeveel ruimte je nodig hebt."];
+      case "opslag": return st.opslag ? [STORE[st.opslag][0], STORE[st.opslag][1]] : ["Opslag", "Kies hoeveel ruimte je nodig hebt."];
       default: return st.extra.some(e => e !== "geen") ? ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."] : ["Extra's", "Vink aan wat je belangrijk vindt."];
     }
   },
 
-  onAnswer(st, id) { if (id === "gebruik") cycle = Math.max(0, st.gebruik.length - 1); },
+  onAnswer(st, id) {
+    if (id === "gebruik") cycle = Math.max(0, st.gebruik.length - 1);
+    // ander formaat: een eerder gekozen bedrag hoort misschien niet meer bij de opties
+    if (id === "formaat" && !budgetOpties(st.formaat).some(o => o.v === st.budget)) st.budget = null;
+  },
+  onNext(st, id) { meetStap(st, id); },
 
   async finish(st) {
-    const answers = { gebruik: st.gebruik, intensiteit: st.intensiteit ?? "", formaat: st.formaat ?? "", opslag: st.opslag ?? "", extraAnswers: st.extra };
+    meetStap(st, "extra");
+    const answers = {
+      formaat: st.formaat ?? "", budget: capVan(st.budget), os: st.os ?? "", gebruik: st.gebruik,
+      intensiteit: st.intensiteit ?? "", opslag: st.opslag ?? "", extraAnswers: st.extra,
+    };
     const scores = calculateScores(answers);
-    const raw = await productenOfFout();
-    const result = matchLaptops(normalizeProducts(raw ?? []), st.formaat, null, answers, scores);
+    const laptops = normalizeProducts((await productenOfFout()) ?? []);
+    // Beste match binnen het budget; past er niets binnen, dan zonder grens.
+    let result = matchLaptops(laptops, st.formaat, answers.budget, answers);
+    if (answers.budget && !result.bestMatch) result = matchLaptops(laptops, st.formaat, null, answers);
     localStorage.setItem("laptop_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("laptop_bestType", result.bestType ?? "");
     localStorage.setItem("laptop_scores", JSON.stringify(scores));
@@ -215,3 +279,19 @@ createQuiz3D({
 });
 
 function xyz([x, y, z]) { return { x, y, z }; }
+
+// Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)
+function meetStap(st, id) {
+  const v = st[id];
+  window.phTrackEvent?.("quiz_stap", {
+    categorie: "laptop", stap: id, nr: Q.findIndex(q => q.id === id) + 1,
+    antwoord: Array.isArray(v) ? [...v].sort().join("+") : String(v ?? ""),
+  });
+}
+
+// Live telling bij de budgetvraag zodra de catalogus binnen is
+productsPromise.then(raw => {
+  if (!raw?.length) return;
+  catalogus = normalizeProducts(raw);
+  if (QID(quiz.st) === "budget") quiz.render();
+});

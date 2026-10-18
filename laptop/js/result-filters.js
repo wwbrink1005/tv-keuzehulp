@@ -1,5 +1,5 @@
-import { priceGroupsBySize, getProcessorTier, sizeGroupToAllowedSizes } from "./data.js";
-import { computeMatchForPriceGroup, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
+import { priceGroupsBySize, getProcessorTier, sizeGroupToAllowedSizes, TIER_ORDER } from "./data.js";
+import { matchLaptops, kiesBesteMatch, heeftExtra, heeftDedicatedGpu, applyMinAanbiedersCascade, BAND_BESTE, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
 import { computeDynamicPriceGroups, getStoredSelection, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
@@ -51,7 +51,7 @@ const filterState = {
   ramOptions:   new Set(),
   resolutions:  new Set(),
   touchscreens: new Set(),
-  usbc:         new Set(),
+  functies:     new Set(),
   kleuren:      new Set(),
   osOptions:    new Set(),
   aanbieder:    new Set(),
@@ -156,11 +156,19 @@ function collectTouchscreenOptions(matches) {
   return order.filter(t => set.has(t));
 }
 
-function collectUsbcOptions(matches) {
-  const set = new Set();
-  matches.forEach(l => { if (l.usb_c) set.add(l.usb_c); });
-  const order = ["Ja", "Nee"];
-  return order.filter(t => set.has(t));
+// Functies: wat laptops echt van elkaar onderscheidt. USB-C (99%) en wifi
+// heeft bijna elke laptop, die staan er niet (meer) bij.
+const FUNCTIES = [
+  { key: "accu",         label: "Lange accuduur",       heeft: l => heeftExtra(l, "accu") === true },
+  { key: "videokaart",   label: "Losse videokaart",     heeft: l => heeftDedicatedGpu(l.gpu) },
+  { key: "numpad",       label: "Numeriek toetsenblok", heeft: l => heeftExtra(l, "numpad") === true },
+  { key: "vingerafdruk", label: "Vingerafdruklezer",    heeft: l => heeftExtra(l, "vingerafdruk") === true },
+  { key: "hz",           label: "120 Hz of meer",       heeft: l => l.hz >= 120 },
+];
+const functiesVan = l => FUNCTIES.filter(f => f.heeft(l)).map(f => f.key);
+
+function collectFunctieOptions(matches) {
+  return FUNCTIES.filter(f => matches.some(f.heeft)).map(f => f.key);
 }
 
 // Normaliseert combinaties als "Zwart, Grijs" en "Grijs, Zwart" naar dezelfde
@@ -330,7 +338,7 @@ function renderTouchscreenOptions(container, card, matches) {
 }
 
 function renderUsbcOptions(container, card, matches) {
-  renderCheckboxFilter(container, card, collectUsbcOptions(matches), matches, l => l.usb_c, "usbc", "Alle");
+  renderCheckboxFilter(container, card, collectFunctieOptions(matches), matches, functiesVan, "functies", "Alle", f => FUNCTIES.find(x => x.key === f)?.label ?? f);
 }
 
 function renderKleurOptions(container, card, matches) {
@@ -351,7 +359,7 @@ function updateClearFiltersBtn() {
   const hasActive = filterState.priceLabels.size > 0 || filterState.sizes.size > 0 || filterState.brands.size > 0 ||
     filterState.tiers.size > 0 || filterState.panelTypes.size > 0 ||
     filterState.ramOptions.size > 0 || filterState.resolutions.size > 0 ||
-    filterState.touchscreens.size > 0 || filterState.usbc.size > 0 ||
+    filterState.touchscreens.size > 0 || filterState.functies.size > 0 ||
     filterState.kleuren.size > 0 ||
     filterState.osOptions.size > 0 ||
     filterState.aanbieder.size > 0 ||
@@ -391,8 +399,12 @@ function filterKeten() {
     filtered = filtered.filter(l => filterState.touchscreens.has(l.touchscreen));
   }
 
-  if (filterState.usbc.size > 0) {
-    filtered = filtered.filter(l => filterState.usbc.has(l.usb_c));
+  // "en": alle aangevinkte functies tegelijk
+  if (filterState.functies.size > 0) {
+    filtered = filtered.filter(l => {
+      const heeft = functiesVan(l);
+      return [...filterState.functies].every(f => heeft.includes(f));
+    });
   }
 
   if (filterState.kleuren.size > 0) {
@@ -534,10 +546,16 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
   handleCheckboxSet(ramContainer,         filterState.ramOptions,   ramCard,         renderRamOptions,        v => parseInt(v, 10));
   handleCheckboxSet(resolutionContainer,  filterState.resolutions,  resolutionCard,  renderResolutionOptions);
   handleCheckboxSet(touchscreenContainer, filterState.touchscreens, touchscreenCard, renderTouchscreenOptions, v => v, true);
-  handleCheckboxSet(usbcContainer,        filterState.usbc,         usbcCard,        renderUsbcOptions,        v => v, true);
+  handleCheckboxSet(usbcContainer,        filterState.functies,     usbcCard,        renderUsbcOptions);
   handleCheckboxSet(kleurContainer,       filterState.kleuren,      kleurCard,       renderKleurOptions);
   handleCheckboxSet(osContainer,          filterState.osOptions,    osCard,          renderOsOptions);
   handleCheckboxSet(aanbiederContainer,   filterState.aanbieder,    aanbiederCard,   renderAanbiederOptions);
+
+  qs("#filtersPanel")?.addEventListener("change", event => {
+    const input = event.target.closest("input");
+    if (!input) return;
+    meet("filter_gebruikt", { filter: input.closest(".filter-card")?.dataset.filter || input.name, waarde: input.value === "all" ? "alle" : String(input.value).slice(0, 40) });
+  });
 
   const clearBtn = qs("#clearFiltersBtn");
   if (clearBtn) {
@@ -547,7 +565,7 @@ function initFilterEvents(priceContainer, sizeContainer, brandContainer, tierCon
       filterState.tiers.clear(); filterState.panelTypes.clear();
       filterState.ramOptions.clear(); filterState.resolutions.clear();
       filterState.touchscreens.clear(); filterState.osOptions.clear();
-      filterState.usbc.clear();
+      filterState.functies.clear();
       filterState.kleuren.clear();
       filterState.aanbieder.clear();
       filterState.minAanbieders = DEFAULT_MIN_AANBIEDERS;
@@ -608,10 +626,18 @@ function initResultFilters() {
   fetchProducts()
     .then(rawProducts => {
       const laptops = normalizeProducts(rawProducts);
-      filterState.priceGroups = computeDynamicPriceGroups(laptops, stored.sizeGroup, sizeGroupToAllowedSizes);
 
-      const result = computeMatchForPriceGroup(laptops, stored.sizeGroup, null, filterState.answers, filterState.scores);
+      // Budget uit de quiz (maximumbedrag) is een echte grens, net als in de quiz.
+      // Past er in dit formaat niets binnen, dan zonder grens (zelfde vangnet).
+      const cap = Number(filterState.answers?.budget) || null;
+      const zonderGrens = matchLaptops(laptops, stored.sizeGroup, null, filterState.answers);
+      let result = cap ? matchLaptops(laptops, stored.sizeGroup, cap, filterState.answers) : zonderGrens;
+      const budgetZonderMatch = Boolean(cap && !(result.filteredMatchedLaptops?.length));
+      if (budgetZonderMatch) result = zonderGrens;
       filterState.baseMatches = Array.isArray(result.filteredMatchedLaptops) ? result.filteredMatchedLaptops : [];
+      filterState.bestType = result.bestType || filterState.bestType;
+      filterState.priceGroups = computeDynamicPriceGroups(filterState.baseMatches, stored.sizeGroup, sizeGroupToAllowedSizes);
+      budgetContext = { cap, result, zonderGrens, budgetZonderMatch };
 
       // Fallback: if the live computation yields nothing, seed the pool with
       // the laptops that were already matched during the quiz. This ensures
@@ -652,11 +678,123 @@ function initResultFilters() {
       renderAanbiederOptions(aanbiederContainer, aanbiederCard, matches);
       initFilterEvents(priceContainer, sizeContainer, brandContainer, tierContainer, panelContainer, ramContainer, resolutionContainer, touchscreenContainer, usbcContainer, kleurContainer, osContainer, aanbiederContainer, minAanbiedersContainer);
       applyFilters();
+      if (cap) initBudgetNote(budgetContext);
+      initMeting(cap);
     })
     .catch(() => {
       [priceCard, sizeCard, brandCard, tierCard, panelCard, ramCard, resolutionCard, touchscreenCard, usbcCard, kleurCard, osCard, aanbiederCard, minAanbiedersCard]
         .forEach(card => { card.hidden = true; });
     });
+}
+
+let budgetContext = null;
+
+// ───────── budget: "Meer budget?" en het vangnet als er niets binnen past ─────────
+const KLASSE_MEER = {
+  Topklasse: ["een laptop uit de topklasse", "De snelste processors, voor zwaar werk en games"],
+  Krachtig:  ["een krachtigere laptop", "Meer rekenkracht voor zwaarder werk"],
+  Mid:       ["een snellere laptop", "Vlotter bij veel programma's tegelijk"],
+  Budget:    ["een laptop die beter past", "Meer van wat je zoekt"],
+};
+const euroLabel = n => "€" + Math.round(n).toLocaleString("nl-NL");
+
+function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch }) {
+  const binnenLijst = binnen.filteredMatchedLaptops ?? [];
+  const kaart = document.createElement("div");
+  kaart.className = "budget-kaart";
+  kaart.setAttribute("role", "note");
+
+  if (budgetZonderMatch) {
+    meet("budget_kaart", { actie: "niets_binnen_budget" });
+    kaart.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we in dit formaat geen laptop.</strong> Dit zijn de laptops die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
+    plaatsBudgetKaart(kaart);
+    return;
+  }
+
+  // Alleen tonen als er boven het budget laptops zijn die duidelijk beter bij de
+  // wensen passen (passcore zonder prijsdeel) en die je standaard ziet (2+ winkels).
+  // Vergelijk met wat je binnen budget echt ziet (2+ winkels): een gaminglaptop
+  // van €999 die maar bij 1 winkel te koop is, staat standaard niet in beeld.
+  const zichtbaarBinnen = binnenLijst.filter(l => (l.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(l => l.wens)) : binnen.topWens;
+  const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;
+  const beter = (zonderGrens.filteredMatchedLaptops ?? []).filter(l => parsePrice(l.prijs) > cap && l.wens >= drempel);
+  const zichtbaar = beter.filter(l => (l.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const goedkoopsteBuiten = zichtbaar.map(l => parsePrice(l.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
+  if (!goedkoopsteBuiten) return;
+  const buitenBeste = kiesBesteMatch(zichtbaar, filterState.answers);
+  const klasse = buitenBeste?.tier ?? zonderGrens.bestType;
+  const hoger = TIER_ORDER.indexOf(klasse) > TIER_ORDER.indexOf(binnen.bestType);
+  // Mist binnen budget de videokaart (of Apple-grafische chip) die gamen of
+  // creatief werk vraagt, en heeft de laptop erboven die wel? Dan zeggen we dat.
+  const gebruik = Array.isArray(filterState.answers?.gebruik) ? filterState.answers.gebruik : [];
+  const gpuOk = l => heeftDedicatedGpu(l.gpu) || (!gebruik.includes("gaming") && /\bM\d+\s+(pro|max|ultra)\b/i.test(l.processor ?? ""));
+  const gpuReden = (gebruik.includes("gaming") || gebruik.includes("creatief")) && buitenBeste && gpuOk(buitenBeste) && !zichtbaarBinnen.some(gpuOk);
+  const meer = goedkoopsteBuiten - cap;
+  let toontBuiten = false;
+  const teken = () => {
+    const [wat, voordeel] = KLASSE_MEER[klasse] ?? KLASSE_MEER.Budget;
+    kaart.innerHTML = toontBuiten
+      ? `<div class="budget-kaart-tekst"><strong>Je ziet nu laptops boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
+         <button type="button" class="budget-kaart-btn">Terug naar laptops tot ${euroLabel(cap)}</button>`
+      : gpuReden
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${gebruik.includes("gaming") ? "een laptop met een losse videokaart, die je nodig hebt om te gamen" : "een laptop met een krachtige grafische chip voor foto- en videobewerking"}</strong><span>Binnen je budget is die er niet bij 2 of meer winkels. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+         <button type="button" class="budget-kaart-btn">Bekijk deze laptops</button>`
+      : hoger
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan past ${wat} nog beter bij je wensen</strong><span>${voordeel}. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+         <button type="button" class="budget-kaart-btn">Bekijk deze laptops</button>`
+        : `<div class="budget-kaart-tekst"><strong>Meer budget? Er zijn laptops die nog beter bij je wensen passen</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+         <button type="button" class="budget-kaart-btn">Bekijk deze laptops</button>`;
+    kaart.querySelector(".budget-kaart-btn").addEventListener("click", () => {
+      toontBuiten = !toontBuiten;
+      meet("budget_kaart", { actie: toontBuiten ? "klik_meer_budget" : "klik_terug", klasse });
+      lijstSoort = toontBuiten ? "boven_budget" : "binnen_budget";
+      filterState.baseMatches = toontBuiten ? beter : binnenLijst;
+      filterState.bestType = toontBuiten ? klasse : binnen.bestType;
+      filterState.priceGroups = computeDynamicPriceGroups(filterState.baseMatches, filterState.sizeGroup, sizeGroupToAllowedSizes);
+      // Andere lijst = verse start: alle filters terug naar standaard, zoals "Wis filters".
+      qs("#clearFiltersBtn")?.click();
+      teken();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+  teken();
+  plaatsBudgetKaart(kaart);
+  meet("budget_kaart", { actie: "getoond", klasse, meer_euro: Math.round(meer) });
+}
+
+// De lijst wordt bij elk filter en elke sortering opnieuw getekend: zet de kaart
+// daarna steeds terug direct na de eerste laptop.
+function plaatsBudgetKaart(kaart) {
+  const grid = qs("#otherMatchesGrid");
+  if (!grid) return;
+  const zet = () => {
+    const items = [...grid.children].filter(el => el !== kaart && !el.classList.contains("rcard-skelet"));
+    if (!items.length) return;
+    const na = items[0];
+    if (na.nextElementSibling === kaart) return;
+    waker.disconnect();
+    na.after(kaart);
+    waker.observe(grid, { childList: true });
+  };
+  const waker = new MutationObserver(zet);
+  waker.observe(grid, { childList: true });
+  zet();
+}
+
+// ───────── meting (Umami, via shared/consent.js) ─────────
+const meet = (naam, props) => window.phTrackEvent?.(naam, { categorie: "laptop", ...props });
+let lijstSoort = "binnen_budget";
+
+function initMeting(cap) {
+  const budget = cap ? String(cap) : "geen_voorkeur";
+  const zichtbaar = () => document.querySelectorAll("#otherMatchesGrid > .rcard").length;
+  // Meegestuurd met elke winkelklik (shared/analytics.js)
+  window.phResultaatContext = () => ({ budget, lijst: zichtbaar(), lijst_soort: lijstSoort });
+  const beste = kiesBesteMatch(filterKeten().filter(genoegWinkels), filterState.answers);
+  meet("resultaat_getoond", {
+    budget, formaat: filterState.sizeGroup, os: filterState.answers?.os ?? "", lijst: zichtbaar(), beste_klasse: beste?.tier ?? "",
+  });
 }
 
 document.addEventListener("DOMContentLoaded", initResultFilters);

@@ -1,4 +1,4 @@
-import { applyMinAanbiedersCascade } from "./matching.js";
+import { applyMinAanbiedersCascade, kiesBesteMatch } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
 import { toonGeenUitslag, toonGeenFilterResultaat } from "../../shared/resultaat-status.js";
@@ -46,15 +46,18 @@ function displayOtherMatchesRedesign(filteredMatchedLaptops) {
   const prices = filteredMatchedLaptops.map(l => parsePrice(l.prijs));
   const minPrice = Math.min(...prices);
   const ctx = buildContext(filteredMatchedLaptops);
+  // Beste match uit de huidige (eventueel gefilterde) lijst
+  const beste = kiesBesteMatch(filteredMatchedLaptops, currentAnswers);
 
   container.innerHTML = filteredMatchedLaptops
     .map((laptop, index) => {
       const price = parsePrice(laptop.prijs);
       const isCheapest = price === minPrice;
+      const isBeste = laptop === beste;
       const specs = buildSpecChips(laptop);
       const points = buildResultPoints(laptop, currentAnswers, ctx);
 
-      return buildCardHtml({ product: laptop, index, isCheapest, specs, points });
+      return buildCardHtml({ product: laptop, index, isCheapest, isBeste, specs, points });
     })
     .join("");
 
@@ -83,10 +86,17 @@ const SORT_LABELS = {
   "price-desc": "Prijs (hoog-laag)"
 };
 
+// Op prijs, met de beste match bovenaan bij "laag-hoog"; bij "hoog-laag"
+// staat hij gewoon op zijn plek (zelfde als tv en printer).
 function sortMatchesByPrice(matches, sortValue) {
   const list = Array.isArray(matches) ? [...matches] : [];
   list.sort((a, b) => parsePrice(a.prijs) - parsePrice(b.prijs));
-  if (sortValue === "price-desc") list.reverse();
+  if (sortValue === "price-desc") return list.reverse();
+  const beste = kiesBesteMatch(list, currentAnswers);
+  if (beste) {
+    list.splice(list.indexOf(beste), 1);
+    list.unshift(beste);
+  }
   return list;
 }
 
@@ -157,6 +167,7 @@ function initSortControl() {
       const option = event.target.closest(".sort-option");
       if (!option) return;
       applySortAndRender(option.dataset.value || "price-asc");
+      window.phTrackEvent?.("sorteren", { categorie: "laptop", volgorde: option.dataset.value || "price-asc" });
       setSortOpen(false);
     });
 

@@ -104,13 +104,21 @@ function adaptRow(row) {
     hdmi:                row.hdmi ?? "0",
     resolutie:           parseResolutieLabel(row.scherm_resolutie),
     paneeltype:          row.scherm_type ?? "",
-    hz:                  "60",
+    // Was altijd "60" (nooit opgehaald). Nu de maximale verversing uit Icecat;
+    // onbekend = null.
+    hz:                  parseFirstInt(row.verversing_hz),
     processor:           row.processor ?? "",
     processor_familie:   row.processor_familie ?? "",
     gpu:                 row.gpu ?? "",
     gewicht:             parseGewicht(row.gewicht),
     os:                  parseOs(row.os),
     kleur:               row.kleur ?? "",
+    // Sinds okt 2026 (keuzehulp-pipeline/migrations/laptops_extra_specs.sql)
+    accuWh:              parseFloat(String(row.accu_wh ?? "").replace(",", ".")) || null,
+    accuUren:            parseFirstInt(row.accu_uren),
+    numeriekToetsenblok: row.numeriek_toetsenblok ?? "",
+    vingerafdruk:        row.vingerafdruk ?? "",
+    typeProduct:         row.type_product ?? "",
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          adaptAanbieders(row),
