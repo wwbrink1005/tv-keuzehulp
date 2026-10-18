@@ -1,38 +1,115 @@
-// ─── Gebruikstypes (keyed by de "gebruik" antwoord-waarde in vraag 1) ────────
-// Dit is een harde partitie van de catalogus (zoals behuizingType bij desktop):
-// je kiest er 1, en alleen printers van dat gebruikstype komen in aanmerking.
-export const gebruikTypes = ["thuis", "zakelijk", "foto"];
+// ─── Printer-keuzehulp: vaste gegevens en kenmerken ────────────────────────
+// Zie docs/printer-keuzehulp-werking.md voor de uitleg in gewone taal.
 
-// ─── Static fallback price groups per gebruikstype ────────────────────────────
-export const priceGroupsByGebruik = {
-  "thuis": [
-    { label: "0-100",   min: 0,   max: 100  },
-    { label: "100-250", min: 100, max: 250  },
-    { label: "250+",    min: 250, max: Number.POSITIVE_INFINITY }
-  ],
-  "zakelijk": [
-    { label: "0-300",   min: 0,   max: 300  },
-    { label: "300-600", min: 300, max: 600  },
-    { label: "600+",    min: 600, max: Number.POSITIVE_INFINITY }
-  ],
-  "foto": [
-    { label: "0-150",   min: 0,   max: 150  },
-    { label: "150-350", min: 150, max: 350  },
-    { label: "350+",    min: 350, max: Number.POSITIVE_INFINITY }
-  ]
+// ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
+// Twee maximumbedragen per gebruik, plus "Geen voorkeur" zonder bovengrens.
+// Afgeleid uit de live catalogus (18-10-2026, printers bij 2+ winkels): rond
+// een derde en twee derde van de prijzen die bij dat gebruik passen. Herzien
+// als de prijzen flink verschuiven.
+export const budgetCapsByGebruik = {
+  thuis:    [100, 200],
+  foto:     [200, 300],
+  kantoor:  [200, 350],
 };
 
-/**
- * Classificeert een printer op basis van specs naar gebruikstype
- * (thuis/zakelijk/foto). Retourneert null als het niet te bepalen is
- * (onvoldoende Icecat-data) — zo'n printer komt dan bij geen enkel
- * gebruikstype in de resultaten terecht. 1-op-1 met vraag 1's antwoorden
- * (thuis/foto/zakelijk) — geen aparte "gemengd"-tussenvorm meer, zie
- * matching.js voor waarom.
- */
-// Kassa-, label- en matrixprinters zitten ook in de feed, maar zijn geen
-// printer voor thuis of op kantoor (eerder kregen thuisgebruikers o.a.
-// "POS-printer"s en thermische labelprinters te zien).
+// ─── Soort printer ─────────────────────────────────────────────────────────
+// Vier soorten, die voor een koper echt verschillen in aanschaf, kosten per
+// pagina en gebruik. Dit is wat de vragen tegen elkaar afwegen (zoals het
+// paneeltype bij de tv).
+export const SOORTEN = ["cartridge", "tank", "laserZw", "laserKleur"];
+
+export const SOORT_LABEL = {
+  cartridge:  "Inkjet met cartridges",
+  tank:       "Inkttankprinter",
+  laserZw:    "Laserprinter zwart-wit",
+  laserKleur: "Laserprinter kleur",
+};
+
+// Icecat heeft geen betrouwbaar "navulbare inkttank"-veld; EcoTank, Smart Tank,
+// MegaTank en SuperTank zijn productlijnnamen van Epson, HP, Canon en Brother.
+const INKTTANK_PATRONEN = [/ecotank/i, /smart tank/i, /megatank/i, /supertank/i];
+
+export function isInktTankSysteem(naam) {
+  return INKTTANK_PATRONEN.some(re => re.test(String(naam ?? "")));
+}
+
+// "LED" is Brother's naam voor hun laser-techniek (toner, zelfde klasse).
+export function isLaser(printer) {
+  return /laser|led/i.test(String(printer.printtechnologie ?? ""));
+}
+
+export function soortVan(printer) {
+  if (isLaser(printer)) return printer.kanKleurenPrinten === "Ja" ? "laserKleur" : "laserZw";
+  return isInktTankSysteem(printer.naam) ? "tank" : "cartridge";
+}
+
+// Een echte fotoprinter: 5 of meer inktkleuren (extra grijs, rood, fotozwart)
+// of "Photo" in de productlijn (Epson Expression Photo, HP Envy Photo, Canon
+// ... Photo).
+export function isFotoprinter(printer) {
+  const kleuren = String(printer.printkleuren ?? "").split(",").map(s => s.trim()).filter(Boolean).length;
+  return kleuren >= 5 || /\bphoto\b/i.test(String(printer.naam ?? ""));
+}
+
+// HP+ / Instant Ink: modelnummer eindigt op "e" (OfficeJet Pro 8122e, ENVY
+// 6120e, LaserJet M110we). Die werken alleen met een HP-account en originele
+// HP-cartridges; dat zetten we eerlijk op de kaart.
+export function isHpPlus(printer) {
+  const naam = String(printer.naam ?? "");
+  if (!/^HP\b/i.test(naam)) return false;
+  return /\b[a-z]*\d{3,4}[a-z]*e\b/i.test(naam) || /instant ink/i.test(naam);
+}
+
+// ─── Kenmerken voor de extra wensen ────────────────────────────────────────
+// Compact: binnen het kleinste kwart van de catalogus (gemeten 18-10-2026:
+// breedte p25 375 mm, diepte p25 343 mm, hoogte p25 179 mm).
+export const COMPACT_MAX = { breedte: 410, diepte: 370, hoogte: 230 };
+export const GROTE_LADE_MIN = 250;            // vel; p75 van de catalogus
+export const SNEL_MIN = 25;                   // pagina's per minuut zwart-wit
+export const VEEL_PAGINAS_MIN = 1000;         // aanbevolen pagina's per maand (bovengrens)
+
+export function isCompact(p) {
+  if (![p.breedteMm, p.diepteMm, p.hoogteMm].every(Number.isFinite)) return null;
+  return p.breedteMm <= COMPACT_MAX.breedte && p.diepteMm <= COMPACT_MAX.diepte && p.hoogteMm <= COMPACT_MAX.hoogte;
+}
+
+// "400 - 800 pagina's per maand" → 800
+export function aanbevolenMax(tekst) {
+  const getallen = String(tekst ?? "").replace(/\./g, "").match(/\d+/g);
+  return getallen ? Math.max(...getallen.map(Number)) : null;
+}
+
+// ─── Punten per soort (zoals de typepunten bij de tv) ──────────────────────
+// Hoe hoger, hoe beter die soort past bij het antwoord. Per vraag opgeteld; de
+// soort met de meeste punten is de "ideale soort" en een printer van een
+// andere soort verliest punten per punt achterstand (zie matching.js).
+export const soortPunten = {
+  gebruik: {
+    thuis:   { cartridge: 8, tank: 8, laserZw: 7, laserKleur: 5 },
+    foto:    { cartridge: 9, tank: 9, laserZw: 0, laserKleur: 3 },
+    kantoor: { cartridge: 3, tank: 6, laserZw: 9, laserKleur: 9 },
+  },
+  // Weinig printen: inkt droogt in, toner niet. Veel printen: alleen tank en
+  // laser zijn dan betaalbaar per pagina.
+  volume: {
+    weinig:     { cartridge: 6, tank: 5, laserZw: 9, laserKleur: 7 },
+    regelmatig: { cartridge: 6, tank: 9, laserZw: 9, laserKleur: 8 },
+    veel:       { cartridge: 2, tank: 9, laserZw: 10, laserKleur: 9 },
+  },
+  kleur: {
+    zw:    { cartridge: 3, tank: 3, laserZw: 10, laserKleur: 4 },
+    soms:  { cartridge: 8, tank: 8, laserZw: 0, laserKleur: 8 },
+    vaak:  { cartridge: 8, tank: 10, laserZw: 0, laserKleur: 7 },
+  },
+  kosten: {
+    aanschaf: { cartridge: 10, tank: 3, laserZw: 8, laserKleur: 4 },
+    printen:  { cartridge: 2, tank: 10, laserZw: 9, laserKleur: 8 },
+    egal:     { cartridge: 0, tank: 0, laserZw: 0, laserKleur: 0 },
+  },
+};
+
+// Kassa-, label- en matrixprinters, pasjesprinters en plotters zitten ook in
+// de feed, maar zijn geen printer voor thuis of op kantoor.
 // "Thermische inkjet" is gewone inkjet (HP) en blijft dus.
 const GEEN_KANTOORPRINTER_TECH = /^(direct )?thermisch$|thermo transfer|thermische (overdracht|overzetting)|stippen|matrix/i;
 const GEEN_KANTOORPRINTER_NAAM = /\bPOS\b|bonprinter|kassaprinter|labelprinter|etiketten|label printer|receipt|kaart ?printer|designjet|plotter/i;
@@ -41,58 +118,3 @@ export function isKantoorprinter(printtechnologie, naam) {
   return !GEEN_KANTOORPRINTER_TECH.test(String(printtechnologie ?? "")) &&
     !GEEN_KANTOORPRINTER_NAAM.test(String(naam ?? ""));
 }
-
-export function classifyGebruik(printtechnologie, marktPositionering, printkleuren) {
-  const tech = String(printtechnologie ?? "").toLowerCase();
-  const markt = String(marktPositionering ?? "").toLowerCase();
-  const kleurenAantal = String(printkleuren ?? "").split(",").map(s => s.trim()).filter(Boolean).length;
-
-  // Sublimatie- en ZINK-printers zijn kleine fotoprinters (Canon Selphy e.d.).
-  if (tech.includes("sublimatie") || tech.includes("zink")) return "foto";
-
-  // "LED" is Brother's eigen naam voor hun laserprinter-technologie (LED-array
-  // i.p.v. laserdiode, functioneel dezelfde toner-klasse) — zonder deze check
-  // vielen deze 2 producten ten onrechte onder "thuis" i.p.v. "zakelijk".
-  if (tech.includes("laser") || tech.includes("led") || markt.includes("bedrijf")) return "zakelijk";
-  if (kleurenAantal >= 5) return "foto";
-  if (tech) return "thuis";
-  return null;
-}
-
-// Een laserprinter die Icecat als "Thuis & kantoor" positioneert, past ook
-// bij thuisgebruik: wie veel tekst print en weinig kleur nodig heeft, is daar
-// juist goedkoper uit. Eerder kwamen lasers alleen bij "zakelijk" in beeld.
-export function pastBijGebruik(printer, gebruik) {
-  if (printer.gebruikType === gebruik) return true;
-  if (gebruik !== "thuis" || printer.gebruikType !== "zakelijk") return false;
-  return /thuis/i.test(String(printer.marktPositionering ?? ""));
-}
-
-export function isLaser(printer) {
-  return /laser|led/i.test(String(printer.printtechnologie ?? ""));
-}
-
-// ─── Inktsysteem (tank vs. cartridge) ──────────────────────────────────────
-// Icecat heeft geen apart, betrouwbaar "heeft navulbare inkttank"-veld — wel
-// zijn EcoTank/Smart Tank/MegaTank/SuperTank getrademarkte productlijnnamen
-// (Epson/HP/Canon), dus naam-detectie is hier betrouwbaar, i.t.t. generieke
-// zoektermen. Onderzoek in de "thuis"-categorie: tank-printers liggen op een
-// mediaan van €278 t.o.v. €120 voor cartridge-printers — een reëel en
-// uitlegbaar prijsverschil (hogere aanschafprijs, veel lagere kosten per
-// pagina), dus relevant als eigen keuzevraag i.p.v. een blinde prijscap.
-const INKTTANK_PATRONEN = [/ecotank/i, /smart tank/i, /megatank/i, /supertank/i];
-
-export function isInktTankSysteem(naam) {
-  return INKTTANK_PATRONEN.some(re => re.test(String(naam ?? "")));
-}
-
-// Geen Budget/Mid/Premium-tier-classificatie (meer) — die correleerde niet
-// betrouwbaar met prijs (bij "thuis" printers viel 94% van de catalogus in
-// "Premium", puur op specs, inclusief zowel de goedkoopste als de duurste
-// printer). Dat kon een "goedkope" voorkeur een duurder resultaat opleveren
-// dan een "uitgebreide" voorkeur. "volume" is nu een directe, gracieus
-// degraderende voorkeur i.p.v. een scoring-as — zie matching.js.
-// Printers met minstens deze snelheid (pagina's/minuut, zwart-wit) tellen
-// als "snel" voor de "veel printen"-voorkeur — gebaseerd op de echte
-// spreiding in de catalogus (duidelijke cluster vanaf ~26 ppm).
-export const VEEL_VOLUME_MIN_SNELHEID = 26;

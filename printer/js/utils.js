@@ -1,4 +1,4 @@
-import { classifyGebruik, isKantoorprinter, pastBijGebruik } from "./data.js";
+import { aanbevolenMax, isCompact, isFotoprinter, isHpPlus, isKantoorprinter, soortVan } from "./data.js";
 
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -60,14 +60,10 @@ export function normalizeProducts(rawProducts) {
     if (!product.merk || !product.printtechnologie) return [];
     if (!isKantoorprinter(product.printtechnologie, naam)) return [];
 
-    const gebruikType = classifyGebruik(product.printtechnologie, product.marktPositionering, product.printkleuren);
-    if (!gebruikType) return [];
-
-    return [{
+    const basis = {
       merk:               product.merk,
       naam,
       prijs,
-      gebruikType,
       printtechnologie:   product.printtechnologie   ?? "",
       marktPositionering: product.marktPositionering ?? "",
       duplex:             product.duplex             ?? "Nee",
@@ -86,6 +82,37 @@ export function normalizeProducts(rawProducts) {
       afbeelding,
       afbeeldingen,
       aanbieders
+    };
+
+    // Afgeleide kenmerken voor de matching (zie data.js). null = onbekend.
+    const tech = String(product.printtechnologie ?? "").toLowerCase();
+    const duplexModus = String(product.duplexModus ?? "");
+    const soortScanner = String(product.soortScanner ?? "");
+    const aio = (basis.scannen === "Ja" && basis.kopieren === "Ja") || /scanner/i.test(soortScanner);
+    return [{
+      ...basis,
+      soort:            soortVan(basis),
+      fotoprinter:      isFotoprinter(basis) || tech.includes("sublimatie") || tech.includes("zink"),
+      // Sublimatie/ZINK: alleen fotootjes (10x15 en kleiner), geen documenten.
+      alleenFoto:       tech.includes("sublimatie") || tech.includes("zink"),
+      hpPlus:           isHpPlus(basis),
+      aio,
+      adf:              basis.adf === "Ja" || /adf/i.test(soortScanner) ? "Ja" : "Nee",
+      duplexAuto:       /auto/i.test(duplexModus) ? true : /handmatig/i.test(duplexModus) || basis.duplex !== "Ja" ? false : null,
+      a3:               product.maxPapierformaat ? /^A[0-3]/i.test(product.maxPapierformaat) : null,
+      maxPapierformaat: product.maxPapierformaat ?? "",
+      compact:          isCompact(product),
+      breedteMm:        product.breedteMm ?? null,
+      diepteMm:         product.diepteMm ?? null,
+      hoogteMm:         product.hoogteMm ?? null,
+      gewichtKg:        product.gewichtKg ?? null,
+      invoercapaciteit: product.invoercapaciteit ?? null,
+      paginasPerMaand:  aanbevolenMax(product.gebruikAanbevolen),
+      maxPaginasPerMaand: product.gebruikMaxPaginas ?? null,
+      snelheid:         product.printsnelheidZwart ?? product.printsnelheidIso ?? null,
+      zonderWitranden:  product.zonderWitranden ?? "Nee",
+      ethernet:         product.ethernet ?? "Nee",
+      mobielPrinten:    product.mobielPrinten ?? "",
     }];
   });
 }
@@ -111,13 +138,11 @@ function floorNice(value) {
 }
 
 /**
- * Dynamically computes 2–3 price buckets from actual printer prices for the
- * given gebruikstype (behuizingType-achtig: geen "allowed"-lijst nodig, het
- * gebruikstype zelf is de partitie, net als bij desktop).
+ * Prijsgroepen (2 of 3) voor het prijsfilter op de resultaatpagina, uit de
+ * prijzen van de getoonde printers.
  */
-export function computeDynamicPriceGroups(printers, gebruik) {
+export function computeDynamicPriceGroups(printers) {
   const prices = printers
-    .filter(p => pastBijGebruik(p, gebruik))
     .map(p => parsePrice(p.prijs))
     .filter(p => Number.isFinite(p) && p > 0)
     .sort((a, b) => a - b);

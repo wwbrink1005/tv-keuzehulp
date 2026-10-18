@@ -131,8 +131,9 @@ function shopsHtml(aanbieders) {
  * @param {boolean} o.isBeste    beste match volgens de matching → badge en accentrand (nu alleen tv)
  * @param {string[]} o.specs     korte spec-strings (uit de categorie-eigen buildSpecList)
  * @param {string[]} o.points    USP-regels (uit de categorie-eigen buildResultPoints); de eerste 3 worden getoond
+ * @param {string} [o.note]      eerlijke kanttekening onder de punten, platte tekst (nu alleen printer: HP+)
  */
-export function buildCardHtml({ product, index = 0, isCheapest = false, isBeste = false, specs = [], points = [] }) {
+export function buildCardHtml({ product, index = 0, isCheapest = false, isBeste = false, specs = [], points = [], note = "" }) {
   const naam = escapeHtml(product.naam);
   const afbeelding = product.afbeelding || "";
   const galerij = JSON.stringify(product.afbeeldingen || []).replace(/"/g, "&quot;");
@@ -157,6 +158,7 @@ export function buildCardHtml({ product, index = 0, isCheapest = false, isBeste 
         ${punten.length ? `
           <p class="rcard-why-title">Waarom dit bij jou past</p>
           <ul class="rcard-why">${punten.map((p) => `<li>${CHECK}<span>${p}</span></li>`).join("")}</ul>` : ""}
+        ${note ? `<p class="rcard-note">${escapeHtml(note)}</p>` : ""}
         <div class="rcard-price-row">
           <div class="rcard-price">${isEmbed ? "" : '<span class="rcard-price-label">Vanaf</span> '}€&nbsp;${formatPriceLabel(laagste)}</div>
           ${cta}

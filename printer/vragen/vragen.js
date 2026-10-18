@@ -1,13 +1,14 @@
-// Testversie van de printer-vragenpagina op de 3D-werkplek (kleine laptop in het
-// midden, printer rechts). Basisrender = het bureau; de printer (thuis, foto of
-// zakelijk, met of zonder scanner), de inkttanks en de documentinvoer zijn
-// transparante lagen (render/scene.py). De geprinte vellen tekent de pagina zelf in
-// perspectief op de uitvoerlade, zodat inhoud en aantal kunnen wisselen.
-// Motor: shared/quiz3d.js.
+// Printer-vragenpagina op de 3D-werkplek (kleine laptop in het midden, printer
+// rechts). Basisrender = het bureau; de printer (thuis, foto of kantoor, met of
+// zonder scanner), de inkttanks en de documentinvoer zijn transparante lagen
+// (render/scene.py). De geprinte vellen tekent de pagina zelf in perspectief op
+// de uitvoerlade, zodat inhoud en aantal kunnen wisselen.
+// Motor: shared/quiz3d.js. Uitleg van de matching: docs/printer-keuzehulp-werking.md.
 import { createQuiz3D, makeCamera, spotColumn, placeQuad } from "../../shared/quiz3d.js";
 import { matchPrinters } from "../js/matching.js";
-import { normalizeProducts } from "../js/utils.js";
+import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
+import { budgetCapsByGebruik } from "../js/data.js";
 
 const camera = makeCamera({ camY: -2.15, camZ: 1.25, shiftY: -0.14 });
 const productsPromise = fetchProducts().catch(() => null);
@@ -25,7 +26,14 @@ async function productenOfFout() {
 // geometrie (m) zoals in render/scene.py
 const DZ = 0.75, PX = 0.44, YB = -0.06;
 const PRN = { thuis: { w: 0.43, d: 0.34, h: 0.18 }, foto: { w: 0.45, d: 0.36, h: 0.18 }, zakelijk: { w: 0.43, d: 0.43, h: 0.36 } };
+const QID = st => Q[st.q]?.id;
+const vanaf = (st, id) => st.q >= Q.findIndex(q => q.id === id);  // die vraag is nu of al voorbij
+// render: kantoor toont de laserprinter ("zakelijk" in render/scene.py)
+const kind = st => (st.gebruik === "kantoor" ? "zakelijk" : st.gebruik || "thuis");
 const isLaser = st => kind(st) === "zakelijk";
+const dims = st => { const p = PRN[kind(st)]; return { ...p, x0: PX - p.w / 2, x1: PX + p.w / 2, yf: YB - p.d }; };
+const isAio = st => vanaf(st, "scan") && (st.scan === "los" || st.scan === "stapel");
+
 // waar de geprinte vellen liggen: inkjet op de uitvoerlade vooraan, laser in de
 // uitvoerruimte onder de scanner (all-in-one) of in de bak in de bovenkant
 function sheetGeom(st) {
@@ -42,67 +50,123 @@ function lapCorners() {
   return [at(-LAP.sw / 2, 0.016 + LAP.sh), at(LAP.sw / 2, 0.016 + LAP.sh), at(LAP.sw / 2, 0.016), at(-LAP.sw / 2, 0.016)];
 }
 
+// ───────── budget ─────────
+const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
+// twee maximumbedragen plus "Geen voorkeur" (geen plafond, alle printers);
+// alle opties in de taal van de vraag ("maximaal"), zodat niets als ondergrens leest
+const budgetOpties = g => [...(budgetCapsByGebruik[g] ?? budgetCapsByGebruik.thuis).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }];
+const capVan = v => (v && v !== "geen" ? Number(v) : null);
+const GEBRUIK_WOORD = { thuis: "thuis", foto: "foto's", kantoor: "thuiswerken of kantoor" };
+
+// Wat het gekozen budget betekent, uit de live catalogus (null zolang die laadt).
+// Telt de printers die je standaard op de resultaatpagina ziet (bij 2+ winkels);
+// bij foto's alleen printers die in kleur printen.
+let catalogus = null;
+function budgetInfo(g, cap) {
+  if (!catalogus) return null;
+  const relevant = catalogus.filter(p => (p.aanbieders ?? []).length >= 2 && (g !== "foto" || p.kanKleurenPrinten === "Ja") && !(p.alleenFoto && g !== "foto"));
+  const binnen = cap ? relevant.filter(p => parsePrice(p.prijs) <= cap) : relevant;
+  const prijzen = binnen.map(p => parsePrice(p.prijs)).filter(Number.isFinite);
+  const alle = relevant.map(p => parsePrice(p.prijs)).filter(Number.isFinite);
+  return {
+    n: binnen.length, totaal: relevant.length,
+    vanaf: prijzen.length ? Math.min(...prijzen) : null,
+    tot: alle.length ? Math.max(...alle) : null,
+  };
+}
+
 const Q = [
   {
     id: "gebruik", type: "radio",
     title: "Waarvoor ga je de printer vooral gebruiken?",
     sub: "De printer op het bureau wisselt mee.",
-    why: "Thuisgebruik (documenten, af en toe een foto) vraagt om een betaalbare inkjetprinter, of een compacte laserprinter als je vooral tekst print. Vooral foto's afdrukken vraagt om een fotoprinter met meer kleuren en hogere afdrukkwaliteit. Zakelijk gebruik vraagt om een snellere, robuustere printer (vaak laser) met functies als automatische documentinvoer en dubbelzijdig printen.",
-    options: [{ v: "thuis", label: "Thuisgebruik, zoals documenten en schoolwerk", price: "€" }, { v: "foto", label: "Vooral foto's en kleurrijk werk", price: "€€€" }, { v: "zakelijk", label: "Zakelijk, extra snel printen", price: "€€€" }],
+    why: "Voor documenten en schoolwerk thuis volstaat een betaalbare printer. Voor foto's zoeken we printers met extra inktkleuren en printen zonder witranden. Voor thuiswerken of kantoor letten we op snelheid, automatisch dubbelzijdig printen en een printer die veel werk aankan.",
+    options: [
+      { v: "thuis", label: "Thuis, zoals documenten en schoolwerk", price: "€" },
+      { v: "foto", label: "Vooral foto's en kleurrijk werk", price: "€€" },
+      { v: "kantoor", label: "Thuiswerken of kantoor", price: "€€" },
+    ],
+  },
+  {
+    id: "budget", type: "radio",
+    title: "Wat wil je maximaal uitgeven?",
+    sub: st => `Bedragen voor een printer voor ${GEBRUIK_WOORD[st.gebruik] ?? "thuis"}. Je krijgt de beste printer binnen je budget.`,
+    why: "Met je budget zoeken we de beste printer die je ook echt wilt kopen. Past een printer die nog beter bij je wensen past net niet binnen je bedrag, dan laten we dat op de resultaatpagina zien.",
+    options: [],   // per gebruik, zie question() hieronder
   },
   {
     id: "volume", type: "radio",
-    title: "Print je regelmatig grote oplages?",
+    title: "Hoeveel print je?",
     sub: "Zie wat er uit de printer komt.",
-    why: "Print je vooral incidenteel, dan is een instapmodel ruim voldoende. Print je vaak grote oplages, dan zoeken we een printer die daar qua snelheid op berekend is.",
-    options: [{ v: "gemiddeld", label: "Normaal gebruik, af en toe printen", price: "€" }, { v: "veel", label: "Veel, regelmatig grote oplages", price: "€€€" }],
-  },
-  {
-    id: "aio", type: "radio",
-    title: "Wil je naast printen ook scannen en/of kopiëren?",
-    sub: "Een all-in-one heeft een scanner bovenop.",
-    why: "Een all-in-one printer kan naast printen ook scannen en kopiëren, handig als je van één apparaat alles wilt kunnen. Heb je daar geen behoefte aan, dan houden we ook printer-only modellen in beeld.",
-    options: [{ v: "ja", label: "Ja, graag een all-in-one", price: "€€" }, { v: "nee", label: "Nee, alleen printen is genoeg", price: "€" }],
+    why: "Print je weinig, dan droogt inkt in een cartridge sneller in; een laserprinter heeft daar geen last van. Print je veel, dan zijn een printer met navulbare inkttanks of een laserprinter veel goedkoper per pagina, en letten we op snelheid.",
+    options: [
+      { v: "weinig", label: "Af en toe, een paar pagina's per week", price: "€" },
+      { v: "regelmatig", label: "Regelmatig, tientallen pagina's per week", price: "€€" },
+      { v: "veel", label: "Veel, honderden pagina's per maand", price: "€€€" },
+    ],
   },
   {
     id: "kleur", type: "radio",
-    title: "Print je weleens in kleur, of is zwart-wit genoeg?",
+    title: "Print je in kleur of is zwart-wit genoeg?",
     sub: "Het geprinte vel laat het verschil zien.",
-    why: "Print je vooral tekstdocumenten, dan is zwart-wit vaak voldoende. We kijken dan eerst naar zwart-witprinters (meestal laser): goedkoper per pagina en er droogt geen inkt in. Wil je ook foto's, kleurendocumenten of presentaties printen, dan zoeken we gericht naar printers die in kleur kunnen printen.",
-    options: [{ v: "nee", label: "Alleen zwart-wit", price: "€" }, { v: "ja", label: "Ook in kleur", price: "€€" }],
+    why: "Voor tekst is een zwart-witlaserprinter het voordeligst: goedkoop per pagina en er droogt niets in. Print je ook in kleur, dan zoeken we alleen printers die dat kunnen. Print je vaak in kleur, dan is een printer met navulbare inkttanks meestal het goedkoopst.",
+    options: [
+      { v: "zw", label: "Alleen zwart-wit", price: "€" },
+      { v: "soms", label: "Soms in kleur", price: "€€" },
+      { v: "vaak", label: "Vaak in kleur of foto's", price: "€€" },
+    ],
   },
   {
-    id: "inkt", type: "radio",
-    title: "Wat vind je belangrijker: een lage aanschafprijs of lage kosten per pagina?",
+    id: "scan", type: "radio",
+    title: "Wil je ook scannen en kopiëren?",
+    sub: "Een all-in-one heeft een scanner bovenop.",
+    why: "Een all-in-one printer kan ook scannen en kopiëren. Met een automatische documentinvoer leg je een stapel vellen erin en scant of kopieert hij ze in één keer, handig voor administratie of thuiswerken.",
+    options: [
+      { v: "nee", label: "Nee, alleen printen", price: "€" },
+      { v: "los", label: "Ja, losse vellen", price: "€€" },
+      { v: "stapel", label: "Ja, ook stapels in één keer (documentinvoer)", price: "€€€" },
+    ],
+  },
+  {
+    id: "kosten", type: "radio",
+    title: "Wat vind je belangrijker?",
     sub: "Zie waar de inkt zit.",
-    why: "Printers met een navulbaar inktsysteem (zoals EcoTank of Smart Tank) kosten meer bij aanschaf, maar de inkt is daarna veel goedkoper per pagina. Een laserprinter met toner is ook voordelig per pagina. Printers met losse cartridges zijn goedkoper in aanschaf, maar de cartridges zijn relatief duur.",
-    options: [{ v: "aanschafprijs", label: "Lage aanschafprijs is belangrijker", price: "€" }, { v: "tank", label: "Lage kosten per pagina", price: "€€€" }],
+    why: "Printers met losse cartridges zijn goedkoop in aanschaf, maar de cartridges zijn duur per pagina. Printers met navulbare inkttanks (zoals EcoTank of Smart Tank) en laserprinters kosten meer, maar zijn daarna veel goedkoper per pagina.",
+    options: [
+      { v: "aanschaf", label: "Een lage aanschafprijs", price: "€" },
+      { v: "printen", label: "Goedkoop printen, de printer mag meer kosten", price: "€€€" },
+      { v: "egal", label: "Maakt me niet uit", price: "€€" },
+    ],
   },
   {
     id: "extra", type: "check", exclusive: "geen",
     title: "Wat is nog meer belangrijk voor jou?",
     sub: "Je keuzes verschijnen op de printer.",
-    why: "Een automatische documentinvoer (ADF) is handig om meerdere pagina's achter elkaar te scannen of kopiëren zonder ze los in te leggen. Een display maakt de printer makkelijker te bedienen. Bluetooth laat je draadloos printen zonder wifi-netwerk.",
-    options: [{ v: "adf", label: "Automatische documentinvoer (ADF)", price: "€€" }, { v: "display", label: "Display voor eenvoudige bediening", price: "€" }, { v: "bluetooth", label: "Bluetooth", price: "€€" }, { v: "geen", label: "Geen extra wensen", price: "€" }],
+    why: "Automatisch dubbelzijdig printen bespaart papier zonder dat je vellen hoeft om te draaien. Een compacte printer past op een klein bureau of in een kast. Een grote papierlade hoef je minder vaak bij te vullen. A3 is twee keer zo groot als een gewoon vel, voor posters en tekeningen. Printen vanaf je telefoon kan bij bijna elke printer, daar hoef je niet op te letten.",
+    options: [
+      { v: "duplex", label: "Automatisch dubbelzijdig printen", price: "€" },
+      { v: "compact", label: "Compact formaat", price: "€" },
+      { v: "lade", label: "Grote papierlade (250 vel of meer)", price: "€€" },
+      { v: "a3", label: "Printen op A3", price: "€€€" },
+      { v: "geen", label: "Geen extra wensen", price: "€" },
+    ],
   },
 ];
 
-const kind = st => st.gebruik || "thuis";
-const dims = st => { const p = PRN[kind(st)]; return { ...p, x0: PX - p.w / 2, x1: PX + p.w / 2, yf: YB - p.d }; };
-const isAio = st => st.q >= 2 && st.aio === "ja";
-
 // wat er op het vel staat: foto-print, kleurendocument of zwart-wit
 function sheetKind(st) {
-  if (st.q >= 3 && st.kleur === "nee") return "zw";
-  if (kind(st) === "foto") return "foto";
-  if (st.q >= 3 && st.kleur === "ja") return "kleur";
-  return kind(st) === "zakelijk" ? "zw" : "kleur";
+  if (vanaf(st, "kleur") && st.kleur === "zw") return "zw";
+  if (vanaf(st, "kleur") && st.kleur === "vaak" && st.gebruik === "foto") return "foto";
+  if (vanaf(st, "kleur") && st.kleur) return "kleur";
+  if (st.gebruik === "foto") return "foto";
+  return st.gebruik === "kantoor" ? "zw" : "kleur";
 }
 const SHEETS = {
   zw: `<div class="pad"><h5>Offerte 2026-114</h5>${"<i></i>".repeat(14)}</div>`,
   kleur: `<div class="pad"><h5 style="color:#0954a3">Werkstuk: de kust</h5><img class="colorimg" src="shared/img/scherm/scherm-normaal.webp" alt=""><div class="bars"><b style="height:40%;background:#0954a3"></b><b style="height:70%;background:#c49a78"></b><b style="height:55%;background:#2e8b57"></b><b style="height:85%;background:#d08a16"></b></div>${"<i></i>".repeat(4)}</div>`,
   foto: `<img class="photo" src="shared/img/scherm/scherm-films.webp" alt="">`,
 };
+const VELLEN = { weinig: 1, regelmatig: 4, veel: 10 };
 
 let sheetBox, lapScreen;
 function setup(scene) {
@@ -115,7 +179,7 @@ function setup(scene) {
 
 function afterRender(ctx) {
   const { st } = ctx;
-  const n = st.q >= 1 && st.volume === "veel" ? 10 : 1;
+  const n = vanaf(st, "volume") ? VELLEN[st.volume] ?? 1 : 1;
   const html = SHEETS[sheetKind(st)];
   sheetBox.innerHTML = Array.from({ length: n }, () => `<div class="sheet">${html}</div>`).join("");
   // vel van 21 cm breed komt 22 cm uit de sleuf; een stapel ligt telkens iets hoger en verschoven
@@ -129,59 +193,104 @@ function afterRender(ctx) {
   placeQuad(lapScreen, 520, Math.round(520 * LAP.sh / LAP.sw), lapCorners().map(p => ctx.toPx(...p)));
 }
 
-createQuiz3D({
+function budgetCaption(st) {
+  const cap = capVan(st.budget), info = budgetInfo(st.gebruik, cap);
+  if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste printer binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
+  if (!info) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", cap ? "We zoeken de beste printer binnen dit bedrag." : "We kiezen puur op je wensen."];
+  if (!cap) return ["Geen voorkeur", `Alle ${info.totaal} printers doen mee, van ${euro(info.vanaf)} tot ${euro(info.tot)}. We kiezen puur op je wensen.`];
+  if (!info.n) return [`Tot ${euro(cap)}`, "Binnen dit bedrag vonden we geen printer. We tonen dan de printers die het best bij je passen, net erboven."];
+  return [`Tot ${euro(cap)}`, `${info.n} van de ${info.totaal} printers kosten ${euro(cap)} of minder, vanaf ${euro(info.vanaf)}. We zoeken de beste die bij je wensen past.`];
+}
+
+const quiz = createQuiz3D({
   camera,
-  steps: 6,
-  state: { gebruik: null, volume: null, aio: null, kleur: null, inkt: null, extra: [] },
+  steps: Q.length,
+  state: { gebruik: null, budget: null, volume: null, kleur: null, scan: null, kosten: null, extra: [] },
   imgPath: n => `printer/vragen/img/${n}.webp`,
-  question: st => Q[st.q],
+  question: st => (QID(st) === "budget" ? { ...Q[st.q], options: budgetOpties(st.gebruik) } : Q[st.q]),
   setup, afterRender,
 
   images(st) {
     const k = kind(st);
     const list = ["bureau", k + (isAio(st) ? "-aio" : "")];
-    if (st.q >= 4 && st.inkt === "tank" && k !== "zakelijk") list.push(`tank-${k}`);   // laser heeft geen inkttanks
-    if (st.q === 5 && st.extra.includes("adf") && isAio(st) && k !== "zakelijk") list.push(`adf-${k}`);
+    // laser heeft geen inkttanks en (in de render) geen losse documentinvoer
+    if (vanaf(st, "kosten") && st.kosten === "printen" && k !== "zakelijk") list.push(`tank-${k}`);
+    if (vanaf(st, "scan") && st.scan === "stapel" && k !== "zakelijk") list.push(`adf-${k}`);
     return list;
   },
 
   focus: () => ({ x: 0.3, y: -0.3, z: 0.9, zoom: 1.7 }),
-  focusDesktop: st => ({ x: 0.36, y: -0.3, z: 0.9, zoom: 1.45, anchorX: st.q === 5 ? 0.55 : 0.62 }),
+  focusDesktop: st => ({ x: 0.36, y: -0.3, z: 0.9, zoom: 1.45, anchorX: QID(st) === "extra" ? 0.55 : 0.62 }),
 
   overlays(ctx) {
     const { st } = ctx;
-    if (st.q !== 5) return {};
+    if (QID(st) !== "extra") return {};
     const d = dims(st);
     const top = DZ + d.h + (isAio(st) ? 0.03 : 0);
     const pts = [];
-    if (st.extra.includes("adf")) pts.push({ x: PX, y: d.yf + 0.1, label: isAio(st) ? "<b>Documentinvoer</b>: stapel scannen in één keer" : "<b>Documentinvoer</b> hoort bij een all-in-one" });
-    if (st.extra.includes("display")) pts.push({ x: isLaser(st) ? PX + 0.11 : d.x0 + 0.06, y: d.yf, label: "<b>Display</b>: makkelijk bedienen" });
-    if (st.extra.includes("bluetooth")) pts.push({ x: d.x1 - 0.05, y: d.yf, label: "<b>Bluetooth</b>: printen zonder wifi" });
+    if (st.extra.includes("duplex")) pts.push({ x: PX, y: d.yf + 0.05, label: "<b>Dubbelzijdig</b>: draait het vel zelf om" });
+    if (st.extra.includes("compact")) pts.push({ x: d.x0 + 0.05, y: d.yf, label: "<b>Compact</b>: past op een klein bureau" });
+    if (st.extra.includes("lade")) pts.push({ x: d.x1 - 0.06, y: d.yf, label: "<b>Grote papierlade</b>: 250 vel of meer" });
+    if (st.extra.includes("a3")) pts.push({ x: PX + 0.08, y: d.yf + 0.1, label: "<b>A3</b>: twee keer zo groot als een gewoon vel" });
     return spotColumn(ctx, pts.map(p => ({ ...p, z: 0 })), { zBot: DZ + 0.06, zTop: top + 0.02, edgeX: d.x1 + 0.03, edgeY: d.yf });
   },
 
-  hideCaption: (st, mobile) => st.q === 5 && !mobile,
+  hideCaption: (st, mobile) => QID(st) === "extra" && !mobile,
 
   caption(st) {
-    switch (st.q) {
-      case 0: return {
-        thuis: ["Thuisgebruik", "Een betaalbare inkjetprinter, of een compacte laserprinter als je vooral tekst print."],
-        foto: ["Foto's", "Een fotoprinter met meer inktkleuren voor rijke, scherpe afdrukken."],
-        zakelijk: ["Zakelijk", "Een snelle, robuuste (laser)printer die veel werk aankan."],
+    switch (QID(st)) {
+      case "gebruik": return {
+        thuis: ["Thuis", "Documenten, schoolwerk en af en toe een foto: daar volstaat een betaalbare printer."],
+        foto: ["Foto's", "Een fotoprinter met extra inktkleuren voor rijke, scherpe afdrukken, ook zonder witranden."],
+        kantoor: ["Thuiswerken of kantoor", "Een snelle printer die veel werk aankan, met automatisch dubbelzijdig printen."],
       }[st.gebruik] ?? ["Jouw werkplek", "Kies waarvoor je de printer gebruikt; de printer op het bureau wisselt mee."];
-      case 1: return st.volume === "veel" ? ["Grote oplages", "Dan zoeken we een printer die snel is en veel papier aankan."] : st.volume ? ["Af en toe printen", "Een instapmodel is dan ruim voldoende."] : ["Oplage", "Kies hoeveel je meestal print."];
-      case 2: return st.aio === "ja" ? ["All-in-one", "Met een scanner bovenop kun je ook scannen en kopiëren."] : st.aio ? ["Alleen printen", "Zonder scanner: compacter en voordeliger."] : ["Scannen en kopiëren", "Een all-in-one heeft een scanner bovenop."];
-      case 3: return st.kleur === "ja" ? ["Ook in kleur", "Foto's, grafieken en presentaties komen in kleur uit de printer."] : st.kleur ? ["Alleen zwart-wit", "Voor tekst is zwart-wit genoeg. We kijken eerst naar zwart-witprinters: goedkoper per pagina."] : ["Kleur", "Kies of je ook in kleur print."];
-      case 4: if (st.inkt === "tank" && isLaser(st)) return ["Lage kosten per pagina", "Een laserprinter heeft geen inkt maar toner. Voordelig per pagina zijn modellen met grote tonercartridges."];
-        return st.inkt === "tank" ? ["Navulbare inkttanks", "Iets duurder bij aanschaf, daarna veel goedkoper per pagina. Een laserprinter met toner kan ook."] : st.inkt ? ["Losse cartridges", "Goedkoper in aanschaf; de cartridges zelf zijn relatief duur."] : ["Inkt", "Kies wat je belangrijker vindt."];
+      case "budget": return budgetCaption(st);
+      case "volume": return {
+        weinig: ["Af en toe", "Inkt in een cartridge droogt in als je weinig print. Een laserprinter heeft daar geen last van."],
+        regelmatig: ["Regelmatig", "Dan telt wat een pagina kost: navulbare inkttanks of een laserprinter zijn voordelig."],
+        veel: ["Veel", "Dan zoeken we een snelle printer die goedkoop is per pagina en veel werk aankan."],
+      }[st.volume] ?? ["Hoeveel je print", "Kies wat het best past; de stapel vellen groeit mee."];
+      case "kleur": return {
+        zw: ["Alleen zwart-wit", "Dan is een zwart-witlaserprinter het voordeligst: goedkoop per pagina en er droogt niets in."],
+        soms: ["Soms in kleur", "We kijken alleen naar printers die in kleur printen."],
+        vaak: ["Vaak in kleur", "Dan is een printer met navulbare inkttanks meestal het goedkoopst per pagina."],
+      }[st.kleur] ?? ["Kleur", "Kies of je ook in kleur print."];
+      case "scan": return {
+        nee: ["Alleen printen", "Zonder scanner: compacter en voordeliger."],
+        los: ["All-in-one", "Met een scanner bovenop kun je ook scannen en kopiëren."],
+        stapel: ["Documentinvoer", "Leg een stapel vellen in de invoer bovenop en hij scant ze in één keer."],
+      }[st.scan] ?? ["Scannen en kopiëren", "Een all-in-one heeft een scanner bovenop."];
+      case "kosten":
+        if (st.kosten === "printen") return isLaser(st)
+          ? ["Goedkoop printen", "Een laserprinter print met toner: voordelig per pagina en hij droogt niet in. Ook een printer met navulbare inkttanks kan."]
+          : ["Goedkoop printen", "Navulbare inkttanks: iets duurder bij aanschaf, daarna veel goedkoper per pagina. Een laserprinter kan ook."];
+        return {
+          aanschaf: ["Lage aanschafprijs", "Dan kijken we eerst naar betaalbare printers. De cartridges zijn wel relatief duur."],
+          egal: ["Maakt niet uit", "We kiezen dan puur op je andere wensen."],
+        }[st.kosten] ?? ["Aanschaf of printen", "Kies wat je belangrijker vindt."];
       default: return st.extra.some(e => e !== "geen") ? ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."] : ["Extra's", "Vink aan wat je belangrijk vindt."];
     }
   },
 
+  onNext(st, id) {
+    meetStap(st, id);
+  },
+  onAnswer(st, id) {
+    // ander gebruik: een eerder gekozen bedrag hoort misschien niet meer bij de opties
+    if (id === "gebruik" && !budgetOpties(st.gebruik).some(o => o.v === st.budget)) st.budget = null;
+  },
+
   async finish(st) {
-    const answers = { gebruik: st.gebruik ?? "", volume: st.volume ?? "", aio: st.aio ?? "", kleur: st.kleur ?? "", inkt: st.inkt ?? "", extraAnswers: st.extra };
+    meetStap(st, "extra");
+    const answers = {
+      gebruik: st.gebruik ?? "", budget: capVan(st.budget), volume: st.volume ?? "", kleur: st.kleur ?? "",
+      scan: st.scan ?? "", kosten: st.kosten ?? "", extraAnswers: st.extra,
+    };
     const raw = await productenOfFout();
-    const result = matchPrinters(normalizeProducts(raw ?? []), st.gebruik, null, answers);
+    const printers = normalizeProducts(raw ?? []);
+    // Beste match binnen het budget; past er niets binnen, dan zonder grens.
+    let result = matchPrinters(printers, answers.budget, answers);
+    if (answers.budget && !result.bestMatch) result = matchPrinters(printers, null, answers);
     localStorage.setItem("printer_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("printer_bestType", result.bestType ?? "");
     localStorage.setItem("printer_filteredMatchedPrinters", JSON.stringify(result.filteredMatchedPrinters));
@@ -191,4 +300,20 @@ createQuiz3D({
   },
 
   preload: ["bureau", "thuis", "foto", "zakelijk", "thuis-aio", "foto-aio", "zakelijk-aio", "tank-thuis", "tank-foto", "adf-thuis", "adf-foto"],
+});
+
+// Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)
+function meetStap(st, id) {
+  const v = st[id];
+  window.phTrackEvent?.("quiz_stap", {
+    categorie: "printer", stap: id, nr: Q.findIndex(q => q.id === id) + 1,
+    antwoord: Array.isArray(v) ? [...v].sort().join("+") : String(v ?? ""),
+  });
+}
+
+// Live telling bij de budgetvraag zodra de catalogus binnen is
+productsPromise.then(raw => {
+  if (!raw?.length) return;
+  catalogus = normalizeProducts(raw);
+  if (QID(quiz.st) === "budget") quiz.render();
 });

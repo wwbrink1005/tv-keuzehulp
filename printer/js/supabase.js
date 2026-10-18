@@ -38,6 +38,14 @@ function parseFirstInt(value) {
 }
 
 /**
+ * "427,5 mm" → 427.5, "6,38 kg" → 6.38; leeg of onleesbaar → null.
+ */
+function parseMaat(value) {
+  const m = String(value ?? "").match(/(\d+(?:[.,]\d+)?)/);
+  return m ? parseFloat(m[1].replace(",", ".")) : null;
+}
+
+/**
  * Geeft de generieke aanbieders-lijst terug die normalizeProducts() verwacht,
  * rechtstreeks uit de `aanbieders`-jsonb-kolom (gevuld door de pipeline). Een
  * nieuwe aanbieder zoals MediaMarkt vereist hier geen wijziging.
@@ -82,6 +90,21 @@ function adaptRow(row) {
     display:             parseJaNee(row.display),
     printkleuren:        row.printkleuren ?? "",
     kanKleurenPrinten:   heeftKleurenPrinten(row),
+    // Sinds okt 2026 (keuzehulp-pipeline/migrations/printers_extra_specs.sql)
+    duplexModus:         row.duplex_modus ?? "",
+    maxPapierformaat:    row.max_papierformaat ?? "",
+    gebruikMaxPaginas:   parseFirstInt(String(row.gebruik_max_paginas ?? "").replace(/\./g, "")),
+    gebruikAanbevolen:   row.gebruik_aanbevolen ?? "",
+    mobielPrinten:       row.mobiel_printen ?? "",
+    breedteMm:           parseMaat(row.breedte_mm),
+    diepteMm:            parseMaat(row.diepte_mm),
+    hoogteMm:            parseMaat(row.hoogte_mm),
+    gewichtKg:           parseMaat(row.gewicht),
+    zonderWitranden:     parseJaNee(row.zonder_witranden),
+    invoercapaciteit:    parseFirstInt(row.invoercapaciteit),
+    soortScanner:        row.soort_scanner ?? "",
+    printsnelheidIso:    parseFirstInt(row.printsnelheid_iso_zwart),
+    ethernet:            parseJaNee(row.ethernet),
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          adaptAanbieders(row),

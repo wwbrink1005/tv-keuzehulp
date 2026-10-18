@@ -2100,3 +2100,19 @@ body.has-menu {
 }
 
 .resultaat-melding-knop:hover { background: var(--accent-dark); }
+
+/* Eerlijke kanttekening onder "Waarom dit bij jou past" (printer: HP+) */
+.rcard-note { margin: 2px 0 12px; padding: 8px 12px; border-radius: 10px; background: var(--surface-muted, #f4f5f7); color: var(--text-secondary, #5b616e); font-size: 13px; line-height: 1.45; }
+
+/* Budget uit de quiz: kaart tussen de resultaten ("Meer budget?" of "niets binnen budget") */
+.budget-kaart { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding: 18px 22px; border-radius: 20px; background: var(--accent-soft); border: 1.5px dashed color-mix(in srgb, var(--accent) 35%, transparent); }
+.budget-kaart p, .budget-kaart-tekst { margin: 0; flex: 1 1 340px; font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+.budget-kaart strong { display: block; color: var(--text-primary); font-size: 15px; margin-bottom: 2px; }
+.budget-kaart p strong { display: inline; font-size: inherit; }
+.budget-kaart-btn { flex: none; height: 40px; padding: 0 18px; border-radius: 999px; border: none; background: var(--accent); color: #fff; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: filter .18s ease; }
+.budget-kaart-btn:hover { filter: brightness(1.1); }
+
+/* "Wis filters" alleen als er iets gekozen is: de knop krijgt het hidden-attribuut
+   (updateClearFiltersBtn), maar de display-regels per pagina overschreven dat,
+   waardoor hij altijd zichtbaar was. */
+.clear-filters-btn[hidden] { display: none !important; }

@@ -290,6 +290,7 @@
               isCheapest: kaarten.length > 1 && product.prijs === minPrijs,
               specs: mod.punten.buildSpecChips(product),
               points: mod.punten.buildResultPoints(product, null, ctx),
+              note: mod.punten.buildNote?.(product) ?? "",
             });
             return kaart
               .replace('<article class="rcard"', `<article class="rcard" data-fav-ean="${esc(raw.ean)}"`)
