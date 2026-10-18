@@ -35,6 +35,22 @@ export function getStoredSelection() {
 }
 
 /**
+ * Werkgeheugen en opslag uit productnamen ("16 GB - 512 GB", "16GB/1TB",
+ * "24 GB - 1 TB"): het eerste getal is het geheugen, het tweede de opslag.
+ * De naam die het vaakst voorkomt wint niet: de eerste naam met een paar telt.
+ */
+function geheugenUitNamen(namen) {
+  for (const naam of namen) {
+    const m = String(naam ?? "").match(/\b(\d{1,3})\s?GB\s*[-/,]\s*(\d{3,4}|[1-8])\s?(GB|TB)\b/i);
+    if (!m) continue;
+    const ram = parseInt(m[1], 10);
+    const opslag = parseInt(m[2], 10) * (m[3].toUpperCase() === "TB" ? 1024 : 1);
+    if (ram >= 4 && ram <= 128 && opslag >= 64) return { ram, opslag };
+  }
+  return { ram: null, opslag: null };
+}
+
+/**
  * Normalizes raw laptop products from Supabase to a consistent internal shape.
  */
 export function normalizeProducts(rawProducts) {
@@ -61,15 +77,24 @@ export function normalizeProducts(rawProducts) {
     // Werkgeheugen en opslag ontbreken bij o.a. veel MacBooks in Icecat; zo'n
     // laptop niet weggooien maar zonder die gegevens tonen (null). Onder de 4 GB
     // is een invoerfout (er stond bv. "2" bij een M4 Pro).
+    // Ontbreken ze (vooral MacBooks: de Apple-scraper haalt ze uit de titel, en
+    // bv. Coolblue noemt hem alleen "MacBook Air 13" M5"), dan uit de
+    // productnamen bij de winkels: "16 GB - 512 GB", "16GB/1TB".
+    const uitNamen = geheugenUitNamen([product.titel, ...aanbieders.map(a => a.productnaam)]);
     const ram = parseInt(product.werkgeheugen, 10);
-    const werkgeheugen = Number.isFinite(ram) && ram >= 4 ? ram : null;
+    const werkgeheugen = Number.isFinite(ram) && ram >= 4 ? ram : uitNamen.ram;
 
     const opsl = parseInt(product.opslag, 10);
-    const opslag = Number.isFinite(opsl) && opsl > 0 ? opsl : null;
+    const opslag = Number.isFinite(opsl) && opsl > 0 ? opsl : uitNamen.opslag;
 
-    // Verversing (Hz) is bij ongeveer de helft bekend; onbekend = null.
+    // Verversing (Hz) is bij ongeveer de helft bekend; onbekend = null. Apple
+    // staat niet in Icecat: een MacBook Pro heeft 120 Hz (ProMotion), een Air 60.
     const hzGetal = parseInt(String(product.hz ?? "").replace(/[^0-9]/g, ""), 10);
-    const hz = Number.isFinite(hzGetal) && hzGetal >= 30 ? hzGetal : null;
+    const isApple = /^apple$/i.test(product.merk ?? "");
+    const hz = Number.isFinite(hzGetal) && hzGetal >= 30 ? hzGetal
+      : isApple && /macbook pro/i.test(naam) ? 120
+      : isApple && /macbook air/i.test(naam) ? 60
+      : null;
 
     const gewicht = parseFloat(product.gewicht);
     // gewicht may be missing for some laptops; don't reject if NaN
