@@ -80,9 +80,9 @@ const Q = [
     id: "gebruik", type: "radio",
     title: "Waarvoor ga je de printer vooral gebruiken?",
     sub: "De printer op het bureau wisselt mee.",
-    why: "Voor brieven, formulieren en schoolwerk volstaat een betaalbare printer. Voor foto's zoeken we printers met extra inktkleuren en printen zonder witranden. Print je voor je werk (als zzp'er, aan je bureau thuis of op kantoor), dan letten we op snelheid, automatisch dubbelzijdig printen en een printer die veel werk aankan.",
+    why: "Voor schoolwerk, formulieren en tickets volstaat een betaalbare printer. Voor foto's zoeken we printers met extra inktkleuren en printen zonder witranden. Print je voor je werk (als zzp'er, aan je bureau thuis of op kantoor), dan letten we op snelheid, automatisch dubbelzijdig printen en een printer die veel werk aankan.",
     options: [
-      { v: "thuis", label: "Privé, zoals brieven, formulieren en schoolwerk", price: "€" },
+      { v: "thuis", label: "Privé, zoals schoolwerk en formulieren", price: "€" },
       { v: "foto", label: "Vooral foto's en kleurrijk werk", price: "€€" },
       { v: "kantoor", label: "Voor mijn werk, ook als ik thuiswerk", price: "€€" },
     ],
@@ -240,7 +240,7 @@ const quiz = createQuiz3D({
   caption(st) {
     switch (QID(st)) {
       case "gebruik": return {
-        thuis: ["Privé", "Brieven, formulieren, schoolwerk en af en toe een foto: daar volstaat een betaalbare printer."],
+        thuis: ["Privé", "Schoolwerk, formulieren, tickets en af en toe een foto: daar volstaat een betaalbare printer."],
         foto: ["Foto's", "Een fotoprinter met extra inktkleuren voor rijke, scherpe afdrukken, ook zonder witranden."],
         kantoor: ["Voor je werk", "Thuis of op kantoor: een snelle printer die veel werk aankan, met automatisch dubbelzijdig printen."],
       }[st.gebruik] ?? ["Jouw werkplek", "Kies waarvoor je de printer gebruikt; de printer op het bureau wisselt mee."];
