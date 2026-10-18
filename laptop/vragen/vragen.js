@@ -199,10 +199,12 @@ const osKiesbaar = (st, v) => !osOpties(st).find(o => o.v === v)?.disabled;
 // samen met je eerdere wensen (videokaart bij gamen, opslag) en de al
 // aangevinkte extra's (bv. "Numeriek toetsenblok" bij een Mac).
 const losseGpu = l => { const g = String(l.gpu ?? "").trim().toLowerCase(); return g !== "" && g !== "niet beschikbaar"; };
-// Onbekend (Icecat weet het niet) telt als mogelijk: alleen grijs als het zeker niet kan.
+// Alleen wat zeker is telt, net als in het bijschrift ("Geen van de 16 laptops
+// heeft ..."). Icecat noemt een vingerafdruklezer vooral als hij er is: 147x Ja,
+// 8x Nee, de rest leeg.
 const EIS = {
   opslag: { gemiddeld: l => l.opslag == null || l.opslag >= 512, veel: l => l.opslag == null || l.opslag >= 1000 },
-  extra: Object.fromEntries(["accu", "touchscreen", "scherp-beeldscherm", "numpad", "vingerafdruk"].map(e => [e, l => heeftExtra(l, e) !== false])),
+  extra: Object.fromEntries(["accu", "touchscreen", "scherp-beeldscherm", "numpad", "vingerafdruk"].map(e => [e, l => heeftExtra(l, e) === true])),
 };
 function gebruikEis(st) {
   const g = st.gebruik ?? [];
