@@ -149,9 +149,21 @@ export function createQuiz3D(cfg) {
         loadImg(cfg.imgPath(name)).then(ok => { if (ok) { img.src = cfg.imgPath(name); render(); } });
       }
     });
+    // Wissel zonder doorschijnen: een laag die verdwijnt, wacht tot de nieuwe
+    // volledig zichtbaar is. Anders stonden bij een wissel (bv. printer zonder →
+    // met scanner) beide halverwege op halve sterkte en scheen de achtergrond
+    // er een halve seconde doorheen.
+    // Is een nieuwe laag nog niet geladen, dan blijft de oude gewoon staan (de
+    // laad-callback rendert opnieuw).
+    const nogLaden = [...want.keys()].some(name => !layerImgs.get(name)?.src);
+    const komtErBij = [...want.keys()].some(name => layerImgs.get(name)?.src && layerImgs.get(name).style.opacity !== String(want.get(name).opacity));
     layerImgs.forEach((img, name) => {
       Object.assign(img.style, { left: `${L.x0}px`, top: `${L.y0}px`, width: `${L.dw}px`, height: `${L.dh}px` });
       const on = want.has(name) && img.src;
+      if (!on && nogLaden && img.style.opacity !== "0") return;
+      // alleen op het moment van uitzetten bepalen (er volgt vaak direct nog een render)
+      if (on) img.style.transitionDelay = "0s";
+      else if (img.style.opacity !== "0") img.style.transitionDelay = komtErBij ? "0.45s" : "0s";
       img.style.opacity = on ? String(want.get(name).opacity) : "0";
       img.style.filter = on ? (want.get(name).filter ?? "") : "";
     });

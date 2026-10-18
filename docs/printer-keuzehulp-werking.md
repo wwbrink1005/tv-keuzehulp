@@ -56,11 +56,11 @@ Verder herkennen we:
 
 | # | Vraag | Antwoorden | Wat het doet |
 |---|---|---|---|
-| 1 | Waarvoor ga je de printer vooral gebruiken? | Thuis / Foto's / Thuiswerken of kantoor | Punten per soort, plus fotoprinter- en kantoorpunten |
+| 1 | Waarvoor ga je de printer vooral gebruiken? | Privé / Vooral foto's / Voor mijn werk, ook als ik thuiswerk | Punten per soort, plus fotoprinter- en kantoorpunten |
 | 2 | Wat wil je maximaal uitgeven? | Tot €X / Tot €Y / Geen voorkeur | **Harde grens** |
 | 3 | Hoeveel print je? | Af en toe / Regelmatig / Veel | Punten per soort, plus snelheid |
 | 4 | Print je in kleur of is zwart-wit genoeg? | Alleen zwart-wit / Soms in kleur / Vaak in kleur | Punten per soort; kleur is een **wens** |
-| 5 | Wil je ook scannen en kopiëren? | Nee / Losse vellen / Ook stapels (documentinvoer) | **Wens** |
+| 5 | Wil je ook scannen en kopiëren? | Nee / Af en toe een vel / Ook documenten van meerdere pagina's (documentinvoer) | **Wens** |
 | 6 | Wat vind je belangrijker? | Lage aanschafprijs / Goedkoop printen / Maakt niet uit | Punten per soort, plus hoe zwaar de prijs telt |
 | 7 | Wat is nog meer belangrijk? (meerdere) | Automatisch dubbelzijdig / Compact / Grote papierlade / A3 | **Wensen** |
 
@@ -72,7 +72,7 @@ Printen vanaf de telefoon is geen vraag: dat kan bij bijna elke printer (96% hee
 |---|---|
 | Thuis | tot €100, tot €200, geen voorkeur |
 | Foto's | tot €200, tot €300, geen voorkeur |
-| Thuiswerken of kantoor | tot €200, tot €350, geen voorkeur |
+| Voor mijn werk | tot €200, tot €350, geen voorkeur |
 
 Onder de vraag ziet de bezoeker hoeveel printers binnen het bedrag vallen ("69 van de 126
 printers kosten €200 of minder, vanaf €49"). Past er **niets** binnen het budget, dan laten we

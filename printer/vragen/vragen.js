@@ -56,7 +56,7 @@ const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
 // alle opties in de taal van de vraag ("maximaal"), zodat niets als ondergrens leest
 const budgetOpties = g => [...(budgetCapsByGebruik[g] ?? budgetCapsByGebruik.thuis).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }];
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
-const GEBRUIK_WOORD = { thuis: "thuis", foto: "foto's", kantoor: "thuiswerken of kantoor" };
+const GEBRUIK_WOORD = { thuis: "privégebruik", foto: "foto's", kantoor: "je werk" };
 
 // Wat het gekozen budget betekent, uit de live catalogus (null zolang die laadt).
 // Telt de printers die je standaard op de resultaatpagina ziet (bij 2+ winkels);
@@ -80,11 +80,11 @@ const Q = [
     id: "gebruik", type: "radio",
     title: "Waarvoor ga je de printer vooral gebruiken?",
     sub: "De printer op het bureau wisselt mee.",
-    why: "Voor documenten en schoolwerk thuis volstaat een betaalbare printer. Voor foto's zoeken we printers met extra inktkleuren en printen zonder witranden. Voor thuiswerken of kantoor letten we op snelheid, automatisch dubbelzijdig printen en een printer die veel werk aankan.",
+    why: "Voor brieven, formulieren en schoolwerk volstaat een betaalbare printer. Voor foto's zoeken we printers met extra inktkleuren en printen zonder witranden. Print je voor je werk (als zzp'er, aan je bureau thuis of op kantoor), dan letten we op snelheid, automatisch dubbelzijdig printen en een printer die veel werk aankan.",
     options: [
-      { v: "thuis", label: "Thuis, zoals documenten en schoolwerk", price: "€" },
+      { v: "thuis", label: "Privé, zoals brieven, formulieren en schoolwerk", price: "€" },
       { v: "foto", label: "Vooral foto's en kleurrijk werk", price: "€€" },
-      { v: "kantoor", label: "Thuiswerken of kantoor", price: "€€" },
+      { v: "kantoor", label: "Voor mijn werk, ook als ik thuiswerk", price: "€€" },
     ],
   },
   {
@@ -120,11 +120,11 @@ const Q = [
     id: "scan", type: "radio",
     title: "Wil je ook scannen en kopiëren?",
     sub: "Een all-in-one heeft een scanner bovenop.",
-    why: "Een all-in-one printer kan ook scannen en kopiëren. Met een automatische documentinvoer leg je een stapel vellen erin en scant of kopieert hij ze in één keer, handig voor administratie of thuiswerken.",
+    why: "Een all-in-one printer kan ook scannen en kopiëren: je legt een vel op de glasplaat onder het deksel. Scan of kopieer je vaak documenten van meerdere pagina's, zoals contracten of administratie, dan is een documentinvoer handig: je legt de hele stapel bovenop en hij haalt de vellen er zelf één voor één doorheen.",
     options: [
       { v: "nee", label: "Nee, alleen printen", price: "€" },
-      { v: "los", label: "Ja, losse vellen", price: "€€" },
-      { v: "stapel", label: "Ja, ook stapels in één keer (documentinvoer)", price: "€€€" },
+      { v: "los", label: "Ja, af en toe een vel, zoals een formulier of paspoort", price: "€€" },
+      { v: "stapel", label: "Ja, ook documenten van meerdere pagina's in één keer", price: "€€€" },
     ],
   },
   {
@@ -240,9 +240,9 @@ const quiz = createQuiz3D({
   caption(st) {
     switch (QID(st)) {
       case "gebruik": return {
-        thuis: ["Thuis", "Documenten, schoolwerk en af en toe een foto: daar volstaat een betaalbare printer."],
+        thuis: ["Privé", "Brieven, formulieren, schoolwerk en af en toe een foto: daar volstaat een betaalbare printer."],
         foto: ["Foto's", "Een fotoprinter met extra inktkleuren voor rijke, scherpe afdrukken, ook zonder witranden."],
-        kantoor: ["Thuiswerken of kantoor", "Een snelle printer die veel werk aankan, met automatisch dubbelzijdig printen."],
+        kantoor: ["Voor je werk", "Thuis of op kantoor: een snelle printer die veel werk aankan, met automatisch dubbelzijdig printen."],
       }[st.gebruik] ?? ["Jouw werkplek", "Kies waarvoor je de printer gebruikt; de printer op het bureau wisselt mee."];
       case "budget": return budgetCaption(st);
       case "volume": return {
@@ -257,8 +257,8 @@ const quiz = createQuiz3D({
       }[st.kleur] ?? ["Kleur", "Kies of je ook in kleur print."];
       case "scan": return {
         nee: ["Alleen printen", "Zonder scanner: compacter en voordeliger."],
-        los: ["All-in-one", "Met een scanner bovenop kun je ook scannen en kopiëren."],
-        stapel: ["Documentinvoer", "Leg een stapel vellen in de invoer bovenop en hij scant ze in één keer."],
+        los: ["All-in-one", "Je legt het vel op de glasplaat onder het deksel en scant of kopieert het."],
+        stapel: ["Met documentinvoer", "Leg de hele stapel bovenop: de printer haalt de vellen er zelf één voor één doorheen."],
       }[st.scan] ?? ["Scannen en kopiëren", "Een all-in-one heeft een scanner bovenop."];
       case "kosten":
         if (st.kosten === "printen") return isLaser(st)
