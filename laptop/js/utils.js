@@ -47,6 +47,14 @@ function geheugenUitNamen(namen) {
     const opslag = parseInt(m[2], 10) * (m[3].toUpperCase() === "TB" ? 1024 : 1);
     if (ram >= 4 && ram <= 128 && opslag >= 64) return { ram, opslag };
   }
+  // Alleen de opslag genoemd ("Zilver - 512 GB - Touch ID"): 128 GB of meer is
+  // opslag, kleiner is werkgeheugen.
+  for (const naam of namen) {
+    const m = String(naam ?? "").match(/\b(\d{3,4}|[1-8])\s?(GB|TB)\b/i);
+    if (!m) continue;
+    const opslag = parseInt(m[1], 10) * (m[2].toUpperCase() === "TB" ? 1024 : 1);
+    if (opslag >= 128) return { ram: null, opslag };
+  }
   return { ram: null, opslag: null };
 }
 
@@ -129,7 +137,12 @@ export function normalizeProducts(rawProducts) {
       accuWh:         Number.isFinite(product.accuWh) ? product.accuWh : null,
       accuUren:       parseInt(product.accuUren, 10) || null,
       numeriekToetsenblok: product.numeriekToetsenblok ?? "",
-      vingerafdruk:   product.vingerafdruk ?? "",
+      // MacBook Neo (A-chip): Touch ID alleen op de uitvoering met 512 GB, het
+      // basismodel met 256 GB heeft een gewone aan/uit-knop.
+      vingerafdruk:   product.vingerafdruk
+        || (isApple && /\bA\d+/.test(product.processor ?? "")
+          ? (/touch id/i.test(naam) || opslag >= 512 ? "Ja" : opslag ? "Nee" : "")
+          : ""),
       typeProduct:    product.typeProduct ?? "",
       kleur:          product.kleur ?? "",
       afbeelding,
