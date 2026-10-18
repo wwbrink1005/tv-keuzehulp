@@ -2,8 +2,8 @@
 // bureau (render/scene.py); de laptop (13/15/17 inch) is een transparante laag.
 // Wat er op het scherm staat, zetten we met placeQuad() in perspectief op het
 // schuine laptopscherm, met dezelfde camera als in Blender. Motor: shared/quiz3d.js.
-import { createQuiz3D, makeCamera, dimLine, spotColumn, placeQuad } from "../../shared/quiz3d.js";
-import { calculateScores, matchLaptops } from "../js/matching.js";
+import { createQuiz3D, makeCamera, dimLine, placeQuad } from "../../shared/quiz3d.js";
+import { calculateScores, matchLaptops, heeftExtra } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { budgetCapsBySize, sizeGroupToAllowedSizes } from "../js/data.js";
@@ -35,6 +35,45 @@ function screenCorners(l) {
   const at = (x, zl) => [x, hy + Math.sin(TILT) * zl, hz + Math.cos(TILT) * zl];
   const z0 = 0.016, z1 = 0.016 + l.sh;
   return [at(-l.sw / 2, z1), at(l.sw / 2, z1), at(l.sw / 2, z0), at(-l.sw / 2, z0)];
+}
+// punt op het scherm: u van links naar rechts, v van boven naar onder (0..1)
+function opScherm(l, u, v) {
+  const [tl, tr, br, bl] = screenCorners(l), lerp = (a, b, t) => a.map((x, i) => x + (b[i] - x) * t);
+  return lerp(lerp(tl, tr, u), lerp(bl, br, u), v);
+}
+// toetsenbord zoals keyboard() in render/scene.py: functierij 0,6 hoog plus 5 rijen,
+// 15 toetsbreedtes, of 19,5 met numpad (4 kolommen rechts na een halve kolom ruimte)
+function keyGeo(l, numpad) {
+  const y1 = LY + l.bd / 2, kx0 = -l.bw / 2 + 0.02, kx1 = l.bw / 2 - 0.02, ky0 = y1 - l.bd * 0.55, ky1 = y1 - 0.015;
+  const units = numpad ? 19.5 : 15, p = (kx1 - kx0) / units;
+  return { kx0, kx1, ky1, p, rp: (ky1 - ky0) / 5.6, fw: p * units / Math.floor(units) };
+}
+// numpad-laag (15n/17n) alleen bij de laatste vraag; op 13 à 14 inch bestaat hij vrijwel niet
+const metNumpad = st => QID(st) === "extra" && st.extra.includes("numpad") && lap(st).key !== "13";
+
+// Labels rechts van de laptop (of links als daar geen ruimte is), elk met een lijn
+// naar zijn eigen punt. Zoals spotColumn in shared/quiz3d.js, maar de punten houden
+// hun eigen hoogte: ze zitten deels op het scherm en deels op het toetsenbord.
+function labelKolom(ctx, points, edgeX) {
+  let svg = "", html = "";
+  if (!points.length) return { svg, html };
+  const placed = points.map(p => ({ ...p, px: ctx.toPx(p.x, p.y, p.z) })).sort((a, b) => a.px.y - b.px.y);
+  let labelX = ctx.toPx(edgeX, LY, DZ + 0.2).x + 22;
+  // weinig ruimte rechts (17 inch): alleen de naam; pas bij echt geen ruimte naar links
+  const kort = ctx.mobile || ctx.width - labelX < 300, flip = ctx.width - labelX < 150;
+  if (flip) labelX = Math.min(...placed.map(d => d.px.x)) - 22;
+  const gap = ctx.mobile ? 26 : 32, ys = placed.map(d => d.px.y);
+  for (let i = 1; i < ys.length; i++) ys[i] = Math.max(ys[i], ys[i - 1] + gap);
+  const overflow = ys[ys.length - 1] - (ctx.height - 20);
+  if (overflow > 0) for (let i = 0; i < ys.length; i++) ys[i] -= overflow;
+  for (let i = ys.length - 2; i >= 0; i--) ys[i] = Math.min(ys[i], ys[i + 1] - gap);
+  placed.forEach((d, i) => {
+    svg += `<line x1="${d.px.x}" y1="${d.px.y}" x2="${labelX}" y2="${ys[i]}" class="leader"/>`;
+    if (!d.noSpot) html += `<div class="spot is-on" style="left:${d.px.x}px;top:${d.px.y}px"></div>`;
+    const pos = flip ? `right:${ctx.width - labelX}px` : `left:${labelX}px`;
+    html += `<div class="spot-label is-on" style="${pos};top:${ys[i]}px">${kort ? d.label.split(":")[0] : d.label}</div>`;
+  });
+  return { svg, html };
 }
 
 const Q = [
@@ -194,6 +233,24 @@ function osCaption(st) {
   const budget = cap == null ? "" : binnen ? ` ${binnen} daarvan binnen ${euro(cap)}.` : ` Geen daarvan binnen ${euro(cap)}; we tonen dan de beste net erboven.`;
   return [titel, `${tekst} ${info.lijst.length} laptops ${maat}, vanaf ${euro(info.vanaf)}.${budget}`];
 }
+const EXTRA_NAAM = { accu: "een lange accuduur", touchscreen: "een touchscreen", "scherp-beeldscherm": "een scherp scherm",
+  numpad: "een numeriek toetsenblok", vingerafdruk: "een vingerafdruklezer" };
+// Hoeveel laptops binnen je eerdere keuzes alles hebben wat je aanvinkt (live catalogus)
+function extraCaption(st) {
+  const wensen = st.extra.filter(e => e !== "geen");
+  if (!wensen.length) return st.extra.length ? ["Geen extra wensen", "We kiezen puur op je eerdere antwoorden."]
+                                             : ["Extra's", "Vink aan wat je belangrijk vindt. Op de laptop zie je waar het zit."];
+  if (!catalogus) return ["Jouw extra's", "De punten op de laptop laten zien waar je keuzes zitten."];
+  const cap = capVan(st.budget), os = OS_NAAM[st.os], maten = sizeGroupToAllowedSizes[st.formaat || "middenweg"] ?? [];
+  const lijst = catalogus.filter(l => maten.includes(l.schermdiagonaal) && (l.aanbieders ?? []).length >= 2
+    && (!cap || parsePrice(l.prijs) <= cap) && (!os || l.os === os));
+  const n = lijst.filter(l => wensen.every(w => heeftExtra(l, w) === true)).length;
+  const keuzes = ["formaat", cap && "budget", os && "systeem"].filter(Boolean);
+  const bij = keuzes.length > 1 ? `${keuzes.slice(0, -1).join(", ")} en ${keuzes.at(-1)}` : keuzes[0];
+  const wat = wensen.length > 1 ? "alles wat je aanvinkte" : EXTRA_NAAM[wensen[0]];
+  if (!n) return ["Jouw extra's", `Geen van de ${lijst.length} laptops die bij je ${bij} passen heeft ${wat}. We tonen de laptops die er het meest van hebben.`];
+  return ["Jouw extra's", `${n} van de ${lijst.length} laptops die bij je ${bij} passen ${n === 1 ? "heeft" : "hebben"} ${wat}.`];
+}
 const usages = st => (st.gebruik.includes("allround") || !st.gebruik.length ? ["dagelijks", "werk", "creatief", "gaming"] : st.gebruik);
 let cycle = 0, cycleTimer = null;
 
@@ -231,7 +288,8 @@ function setup(scene) {
     <div class="view" data-v="creatief"><div class="editor"><div class="tools"></div><img class="photo" src="shared/img/scherm/scherm-films.webp" alt=""><div class="side"><i style="--p:70%"></i><i style="--p:35%"></i><i style="--p:55%"></i><i style="--p:80%"></i><i style="--p:20%"></i></div></div></div>
     <div class="view" data-v="gaming"><img class="fill" src="shared/img/scherm/scherm-gamen.webp" alt=""><div class="hud is-on"><div class="pos">P3<small>/ 12</small></div><div class="lap">Ronde 2 / 5</div><div class="speed"><b>187</b><small>KM/U</small></div></div></div>
     <div class="view" data-v="prestaties"><div class="perf"><h4>Prestaties</h4><div class="meter"><span>Processor <b id="cpuV"></b></span><i><em id="cpuB"></em></i></div><div class="meter"><span>Werkgeheugen <b id="ramV"></b></span><i><em id="ramB"></em></i></div></div></div>
-    <div class="view" data-v="opslag"><div class="store"><h4 id="stT"></h4><p id="stP"></p><div class="sbar"><em style="background:#0954a3;width:18%"></em><em id="stPhotos" style="background:#c49a78"></em></div><div class="legend"><span><b style="background:#0954a3"></b>Apps</span><span><b style="background:#c49a78"></b>Foto's en video</span><span><b style="background:#e2e2e7"></b>Vrij</span></div></div></div>`;
+    <div class="view" data-v="opslag"><div class="store"><h4 id="stT"></h4><p id="stP"></p><div class="sbar"><em style="background:#0954a3;width:18%"></em><em id="stPhotos" style="background:#c49a78"></em></div><div class="legend"><span><b style="background:#0954a3"></b>Apps</span><span><b style="background:#c49a78"></b>Foto's en video</span><span><b style="background:#e2e2e7"></b>Vrij</span></div></div></div>
+    <div class="batt"><i></i>100%</div>`;
   scene.querySelector(".layers").after(scr);
   views = [...scr.querySelectorAll(".view")];
 }
@@ -263,6 +321,9 @@ function afterRender(ctx) {
     scr.querySelector("#stPhotos").style.width = `${82 - free}%`;
     showView("opslag");
   } else showView(usages(st)[0]);
+  // laatste vraag: accu-indicator rechtsboven en een scherper, voller beeld
+  scr.classList.toggle("met-accu", id === "extra" && st.extra.includes("accu"));
+  scr.classList.toggle("scherp", id === "extra" && st.extra.includes("scherp-beeldscherm"));
 }
 
 const quiz = createQuiz3D({
@@ -274,7 +335,7 @@ const quiz = createQuiz3D({
     : QID(st) === "os" ? { ...Q[st.q], options: osOpties(st) }
     : Q[st.q]),
   setup, afterRender,
-  images: st => ["bureau", lap(st).key],
+  images: st => ["bureau", lap(st).key + (metNumpad(st) ? "n" : "")],
   focus: st => ({ x: 0, y: LY, z: 0.85, zoom: st.q === 0 ? 1.9 : 2.4 }),
   // ingezoomd op de laptop; bij vraag 1 iets ruimer zodat je het formaat t.o.v. het bureau ziet
   focusDesktop: st => ({ x: 0.02, y: LY, z: 0.86, zoom: st.q === 0 ? 1.6 : 2.1, anchorX: 0.64 }),
@@ -288,18 +349,23 @@ const quiz = createQuiz3D({
       add(dimLine(ctx, [-l.bw / 2, LY - l.bd / 2 - 0.1, DZ + 0.002], [l.bw / 2, LY - l.bd / 2 - 0.1, DZ + 0.002], `<b>${l.inch} inch</b> · ${Math.round(l.bw * 100)} cm · ${l.kg}`));
     }
     if (QID(st) === "extra") {
-      const c = screenCorners(l);
-      const mid = (a, b) => a.map((v, i) => (v + b[i]) / 2);
       const pts = [];
-      if (st.extra.includes("scherp-beeldscherm")) pts.push({ ...xyz(mid(c[0], c[1])), label: "<b>Hoge resolutie</b>: haarscherp beeld" });
-      if (st.extra.includes("touchscreen")) pts.push({ ...xyz(mid(mid(c[0], c[2]), mid(c[1], c[3]))), label: "<b>Touchscreen</b>: bedienen met je vinger" });
-      // punten liggen op verschillende hoogtes; daarom per punt een eigen bereik
-      pts.forEach((p, i) => add(spotColumn(ctx, [p], { zBot: p.z, zTop: p.z, edgeX: l.bw / 2 + 0.03 + i * 0.001, edgeY: LY })));
+      const kz = DZ + T + 0.0016, k = keyGeo(l, metNumpad(st));
+      if (st.extra.includes("scherp-beeldscherm")) pts.push({ ...xyz(opScherm(l, 0.5, 0.04)), label: "<b>Scherp scherm</b>: OLED of hoge resolutie" });
+      if (st.extra.includes("accu")) pts.push({ ...xyz(opScherm(l, 0.81, 0.06)), label: "<b>Lange accuduur</b>: een hele werkdag" });
+      if (st.extra.includes("touchscreen")) {
+        const p = xyz(opScherm(l, 0.62, 0.55)), px = ctx.toPx(p.x, p.y, p.z);
+        html += `<div class="tap" style="left:${px.x}px;top:${px.y}px"></div>`;
+        pts.push({ ...p, noSpot: true, label: "<b>Touchscreen</b>: bedienen met je vinger" });
+      }
+      if (st.extra.includes("vingerafdruk")) pts.push({ x: k.kx1 - k.fw / 2, y: k.ky1 - 0.3 * k.rp, z: kz, label: "<b>Vingerafdruk</b>: inloggen zonder wachtwoord" });
+      if (st.extra.includes("numpad")) pts.push(metNumpad(st)
+        ? { x: k.kx0 + 17.5 * k.p, y: k.ky1 - 3.1 * k.rp, z: kz, label: "<b>Numpad</b>: rechts naast de letters" }
+        : { x: k.kx1 - 1.5 * k.p, y: k.ky1 - 3.1 * k.rp, z: kz, label: `<b>Numpad</b>: zelden op ${l.inch} inch` });
+      add(labelKolom(ctx, pts, l.bw / 2 + 0.03));
     }
     return { svg, html };
   },
-
-  hideCaption: (st, mobile) => QID(st) === "extra" && !mobile,
 
   caption(st) {
     const l = lap(st);
@@ -315,7 +381,7 @@ const quiz = createQuiz3D({
         extreem: ["Zeer zwaar", "Video, 3D of gamen: de snelste processor, veel geheugen en een losse videokaart."],
       }[st.intensiteit] ?? ["Belasting", "Kies hoe zwaar je de laptop gebruikt en zie de meters meelopen."];
       case "opslag": return st.opslag ? [STORE[st.opslag][0], STORE[st.opslag][1]] : ["Opslag", "Kies hoeveel ruimte je nodig hebt."];
-      default: return st.extra.some(e => e !== "geen") ? ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."] : ["Extra's", "Vink aan wat je belangrijk vindt."];
+      default: return extraCaption(st);
     }
   },
 
@@ -348,7 +414,7 @@ const quiz = createQuiz3D({
     window.location.href = "laptop/resultaat/";
   },
 
-  preload: ["bureau", "15", "13", "17"],
+  preload: ["bureau", "15", "13", "17", "15n", "17n"],
 });
 
 function xyz([x, y, z]) { return { x, y, z }; }
@@ -368,5 +434,5 @@ productsPromise.then(raw => {
   catalogus = normalizeProducts(raw);
   if (quiz.st.os && !osKiesbaar(quiz.st, quiz.st.os)) quiz.st.os = null;
   if (QID(quiz.st) === "os") quiz.renderQuestion();   // grijze opties pas nu bekend
-  if (QID(quiz.st) === "budget" || QID(quiz.st) === "os") quiz.render();
+  if (["budget", "os", "extra"].includes(QID(quiz.st))) quiz.render();
 });

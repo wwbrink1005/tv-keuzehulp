@@ -83,6 +83,19 @@
 .lscreen .a1 { background: linear-gradient(135deg, #5ab0ff, #0954a3); } .lscreen .a2 { background: linear-gradient(135deg, #ffffff, #d9dde3); }
 .lscreen .a3 { background: linear-gradient(135deg, #ffcf6b, #f08a24); } .lscreen .a4 { background: linear-gradient(135deg, #6ee7a8, #1f9d61); }
 .lscreen .a5 { background: linear-gradient(135deg, #e0a3ff, #7b3fd1); }
+/* laatste vraag: accu-indicator, scherper beeld en een tik op het touchscreen */
+.lscreen .batt { position: absolute; right: 14px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px; background: rgba(20,20,24,.72); color: #fff; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity .4s ease; }
+.lscreen .batt i { position: relative; width: 24px; height: 12px; border: 2px solid #fff; border-radius: 3px; box-sizing: border-box; }
+.lscreen .batt i::before { content: ""; position: absolute; inset: 1px; border-radius: 1px; background: #4cd27a; }
+.lscreen .batt i::after { content: ""; position: absolute; right: -5px; top: 2px; width: 3px; height: 4px; border-radius: 0 1px 1px 0; background: #fff; }
+.lscreen.met-accu .batt { opacity: 1; }
+.lscreen .view { transition: opacity .45s ease, filter .45s ease; }
+.lscreen.scherp .view { filter: saturate(1.3) contrast(1.1); }
+.tap { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: rgba(9,84,163,.45); box-shadow: 0 0 0 2px rgba(255,255,255,.85), 0 1px 6px rgba(0,0,0,.25); pointer-events: none; animation: tik 2.2s ease-out infinite; }
+.tap::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid rgba(9,84,163,.8); animation: rimpel 2.2s ease-out infinite; }
+@keyframes tik { 0%, 100% { transform: scale(1); opacity: .9; } 12% { transform: scale(.7); } 25% { transform: scale(1); } }
+@keyframes rimpel { 0%, 10% { transform: scale(1); opacity: 0; } 15% { opacity: 1; } 70%, 100% { transform: scale(3.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .tap, .tap::after { animation: none; } }
 .lscreen .win { position: absolute; inset: 0; background: #fff; }
 .lscreen .bar { height: 44px; background: #ececef; display: flex; align-items: center; gap: 8px; padding: 0 16px; }
 .lscreen .bar b { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; } .lscreen .bar b:nth-child(2) { background: #febc2e; } .lscreen .bar b:nth-child(3) { background: #28c840; }

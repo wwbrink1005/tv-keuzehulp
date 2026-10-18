@@ -297,13 +297,54 @@ M_PAD = flat("pad", (0.28, 0.28, 0.29), 0.25, 1.0)
 M_SCRN = flat("scrn", (0.005, 0.005, 0.007), 0.06)
 LY = -0.33                      # midden van de laptopvoet
 TILT = math.radians(18)         # scherm leunt 18 graden naar achteren
+M_FP = flat("fingerprint", (0.012, 0.012, 0.014), 0.12, 0.3)
+M_WELL = flat("keywell", (0.12, 0.12, 0.125), 0.45, 1.0)
+
+def keyboard(bw, bd, y1, z, numpad):
+    """Losse toetsen in het toetsenbordvlak (zelfde maten als in laptop/vragen/vragen.js):
+    x van -bw/2+0.02 tot bw/2-0.02, y van y1-bd*0.55 tot y1-0.015. Functierij is 0,6 hoog,
+    daaronder 5 rijen. Rechtsboven de aan-knop met vingerafdruklezer. Met numpad: 4 extra
+    kolommen rechts (na een halve kolom tussenruimte), de hoofdtoetsen worden smaller."""
+    kx0, kx1, ky0, ky1 = -bw / 2 + 0.02, bw / 2 - 0.02, y1 - bd * 0.55, y1 - 0.015
+    units = 19.5 if numpad else 15
+    p, rp, g = (kx1 - kx0) / units, (ky1 - ky0) / 5.6, 0.0032
+    out = [box("lap_well", kx0 - 0.004, kx1 + 0.004, ky0 - 0.004, ky1 + 0.004, z, z + 0.0003, M_WELL)]
+    def key(u0, u1, r0, r1, mat=M_KEYS):
+        # u = kolom in toetsbreedtes vanaf links, r = rij vanaf boven (functierij = 0..0.6)
+        out.append(box("lap_key", kx0 + u0 * p + g / 2, kx0 + u1 * p - g / 2,
+                       ky1 - r1 * rp + g / 2, ky1 - r0 * rp - g / 2, z + 0.0002, z + 0.0016, mat, bevel=0.0006, segs=2))
+    nf = int(units)                                   # functierij: over de volle breedte
+    for i in range(nf - 1):
+        key(i * units / nf, (i + 1) * units / nf, 0, 0.6)
+    key((nf - 1) * units / nf, units, 0, 0.6, M_FP)   # aan-knop met vingerafdruklezer
+    rows = [[1] * 13 + [2], [1.5] + [1] * 12 + [1.5], [1.75] + [1] * 11 + [2.25], [2.25] + [1] * 10 + [2.75]]
+    for ri, row in enumerate(rows):
+        u = 0
+        for w in row:
+            key(u, u + w, 0.6 + ri, 1.6 + ri); u += w
+    u, r = 0, 4.6
+    for w in (1, 1, 1, 1, 6, 1, 1):
+        key(u, u + w, r, r + 1); u += w
+    key(12, 13, r + 0.5, r + 1); key(13, 14, r, r + 0.5); key(13, 14, r + 0.5, r + 1); key(14, 15, r + 0.5, r + 1)
+    if numpad:
+        n0 = 15.5
+        for c in range(4):                            # rij 1: NumLock / * -
+            key(n0 + c, n0 + c + 1, 0.6, 1.6)
+        for ri in range(3):                           # 7 8 9 / 4 5 6 / 1 2 3
+            for c in range(3):
+                key(n0 + c, n0 + c + 1, 1.6 + ri, 2.6 + ri)
+        key(n0 + 3, n0 + 4, 1.6, 3.6)                 # + (twee rijen hoog)
+        key(n0, n0 + 2, 4.6, 5.6); key(n0 + 2, n0 + 3, 4.6, 5.6)   # 0 en ,
+        key(n0 + 3, n0 + 4, 3.6, 5.6)                 # Enter (twee rijen hoog)
+    return out
+
 lap = []
-if A.layer in LAPTOP:
-    bw, bd, sw_, sh_ = LAPTOP[A.layer]
+if A.layer.rstrip("n") in LAPTOP:
+    bw, bd, sw_, sh_ = LAPTOP[A.layer.rstrip("n")]
     t = 0.016
     y0, y1 = LY - bd / 2, LY + bd / 2
     lap.append(box("lap_base", -bw / 2, bw / 2, y0, y1, DZ, DZ + t, M_SPACE, bevel=0.004, segs=3))
-    lap.append(box("lap_keys", -bw / 2 + 0.02, bw / 2 - 0.02, y1 - bd * 0.55, y1 - 0.015, DZ + t - 0.001, DZ + t + 0.0005, M_KEYS))
+    lap += keyboard(bw, bd, y1, DZ + t, A.layer.endswith("n"))
     lap.append(box("lap_pad", -bw * 0.18, bw * 0.18, y0 + 0.015, y0 + bd * 0.38, DZ + t - 0.0005, DZ + t + 0.0004, M_PAD, bevel=0.003))
     lid_h = sh_ + 0.03
     lid = [box("lap_lid", -bw / 2, bw / 2, 0, 0.006, 0.004, 0.004 + lid_h, M_SPACE, bevel=0.003, segs=3),
