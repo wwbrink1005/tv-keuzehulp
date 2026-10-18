@@ -27,7 +27,10 @@ export const SOORT_LABEL = {
 
 // Icecat heeft geen betrouwbaar "navulbare inkttank"-veld; EcoTank, Smart Tank,
 // MegaTank en SuperTank zijn productlijnnamen van Epson, HP, Canon en Brother.
-const INKTTANK_PATRONEN = [/ecotank/i, /smart tank/i, /megatank/i, /supertank/i];
+// Niet elke winkel noemt de lijnnaam, dus ook de modelreeksen: Epson ET-xxxx,
+// Canon PIXMA G-xxxx (MegaTank) en Brother DCP-T/MFC-T (InkBenefit).
+const INKTTANK_PATRONEN = [/ecotank/i, /smart tank/i, /megatank/i, /supertank/i, /inkbenefit/i,
+  /\bET-\d{4}/i, /\bpixma g\d{3,4}/i, /\b(dcp|mfc)-t\d{3}/i];
 
 export function isInktTankSysteem(naam) {
   return INKTTANK_PATRONEN.some(re => re.test(String(naam ?? "")));

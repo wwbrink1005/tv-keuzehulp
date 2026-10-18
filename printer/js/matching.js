@@ -54,9 +54,9 @@ export const heeftGroteLade = p => (Number.isFinite(p.invoercapaciteit) ? p.invo
 
 // Wensen eerst: een printer die een uitgesproken wens niet heeft (kleur,
 // scannen, een extra) zakt altijd onder de printers die hem wel hebben, wat de
-// voorkeur voor een soort printer ook zegt (die scheelt hooguit zo'n 60
-// punten). Bij een onbekend kenmerk kost het minder: onbekend is geen nee.
-const WENS = 100, WENS_ONBEKEND = 50;
+// voorkeur voor een soort printer ook zegt (die scheelt samen met de
+// gebruikspunten hooguit zo'n 110 punten). Bij een onbekend kenmerk kost het minder: onbekend is geen nee.
+const WENS = 150, WENS_ONBEKEND = 50;
 function wensStraf(heeft, nee, onbekend) {
   if (heeft === true) return 0;
   return heeft === false ? nee : onbekend;
@@ -88,6 +88,12 @@ function straffen(p, a) {
   if (a.gebruik === "kantoor") {
     if (p.duplexAuto === false) s += 10;
     if (Number.isFinite(snelheid) && snelheid < 15) s += 6;
+    // Gemaakt voor werk? Maximaal aantal pagina's per maand volgens de fabrikant:
+    // thuisprinters 1.000 tot 3.000, kantoorprinters 15.000 en meer.
+    const max = p.maxPaginasPerMaand;
+    if (Number.isFinite(max)) s += max < 3000 ? 10 : max < 10000 ? 4 : 0;
+    else if (Number.isFinite(p.paginasPerMaand) && p.paginasPerMaand < 500) s += 8;
+    else s += 5;   // onbekend: geen bewijs dat hij voor werk gemaakt is
   }
   if (a.gebruik === "thuis" && bedrijf) s += 4;
 
@@ -110,7 +116,10 @@ function bonussen(p, a) {
     if (p.fotoprinter) b += 15;
     if (p.zonderWitranden === "Ja") b += 3;
   }
-  if (a.gebruik === "kantoor" && /bedrijf|werkgroep/i.test(p.marktPositionering ?? "")) b += 2;
+  if (a.gebruik === "kantoor") {
+    if (/bedrijf|werkgroep/i.test(p.marktPositionering ?? "")) b += 2;
+    if (p.maxPaginasPerMaand >= 15000) b += 4;
+  }
   return b;
 }
 

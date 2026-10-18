@@ -36,7 +36,7 @@ schermtype bij de tv.
 | Soort | Herkend aan | Voor de koper |
 |---|---|---|
 | Inkjet met cartridges | inkjet, geen tanknaam | Goedkoop in aanschaf, duur per pagina, inkt droogt in |
-| Inkttankprinter | EcoTank, Smart Tank, MegaTank, SuperTank in de naam | Duurder in aanschaf, heel goedkoop per pagina |
+| Inkttankprinter | EcoTank, Smart Tank, MegaTank, SuperTank, InkBenefit, of modelreeks Epson ET-, Canon PIXMA G, Brother DCP-T/MFC-T | Duurder in aanschaf, heel goedkoop per pagina |
 | Laserprinter zwart-wit | laser of LED, geen kleur | Goedkoop per pagina, droogt niet in, alleen zwart-wit |
 | Laserprinter kleur | laser of LED, met kleur | Snel en voordelig, vooral voor kantoor |
 
@@ -47,6 +47,9 @@ Verder herkennen we:
   ENVY 6120e). Die werken alleen met een HP-account, internet en originele HP-cartridges.
   Dat staat eerlijk op de kaart; we sluiten ze niet uit.
 - **Compact:** maximaal 41 × 37 × 23 cm (b × d × h), ongeveer het kleinste kwart.
+- **Snelheid:** bij inkjets alleen de ISO-snelheid. De "standaard"-snelheid in Icecat is bij
+  inkjets vaak de conceptstand (Epson WorkForce WF-2950: 33 tegenover 10 volgens ISO). Bij
+  lasers kloppen beide.
 
 *Code: `printer/js/data.js` en `printer/js/utils.js` (normalizeProducts).*
 
@@ -112,7 +115,7 @@ soort"; een printer van een andere soort verliest **3 punten per punt achterstan
 
 ### Stap B: wensen eerst
 
-Een wens die de printer niet heeft kost **100 punten**, een onbekend kenmerk **50**. Zo komt een
+Een wens die de printer niet heeft kost **150 punten**, een onbekend kenmerk **50**. Zo komt een
 printer zonder die wens altijd onder de printers die hem wel hebben, wat de soort ook zegt.
 
 | Wens | Telt als niet vervuld |
@@ -136,6 +139,10 @@ printer zonder die wens altijd onder de printers die hem wel hebben, wat de soor
 | Regelmatig printen: langzamer dan 10 pagina's per minuut | −4 |
 | Kantoor: geen automatisch dubbelzijdig | −10 |
 | Kantoor: langzamer dan 15 pagina's per minuut | −6 |
+| Kantoor: gemaakt voor minder dan 3.000 pagina's per maand (thuisprinter) | −10 |
+| Kantoor: 3.000 tot 10.000 pagina's per maand | −4 |
+| Kantoor: geen gegevens over het aantal pagina's per maand | −5 |
+| Kantoor: gemaakt voor 15.000 of meer pagina's per maand | +4 |
 | Kantoor: printer voor bedrijven | +2 |
 | Thuis: zware printer voor bedrijven | −4 |
 | Sublimatie/ZINK (alleen kleine fotootjes), niet bij foto's | −40 |

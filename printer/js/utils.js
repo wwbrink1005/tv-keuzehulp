@@ -109,7 +109,12 @@ export function normalizeProducts(rawProducts) {
       invoercapaciteit: product.invoercapaciteit ?? null,
       paginasPerMaand:  aanbevolenMax(product.gebruikAanbevolen),
       maxPaginasPerMaand: product.gebruikMaxPaginas ?? null,
-      snelheid:         product.printsnelheidZwart ?? product.printsnelheidIso ?? null,
+      // Bij inkjets is de "standaard"-snelheid van Icecat vaak de conceptstand
+      // (Epson WorkForce: 33 tegenover 10 volgens ISO); alleen de ISO-snelheid
+      // is vergelijkbaar. Bij lasers kloppen beide.
+      snelheid:         /laser|led/i.test(tech)
+        ? product.printsnelheidZwart ?? product.printsnelheidIso ?? null
+        : product.printsnelheidIso ?? null,
       zonderWitranden:  product.zonderWitranden ?? "Nee",
       ethernet:         product.ethernet ?? "Nee",
       mobielPrinten:    product.mobielPrinten ?? "",
