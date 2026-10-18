@@ -36,7 +36,7 @@
 .lscreen .view { position: absolute; inset: 0; opacity: 0; transition: opacity .45s ease; }
 .lscreen .view.is-on { opacity: 1; }
 .lscreen .fill { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-/* bureaublad: abstracte golven in de huiskleuren, klok en een taakbalk met app-iconen */
+/* bureaublad: abstracte golven in de huiskleuren en een klok */
 .lscreen .wall { position: absolute; inset: 0; }
 .lscreen .wall svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .lscreen .clock { position: absolute; left: 26px; top: 22px; color: #fff; font-size: 46px; font-weight: 300; letter-spacing: -.02em; line-height: 1; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
@@ -48,6 +48,41 @@
 .lscreen .dock .a3 { background: linear-gradient(135deg, #ffcf6b, #f08a24); }
 .lscreen .dock .a4 { background: linear-gradient(135deg, #6ee7a8, #1f9d61); }
 .lscreen .dock .a5 { background: linear-gradient(135deg, #e0a3ff, #7b3fd1); }
+/* vraag 3: het bureaublad zoals het er per systeem ongeveer uitziet (generiek, zonder logo's).
+   data-os op .wall: leeg = neutraal (klok + dock), windows, mac of chromebook. */
+.lscreen .wall .os { display: none; }
+.lscreen .wall[data-os="windows"] .os-win, .lscreen .wall[data-os="mac"] .os-mac, .lscreen .wall[data-os="chromebook"] .os-cb { display: block; }
+.lscreen .wall:not([data-os="mac"]) .dock,
+.lscreen .wall[data-os="windows"] .clock, .lscreen .wall[data-os="mac"] .clock, .lscreen .wall[data-os="chromebook"] .clock { display: none; }
+.lscreen .wall[data-os="mac"] .dock { bottom: 8px; }
+/* Windows: taakbalk over de volle breedte, iconen in het midden, startknop met vier vakjes */
+.lscreen .taskbar { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; background: rgba(32,32,38,.82); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.lscreen .taskbar i { width: 20px; height: 20px; border-radius: 5px; }
+.lscreen .taskbar .start { background: none; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 1px; }
+.lscreen .taskbar .start b { background: #5ab0ff; border-radius: 1px; }
+.lscreen .taskbar .tray { position: absolute; right: 12px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; color: #fff; font-size: 10px; line-height: 1.25; }
+.lscreen .dicons { position: absolute; left: 14px; top: 14px; display: flex; flex-direction: column; gap: 14px; }
+.lscreen .dicons i { width: 26px; height: 26px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+/* Mac: menubalk bovenin, dock zweeft onderaan */
+.lscreen .menubar { position: absolute; left: 0; right: 0; top: 0; height: 22px; background: rgba(255,255,255,.32); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 14px; padding: 0 12px; color: #1d1d1f; font-size: 11px; }
+.lscreen .menubar .dot { width: 11px; height: 11px; border-radius: 50%; background: #1d1d1f; }
+.lscreen .menubar b { font-weight: 700; }
+.lscreen .menubar .rt { margin-left: auto; }
+/* Chromebook: browservenster en een plank met ronde app-iconen */
+.lscreen .cwin { position: absolute; left: 40px; right: 40px; top: 22px; bottom: 54px; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 28px rgba(0,0,0,.3); }
+.lscreen .cwin .tabs { height: 26px; background: #dfe3eb; display: flex; align-items: flex-end; padding: 0 10px; gap: 4px; }
+.lscreen .cwin .tabs span { width: 92px; height: 20px; border-radius: 7px 7px 0 0; background: #c9cfdb; }
+.lscreen .cwin .tabs span:first-child { background: #fff; }
+.lscreen .cwin .omni { margin: 6px 10px; height: 22px; border-radius: 11px; background: #eef1f6; font-size: 11px; color: #5f6368; display: flex; align-items: center; padding: 0 12px; }
+.lscreen .cwin .apps { display: flex; justify-content: center; gap: 22px; padding: 26px 0 0; }
+.lscreen .cwin .apps i { width: 34px; height: 34px; border-radius: 50%; opacity: .9; }
+.lscreen .shelf { position: absolute; left: 0; right: 0; bottom: 0; height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.lscreen .shelf i { width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+.lscreen .shelf .launch { position: absolute; left: 12px; width: 18px; height: 18px; background: none; box-shadow: inset 0 0 0 2px #fff; }
+.lscreen .shelf .status { position: absolute; right: 12px; padding: 4px 10px; border-radius: 12px; background: rgba(32,33,36,.6); color: #fff; font-size: 11px; }
+.lscreen .a1 { background: linear-gradient(135deg, #5ab0ff, #0954a3); } .lscreen .a2 { background: linear-gradient(135deg, #ffffff, #d9dde3); }
+.lscreen .a3 { background: linear-gradient(135deg, #ffcf6b, #f08a24); } .lscreen .a4 { background: linear-gradient(135deg, #6ee7a8, #1f9d61); }
+.lscreen .a5 { background: linear-gradient(135deg, #e0a3ff, #7b3fd1); }
 .lscreen .win { position: absolute; inset: 0; background: #fff; }
 .lscreen .bar { height: 44px; background: #ececef; display: flex; align-items: center; gap: 8px; padding: 0 16px; }
 .lscreen .bar b { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; } .lscreen .bar b:nth-child(2) { background: #febc2e; } .lscreen .bar b:nth-child(3) { background: #28c840; }

@@ -128,6 +128,38 @@ function budgetCaption(st) {
   if (!info.n) return [`Tot ${euro(cap)}`, "Binnen dit bedrag vonden we geen laptop van dit formaat. We tonen dan de laptops die het best bij je passen, net erboven."];
   return [`Tot ${euro(cap)}`, `${info.n} van de ${info.totaal} laptops van dit formaat kosten ${euro(cap)} of minder, vanaf ${euro(info.vanaf)}. We zoeken de beste die bij je wensen past.`];
 }
+// Wat een systeem kost in het gekozen formaat (en binnen het budget), uit de live catalogus
+const OS_NAAM = { windows: "Windows", mac: "macOS", chromebook: "Chrome OS" };
+const OS_TEKST = {
+  windows: ["Windows", "Draait de meeste programma's en games."],
+  mac: ["Mac", "Werkt fijn samen met je iPhone en gaat lang mee op een acculading."],
+  chromebook: ["Chromebook", "Eenvoudig en voordelig; je werkt vooral met apps en in de browser."],
+};
+function osInfo(g, os) {
+  if (!catalogus) return null;
+  const maten = sizeGroupToAllowedSizes[g || "middenweg"] ?? [];
+  const lijst = catalogus.filter(l => maten.includes(l.schermdiagonaal) && (l.aanbieders ?? []).length >= 2 && l.os === OS_NAAM[os]);
+  const prijzen = lijst.map(l => parsePrice(l.prijs)).filter(Number.isFinite);
+  return { lijst, vanaf: prijzen.length ? Math.min(...prijzen) : null };
+}
+function osCaption(st) {
+  const cap = capVan(st.budget), maat = `van ${lap(st).inch} inch`;
+  const vanaf = os => { const i = osInfo(st.formaat, os); return i?.vanaf ? `${OS_TEKST[os][0]} vanaf ${euro(i.vanaf)}` : null; };
+  if (!st.os || st.os === "egal") {
+    const alle = ["windows", "mac", "chromebook"], v = alle.map(vanaf);
+    const mist = alle.filter((_, i) => !v[i]).map(os => OS_TEKST[os][0]);
+    let regel = v.some(Boolean) ? ` Laptops ${maat}: ${v.filter(Boolean).join(", ")}.` : "";
+    if (regel && mist.length) regel += ` ${mist.join(" en ")} ${mist.length > 1 ? "zijn" : "is"} er in dit formaat niet.`;
+    return st.os ? ["Maakt niet uit", `We kijken naar alle laptops.${regel}`]
+                 : ["Besturingssysteem", `Kies Windows, Mac of Chromebook.${regel}`];
+  }
+  const [titel, tekst] = OS_TEKST[st.os], info = osInfo(st.formaat, st.os);
+  if (!info) return [titel, tekst];
+  if (!info.lijst.length) return [titel, `${tekst} ${titel}-laptops ${maat} vonden we niet; we tonen dan wat het best bij je wensen past.`];
+  const binnen = cap ? info.lijst.filter(l => parsePrice(l.prijs) <= cap).length : null;
+  const budget = cap == null ? "" : binnen ? ` ${binnen} daarvan binnen ${euro(cap)}.` : ` Geen daarvan binnen ${euro(cap)}; we tonen dan de beste net erboven.`;
+  return [titel, `${tekst} ${info.lijst.length} laptops ${maat}, vanaf ${euro(info.vanaf)}.${budget}`];
+}
 const usages = st => (st.gebruik.includes("allround") || !st.gebruik.length ? ["dagelijks", "werk", "creatief", "gaming"] : st.gebruik);
 let cycle = 0, cycleTimer = null;
 
@@ -153,6 +185,12 @@ function setup(scene) {
       </svg>
       <div class="clock">09:41<small>dinsdag 29 september</small></div>
       <div class="dock"><i class="a1"></i><i class="a2"></i><i class="a3"></i><i class="a4"></i><i class="a5"></i></div>
+      <div class="os os-win"><div class="dicons"><i class="a2"></i><i class="a3"></i><i class="a4"></i></div>
+        <div class="taskbar"><i class="start"><b></b><b></b><b></b><b></b></i><i class="a1"></i><i class="a3"></i><i class="a4"></i><i class="a5"></i><span class="tray">09:41<small>29-9-2026</small></span></div></div>
+      <div class="os os-mac"><div class="menubar"><i class="dot"></i><b>Finder</b><span>Archief</span><span>Wijzig</span><span>Weergave</span><span class="rt">di 29 sep 09:41</span></div></div>
+      <div class="os os-cb"><div class="cwin"><div class="tabs"><span></span><span></span></div><div class="omni">Zoeken of adres typen</div>
+          <div class="apps"><i class="a1"></i><i class="a3"></i><i class="a4"></i><i class="a5"></i></div></div>
+        <div class="shelf"><i class="launch"></i><i class="a1"></i><i class="a3"></i><i class="a4"></i><i class="a5"></i><span class="status">09:41 · 87%</span></div></div>
     </div></div>
     <div class="view" data-v="dagelijks"><div class="win"><div class="bar"><b></b><b></b><b></b><span class="url">nieuws.nl</span></div><div class="hero"><img class="fill" src="shared/img/scherm/scherm-normaal.webp" alt=""></div><div class="lines"><i></i><i></i><i></i><i></i></div></div></div>
     <div class="view" data-v="werk"><div class="win" style="background:#e9e9ee"><div class="bar"><b></b><b></b><b></b><span class="url">Scriptie hoofdstuk 3.docx</span></div><div class="doc"><h4>3. Resultaten</h4>${"<i></i>".repeat(14)}</div></div></div>
@@ -173,6 +211,8 @@ function afterRender(ctx) {
   placeQuad(scr, SW, Math.round(SW * l.sh / l.sw), pts);
   clearInterval(cycleTimer);
   const id = QID(st);
+  // bij vraag 3 toont het bureaublad het gekozen systeem
+  scr.querySelector(".wall").dataset.os = id === "os" && st.os !== "egal" ? st.os ?? "" : "";
   if (id === "formaat" || id === "budget" || id === "os") showView("bureaublad");
   else if (id === "gebruik") {
     const u = usages(st);
@@ -230,12 +270,7 @@ const quiz = createQuiz3D({
     switch (QID(st)) {
       case "formaat": return st.formaat ? [`${l.inch} inch`, `Ongeveer ${Math.round(l.bw * 100)} cm breed en ${l.kg}. ${st.formaat === "licht-compact" ? "Makkelijk mee te nemen." : st.formaat === "middenweg" ? "Een goede balans tussen scherm en gewicht." : "Het meeste scherm, vooral voor thuis."}`] : ["Jouw werkplek", "Kies het formaat; de laptop op het bureau wisselt mee."];
       case "budget": return budgetCaption(st);
-      case "os": return {
-        windows: ["Windows", "Draait de meeste programma's en games."],
-        mac: ["Mac", "Werkt fijn samen met je iPhone en gaat lang mee op een acculading."],
-        chromebook: ["Chromebook", "Eenvoudig en voordelig; je werkt vooral met apps en in de browser."],
-        egal: ["Maakt niet uit", "We kijken naar alle laptops."],
-      }[st.os] ?? ["Besturingssysteem", "Kies Windows, Mac of Chromebook."];
+      case "os": return osCaption(st);
       case "gebruik": return st.gebruik.length ? ["Jouw gebruik", "Het scherm wisselt tussen wat je gekozen hebt. Zwaarder gebruik vraagt om meer rekenkracht."] : ["Gebruik", "Kies waar je de laptop voor gebruikt; het scherm laat het zien."];
       case "intensiteit": return {
         licht: ["Licht gebruik", "Surfen en mailen: een zuinige processor en 8 GB werkgeheugen zijn genoeg."],
@@ -293,5 +328,5 @@ function meetStap(st, id) {
 productsPromise.then(raw => {
   if (!raw?.length) return;
   catalogus = normalizeProducts(raw);
-  if (QID(quiz.st) === "budget") quiz.render();
+  if (QID(quiz.st) === "budget" || QID(quiz.st) === "os") quiz.render();
 });
