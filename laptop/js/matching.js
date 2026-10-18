@@ -208,7 +208,13 @@ export function matchLaptops(laptops, sizeGroup, budget, answers) {
 
   const maten = sizeGroupToAllowedSizes[sizeGroup] || [];
   const cap = Number(budget) || null;
-  const pool = laptops.filter(l => maten.includes(l.schermdiagonaal) && (!cap || parsePrice(l.prijs) <= cap));
+  let pool = laptops.filter(l => maten.includes(l.schermdiagonaal) && (!cap || parsePrice(l.prijs) <= cap));
+  // Het gekozen besturingssysteem is een harde grens zodra het er is: anders
+  // vulde de lijst (minstens 5) bij "Mac tot €800" aan met een Windows-laptop,
+  // omdat er maar 4 Macs zijn. Liever 4 Macs dan een Acer ertussen. De quiz
+  // maakt een systeem dat er niet is grijs; dit vangt de rest op.
+  const os = OS_WENS[answers?.os];
+  if (os && pool.some(l => l.os === os)) pool = pool.filter(l => l.os === os);
   if (pool.length === 0) return leeg;
 
   const gescoord = scoreLaptops(pool, answers ?? {}).sort((x, y) => y.fit - x.fit);

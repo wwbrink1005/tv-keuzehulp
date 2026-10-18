@@ -47,7 +47,7 @@ de laptop die het best past, en als meerdere ongeveer even goed passen de goedko
 |---|---|---|---|
 | 1 | Hoe gebruik je je laptop het liefst? | 13–14 / 15–16 / 17–18 inch | **Harde grens** |
 | 2 | Wat wil je maximaal uitgeven? | Tot €X / Tot €Y / Geen voorkeur | **Harde grens** |
-| 3 | Windows, Mac of Chromebook? | Windows / Mac / Chromebook / Maakt niet uit | **Wens** (de zwaarste) |
+| 3 | Windows, Mac of Chromebook? | Windows / Mac / Chromebook / Maakt niet uit | **Harde grens** zodra dat systeem er is; bestaat het niet in formaat en budget, dan is de optie grijs met de reden |
 | 4 | Waar ga je je laptop voor gebruiken? (max 2) | Dagelijks / Studie of werk / Creatief / Gamen / Een beetje van alles | Punten per klasse; gamen en creatief: videokaart is een **wens** |
 | 5 | Hoe zwaar ga je de laptop gebruiken? | Licht / Normaal / Zwaar / Zeer zwaar | Punten per klasse, werkgeheugen, prijs |
 | 6 | Hoeveel opslagruimte heb je nodig? | 256 GB / 512 GB / 1 TB of meer | **Wens** |
@@ -159,7 +159,9 @@ Onder €1.300 zijn gaminglaptops bijna altijd maar bij één winkel te koop; di
 Simulatie van **76.032 antwoordcombinaties** (formaat × budget × besturingssysteem × gebruik ×
 zwaarte × opslag × extra's tot 2) tegen de live catalogus. Uitkomst 19-10-2026:
 
-- 0 keer een lege lijst, altijd minstens 5 laptops bij 2+ winkels
+- 0 keer een lege lijst, altijd minstens 5 laptops bij 2+ winkels, behalve als er van het
+  gekozen systeem minder zijn (bv. 4 Macs tot €800): dan alleen die, nooit aangevuld met een
+  ander systeem
 - 0 keer een laptop boven het budget
 - 0 keer een ander besturingssysteem terwijl het gevraagde er wel was
 - In 12.012 van de 12.016 combinaties waarin een laptop aan álle wensen voldeed, was de Beste
