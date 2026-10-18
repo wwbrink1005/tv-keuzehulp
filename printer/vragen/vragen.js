@@ -5,7 +5,7 @@
 // de uitvoerlade, zodat inhoud en aantal kunnen wisselen.
 // Motor: shared/quiz3d.js. Uitleg van de matching: docs/printer-keuzehulp-werking.md.
 import { createQuiz3D, makeCamera, spotColumn, placeQuad } from "../../shared/quiz3d.js";
-import { matchPrinters } from "../js/matching.js";
+import { matchPrinters, heeftGroteLade } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { budgetCapsByGebruik } from "../js/data.js";
@@ -207,7 +207,8 @@ const quiz = createQuiz3D({
   steps: Q.length,
   state: { gebruik: null, budget: null, volume: null, kleur: null, scan: null, kosten: null, extra: [] },
   imgPath: n => `printer/vragen/img/${n}.webp`,
-  question: st => (QID(st) === "budget" ? { ...Q[st.q], options: budgetOpties(st.gebruik) } : Q[st.q]),
+  question: st => (QID(st) === "budget" ? { ...Q[st.q], options: budgetOpties(st.gebruik) }
+    : { ...Q[st.q], options: metBeschikbaarheid(st, QID(st), Q[st.q].options) }),
   setup, afterRender,
 
   images(st) {
@@ -311,9 +312,47 @@ function meetStap(st, id) {
   });
 }
 
+// ───────── opties grijs als geen printer ze waar kan maken ─────────
+// Een wens (kleur, scannen, een extra) is grijs als er binnen je budget geen
+// printer bij 2+ winkels is die eraan voldoet samen met je eerdere wensen en,
+// bij de extra's, met wat je al hebt aangevinkt (bv. "Compact" na "A3").
+const EIS = {
+  kleur: { soms: p => p.kanKleurenPrinten === "Ja", vaak: p => p.kanKleurenPrinten === "Ja" },
+  scan: { los: p => p.aio, stapel: p => p.aio && p.adf === "Ja" },
+  extra: { duplex: p => p.duplexAuto === true, compact: p => p.compact === true, lade: p => heeftGroteLade(p) === true, a3: p => p.a3 === true },
+};
+function eisenVoor(st, id, behalve) {
+  const tot = Q.findIndex(q => q.id === id);
+  const eisen = [];
+  Q.slice(0, tot).forEach(q => { const f = EIS[q.id]?.[st[q.id]]; if (f) eisen.push(f); });
+  if (id === "extra") (st.extra ?? []).filter(v => v !== behalve).forEach(v => { if (EIS.extra[v]) eisen.push(EIS.extra[v]); });
+  return eisen;
+}
+function metBeschikbaarheid(st, id, opties) {
+  if (!catalogus || !EIS[id]) return opties;
+  const cap = capVan(st.budget);
+  const vergelijkbaar = catalogus.filter(p => (p.aanbieders ?? []).length >= 2 && !(p.alleenFoto && st.gebruik !== "foto"));
+  const binnen = cap ? vergelijkbaar.filter(p => parsePrice(p.prijs) <= cap) : vergelijkbaar;
+  return opties.map(o => {
+    const eis = EIS[id][o.v];
+    if (!eis) return o;
+    let andere = eisenVoor(st, id, o.v);
+    // Eerdere wensen die samen al onmogelijk zijn, laat de matching toch vallen:
+    // dan tellen ze hier ook niet mee (anders werd alles grijs).
+    if (!binnen.some(p => andere.every(f => f(p)))) andere = [];
+    if (binnen.some(p => eis(p) && andere.every(f => f(p)))) return o;
+    const erboven = vergelijkbaar.filter(p => eis(p) && andere.every(f => f(p))).map(p => parsePrice(p.prijs));
+    const note = cap && erboven.length ? `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`
+      : andere.length ? "Niet in combinatie met je andere keuzes."
+      : "Niet in ons aanbod.";
+    return { ...o, disabled: true, note };
+  });
+}
+
 // Live telling bij de budgetvraag zodra de catalogus binnen is
 productsPromise.then(raw => {
   if (!raw?.length) return;
   catalogus = normalizeProducts(raw);
+  if (EIS[QID(quiz.st)]) quiz.renderQuestion();   // grijze opties pas nu bekend
   if (QID(quiz.st) === "budget") quiz.render();
 });

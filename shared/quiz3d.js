@@ -242,9 +242,10 @@ export function createQuiz3D(cfg) {
     body.classList.add("is-out");
     setTimeout(() => {
       $("#step").textContent = `Vraag ${st.q + 1} van ${steps()}`;
+      const opts = Q.options.filter(o => !o.when || o.when(st));
+      wisOnmogelijk(Q, opts);
       const sel = st[Q.id];
       const checked = v => Array.isArray(sel) ? sel.includes(v) : sel === v;
-      const opts = Q.options.filter(o => !o.when || o.when(st));
       body.innerHTML = `
         <h2 class="q-title">${Q.title}</h2>
         ${Q.sub ? `<p class="q-sub">${typeof Q.sub === "function" ? Q.sub(st) : Q.sub}</p>` : ""}
@@ -291,7 +292,40 @@ export function createQuiz3D(cfg) {
       st[Q.id] = arr;
     }
     cfg.onAnswer?.(st, Q.id, inp.value);
+    werkOptiesBij();
     render();
+  }
+
+  // Een optie die niet (meer) kan (o.disabled, bv. geen product dat eraan
+  // voldoet), mag niet gekozen blijven.
+  function wisOnmogelijk(Q, opts) {
+    const uit = new Set(opts.filter(o => o.disabled).map(o => o.v));
+    if (!uit.size) return;
+    if (Array.isArray(st[Q.id])) st[Q.id] = st[Q.id].filter(v => !uit.has(v));
+    else if (uit.has(st[Q.id])) st[Q.id] = null;
+  }
+
+  // Na elke keuze: grijs/uitleg van de opties bijwerken zonder de vraag opnieuw
+  // te laten invliegen (bv. "Compact" wordt grijs zodra je "A3" aanvinkt en die
+  // combinatie niet bestaat). Doet niets bij opties zonder disabled/note.
+  function werkOptiesBij() {
+    const Q = cfg.question(st);
+    const opts = Q.options.filter(o => !o.when || o.when(st));
+    wisOnmogelijk(Q, opts);
+    opts.forEach(o => {
+      const inp = $(`#qBody input[value="${o.v}"]`);
+      const label = inp?.closest(".opt");
+      if (!label) return;
+      label.classList.toggle("is-disabled", !!o.disabled);
+      inp.disabled = !!o.disabled;
+      if (o.disabled) inp.checked = false;
+      const tekst = label.querySelector(".dot + span");
+      let note = tekst?.querySelector(".opt-note");
+      if (o.note && tekst) {
+        if (!note) { note = document.createElement("small"); note.className = "opt-note"; tekst.appendChild(note); }
+        note.innerHTML = o.note;
+      } else note?.remove();
+    });
   }
 
   function next() {
