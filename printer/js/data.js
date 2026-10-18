@@ -115,7 +115,10 @@ export const soortPunten = {
 // de feed, maar zijn geen printer voor thuis of op kantoor.
 // "Thermische inkjet" is gewone inkjet (HP) en blijft dus.
 const GEEN_KANTOORPRINTER_TECH = /^(direct )?thermisch$|thermo transfer|thermische (overdracht|overzetting)|stippen|matrix/i;
-const GEEN_KANTOORPRINTER_NAAM = /\bPOS\b|bonprinter|kassaprinter|labelprinter|etiketten|label printer|receipt|kaart ?printer|designjet|plotter/i;
+// Ook losse onderdelen en verbruiksartikelen (drum, fuser, invoerrol, cartridge;
+// gevonden 18-10-2026, een invoerrol van €19 kon Beste match worden) en Epsons
+// grootformaatprinters (SureColor SC-T, net als DesignJet een plotter).
+const GEEN_KANTOORPRINTER_NAAM = /\bPOS\b|bonprinter|kassaprinter|labelprinter|etiketten|label printer|receipt|kaart ?printer|designjet|plotter|surecolor sc-t|\bdrum\b|\bfuser\b|invoerrol|pickup roller|afdrukmodule|scannerkit|onderhoudskit|maintenance kit|inktcartridge|tonercartridge/i;
 
 export function isKantoorprinter(printtechnologie, naam) {
   return !GEEN_KANTOORPRINTER_TECH.test(String(printtechnologie ?? "")) &&

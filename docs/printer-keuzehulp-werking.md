@@ -24,7 +24,10 @@ en als meerdere printers ongeveer even goed passen de goedkoopste daarvan.
   dubbelzijdig, grootste papierformaat (A3), afmetingen, papierlade, printen zonder
   witranden, aanbevolen pagina's per maand, printen vanaf de telefoon, netwerkkabel.
 - **Geen kantoorprinters en dus weggelaten:** kassa-, label-, matrix- en pasjesprinters en
-  grote plotters (HP Designjet). Dat waren er zo'n 60.
+  grote plotters (HP Designjet, Epson SureColor SC-T). Dat waren er zo'n 60.
+- **Ook weggelaten: losse onderdelen en verbruiksartikelen** die in de feed staan, zoals een
+  drum, fuser, invoerrol of losse cartridge (sinds 18-10-2026; een invoerrol van €19 kon
+  anders Beste match worden).
 - Ongeveer 460 printers doen mee; zo'n 126 daarvan zijn bij 2 of meer winkels te koop. Alleen
   die tonen we standaard (filter "2+ winkels").
 
