@@ -618,6 +618,10 @@ def laser(aio_):
 
 if kind in ("thuis", "foto"):
     part = "tank" if lay.startswith("tank-") else "adf" if lay.startswith("adf-") else "body"
+    if part != "body":
+        # de printer zelf als ondergrond (schaduwvanger): anders zweeft de documentinvoer en
+        # valt zijn schaduw op het bureau, en die ligt op de pagina als waas over de printer
+        inkjet(kind, part == "adf", "body")
     prn = inkjet(kind, aio or part == "adf", part)
 elif kind == "zakelijk":
     prn = laser(aio)
