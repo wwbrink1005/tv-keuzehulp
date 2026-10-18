@@ -120,6 +120,40 @@ function budgetInfo(g, cap) {
   const alle = inMaat.map(l => parsePrice(l.prijs)).filter(Number.isFinite);
   return { n: binnen.length, totaal: inMaat.length, vanaf: prijzen.length ? Math.min(...prijzen) : null, tot: alle.length ? Math.max(...alle) : null };
 }
+// ───────── besturingssysteem: alleen kiesbaar als het er is ─────────
+// Bestaat er in het gekozen formaat en budget geen Mac (of Chromebook) bij 2+
+// winkels, dan kreeg wie "Mac" koos stil Windows-laptops. Nu is die optie grijs,
+// met de reden en wat je kunt doen ("Terug" naar formaat of budget).
+const OS_SYSTEEM = { windows: "Windows", mac: "macOS", chromebook: "Chrome OS" };
+const OS_LAPTOPNAAM = { windows: "Windows-laptop", mac: "Mac", chromebook: "Chromebook" };
+function osOpties(st) {
+  const basis = Q.find(q => q.id === "os").options;
+  if (!catalogus || !st.formaat) return basis;
+  const cap = capVan(st.budget);
+  const zichtbaar = catalogus.filter(l => (l.aanbieders ?? []).length >= 2);
+  return basis.map(o => {
+    const systeem = OS_SYSTEEM[o.v];
+    if (!systeem) return o;
+    const vanSysteem = zichtbaar.filter(l => l.os === systeem);
+    const inMaat = vanSysteem.filter(l => (sizeGroupToAllowedSizes[st.formaat] ?? []).includes(l.schermdiagonaal));
+    if (!inMaat.length) {
+      const welMaten = Object.keys(LAPTOP).filter(g => vanSysteem.some(l => (sizeGroupToAllowedSizes[g] ?? []).includes(l.schermdiagonaal)));
+      // "13 à 14" + "15 à 16" → "13 tot 16"
+      const bereik = welMaten.length > 1
+        ? `${LAPTOP[welMaten[0]].inch.split(" à ")[0]} tot ${LAPTOP[welMaten[welMaten.length - 1]].inch.split(" à ")[1]}`
+        : LAPTOP[welMaten[0]]?.inch;
+      const wel = welMaten.length ? ` Een ${OS_LAPTOPNAAM[o.v]} is er in ${bereik} inch.` : "";
+      return { ...o, disabled: true, note: `Niet in ${lap(st).inch} inch.${wel}` };
+    }
+    if (cap && !inMaat.some(l => parsePrice(l.prijs) <= cap)) {
+      const vanaf = Math.min(...inMaat.map(l => parsePrice(l.prijs)));
+      return { ...o, disabled: true, note: `In ${lap(st).inch} inch vanaf ${euro(vanaf)}. Kies een hoger budget of Geen voorkeur.` };
+    }
+    return o;
+  });
+}
+const osKiesbaar = (st, v) => !osOpties(st).find(o => o.v === v)?.disabled;
+
 function budgetCaption(st) {
   const cap = capVan(st.budget), info = budgetInfo(st.formaat, cap);
   if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste laptop binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
@@ -236,7 +270,9 @@ const quiz = createQuiz3D({
   steps: Q.length,
   state: { formaat: null, budget: null, os: null, gebruik: [], intensiteit: null, opslag: null, extra: [] },
   imgPath: n => `laptop/vragen/img/${n}.webp`,
-  question: st => (QID(st) === "budget" ? { ...Q[st.q], options: budgetOpties(st.formaat) } : Q[st.q]),
+  question: st => (QID(st) === "budget" ? { ...Q[st.q], options: budgetOpties(st.formaat) }
+    : QID(st) === "os" ? { ...Q[st.q], options: osOpties(st) }
+    : Q[st.q]),
   setup, afterRender,
   images: st => ["bureau", lap(st).key],
   focus: st => ({ x: 0, y: LY, z: 0.85, zoom: st.q === 0 ? 1.9 : 2.4 }),
@@ -287,6 +323,8 @@ const quiz = createQuiz3D({
     if (id === "gebruik") cycle = Math.max(0, st.gebruik.length - 1);
     // ander formaat: een eerder gekozen bedrag hoort misschien niet meer bij de opties
     if (id === "formaat" && !budgetOpties(st.formaat).some(o => o.v === st.budget)) st.budget = null;
+    // ander formaat of budget: een eerder gekozen systeem bestaat daar misschien niet
+    if ((id === "formaat" || id === "budget") && st.os && !osKiesbaar(st, st.os)) st.os = null;
   },
   onNext(st, id) { meetStap(st, id); },
 
@@ -328,5 +366,7 @@ function meetStap(st, id) {
 productsPromise.then(raw => {
   if (!raw?.length) return;
   catalogus = normalizeProducts(raw);
+  if (quiz.st.os && !osKiesbaar(quiz.st, quiz.st.os)) quiz.st.os = null;
+  if (QID(quiz.st) === "os") quiz.renderQuestion();   // grijze opties pas nu bekend
   if (QID(quiz.st) === "budget" || QID(quiz.st) === "os") quiz.render();
 });

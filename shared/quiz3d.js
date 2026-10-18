@@ -252,10 +252,10 @@ export function createQuiz3D(cfg) {
         <p class="why-text">${Q.why}</p>
         <div class="answers ${Q.two ? "two" : ""}">
           ${opts.map(o => `
-            <label class="opt ${Q.type === "check" ? "is-check" : ""}">
-              <input type="${Q.type === "check" ? "checkbox" : "radio"}" name="${Q.id}" value="${o.v}" ${checked(o.v) ? "checked" : ""}>
+            <label class="opt ${Q.type === "check" ? "is-check" : ""} ${o.disabled ? "is-disabled" : ""}">
+              <input type="${Q.type === "check" ? "checkbox" : "radio"}" name="${Q.id}" value="${o.v}" ${checked(o.v) && !o.disabled ? "checked" : ""} ${o.disabled ? "disabled" : ""}>
               <span class="dot" aria-hidden="true"></span>
-              <span>${o.label}</span>
+              <span>${o.label}${o.note ? `<small class="opt-note">${o.note}</small>` : ""}</span>
               ${o.badge ? `<span class="advised">${o.badge}</span>` : o.price ? `<span class="price">${o.price}</span>` : ""}
             </label>`).join("")}
         </div>
@@ -347,5 +347,7 @@ export function createQuiz3D(cfg) {
   let rt;
   window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 60); });
 
-  return { st, render };
+  // renderQuestion: om de opties opnieuw te tekenen als ze afhangen van gegevens
+  // die later binnenkomen (bv. welke antwoorden in de catalogus bestaan)
+  return { st, render, renderQuestion };
 }
