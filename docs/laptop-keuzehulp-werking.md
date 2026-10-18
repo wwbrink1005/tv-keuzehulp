@@ -59,12 +59,12 @@ USB-C is geen wens meer: 210 van de 212 laptops laden via USB-C.
 
 | Formaat | Opties |
 |---|---|
-| 13–14 inch | tot €1.000, tot €1.500, geen voorkeur |
-| 15–16 inch | tot €1.000, tot €1.500, geen voorkeur |
-| 17–18 inch | tot €1.000, tot €2.000, geen voorkeur |
+| 13–14 inch | tot €800, tot €1.300, geen voorkeur |
+| 15–16 inch | tot €800, tot €1.300, geen voorkeur |
+| 17–18 inch | tot €800, tot €1.300, geen voorkeur |
 
-Onder de vraag staat hoeveel laptops binnen het bedrag vallen ("60 van de 152 laptops van dit
-formaat kosten €1.500 of minder"). Past er **niets** binnen, dan tonen we de best passende
+Onder de vraag staat hoeveel laptops binnen het bedrag vallen ("26 van de 152 laptops van dit
+formaat kosten €800 of minder"). Past er **niets** binnen, dan tonen we de best passende
 laptops met een melding.
 
 *Bedragen staan in `laptop/js/data.js` (budgetCapsBySize).*
@@ -145,7 +145,7 @@ wat je binnen budget **ziet** (2+ winkels), dan staat direct na de eerste laptop
 Mist binnen budget de videokaart die gamen of creatief werk vraagt, dan zegt de kaart dat:
 
 > **Meer budget? Dan krijg je een laptop met een losse videokaart, die je nodig hebt om te gamen**
-> Binnen je budget is die er niet bij 2 of meer winkels. Vanaf €1.299, €299 boven je budget.
+> Binnen je budget is die er niet bij 2 of meer winkels. Vanaf €1.299, €499 boven je budget.
 
 Onder €1.300 zijn gaminglaptops bijna altijd maar bij één winkel te koop; die staan onder
 "Aantal winkels: Alle winkels".
@@ -162,8 +162,8 @@ zwaarte × opslag × extra's tot 2) tegen de live catalogus. Uitkomst 19-10-2026
 - 0 keer een lege lijst, altijd minstens 5 laptops bij 2+ winkels
 - 0 keer een laptop boven het budget
 - 0 keer een ander besturingssysteem terwijl het gevraagde er wel was
-- In 14.344 van de 14.352 combinaties waarin een laptop aan álle wensen voldeed, was de Beste
-  match zo'n laptop; de 8 andere gaan om een onbekend kenmerk (Icecat weet het niet)
+- In 12.012 van de 12.016 combinaties waarin een laptop aan álle wensen voldeed, was de Beste
+  match zo'n laptop; de 4 andere gaan om een onbekend kenmerk (Icecat weet het niet)
 
 Vraag Claude: "draai de simulatie van de laptop-matching opnieuw".
 

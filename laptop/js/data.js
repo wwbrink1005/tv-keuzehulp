@@ -9,14 +9,16 @@ export const sizeGroupToAllowedSizes = {
 };
 
 // ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
-// Twee maximumbedragen per formaat plus "Geen voorkeur". Uit de live catalogus
-// (okt. 2026, laptops bij 2+ winkels): de helft kost meer dan €1.700, rond een
-// derde zit onder €1.300 (17-18 inch: onder €900). Herzien als de prijzen
-// flink verschuiven.
+// Twee maximumbedragen plus "Geen voorkeur", voor elk formaat gelijk (wens
+// gebruiker: €1.000 als laagste was te veel geld). Uit de live catalogus (okt.
+// 2026, laptops bij 2+ winkels): tot €800 zijn er 16 / 26 / 8 (13-14 / 15-16 /
+// 17-18 inch); vanaf ongeveer €700 een degelijke Windows-laptop met 16 GB en
+// 512 GB, daaronder vooral Chromebooks en instapmodellen. Herzien als de
+// prijzen flink verschuiven.
 export const budgetCapsBySize = {
-  "licht-compact":  [1000, 1500],
-  "middenweg":      [1000, 1500],
-  "groot-krachtig": [1000, 2000],
+  "licht-compact":  [800, 1300],
+  "middenweg":      [800, 1300],
+  "groot-krachtig": [800, 1300],
 };
 
 // ─── Lange accuduur ─────────────────────────────────────────────────────────
