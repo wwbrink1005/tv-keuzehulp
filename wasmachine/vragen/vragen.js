@@ -150,6 +150,30 @@ const ICON = {
   klok: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>`,
   slot: `<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>`,
 };
+// uitleg in het bijschrift over de optie die je het laatst aanklikte (vraag 5 en 6)
+const UITLEG = {
+  programma: {
+    allergie: ["Allergie/hygiëne", "Wast op 60 graden of meer en spoelt extra, tegen huisstofmijt, pollen en bacteriën. Fijn bij allergie of astma."],
+    sport: ["Sport", "Haalt zweetgeur uit sportkleding op een lage temperatuur, zodat de rekbare stof niet beschadigt."],
+    outdoor: ["Outdoor/impregneren", "Wast regen- en skikleding voorzichtig, zodat het ademende en waterafstotende laagje blijft werken."],
+    dekbed: ["Dekbed/dons", "Wast een dekbed of donsjas met veel water en rustige bewegingen, zodat de vulling niet gaat klonteren."],
+    snel: ["Snelwas", "Frist een kleine, licht vuile lading op in 15 tot 30 minuten. Voor een volle trommel is het te kort."],
+  },
+  extra: {
+    dosering: ["Automatische dosering", "Je vult het wasmiddel één keer bij voor weken; de machine doseert zelf per wasbeurt. Zo gebruik je minder wasmiddel."],
+    stoom: ["Stoomfunctie", "Stoom haalt kreukels en geurtjes uit kleding die nog schoon is, en maakt strijken makkelijker."],
+    app: ["Bediening met een app", "Start en volg de wasmachine op je telefoon, en krijg een melding als de was klaar is."],
+    aquastop: ["AquaStop", "Een klep bij de kraan sluit het water af als de toevoerslang lekt. Zo voorkom je waterschade."],
+  },
+};
+let laatste = {};   // per vraag de optie die het laatst is aangeklikt
+// uitleg bij de laatst aangeklikte optie; is die weer uitgevinkt, dan bij de laatste die nog aanstaat
+function uitleg(st, id) {
+  const aan = (st[id] ?? []).filter(v => UITLEG[id][v]);
+  const v = aan.includes(laatste[id]) ? laatste[id] : aan.at(-1);
+  return v ? UITLEG[id][v] : null;
+}
+
 const PROG = { allergie: "Allergie 60°", sport: "Sport 40°", outdoor: "Outdoor 40°", dekbed: "Dekbed 40°", snel: "Snel 15'" };
 const progList = st => { const l = st.programma.filter(p => PROG[p]).map(p => PROG[p]); return l.length ? l : ["Katoen 40°", "Eco 40-60"]; };
 let progIdx = 0;
@@ -175,7 +199,8 @@ function spots(ctx, pts, edgeX) {
   const gap = ctx.mobile ? 26 : 34;
   const ys = placed.map(d => d.px.y);
   for (let i = 1; i < ys.length; i++) ys[i] = Math.max(ys[i], ys[i - 1] + gap);
-  const overflow = ys[ys.length - 1] - (ctx.height - 20);
+  // op desktop staat rechtsonder het bijschrift: labels blijven daarboven
+  const overflow = ys[ys.length - 1] - (ctx.height - (ctx.mobile ? 20 : 150));
   if (overflow > 0) for (let i = 0; i < ys.length; i++) ys[i] -= overflow;
   for (let i = ys.length - 2; i >= 0; i--) ys[i] = Math.min(ys[i], ys[i + 1] - gap);
   placed.forEach((d, i) => {
@@ -286,8 +311,10 @@ quiz = createQuiz3D({
     return list;
   },
 
-  onAnswer(st, id) {
-    if (id === "programma") progIdx = 0;
+  onAnswer(st, id, v) {
+    if (UITLEG[id]) laatste[id] = v;
+    // display springt naar het programma dat je net aanvinkte
+    if (id === "programma") progIdx = Math.max(0, progList(st).indexOf(PROG[v]));
     // ander huishouden: een eerder gekozen bedrag hoort misschien niet meer bij de opties
     if (id === "capaciteitGroup" && !budgetOpties(st.capaciteitGroup).some(o => o.v === st.budget)) st.budget = null;
   },
@@ -309,8 +336,6 @@ quiz = createQuiz3D({
     return {};
   },
 
-  hideCaption: (st, mobile) => QID(st) === "extra" && !mobile && st.extra.includes("aquastop"),
-
   caption(st) {
     switch (QID(st)) {
       case "capaciteitGroup": return {
@@ -327,8 +352,8 @@ quiz = createQuiz3D({
         ja: ["Zo droog mogelijk", "We zoeken wasmachines met centrifugeer-droogklasse A: je was droogt sneller aan de lijn."],
         nee: ["Maakt niet uit", "Gebruik je een droger, dan maakt de droogklasse weinig uit. We letten er niet op."],
       }[st.droog] ?? ["Droog uit de trommel", "Kies of je de was zo droog mogelijk wilt."];
-      case "extra": return st.extra.includes("geen") ? ["Geen extra wensen", "We kijken dan naar je huishouden, budget en andere wensen."] : ["Extra's", "Vink aan wat je belangrijk vindt."];
-      default: return st.programma.some(p => PROG[p]) ? ["Jouw programma's", "Wasmachines met deze programma's komen bovenaan in je advies."] : st.programma.includes("geen") ? ["Geen specifieke wensen", "Elke wasmachine heeft de standaardprogramma's zoals katoen, wol en eco."] : ["Wasprogramma's", "Kies welke programma's je zeker wilt hebben."];
+      case "extra": return uitleg(st, "extra") ?? (st.extra.includes("geen") ? ["Geen extra wensen", "We kijken dan naar je huishouden, budget en andere wensen."] : ["Extra's", "Vink aan wat je belangrijk vindt."]);
+      default: return uitleg(st, "programma") ?? (st.programma.includes("geen") ? ["Geen specifieke wensen", "Elke wasmachine heeft de standaardprogramma's zoals katoen, wol en eco."] : ["Wasprogramma's", "Kies welke programma's je zeker wilt hebben."]);
     }
   },
 
