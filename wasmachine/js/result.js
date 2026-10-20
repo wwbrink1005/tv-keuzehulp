@@ -1,4 +1,4 @@
-import { applyMinAanbiedersCascade } from "./matching.js";
+import { applyMinAanbiedersCascade, kiesBesteMatch } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
 import { toonGeenUitslag, toonGeenFilterResultaat } from "../../shared/resultaat-status.js";
@@ -45,6 +45,8 @@ function displayOtherMatchesRedesign(filteredMatchedWasmachines) {
   const prices = filteredMatchedWasmachines.map(w => parsePrice(w.prijs));
   const minPrice = Math.min(...prices);
   const ctx = buildContext(filteredMatchedWasmachines);
+  // Beste match uit de huidige (eventueel gefilterde) lijst
+  const beste = kiesBesteMatch(filteredMatchedWasmachines);
 
   container.innerHTML = filteredMatchedWasmachines
     .map((wasmachine, index) => {
@@ -53,7 +55,7 @@ function displayOtherMatchesRedesign(filteredMatchedWasmachines) {
       const specs = buildSpecChips(wasmachine);
       const points = buildResultPoints(wasmachine, currentAnswers, ctx);
 
-      return buildCardHtml({ product: wasmachine, index, isCheapest, specs, points });
+      return buildCardHtml({ product: wasmachine, index, isCheapest, isBeste: wasmachine === beste, specs, points });
     })
     .join("");
 
@@ -85,7 +87,13 @@ const SORT_LABELS = {
 function sortMatchesByPrice(matches, sortValue) {
   const list = Array.isArray(matches) ? [...matches] : [];
   list.sort((a, b) => parsePrice(a.prijs) - parsePrice(b.prijs));
-  if (sortValue === "price-desc") list.reverse();
+  if (sortValue === "price-desc") return list.reverse();
+  // Beste match bovenaan bij "laag-hoog" (zelfde als tv, printer en laptop)
+  const beste = kiesBesteMatch(list);
+  if (beste) {
+    list.splice(list.indexOf(beste), 1);
+    list.unshift(beste);
+  }
   return list;
 }
 
@@ -156,6 +164,7 @@ function initSortControl() {
       const option = event.target.closest(".sort-option");
       if (!option) return;
       applySortAndRender(option.dataset.value || "price-asc");
+      window.phTrackEvent?.("sorteren", { categorie: "wasmachine", volgorde: option.dataset.value || "price-asc" });
       setSortOpen(false);
     });
 

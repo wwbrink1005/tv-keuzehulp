@@ -65,6 +65,14 @@ function adaptRow(row) {
     kinderslot:          parseJaNee(row.kinderslot),
     aquastop:            parseJaNee(row.aquastop),
     wasprogrammas:       row.wasprogrammas ?? "",
+    // Sinds okt 2026 (keuzehulp-pipeline/migrations/wasmachines_extra_specs.sql).
+    // Rauw, zodat "onbekend" (null) niet als "Nee" telt: bij de Icecat-merken
+    // staan o.a. AquaStop en dosering lang niet altijd vermeld.
+    droogklasse:         String(row.droogklasse ?? "").trim().toUpperCase() || null,
+    doseringRaw:         row.automatische_dosering ?? null,
+    appRaw:              row.app_bediening ?? null,
+    stoomRaw:            row.stoom ?? null,
+    aquastopRaw:         row.aquastop ?? null,
     breedteMm:           parseFirstInt(row.breedte),
     diepteMm:            parseFirstInt(row.diepte),
     hoogteMm:            parseFirstInt(row.hoogte),

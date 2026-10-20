@@ -62,6 +62,13 @@ export function normalizeProducts(rawProducts) {
 
     const centrifugeRpm = parseInt(String(product.centrifugeRpm ?? "").replace(/[^0-9]/g, ""), 10) || 0;
 
+    // Kenmerken voor de keuzehulp: ja / nee / onbekend (null). Wat in de
+    // productnaam staat (i-DOS, TwinDos, SteamCare, Home Connect) telt ook.
+    const namen = [naam, ...aanbieders.map(a => a.productnaam || "")].join(" | ");
+    const programmas = String(product.wasprogrammas ?? "");
+    const jaNee = v => (/^ja/i.test(v ?? "") ? true : /^nee/i.test(v ?? "") ? false : null);
+    const metNaam = (raw, patroon) => (patroon.test(namen) ? true : jaNee(raw));
+
     return [{
       merk:             product.merk,
       naam,
@@ -79,6 +86,14 @@ export function normalizeProducts(rawProducts) {
       kinderslot:       product.kinderslot       ?? "Nee",
       aquastop:         product.aquastop         ?? "Nee",
       wasprogrammas:    product.wasprogrammas    ?? "",
+      // Een lijst van minstens 5 programma's telt als volledig; korter (bv. bij
+      // Miele "Katoen, Kreukherstellend") zegt niets over wat ontbreekt.
+      programmasVolledig: programmas.split(",").filter(p => p.trim()).length >= 5,
+      droogklasse:      product.droogklasse ?? null,
+      dosering:         metNaam(product.doseringRaw, /i-?dos\b|twin ?dos|auto ?dos|intelligent ?dosing|ez ?dispense|smart ?dos/i),
+      stoom:            /stoom|steam/i.test(namen + " " + programmas) ? true : jaNee(product.stoomRaw),
+      app:              metNaam(product.appRaw, /home ?connect|smartthings|thinq|wi-?fi/i),
+      lekbeveiliging:   jaNee(product.aquastopRaw),
       breedteMm:        Number.isFinite(product.breedteMm) ? product.breedteMm : null,
       diepteMm:         Number.isFinite(product.diepteMm)  ? product.diepteMm  : null,
       hoogteMm:         Number.isFinite(product.hoogteMm)  ? product.hoogteMm  : null,

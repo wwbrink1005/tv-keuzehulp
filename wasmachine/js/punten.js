@@ -7,6 +7,8 @@ import {
 } from "../../shared/punten-basis.js";
 import { heeftWasprogramma, isCapaciteitInGroup, WASPROGRAMMA_DEFINITIES } from "./data.js";
 
+const DROOG = { A: "komt het droogst uit de trommel", B: "komt goed droog uit de trommel" };
+
 export function buildContext(lijst, naam) {
   return maakContext(lijst, naam, {
     geluid: (p) => p.geluidDb,
@@ -17,8 +19,6 @@ export function buildContext(lijst, naam) {
 
 const HUISHOUDEN = { klein: "1 tot 2 personen", gemiddeld: "3 tot 4 personen", groot: "5 personen of meer" };
 
-// Zelfde grenzen als applyGeluidFilter() in matching.js.
-const STIL_DB = { belangrijk: 68, gemiddeld: 74 };
 
 /** "Waarom dit bij jou past": precies 4 punten. */
 export function buildResultPoints(w, answers, ctx) {
@@ -30,13 +30,12 @@ export function buildResultPoints(w, answers, ctx) {
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  if (STIL_DB[a.geluid] && Number.isFinite(w.geluidDb) && w.geluidDb <= STIL_DB[a.geluid]) vink("geluid-wens", "stil");
-  if (wil("energiezuinig") && ["A", "B", "C"].includes(w.energieLabel)) vink("energie-wens", "zuinig");
-  if (wil("bovenlader") && w.typeLader === "Bovenlader") vink("lader", "bovenlader");
-  if (wil("uitgestelde-start") && ja(w.uitgesteldeStart)) vink("uitgesteld", "uitgestelde start");
-  if (wil("kinderslot") && ja(w.kinderslot)) vink("kinderslot", "kinderslot");
-  if (wil("aquastop") && ja(w.aquastop)) vink("aquastop", "AquaStop");
-  if (wil("inverter") && ja(w.inverter)) vink("inverter", "invertermotor");
+  if (a.stil === "ja" && Number.isFinite(w.geluidDb) && w.geluidDb <= 71) vink("geluid-wens", "stil");
+  if (a.droog === "ja" && w.droogklasse === "A") vink("droog", "droogklasse A");
+  if (wil("dosering") && w.dosering === true) vink("dosering", "automatische dosering");
+  if (wil("stoom") && w.stoom === true) vink("stoom", "stoomfunctie");
+  if (wil("app") && w.app === true) vink("app", "bediening met app");
+  if (wil("aquastop") && w.lekbeveiliging === true) vink("aquastop", "AquaStop");
   const programmas = (a.programmaAnswers || [])
     .filter((key) => key !== "geen" && heeftWasprogramma(w.wasprogrammas, key))
     .map((key) => WASPROGRAMMA_DEFINITIES.find((d) => d.key === key)?.label.toLowerCase())
@@ -64,9 +63,12 @@ export function buildResultPoints(w, answers, ctx) {
   }
 
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
-  if (w.centrifugeRpm >= 1400) p.voeg(40, "toeren", `<strong>${getal(w.centrifugeRpm)} toeren</strong>: je was komt droger uit de machine`);
+  if (DROOG[w.droogklasse]) p.voeg(39, "droog", `<strong>Droogklasse ${esc(w.droogklasse)}</strong>: je was ${DROOG[w.droogklasse]}`);
+  if (w.dosering === true) p.voeg(43, "dosering", `<strong>Automatische dosering</strong>: zuinig met wasmiddel`);
+  if (w.stoom === true) p.voeg(44, "stoom", `<strong>Stoomfunctie</strong> tegen kreukels en geurtjes`);
+  if (w.centrifugeRpm >= 1400) p.voeg(40, "droog", `<strong>${getal(w.centrifugeRpm)} toeren</strong>: je was komt droger uit de machine`);   // zelfde onderwerp als de droogklasse: niet allebei
   if (ja(w.inverter)) p.voeg(41, "inverter", `<strong>Invertermotor</strong>: stiller en gaat langer mee`);
-  if (ja(w.aquastop)) p.voeg(42, "aquastop", `<strong>AquaStop</strong> tegen waterschade`);
+  if (w.lekbeveiliging === true || ja(w.aquastop)) p.voeg(42, "aquastop", `<strong>AquaStop</strong> tegen waterschade`);
   if (Number.isFinite(w.capaciteit)) p.voeg(90, "capaciteit", `<strong>${getal(w.capaciteit, 1)} kg</strong> wascapaciteit`);
   if (w.energieLabel) p.voeg(91, "energie", `<strong>Energielabel ${esc(w.energieLabel)}</strong>`);
   if (Number.isFinite(w.geluidDb)) p.voeg(92, "geluid", `<strong>${getal(w.geluidDb)} dB</strong> bij centrifugeren`);
@@ -86,6 +88,8 @@ export function buildSpecChips(w) {
   return specs;
 }
 
+const janee = (v) => (v === true ? "Ja" : v === false ? "Nee" : null);
+
 export function buildAlleSpecs(w, raw) {
   const mm = (n) => (Number.isFinite(n) && n > 0 ? `${cm(n)} cm` : null);
   return schoonSpecs([
@@ -99,10 +103,15 @@ export function buildAlleSpecs(w, raw) {
     { titel: "Verbruik en geluid", rijen: [
       ["Energielabel", w.energieLabel],
       ["Geluid (centrifugeren)", Number.isFinite(w.geluidDb) ? `${getal(w.geluidDb)} dB` : null],
-      ["Invertermotor", w.inverter],
+      ["Droogklasse", w.droogklasse ? `${w.droogklasse} (A is het droogst)` : null],
+      // Alleen "Ja" tonen: bij een deel van de merken staat het niet vermeld,
+      // en dat is geen nee.
+      ["Invertermotor", ja(w.inverter) ? "Ja" : null],
     ] },
     { titel: "Functies", rijen: [
-      ["Uitgestelde start", w.uitgesteldeStart], ["Kinderslot", w.kinderslot], ["AquaStop", w.aquastop],
+      ["Automatische dosering", janee(w.dosering)], ["Stoomfunctie", janee(w.stoom)], ["Bediening met app", janee(w.app)],
+      ["AquaStop", janee(w.lekbeveiliging)],
+      ["Uitgestelde start", ja(w.uitgesteldeStart) ? "Ja" : null], ["Kinderslot", ja(w.kinderslot) ? "Ja" : null],
       ["Display", w.display], ["Plaatsing", w.plaatsing], ["Kleur", w.kleur],
       ["Merk", w.merk], ["EAN", raw?.ean],
     ] },

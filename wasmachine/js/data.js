@@ -3,10 +3,24 @@
 // halve kg's (bijv. "6,5 kg", "10,5 kg") — met een exacte-waarde-lijst vielen
 // die producten buiten ELKE groep en verdwenen ze stilletjes uit alle
 // resultaten. displayLabel is puur voor UI-teksten (badge, prijsgroepen-titel).
+//
+// Sinds okt. 2026 een ondergrens i.p.v. een vak: er zijn maar 5 wasmachines
+// van 6-7 kg bij 2+ winkels, vrijwel alles is 8-9 kg en dat is voor een klein
+// huishouden ook prima. Het ideaal (display) weegt mee in de matching.
 export const capaciteitGroupToAllowedCapaciteit = {
-  "klein":     { min: 6,  max: 7.9,              displayMin: 6,  displayMax: 7  },
-  "gemiddeld": { min: 8,  max: 9.9,               displayMin: 8,  displayMax: 9  },
-  "groot":     { min: 10, max: Number.POSITIVE_INFINITY, displayMin: 10, displayMax: 14 }
+  "klein":     { min: 6, max: Number.POSITIVE_INFINITY, idealMin: 7,  idealMax: 9,  displayMin: 7,  displayMax: 9  },
+  "gemiddeld": { min: 8, max: Number.POSITIVE_INFINITY, idealMin: 8,  idealMax: 10, displayMin: 8,  displayMax: 10 },
+  "groot":     { min: 9, max: Number.POSITIVE_INFINITY, idealMin: 10, idealMax: 14, displayMin: 10, displayMax: 12 }
+};
+
+// ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
+// Twee maximumbedragen plus "Geen voorkeur". Uit de live catalogus (okt. 2026,
+// 2+ winkels): rond een derde en twee derde van de prijzen (8-9 kg: €630 en
+// €820; 10 kg+: €750 en €1.020).
+export const budgetCapsByCapaciteit = {
+  "klein":     [600, 900],
+  "gemiddeld": [600, 900],
+  "groot":     [800, 1100],
 };
 
 export function isCapaciteitInGroup(capaciteit, group) {
@@ -41,11 +55,17 @@ export const priceGroupsByCapaciteit = {
 // Ja/Nee-velden per programma (die Icecat voor wasmachines niet aanbiedt).
 // Detectie via keyword-match op de tekst, zelfde aanpak als isInktTankSysteem
 // bij printer.
+// Sinds okt. 2026 vullen ook de Bosch/Siemens-scrapers de volledige lijst
+// (zie keuzehulp-pipeline/bsh_wasmachine.py). De vraag in de quiz gebruikt
+// allergie, sport, outdoor, dekbed en snel; de rest is voor filters en kaarten.
 export const WASPROGRAMMA_DEFINITIES = [
-  { key: "wol",      label: "Wol",               patroon: /wol/i },
+  { key: "allergie", label: "Allergie/hygiëne",   patroon: /allergi|hygi[eë]/i },
   { key: "sport",    label: "Sport",              patroon: /sport/i },
-  { key: "stoom",    label: "Stoom",              patroon: /stoom/i },
-  { key: "allergie", label: "Allergie/hygiëne",   patroon: /allergie|hygi[eë]/i },
+  { key: "outdoor",  label: "Outdoor/impregneren", patroon: /outdoor|impregn/i },
+  { key: "dekbed",   label: "Dekbed/dons",        patroon: /dekbed|dons|beddengoed/i },
+  { key: "snel",     label: "Snelwas",            patroon: /snel|quick|superkort|express|rapid|\b1[45] ?min|\b20 ?min/i },
+  { key: "wol",      label: "Wol",                patroon: /wol/i },
+  { key: "stoom",    label: "Stoom",              patroon: /stoom|steam/i },
   { key: "jeans",    label: "Jeans",              patroon: /jeans|denim/i },
   { key: "baby",     label: "Babyverzorging",     patroon: /baby/i },
 ];
@@ -61,5 +81,4 @@ export function heeftWasprogramma(wasprogrammas, key) {
 // functierijke machine kon toevallig goedkoper zijn dan een "simpele",
 // waardoor "simpel" kiezen een duurder resultaat gaf dan "gemak" kiezen). De
 // vraag die op die tier scoorde ("waar hecht je waarde aan?") is daarom
-// verwijderd; invertermotor + bovenlader zijn losse extra-checkboxes
-// geworden (zie vragen/index.html en matching.js's applyExtraFilter).
+// verwijderd. Sinds okt. 2026 een passcore per wasmachine (zie matching.js).
