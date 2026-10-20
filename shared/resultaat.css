@@ -1580,6 +1580,11 @@ body.has-menu {
 		padding-bottom: 0;
 	}
 	.results-head .result-title { font-size: 18px; text-align: left; justify-content: flex-start; padding-right: 76px; }
+	/* Het aantal loopt mee als laatste "woord" van de titel, en de titel wordt
+	   gelijk over de regels verdeeld: anders viel het getal in zijn eentje op
+	   een nieuwe regel zodra de titel net te lang was. */
+	.results-head .result-title { display: block; text-wrap: balance; }
+	.results-head .result-title .result-count-badge { vertical-align: 2px; }
 	.results-head .results-trust { font-size: 12px; text-align: left; }
 	/* Herstart + info delen rij 1 met de titel (grid-overlap). De titel komt
 	   later in de DOM en zou anders bóven de knoppen liggen en de tik
