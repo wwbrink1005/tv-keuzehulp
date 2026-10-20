@@ -149,6 +149,9 @@ const ICON = {
   eco: `<svg viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19c3-4 6-7 9-9"/></svg>`,
   klok: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>`,
   slot: `<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>`,
+  dosering: `<svg viewBox="0 0 24 24"><path d="M12 3.5c3.5 4.5 5.5 7.6 5.5 10.2a5.5 5.5 0 0 1-11 0c0-2.6 2-5.7 5.5-10.2z"/></svg>`,
+  app: `<svg viewBox="0 0 24 24"><path d="M3 9.5a13 13 0 0 1 18 0"/><path d="M6.5 13a8 8 0 0 1 11 0"/><path d="M10 16.5a3 3 0 0 1 4 0"/><circle cx="12" cy="19.5" r=".6"/></svg>`,
+  stoom: `<svg viewBox="0 0 24 24"><path d="M8 20c-2-2.5 2-4.5 0-7s2-4.5 0-7"/><path d="M12 20c-2-2.5 2-4.5 0-7s2-4.5 0-7"/><path d="M16 20c-2-2.5 2-4.5 0-7s2-4.5 0-7"/></svg>`,
 };
 // uitleg in het bijschrift over de optie die je het laatst aanklikte (vraag 5 en 6)
 const UITLEG = {
@@ -184,7 +187,7 @@ function dispHTML(st) {
     case "droog": return `<span class="big">${st.droog === "ja" ? 1600 : 1400}<small>t/min</small></span>`;
     case "budget":
     case "stil": return `<span class="big">1400<small>t/min</small></span>`;
-    case "extra": return `<span class="big">40°</span>`;
+    case "extra": return `<span class="big">40°</span>${["dosering", "stoom", "app"].filter(e => st.extra.includes(e)).map(e => ICON[e]).join("")}`;
     default: { const l = progList(st); return `<span class="big prog">${l[progIdx % l.length]}</span>`; }
   }
 }
@@ -233,10 +236,13 @@ function waves(ctx, st) {
   return { svg, html: `<div class="tag is-on" style="left:${t.x}px;top:${t.y}px">${s.tag}</div>` };
 }
 
-// Alleen AquaStop heeft (nog) een vaste plek op de machine; de andere extra's
-// krijgen een beeld van de visual agent.
+// elke extra op zijn plek op de machine (maten uit frontloader() in render/scene.py),
+// van boven naar onder zodat de labels in volgorde staan
 function extraSpots(ctx, st) {
   const y = yf(st), pts = [];
+  if (st.extra.includes("dosering")) pts.push({ x: -0.19, y: y - 0.006, z: 0.75, label: "<b>Dosering</b>: automatisch, wasmiddel voor weken in de lade" });
+  if (st.extra.includes("app")) pts.push({ x: 0.255, y: y - 0.005, z: 0.75, label: "<b>App</b>: start en volg op je telefoon" });
+  if (st.extra.includes("stoom")) pts.push({ x: 0.05, y: y - 0.05, z: 0.45, label: "<b>Stoom</b>: minder kreukels en geurtjes" });
   if (st.extra.includes("aquastop")) pts.push({ x: 0.24, y, z: 0.07, label: "<b>AquaStop</b>: sluit het water af bij een lek" });
   return spots(ctx, pts, 0.3);
 }
