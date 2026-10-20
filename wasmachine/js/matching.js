@@ -33,12 +33,15 @@ export function calculateScores() {
 //
 // Passcore = 100
 //   - een wens (programma of extra) die hij niet heeft: −150, onbekend: −40
-//   - stil gewenst: −4 per dB boven 70 dB
+//   - stil gewenst: −4 per dB boven STIL_DREMPEL (72 dB)
 //   - droog gewenst: droogklasse B −20, C of slechter −40, onbekend −10
 //   - trommel kleiner of groter dan ideaal voor het huishouden
 //   - prijs: de duurste in de lijst verliest tot 5 punten
 // `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
 const WENS = 150, WENS_ONBEKEND = 40;
+// Tot en met 72 dB telt als stil. Was 70: dan won bij "geen voorkeur" een Miele van €1.709
+// (68 dB) van een AEG van €849 (72 dB), om 4 dB die je nauwelijks hoort (20-10-2026).
+export const STIL_DREMPEL = 72;
 export const BAND_BESTE = 4;
 const BAND_LIJST = 10;
 const MIN_LIJST = 5;
@@ -70,7 +73,7 @@ function straffen(w, a) {
   for (const p of lijst(a.programmaAnswers)) s += wensStraf(heeftProgramma(w, p));
   for (const e of lijst(a.extraAnswers)) s += wensStraf(EXTRA_KENMERK[e]?.(w) ?? null);
 
-  if (a.stil === "ja" && Number.isFinite(w.geluidDb)) s += Math.max(0, w.geluidDb - 70) * 4;
+  if (a.stil === "ja" && Number.isFinite(w.geluidDb)) s += Math.max(0, w.geluidDb - STIL_DREMPEL) * 4;
   if (a.droog === "ja") s += w.droogklasse === "A" ? 0 : w.droogklasse === "B" ? 20 : w.droogklasse ? 40 : 10;
 
   const cap = capaciteitGroupToAllowedCapaciteit[a.capaciteitGroup];

@@ -6,6 +6,7 @@ import {
   maakContext, vergelijk, zochtRegel, energiePunt, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
 import { heeftWasprogramma, isCapaciteitInGroup, WASPROGRAMMA_DEFINITIES } from "./data.js";
+import { STIL_DREMPEL } from "./matching.js";
 
 const DROOG = { A: "komt het droogst uit de trommel", B: "komt goed droog uit de trommel" };
 
@@ -30,7 +31,7 @@ export function buildResultPoints(w, answers, ctx) {
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  if (a.stil === "ja" && Number.isFinite(w.geluidDb) && w.geluidDb <= 71) vink("geluid-wens", "stil");
+  if (a.stil === "ja" && Number.isFinite(w.geluidDb) && w.geluidDb <= STIL_DREMPEL) vink("geluid-wens", "stil");
   if (a.droog === "ja" && w.droogklasse === "A") vink("droog", "droogklasse A");
   if (wil("dosering") && w.dosering === true) vink("dosering", "automatische dosering");
   if (wil("stoom") && w.stoom === true) vink("stoom", "stoomfunctie");

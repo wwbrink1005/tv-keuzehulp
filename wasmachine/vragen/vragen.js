@@ -217,7 +217,7 @@ function spots(ctx, pts, edgeX) {
 
 // geluidsgolven links en rechts van de machine: meer bogen = meer toegestaan geluid
 const SOUND = {
-  ja: { n: 2, tag: "<b>Zo stil mogelijk</b> <span class=\"muted\">rond 70 dB bij centrifugeren</span>" },
+  ja: { n: 2, tag: "<b>Zo stil mogelijk</b> <span class=\"muted\">72 dB of minder bij centrifugeren</span>" },
   nee: { n: 6, soft: true, tag: "<b>Geen eis</b> <span class=\"muted\">aan het geluid</span>" },
 };
 function waves(ctx, st) {
@@ -351,7 +351,7 @@ quiz = createQuiz3D({
       }[st.capaciteitGroup] ?? ["Jouw bijkeuken", "Kies voor hoeveel personen je wast; de machine en de berg was wisselen mee."];
       case "budget": return budgetCaption(st);
       case "stil": return {
-        ja: ["Zo stil mogelijk", "We zoeken de stilste wasmachines: rond 70 dB tijdens centrifugeren."],
+        ja: ["Zo stil mogelijk", "We zoeken stille wasmachines: 72 dB of minder tijdens centrifugeren."],
         nee: ["Geluid maakt niet uit", "We letten niet op het geluid; dat geeft de meeste keuze."],
       }[st.stil] ?? ["Geluid", "Kies of het geluid voor jou uitmaakt."];
       case "droog": return {
