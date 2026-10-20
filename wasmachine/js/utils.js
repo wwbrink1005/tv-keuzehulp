@@ -49,6 +49,9 @@ export function normalizeProducts(rawProducts) {
 
     const naam = String(product.titel || "").trim() || aanbieders.map(a => String(a.productnaam || "").trim()).find(Boolean) || "";
     if (!naam) return [];
+    // Was-droogcombinaties (via de Bosch- en Siemens-scrapers) zijn een ander
+    // product: duurder, en geen antwoord op "welke wasmachine" (18-10-2026: 12 stuks).
+    if (/droogcombinatie|was-droog|washer.?dryer/i.test(naam)) return [];
 
     const prijs = Math.min(...aanbieders.map(a => a.prijs));
 
