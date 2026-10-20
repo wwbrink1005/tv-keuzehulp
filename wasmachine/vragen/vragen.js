@@ -78,14 +78,14 @@ const Q = [
     title: "Staat de wasmachine op een plek waar je last hebt van lawaai?",
     sub: "Zie hoeveel geluid er bij centrifugeren mag zijn.",
     why: "Tijdens het centrifugeren maakt een wasmachine het meeste lawaai: tussen ongeveer 70 en 76 dB. Staat hij dicht bij de woonkamer of slaapkamer, of in een appartement, dan zoeken we de stilste modellen.",
-    options: [{ v: "ja", label: "Ja, liefst een stille wasmachine", price: "€€" }, { v: "nee", label: "Nee, niet per se", price: "€" }],
+    options: [{ v: "ja", label: "Ja, liefst een stille wasmachine", price: "€€" }, { v: "nee", label: "Nee, het geluid maakt niet uit", price: "€" }],
   },
   {
     id: "droog", type: "radio",
     title: "Wil je dat je was zo droog mogelijk uit de machine komt?",
     sub: "Het display laat het toerental zien.",
     why: "Hoe droog de was uit de trommel komt, staat op het energielabel als centrifugeer-droogklasse (A is het droogst). Droog je aan de lijn of op een rek, dan droogt de was met klasse A sneller. Gebruik je een droger, dan maakt het minder uit.",
-    options: [{ v: "ja", label: "Ja, ik droog aan de lijn of op een rek", price: "€€" }, { v: "nee", label: "Nee, niet per se", price: "€" }],
+    options: [{ v: "ja", label: "Ja, ik droog aan de lijn of op een rek", price: "€€" }, { v: "nee", label: "Nee, ik gebruik een droger of het maakt niet uit", price: "€" }],
   },
   {
     id: "programma", type: "check", exclusive: "geen",
@@ -325,7 +325,7 @@ quiz = createQuiz3D({
       }[st.stil] ?? ["Geluid", "Kies of het geluid voor jou uitmaakt."];
       case "droog": return {
         ja: ["Zo droog mogelijk", "We zoeken wasmachines met centrifugeer-droogklasse A: je was droogt sneller aan de lijn."],
-        nee: ["Niet per se", "We letten niet op de droogklasse."],
+        nee: ["Maakt niet uit", "Gebruik je een droger, dan maakt de droogklasse weinig uit. We letten er niet op."],
       }[st.droog] ?? ["Droog uit de trommel", "Kies of je de was zo droog mogelijk wilt."];
       case "extra": return st.extra.includes("geen") ? ["Geen extra wensen", "We kijken dan naar je huishouden, budget en andere wensen."] : ["Extra's", "Vink aan wat je belangrijk vindt."];
       default: return st.programma.some(p => PROG[p]) ? ["Jouw programma's", "Wasmachines met deze programma's komen bovenaan in je advies."] : st.programma.includes("geen") ? ["Geen specifieke wensen", "Elke wasmachine heeft de standaardprogramma's zoals katoen, wol en eco."] : ["Wasprogramma's", "Kies welke programma's je zeker wilt hebben."];

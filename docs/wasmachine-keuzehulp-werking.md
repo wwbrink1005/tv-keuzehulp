@@ -48,8 +48,8 @@ een optie in de vragen wordt alleen grijs als het zeker niet kan.
 |---|---|---|---|
 | 1 | Voor hoeveel personen was je? | 1-2 / 3-4 / 5+ of veel was | **Harde ondergrens**: minstens 6 / 8 / 9 kg. Ideaal 7-9 / 8-10 / 10+ kg weegt mee |
 | 2 | Wat wil je maximaal uitgeven? | Tot €X / Tot €Y / Geen voorkeur | **Harde grens** |
-| 3 | Staat de wasmachine op een plek waar je last hebt van lawaai? | Ja / Nee, niet per se | Ja: −4 punten per dB boven 70 dB |
-| 4 | Wil je dat je was zo droog mogelijk uit de machine komt? | Ja (lijn of rek) / Nee, niet per se | Ja: droogklasse B −20, C −40, onbekend −10 |
+| 3 | Staat de wasmachine op een plek waar je last hebt van lawaai? | Ja / Nee, het geluid maakt niet uit | Ja: −4 punten per dB boven 70 dB |
+| 4 | Wil je dat je was zo droog mogelijk uit de machine komt? | Ja (lijn of rek) / Nee, ik gebruik een droger of het maakt niet uit | Ja: droogklasse B −20, C −40, onbekend −10 |
 | 5 | Welke wasprogramma's wil je zeker hebben? | Allergie/hygiëne, Sport, Outdoor/impregneren, Dekbed/dons, Snelwas | **Wensen** |
 | 6 | Wat is nog meer belangrijk? | Automatische dosering, Stoom, App, AquaStop | **Wensen** |
 
