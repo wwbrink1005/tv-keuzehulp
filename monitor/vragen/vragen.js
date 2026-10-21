@@ -3,7 +3,7 @@
 // (24/27/32/34 inch, vlak of gebogen) is een transparante laag
 // (render/scene.py). Beeld op het scherm zet placeQuad() er precies op.
 // Motor: shared/quiz3d.js.
-import { createQuiz3D, makeCamera, dimLine, spotColumn, placeQuad } from "../../shared/quiz3d.js";
+import { createQuiz3D, makeCamera, dimLine, placeQuad } from "../../shared/quiz3d.js";
 import { matchMonitors, heeftWens, voldoetAanGame } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
@@ -29,7 +29,7 @@ const MON = {
   groot:     { key: "32", w: 0.708, h: 0.398, inch: "32 inch" },
   ultrawide: { key: "34", w: 0.794, h: 0.340, inch: "34 inch ultrawide" },
 };
-const MY = -0.2, MZ0 = 0.86, R = 1.5;
+const MY = -0.2, MZ0 = 0.86, R = 1.5, DZ = 0.75, RAND = 0.008;
 
 // Sinds okt. 2026: budget als vraag 2, de gamevraag alleen bij "Gamen", en de
 // extra's opgesplitst in beeld en werkplek (zie docs/monitor-keuzehulp-werking.md).
@@ -103,12 +103,40 @@ function frameRow(hz, runPx) {
 const mon = st => MON[st.schermgrootte || "standaard"];
 const bijWensen = st => QID(st) === "beeld" || QID(st) === "extra";
 const curved = st => bijWensen(st) && st.beeld.includes("gebogen") && mon(st).key !== "24";
+const webcam = st => QID(st) === "extra" && st.extra.includes("webcam");
 const usages = st => (st.gebruik.includes("algemeen") || !st.gebruik.length ? ["algemeen", "thuiswerk", "creatief", "gaming"] : st.gebruik);
 
 function corners(st) {
   const m = mon(st);
   const yEdge = curved(st) ? MY - (R - Math.sqrt(R * R - (m.w / 2) ** 2)) : MY;
   return [[-m.w / 2, yEdge, MZ0 + m.h], [m.w / 2, yEdge, MZ0 + m.h], [m.w / 2, yEdge, MZ0], [-m.w / 2, yEdge, MZ0]];
+}
+
+// Labels rechts van de monitor (of links als daar geen ruimte is), elk met een lijn
+// naar zijn eigen punt. Zoals spotColumn in shared/quiz3d.js, maar elk punt houdt
+// zijn eigen hoogte: van de webcam bovenop tot de voet op het bureau.
+function labelKolom(ctx, points, edgeX) {
+  let svg = "", html = "";
+  if (!points.length) return { svg, html };
+  const placed = points.map(p => ({ ...p, px: ctx.toPx(p.x, p.y, p.z) })).sort((a, b) => a.px.y - b.px.y);
+  let labelX = ctx.toPx(edgeX, MY, MZ0).x + 22;
+  // weinig ruimte rechts: alleen de naam; pas bij echt geen ruimte naar links
+  const kort = ctx.mobile || ctx.width - labelX < 300, flip = ctx.width - labelX < 150;
+  if (flip) labelX = Math.min(...placed.map(d => d.px.x)) - 22;
+  const gap = ctx.mobile ? 26 : 32, ys = placed.map(d => d.px.y);
+  for (let i = 1; i < ys.length; i++) ys[i] = Math.max(ys[i], ys[i - 1] + gap);
+  // op desktop staat rechtsonder het bijschrift: labels blijven daarboven
+  const overflow = ys[ys.length - 1] - (ctx.height - (ctx.mobile ? 20 : 150));
+  if (overflow > 0) for (let i = 0; i < ys.length; i++) ys[i] -= overflow;
+  for (let i = ys.length - 2; i >= 0; i--) ys[i] = Math.min(ys[i], ys[i + 1] - gap);
+  placed.forEach((d, i) => {
+    svg += `<line x1="${d.px.x}" y1="${d.px.y}" x2="${labelX}" y2="${ys[i]}" class="leader"/>`;
+    // zonder stip als die het onderdeel zelf zou bedekken (de webcam is maar 5 cm breed)
+    if (!d.noSpot) html += `<div class="spot is-on" style="left:${d.px.x}px;top:${d.px.y}px"></div>`;
+    const pos = flip ? `right:${ctx.width - labelX}px` : `left:${labelX}px`;
+    html += `<div class="spot-label is-on" style="${pos};top:${ys[i]}px">${kort ? d.label.split(":")[0] : d.label}</div>`;
+  });
+  return { svg, html };
 }
 
 // ───────── budget ─────────
@@ -204,6 +232,7 @@ function setup(scene) {
     <div class="view" data-v="thuiswerk"><div class="win" style="background:#e9e9ee"><div class="bar"><b></b><b></b><b></b><span class="url">Kwartaalrapport.docx</span></div><div class="doc"><h4>Kwartaalrapport</h4>${"<i></i>".repeat(16)}</div></div></div>
     <div class="view" data-v="creatief"><div class="editor"><div class="tools"></div><img class="photo" src="shared/img/scherm/scherm-kleur.webp" alt=""><div class="side"><i style="--p:70%"></i><i style="--p:35%"></i><i style="--p:55%"></i><i style="--p:80%"></i><i style="--p:20%"></i></div></div></div>
     <div class="view" data-v="gaming"><img class="fill" src="shared/img/scherm/scherm-gamen.webp" alt=""><div class="hud is-on"><div class="pos">P3<small>/ 12</small></div><div class="lap">Ronde 2 / 5</div><div class="speed"><b>187</b><small>KM/U</small></div></div></div>
+    <div class="view" data-v="oled"><img class="fill" src="shared/img/scherm/scherm-zwart.webp" alt=""></div>
     <div class="view" data-v="hz"><div class="hz"><div class="lab" id="hzT"></div><div class="row" id="hzRow" style="top:44%"><em id="hzE"></em></div><div class="row ref" id="hzRef" style="top:64%"><em>60 Hz</em></div><div class="note">Elke stip is één beeld van een bewegend object in 1/15 seconde. Meer Hz = meer tussenbeelden = vloeiender en scherper in beweging. Stilstaand getoond, omdat je eigen scherm hogere Hz niet kan laten zien.</div></div></div>`;
   scene.querySelector(".layers").after(scr);
   views = [...scr.querySelectorAll(".view")];
@@ -231,7 +260,8 @@ function afterRender(ctx) {
     ref.style.display = hz === 60 ? "none" : "";
     ref.innerHTML = "<em>60 Hz</em>" + frameRow(60, run);
     showView("hz");
-  } else showView(usages(st)[0]);
+  } else if (id === "beeld" && st.beeld.includes("oled")) showView("oled");
+  else showView(usages(st)[0]);
 }
 
 const quiz = createQuiz3D({
@@ -245,8 +275,9 @@ const quiz = createQuiz3D({
     return { ...q, options: metBeschikbaarheid(st, q.id, q.options) };
   },
   setup, afterRender,
-  images: st => ["bureau", mon(st).key + (curved(st) ? "c" : "")],
-  focus: () => ({ x: 0, y: MY, z: 1.0, zoom: 1.7 }),
+  images: st => ["bureau", mon(st).key + (curved(st) ? "c" : "") + (webcam(st) ? "w" : "")],
+  // de ultrawide is te breed voor de standaardzoom op een telefoon
+  focus: st => ({ x: 0, y: MY, z: 1.0, zoom: mon(st).key === "34" ? 1.35 : 1.7 }),
   // bij de wensen de monitor iets naar links, zodat de labels er rechts naast passen
   focusDesktop: st => ({ x: 0.02, y: MY, z: 1.0, zoom: st.q === 0 ? 1.3 : bijWensen(st) ? 1.35 : 1.5, anchorX: bijWensen(st) ? 0.54 : 0.64 }),
 
@@ -262,13 +293,22 @@ const quiz = createQuiz3D({
       const c = corners(st);
       const pts = [];
       if (QID(st) === "beeld") {
+        if (st.beeld.includes("oled")) pts.push({ x: m.w * 0.3, y: c[0][1], z: MZ0 + m.h * 0.55, label: "<b>OLED</b>: elke pixel geeft zelf licht, zwart is echt zwart" });
         if (st.beeld.includes("4k")) pts.push({ x: 0, y: c[0][1], z: MZ0 + m.h * 0.8, label: "<b>4K</b>: vier keer zoveel pixels als Full HD" });
         if (st.beeld.includes("gebogen")) pts.push({ x: m.w / 2 - 0.03, y: c[1][1], z: MZ0 + m.h * 0.5, label: "<b>Gebogen</b>: omringt je blikveld" });
       } else {
+        if (st.extra.includes("webcam")) pts.push({ x: 0.03, y: MY - 0.006, z: MZ0 + m.h + RAND + 0.0075, noSpot: true, label: "<b>Webcam</b>: videobellen zonder losse camera" });
+        if (st.extra.includes("hoogte")) {
+          // pijl langs de voet: zo ver gaat het scherm ongeveer omhoog en omlaag
+          const a = ctx.toPx(-0.07, MY + 0.05, DZ + 0.03), b = ctx.toPx(-0.07, MY + 0.05, MZ0 - 0.01);
+          svg += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="hoogte"/>`
+            + `<path class="hoogte-kop" d="M${b.x - 6} ${b.y + 8} L${b.x} ${b.y} L${b.x + 6} ${b.y + 8} M${a.x - 6} ${a.y - 8} L${a.x} ${a.y} L${a.x + 6} ${a.y - 8}"/>`;
+          pts.push({ x: 0.03, y: MY + 0.04, z: DZ + 0.06, label: "<b>In hoogte verstelbaar</b>: vaak zo'n 10 tot 15 cm" });
+        }
         if (st.extra.includes("speakers")) pts.push({ x: 0.1, y: MY, z: MZ0 - 0.005, label: "Ingebouwde <b>speakers</b>" });
         if (st.extra.includes("usbc")) pts.push({ x: m.w / 2 - 0.02, y: MY + 0.02, z: MZ0 + 0.03, label: "<b>USB-C</b>: laptop aansluiten én opladen" });
       }
-      add(spotColumn(ctx, pts, { zBot: MZ0 + 0.02, zTop: MZ0 + m.h - 0.03, edgeX: m.w / 2 + 0.03, edgeY: MY }));
+      add(labelKolom(ctx, pts, m.w / 2 + 0.03));
     }
     return { svg, html };
   },
@@ -321,7 +361,7 @@ const quiz = createQuiz3D({
     window.location.href = "monitor/resultaat/";
   },
 
-  preload: ["bureau", "27", "24", "32", "34", "27c", "32c", "34c"],
+  preload: ["bureau", "27", "24", "32", "34", "27c", "32c", "34c", "27w", "24w", "32w", "34w", "32cw"],
 });
 
 // Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)

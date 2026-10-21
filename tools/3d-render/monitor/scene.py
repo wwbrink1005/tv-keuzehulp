@@ -332,8 +332,12 @@ MY = -0.2            # voorkant van het scherm
 MZ0 = DZ + 0.11      # onderrand van het scherm
 mon = []
 lay = A.layer
+webcam = lay.endswith("w")          # bv. 27w of 32cw: met webcam bovenop de rand
+lay = lay.rstrip("w")
 curved = lay.endswith("c")
 size = lay.rstrip("c")
+M_LENS = flat("mon_lens", (0.004, 0.004, 0.006), 0.05)
+M_RING = flat("mon_cam_ring", (0.4, 0.4, 0.42), 0.25, 1.0)
 if size in MON:
     w, h = MON[size]
     b = 0.008
@@ -362,6 +366,16 @@ if size in MON:
     mon.append(box("mon_back", -w * 0.3, w * 0.3, MY + 0.012, MY + 0.05, MZ0 + h * 0.2, MZ0 + h * 0.75, M_MON, bevel=0.01, segs=3))
     mon.append(box("mon_neck", -0.03, 0.03, MY + 0.04, MY + 0.07, DZ + 0.01, MZ0 + h * 0.55, M_STAND, bevel=0.006, segs=3))
     mon.append(box("mon_base", -0.12, 0.12, MY - 0.05, MY + 0.14, DZ, DZ + 0.012, M_STAND, bevel=0.005, segs=3))
+    if webcam:
+        # webcamhuisje midden op de bovenrand, lens naar voren (zelfde maten als vragen.js)
+        top = MZ0 + h + b
+        mon.append(box("mon_cam", -0.026, 0.026, MY - 0.006, MY + 0.014, top - 0.002, top + 0.017, M_MON, bevel=0.005, segs=3))
+        for nm, r_, d0, d1, mt in (("mon_cam_ring", 0.0068, 0.0, 0.0012, M_RING), ("mon_cam_lens", 0.0045, 0.0, 0.0018, M_LENS)):
+            # ronde schijf, as naar voren (-y)
+            o = cyl(nm, r_, 0, d1 - d0, 0, 0, mt, 48)
+            o.data.transform(Matrix.Rotation(math.radians(90), 4, "X"))
+            o.location = (0, MY - 0.006, top + 0.0075)
+            mon.append(o)
     lap = mon
 
 if A.layer != "none":
