@@ -66,8 +66,8 @@ const Q = [
     id: "beeld", type: "check", exclusive: "geen",
     title: "Wat vind je belangrijk aan het beeld?",
     sub: "Je keuzes verschijnen op de monitor.",
-    why: "4K geeft superscherpe tekst en foto's, vooral op 27 inch en groter. OLED geeft echt zwart en felle kleuren, mooi voor films en games. Een gebogen scherm omringt je blikveld; bij een ultrawide is dat standaard, bij 24 en 27 inch bestaat het nauwelijks.",
-    options: [{ v: "4k", label: "Extra scherp beeld (4K)", price: "€€€" }, { v: "oled", label: "Diep zwart en felle kleuren (OLED)", price: "€€€" }, { v: "gebogen", label: "Gebogen scherm", price: "€€", when: st => st.schermgrootte === "groot" }, { v: "geen", label: "Geen voorkeur", price: "€" }],
+    why: "4K geeft superscherpe tekst en foto's, vooral op 27 inch en groter. OLED geeft echt zwart en felle kleuren, mooi voor films en games. Een gebogen scherm omringt je blikveld; bij een ultrawide is dat standaard, bij 24 en 27 inch zijn er maar een paar.",
+    options: [{ v: "4k", label: "Extra scherp beeld (4K)", price: "€€€" }, { v: "oled", label: "Diep zwart en felle kleuren (OLED)", price: "€€€" }, { v: "gebogen", label: "Gebogen scherm", price: "€€" }, { v: "geen", label: "Geen voorkeur", price: "€" }],
   },
   {
     id: "extra", type: "check", exclusive: "geen",
@@ -272,7 +272,13 @@ const quiz = createQuiz3D({
   question: st => {
     const q = vragen(st)[st.q];
     if (q.id === "budget") return { ...q, options: budgetOpties(st.schermgrootte) };
-    return { ...q, options: metBeschikbaarheid(st, q.id, q.options) };
+    const opties = metBeschikbaarheid(st, q.id, q.options);
+    // Gebogen staat bij elke maat; bij 24 en 27 inch wordt hij grijs als er geen
+    // gebogen scherm binnen je keuzes is. Bij ultrawide zegt het een regel extra.
+    if (q.id === "beeld" && st.schermgrootte === "ultrawide") {
+      return { ...q, options: opties.map(o => (o.v === "gebogen" && !o.disabled ? { ...o, note: "Vrijwel elke ultrawide is gebogen." } : o)) };
+    }
+    return { ...q, options: opties };
   },
   setup, afterRender,
   images: st => ["bureau", mon(st).key + (curved(st) ? "c" : "") + (webcam(st) ? "w" : "")],
@@ -335,9 +341,8 @@ const quiz = createQuiz3D({
       if (!st.gebruik.includes("gaming")) st.game = null;
     }
     if (id === "schermgrootte") {
-      // andere maat: een eerder gekozen bedrag of gebogen scherm hoort misschien niet meer bij de opties
+      // andere maat: een eerder gekozen bedrag hoort misschien niet meer bij de opties
       if (!budgetOpties(st.schermgrootte).some(o => o.v === st.budget)) st.budget = null;
-      if (st.schermgrootte !== "groot") st.beeld = st.beeld.filter(v => v !== "gebogen");
     }
   },
   onNext(st, id) { meetStap(st, id); },

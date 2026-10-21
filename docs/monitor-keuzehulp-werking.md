@@ -46,7 +46,7 @@ en een optie in de vragen wordt alleen grijs als het zeker niet kan.
 | 2 | Wat wil je maximaal uitgeven? | Tot €X / Tot €Y / Geen voorkeur | **Harde grens** |
 | 3 | Waarvoor gebruik je de monitor? | Thuiswerk / Gamen / Creatief / Een beetje van alles (max 2) | Voorkeuren, zie de score |
 | 4 | Hoe game je? *(alleen bij Gamen)* | PS5 of Xbox / Pc, rustige games / Pc, snelle games / Competitief | **Wens**: 120 Hz + HDMI 2.1 / 120 Hz / 144 Hz / 240 Hz |
-| 5 | Wat vind je belangrijk aan het beeld? | 4K, OLED, Gebogen (alleen bij 32 inch), Geen voorkeur | **Wensen** |
+| 5 | Wat vind je belangrijk aan het beeld? | 4K, OLED, Gebogen, Geen voorkeur | **Wensen**. Gebogen staat bij elke maat (bij ultrawide met "Vrijwel elke ultrawide is gebogen"); wie hem niet aanvinkt, krijgt geen aftrek voor een gebogen of vlak scherm |
 | 6 | Wat moet de monitor nog meer kunnen? | Laptop opladen via USB-C (60 W of meer), In hoogte verstelbaar, Webcam, Speakers, Geen | **Wensen** |
 
 | Maat | Budgetopties |
