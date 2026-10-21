@@ -2,17 +2,18 @@
 // Zelfde opzet als koelkast/js/punten.js; bouwstenen in shared/punten-basis.js.
 //
 // Let op: `hdr` staat in de catalogus bij elke monitor op "Nee" (geen echte
-// data) en wordt daarom nergens gebruikt. `gebogen` komt uit de titel (utils.js).
+// data) en wordt daarom nergens gebruikt. `gebogen` komt uit Icecat ("Gebogen")
+// en de titel (utils.js).
 
 import {
   esc, getal, ja,
   maakContext, vergelijk, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
 import { is4KOfMeer } from "./data.js";
+import { heeftWens, voldoetAanGame, kleurecht } from "./matching.js";
 
 const RES_RANG = { HD: 1, "Full HD": 2, WUXGA: 2.5, QHD: 3, UWQHD: 3.5, "4K": 4, "5K": 5, "5K Ultrawide": 5 };
 const ms = (m) => parseFloat(String(m.responstijd ?? "").replace(",", "."));
-const HZ_WENS = { extreem: [240, Infinity], vloeiend: [120, 240], soepel: [75, 120] };
 const ultrawide = (m) => ["21:9", "32:9"].includes(m.beeldverhouding);
 
 export function buildContext(lijst, naam) {
@@ -28,19 +29,23 @@ export function buildResultPoints(m, answers, ctx) {
   const p = puntenLijst();
   const a = answers || {};
   const gebruik = Array.isArray(a.gebruik) ? a.gebruik : (a.gebruik ? [a.gebruik] : []);
-  const wensen = Array.isArray(a.extraAnswers) ? a.extraAnswers : [];
-  const wil = (x) => wensen.includes(x);
+  const wensen = [...(Array.isArray(a.beeld) ? a.beeld : []), ...(Array.isArray(a.extraAnswers) ? a.extraAnswers : [])];
+  const wil = (x) => wensen.includes(x) && heeftWens(m, x) === true;
 
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  const hzWens = HZ_WENS[a.hz];
-  if (hzWens && m.hz >= hzWens[0] && m.hz < hzWens[1]) vink("hz", `${getal(m.hz)} Hz`);
+  if (gebruik.includes("gaming") && a.game && voldoetAanGame(m, a.game) === true) {
+    vink("hz", a.game === "console" ? `HDMI 2.1 en ${getal(m.hz)} Hz voor PS5/Xbox` : `${getal(m.hz)} Hz`);
+  }
   if (a.schermgrootte === "ultrawide" && ultrawide(m)) vink("vorm", "ultrawide");
-  if (wil("4k") && is4KOfMeer(m)) vink("res", m.resolutie === "4K" ? "4K" : "4K of scherper");
-  if (wil("gebogen") && m.gebogen === "Ja") vink("vorm", "gebogen scherm");
-  if (wil("usb-c") && ja(m.usb_c)) vink("usbc", "USB-C");
-  if (wil("speakers") && ja(m.speakers)) vink("speakers", "ingebouwde speakers");
+  if (wil("4k")) vink("res", m.resolutie === "4K" ? "4K" : "4K of scherper");
+  if (wil("oled")) vink("paneel", "OLED");
+  if (wil("gebogen")) vink("vorm", "gebogen scherm");
+  if (wil("usbc")) vink("usbc", `laptop opladen via USB-C (${getal(m.usbPdWatt)} W)`);
+  if (wil("hoogte")) vink("hoogte", "in hoogte verstelbaar");
+  if (wil("webcam")) vink("webcam", "ingebouwde webcam");
+  if (wil("speakers")) vink("speakers", "ingebouwde speakers");
   zochtRegel(p, delen);
 
   // 2. Wat deze kaart onderscheidt binnen de lijst
@@ -60,8 +65,12 @@ export function buildResultPoints(m, answers, ctx) {
   // 3. Het paneel vertaald naar het eigen gebruik
   if (gebruik.includes("gaming") && m.hz >= 144) p.voeg(30, "hz", `<strong>${getal(m.hz)} Hz</strong>: vloeiend beeld bij snelle games`);
   if (gebruik.includes("gaming") && ms(m) <= 1) p.voeg(31, "ms", `<strong>${getal(ms(m), 2)} ms</strong> reactietijd: geen vegen bij snelle beelden`);
+  if (gebruik.includes("creatief") && kleurecht(m)) p.voeg(30, "kleur", m.dciP3 >= 90
+    ? `<strong>${getal(m.dciP3)}% DCI-P3</strong>: groot kleurbereik voor foto's en video`
+    : `<strong>${getal(m.srgb)}% sRGB</strong>: kleuren zoals ze bedoeld zijn`);
   if (gebruik.includes("creatief") && /IPS|OLED/.test(m.paneeltype ?? "")) p.voeg(31, "paneel", `<strong>${esc(m.paneeltype)}-paneel</strong>: betrouwbare kleuren voor foto's en video`);
-  if (gebruik.includes("thuiswerk") && ja(m.usb_c)) p.voeg(32, "usbc", `<strong>USB-C</strong>: laptop aansluiten en opladen met één kabel`);
+  if (gebruik.includes("thuiswerk") && heeftWens(m, "usbc") === true) p.voeg(32, "usbc", `<strong>USB-C</strong>: laptop aansluiten en opladen met één kabel`);
+  if (gebruik.includes("thuiswerk") && heeftWens(m, "hoogte") === true) p.voeg(33, "hoogte", `<strong>In hoogte verstelbaar</strong>: het scherm op ooghoogte`);
 
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
   if (m.paneeltype === "OLED") p.voeg(40, "paneel", `<strong>OLED-paneel</strong>: echt zwart en sterk contrast`);
@@ -93,9 +102,17 @@ export function buildAlleSpecs(m, raw) {
       ["Resolutie", m.resolutie], ["Paneel", m.paneeltype], ["Beeldverhouding", m.beeldverhouding],
       ["Verversingssnelheid", m.hz ? `${getal(m.hz)} Hz` : null], ["Reactietijd", m.responstijd],
     ] },
-    { titel: "Aansluitingen", rijen: [
-      ["HDMI", String(m.hdmi_poorten ?? "")], ["DisplayPort", String(m.dp_poorten ?? "")], ["USB-C", m.usb_c],
+    { titel: "Kleur", rijen: [
+      ["sRGB", m.srgb != null ? `${getal(m.srgb)}%` : null], ["DCI-P3", m.dciP3 != null ? `${getal(m.dciP3)}%` : null],
     ] },
-    { titel: "Overig", rijen: [["Speakers", m.speakers], ["Merk", m.merk], ["EAN", raw?.ean]] },
+    { titel: "Aansluitingen", rijen: [
+      ["HDMI", String(m.hdmi_poorten ?? "")], ["HDMI-versie", m.hdmiVersie != null ? String(m.hdmiVersie) : null],
+      ["DisplayPort", String(m.dp_poorten ?? "")], ["USB-C", m.usb_c],
+      ["Laptop laden via USB-C", m.usbPdWatt != null ? `${getal(m.usbPdWatt)} W` : null],
+    ] },
+    { titel: "Overig", rijen: [
+      ["In hoogte verstelbaar", m.hoogteVerstelbaar || null], ["Webcam", m.webcam || null],
+      ["Speakers", m.speakersBekend || null], ["Merk", m.merk], ["EAN", raw?.ean],
+    ] },
   ]);
 }

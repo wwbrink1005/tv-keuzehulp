@@ -1,4 +1,4 @@
-import { getMonitorTier, scoringSystem, inMaatGroep, is4KOfMeer, TIER_ORDER } from "./data.js";
+import { getMonitorTier, inMaatGroep, is4KOfMeer, resolutiePixels, AANBEVOLEN_SCHERPTE } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 export const DEFAULT_MIN_AANBIEDERS = 2;
@@ -16,199 +16,184 @@ export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_
   return { effectiveMin, result };
 }
 
-// ─── Score computation ────────────────────────────────────────────────────────
+// ─── Kenmerken ──────────────────────────────────────────────────────────────
 
-export function calculateScores(answers) {
-  const scores = { Budget: 0, Mid: 0, Gaming: 0, Premium: 0 };
+const jaNee = v => (/^ja$/i.test(v ?? "") ? true : /^nee$/i.test(v ?? "") ? false : null);
+const ms = m => parseFloat(String(m.responstijd ?? "").replace(",", "."));
+const lijst = v => (Array.isArray(v) ? v : v ? [v] : []);
+export const beeldWensen = a => lijst(a?.beeld).filter(w => w !== "geen");
+export const extraWensen = a => lijst(a?.extraAnswers).filter(w => w !== "geen");
 
-  const gebruik = Array.isArray(answers.gebruik)
-    ? answers.gebruik
-    : (answers.gebruik ? [answers.gebruik] : []);
-  const hz = answers.hz ?? "";
+// Een laptop opladen vraagt zo'n 60 W; de 15 W die sommige monitoren via USB-C
+// leveren is alleen genoeg voor een telefoon.
+const LAPTOP_LADEN_W = 60;
 
-  for (const g of gebruik) {
-    if (scoringSystem.gebruik[g]) {
-      for (const tier of TIER_ORDER) {
-        scores[tier] += scoringSystem.gebruik[g][tier] ?? 0;
-      }
-    }
+/** Heeft de monitor deze wens (beeld of extra)? true / false / null (onbekend). */
+export function heeftWens(m, wens) {
+  switch (wens) {
+    case "4k": return resolutiePixels(m) ? is4KOfMeer(m) : null;
+    case "oled": return m.paneeltype ? /oled/i.test(m.paneeltype) : null;
+    case "gebogen": return m.gebogen === "Ja";
+    case "usbc":
+      if (m.usb_c !== "Ja") return false;
+      return m.usbPdWatt == null ? null : m.usbPdWatt >= LAPTOP_LADEN_W;
+    case "hoogte": return jaNee(m.hoogteVerstelbaar);
+    case "webcam": return jaNee(m.webcam);
+    case "speakers": return jaNee(m.speakersBekend);
+    default: return true;
   }
-
-  if (hz && scoringSystem.hz[hz]) {
-    for (const tier of TIER_ORDER) {
-      scores[tier] += scoringSystem.hz[hz][tier] ?? 0;
-    }
-  }
-
-  return scores;
 }
 
-// ─── Hz filter ────────────────────────────────────────────────────────────────
+// Gamevraag (alleen bij "Gamen"): de minimale verversingssnelheid, en voor een
+// PS5/Xbox ook HDMI 2.1 (anders blijft de console op 60 beelden per seconde).
+export const GAME_HZ = { console: 120, rustig: 120, snel: 144, competitief: 240 };
+export function voldoetAanGame(m, game) {
+  const min = GAME_HZ[game];
+  if (!min) return true;
+  if (m.hzOnbekend) return null;
+  if (m.hz < min) return false;
+  if (game !== "console") return true;
+  return m.hdmiVersie == null ? null : m.hdmiVersie >= 2.1;
+}
+const gamet = a => lijst(a?.gebruik).includes("gaming");
 
-export function applyHzFilter(monitors, hz) {
-  if (hz === "extreem") {
-    const extreem = monitors.filter(m => m.hz >= 240);
-    if (extreem.length > 0) return extreem;
-    const vloeiend = monitors.filter(m => m.hz >= 120);
-    if (vloeiend.length > 0) return vloeiend;
-    return monitors;
-  }
+// ───────── Matching per monitor (sinds 21-10-2026) ─────────
+// Zelfde opzet als tv, printer, laptop en wasmachine: maat en budget zijn harde
+// grenzen, elke monitor krijgt een passcore en de lijst is alles wat dicht bij
+// de top zit. Vroeger won één klasse (Budget/Mid/Gaming/Premium) en kwam daarna
+// een rij filters die stuk voor stuk wegvielen als er niets overbleef.
+//
+// Passcore = 100
+//   - 150 per uitgesproken wens die de monitor niet heeft (beeld, extra's, de
+//     verversingssnelheid of HDMI 2.1 uit de gamevraag); 50 bij onbekend. Zo
+//     komt een monitor zonder die wens altijd onder de monitoren die hem wel
+//     hebben.
+//   - voorkeuren zonder vraag: scherp genoeg voor de maat (27" QHD, 32" 4K),
+//     kleurbereik en paneel bij creatief werk, reactietijd bij gamen,
+//     hoogteverstelling bij thuiswerk
+//   - prijs: de duurste in de lijst verliest tot PRIJS_GEWICHT punten
+// `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
+const WENS = 150, WENS_ONBEKEND = 50;
+export const BAND_BESTE = 4;
+const BAND_LIJST = 10;
+const MIN_LIJST = 5;
+const MAX_LIJST = 30;
+const PRIJS_GEWICHT = 6;
 
-  if (hz === "vloeiend") {
-    const vloeiend = monitors.filter(m => m.hz >= 120 && m.hz < 240);
-    if (vloeiend.length > 0) return vloeiend;
-    const soepel = monitors.filter(m => m.hz >= 75);
-    if (soepel.length > 0) return soepel;
-    return monitors;
-  }
-
-  if (hz === "soepel") {
-    const soepel = monitors.filter(m => m.hz >= 75 && m.hz < 120);
-    if (soepel.length > 0) return soepel;
-    return monitors;
-  }
-
-  // "rustig" → no Hz filter (60Hz is fine)
-  return monitors;
+function wensStraf(heeft) {
+  if (heeft === true) return 0;
+  return heeft === false ? WENS : WENS_ONBEKEND;
 }
 
-// ─── Extra preferences ────────────────────────────────────────────────────────
-// Strikte versie van alle wensen (Hz-bereik en extra's): alleen monitoren die
-// aan ALLES voldoen. Zie matchMonitors, stap 2a.
-const HZ_BEREIK = { soepel: [75, 120], vloeiend: [120, 240], extreem: [240, Infinity] };
-function voldoetAanAlleWensen(monitors, answers) {
-  const hz = HZ_BEREIK[answers.hz ?? ""];
-  const extra = Array.isArray(answers.extraAnswers) ? answers.extraAnswers : [];
-  return monitors.filter(m =>
-    (!hz || (m.hz >= hz[0] && m.hz < hz[1])) &&
-    (!extra.includes("usb-c") || m.usb_c === "Ja") &&
-    (!extra.includes("gebogen") || m.gebogen === "Ja") &&
-    (!extra.includes("speakers") || m.speakers === "Ja") &&
-    (!extra.includes("4k") || is4KOfMeer(m))
-  );
+/** Is het scherm scherp genoeg voor zijn maat? true / false / null. */
+export function scherpGenoeg(m, maat) {
+  const px = resolutiePixels(m), eis = AANBEVOLEN_SCHERPTE[maat];
+  if (!px || !eis) return null;
+  return px >= eis.pixels * 0.95;
 }
 
-export function applyExtraFilter(monitors, extraAnswers) {
-  if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
-    return monitors;
-  }
-
-  let filtered = [...monitors];
-
-  if (extraAnswers.includes("usb-c")) {
-    const usbc = filtered.filter(m => m.usb_c === "Ja");
-    if (usbc.length > 0) filtered = usbc;
-  }
-
-  if (extraAnswers.includes("gebogen")) {
-    const curved = filtered.filter(m => m.gebogen === "Ja");
-    if (curved.length > 0) filtered = curved;
-  }
-
-  if (extraAnswers.includes("speakers")) {
-    const spk = filtered.filter(m => m.speakers === "Ja");
-    if (spk.length > 0) filtered = spk;
-  }
-
-  if (extraAnswers.includes("4k")) {
-    const fourk = filtered.filter(is4KOfMeer);
-    if (fourk.length > 0) filtered = fourk;
-  }
-
-  return filtered;
+/** Goed kleurbereik voor foto- en videobewerking. true / false / null. */
+export function kleurecht(m) {
+  if (m.srgb == null && m.dciP3 == null) return null;
+  return (m.srgb ?? 0) >= 99 || (m.dciP3 ?? 0) >= 90;
 }
 
-// ─── Main matching function ───────────────────────────────────────────────────
+function straffen(m, a) {
+  let s = 0;
+  const gebruik = lijst(a.gebruik);
+  for (const w of beeldWensen(a)) s += wensStraf(heeftWens(m, w));
+  for (const w of extraWensen(a)) s += wensStraf(heeftWens(m, w));
+  if (gamet(a) && a.game) s += wensStraf(voldoetAanGame(m, a.game));
 
-export function matchMonitors(monitors, sizeGroup, priceGroup, answers, scores) {
-  if (!Array.isArray(monitors) || !sizeGroup) {
-    return { bestMatch: null, bestType: null, filteredMatchedMonitors: [] };
+  // Voorkeuren
+  if (scherpGenoeg(m, a.schermgrootte) === false) s += 12;
+  if (gebruik.includes("creatief")) {
+    const kleur = kleurecht(m);
+    s += kleur === false ? 15 : kleur === null ? 6 : 0;
+    if (resolutiePixels(m) && resolutiePixels(m) < 2560 * 1440 * 0.95) s += 8;
+    if (/\b(va|tn)\b/i.test(m.paneeltype ?? "")) s += 6;
   }
+  if (gamet(a) && ms(m) > 4) s += 4;
+  // Wie de hele dag achter het scherm zit, heeft veel aan een voet die je op
+  // ooghoogte zet. 8 punten: meer dan het verschil waarbinnen de goedkoopste
+  // Beste match wordt (BAND_BESTE), dus een vaste voet wint niet meer op prijs.
+  if (gebruik.includes("thuiswerk")) s += { false: 8, null: 3 }[jaNee(m.hoogteVerstelbaar)] ?? 0;
+  // "24 inch" omvat ook 21,5 en 22 inch; die zijn merkbaar kleiner.
+  if (a.schermgrootte === "compact" && m.schermdiagonaal < 23) s += 6;
+  return s;
+}
 
-  // 1. Filter by size + price
-  let filtered = monitors.filter(m => {
-    const price = parsePrice(m.prijs);
-    return (
-      inMaatGroep(m, sizeGroup) &&
-      (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max))
-    );
+function bonussen(m, a) {
+  const gebruik = lijst(a.gebruik);
+  let b = 0;
+  if (gamet(a) && m.hz >= 165) b += 2;
+  if (gamet(a) && a.game === "competitief" && ms(m) <= 1) b += 2;
+  if (gamet(a) && a.game === "console" && is4KOfMeer(m)) b += 3;
+  if (gebruik.includes("creatief") && (m.dciP3 ?? 0) >= 95) b += 3;
+  return b;
+}
+
+// Plek van een prijs binnen een lijst: 0 = goedkoopste, 1 = duurste.
+function prijsPlek(pool) {
+  const prijzen = pool.map(m => parsePrice(m.prijs)).sort((x, y) => x - y);
+  return prijs => (prijzen.length < 2 ? 0 : prijzen.filter(x => x < prijs).length / (prijzen.length - 1));
+}
+
+export function scoreMonitors(pool, answers = {}) {
+  const plek = prijsPlek(pool);
+  return pool.map(m => {
+    const wens = 100 - straffen(m, answers) + bonussen(m, answers);
+    const fit = wens - PRIJS_GEWICHT * plek(parsePrice(m.prijs));
+    return { ...m, tier: getMonitorTier(m), wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
   });
+}
 
-  if (filtered.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedMonitors: [] };
-  }
-
-  // 2. Pick best tier by score
-  const sortedTiers = Object.entries(scores)
-    .sort((a, b) => Number(b[1]) - Number(a[1]));
-
-  let matchedMonitors = [];
-  let bestType = null;
-
-  // 2a. Eerst de best scorende tier waarin ALLE wensen (Hz, USB-C, gebogen,
-  // speakers, 4K) vervuld worden; bij een gelijke stand de kleinste niet-lege
-  // set (zelfde regel als hieronder). Zonder deze stap viel bv. 4K of de
-  // gekozen Hz weg terwijl er in dezelfde maat wél zulke monitoren waren.
-  const vergelijkbaar = lijst => lijst.filter(m => (m.aanbieders ?? []).length >= 2).length;
-  const scoresAflopend = [...new Set(sortedTiers.map(([, s]) => Number(s)))];
-  for (const score of scoresAflopend) {
-    let beste = null, besteNaam = null;
-    for (const [tier] of sortedTiers.filter(([, s]) => Number(s) === score)) {
-      const kandidaten = voldoetAanAlleWensen(filtered.filter(m => getMonitorTier(m) === tier), answers);
-      if (vergelijkbaar(kandidaten) && (!beste || kandidaten.length < beste.length)) { beste = kandidaten; besteNaam = tier; }
-    }
-    if (beste) { matchedMonitors = beste; bestType = besteNaam; break; }
-  }
-
-  // 2b. Kan dat in geen enkele tier: de oude cascade, waarin een wens die er
-  // niet is gracieus wegvalt.
-  for (let i = 0; i < sortedTiers.length && matchedMonitors.length === 0; i++) {
-    const [, topScore] = sortedTiers[i];
-    const tiersWithTopScore = sortedTiers
-      .filter(([, s]) => Number(s) === Number(topScore))
-      .map(([t]) => t);
-
-    // Bij een gelijke stand tussen tiers voegen we ze niet samen (dat maakt de
-    // resultatenlijst juist grovers/breder) — we evalueren elke getelde tier
-    // apart en kiezen de tier met de kleinste niet-lege resultatenset, zodat
-    // de klant zo specifiek mogelijke keuzes krijgt in plaats van de optelsom
-    // van alle tiers die toevallig gelijk scoorden.
-    let bestTierCandidates = null;
-    let bestTierName = null;
-
-    for (const tier of tiersWithTopScore) {
-      let tierCandidates = filtered.filter(m => getMonitorTier(m) === tier);
-      tierCandidates = applyHzFilter(tierCandidates, answers.hz ?? "");
-      tierCandidates = applyExtraFilter(tierCandidates, answers.extraAnswers ?? []);
-      if (tierCandidates.length === 0) continue;
-      if (bestTierCandidates === null || tierCandidates.length < bestTierCandidates.length) {
-        bestTierCandidates = tierCandidates;
-        bestTierName = tier;
-      }
-    }
-
-    if (bestTierCandidates === null) continue;
-
-    matchedMonitors = bestTierCandidates;
-    bestType = bestTierName;
-    break;
-  }
-
-  // Fallback: if tier matching yielded nothing, use all size+price filtered with hz filter
-  if (matchedMonitors.length === 0) {
-    let fallback = applyHzFilter(filtered, answers.hz ?? "");
-    fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
-    if (fallback.length === 0) fallback = [...filtered];
-    matchedMonitors = fallback;
-    bestType = "Algemeen";
-  }
-
-  // Best match = cheapest in the matched set
-  const bestMatch = matchedMonitors.reduce((cheapest, m) => {
-    return parsePrice(m.prijs) < parsePrice(cheapest.prijs) ? m : cheapest;
+/** Beste match: de goedkoopste van de monitoren die even goed passen als de beste. */
+export function kiesBesteMatch(lijstIn) {
+  const kandidaten = (lijstIn ?? []).filter(m => Number.isFinite(m?.fit));
+  if (!kandidaten.length) return null;
+  const top = Math.max(...kandidaten.map(m => m.fit));
+  return kandidaten.filter(m => m.fit >= top - BAND_BESTE).reduce((a, b) => {
+    const pa = parsePrice(a.prijs), pb = parsePrice(b.prijs);
+    return pb < pa || (pb === pa && b.fit > a.fit) ? b : a;
   });
+}
 
-  return { bestMatch, bestType, filteredMatchedMonitors: matchedMonitors };
+/**
+ * @param {object[]} monitors  genormaliseerde monitoren (utils.normalizeProducts)
+ * @param {string} sizeGroup   maat uit de quiz
+ * @param {number|null} budget maximumbedrag uit de quiz, of null (geen voorkeur)
+ * @param {object} answers     antwoorden uit de quiz
+ */
+export function matchMonitors(monitors, sizeGroup, budget, answers) {
+  const leeg = { bestMatch: null, bestType: null, filteredMatchedMonitors: [], topWens: null };
+  if (!Array.isArray(monitors) || !sizeGroup) return leeg;
+
+  const cap = Number(budget) || null;
+  const pool = monitors.filter(m => inMaatGroep(m, sizeGroup) && (!cap || parsePrice(m.prijs) <= cap));
+  if (pool.length === 0) return leeg;
+
+  const gescoord = scoreMonitors(pool, { ...(answers ?? {}), schermgrootte: sizeGroup }).sort((x, y) => y.fit - x.fit);
+  const top = gescoord[0].fit;
+  // Alles binnen de band, maar door tot er minstens MIN_LIJST monitoren in
+  // zitten die door het standaardfilter "2+ winkels" op de resultaatpagina komen.
+  const uit = [];
+  let zichtbaar = 0;
+  for (const m of gescoord) {
+    if (zichtbaar >= MAX_LIJST) break;
+    if (m.fit < top - BAND_LIJST && zichtbaar >= MIN_LIJST) break;
+    uit.push(m);
+    if ((m.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS) zichtbaar++;
+  }
+  uit.sort((x, y) => parsePrice(x.prijs) - parsePrice(y.prijs));
+
+  const bestMatch = kiesBesteMatch(uit);
+  return {
+    bestMatch,
+    bestType: bestMatch?.tier ?? null,
+    filteredMatchedMonitors: uit,
+    topWens: Math.max(...uit.map(m => m.wens)),
+  };
 }
 
 // De kaartpunten ("Waarom dit bij jou past") staan in punten.js.

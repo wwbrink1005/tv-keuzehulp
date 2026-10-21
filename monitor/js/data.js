@@ -63,13 +63,32 @@ export const priceGroupsBySize = {
   ]
 };
 
-// ─── Monitor tier definitions ─────────────────────────────────────────────────
-// Tiers are based on typical use-case profile rather than a CPU tier.
+// ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
+// Twee maximumbedragen plus "Geen voorkeur", per maat. Uit de live catalogus
+// (okt. 2026, 2+ winkels): rond een derde en twee derde van de prijzen
+// (24": €119/€150, 27": €182/€361, 32": €379/€749, ultrawide: €338/€759).
+// Bij 24 inch liggen de prijzen dicht op elkaar; €150 en €250 laten zien dat
+// je voor meer geld vooral hoogteverstelling en USB-C krijgt.
+export const budgetCapsBySize = {
+  compact:   [150, 250],
+  standaard: [200, 400],
+  groot:     [400, 750],
+  ultrawide: [400, 750],
+};
+
+// Hoe scherp een scherm van deze maat minstens hoort te zijn (pixels), en hoe
+// we dat noemen. 27 inch in Full HD of 32 inch in QHD oogt korrelig.
+export const AANBEVOLEN_SCHERPTE = {
+  compact:   { pixels: 1920 * 1080, naam: "Full HD" },
+  standaard: { pixels: 2560 * 1440, naam: "QHD" },
+  groot:     { pixels: VIERK,       naam: "4K" },
+  ultrawide: { pixels: 3440 * 1440, naam: "UWQHD" },
+};
+
+// ─── Klasse (alleen nog voor de meting en de "Meer budget?"-tekst) ─────────
+// De matching werkt sinds okt. 2026 met een score per monitor (matching.js).
 export const TIER_ORDER = ["Budget", "Mid", "Gaming", "Premium"];
 
-/**
- * Determine the "tier" of a monitor based on its specs.
- */
 export function getMonitorTier(monitor) {
   const hz     = parseInt(String(monitor.hz ?? "60").replace(/[^0-9]/g, ""), 10) || 60;
   const pixels = resolutiePixels(monitor);
@@ -80,20 +99,3 @@ export function getMonitorTier(monitor) {
   if (pixels >= 2560 * 1440 * 0.95) return "Mid";
   return "Budget";
 }
-
-// ─── Scoring system ───────────────────────────────────────────────────────────
-// Each answer maps to a score per monitor tier.
-export const scoringSystem = {
-  gebruik: {
-    thuiswerk: { Budget: 8, Mid: 9, Gaming: 4, Premium: 7 },
-    gaming:    { Budget: 2, Mid: 5, Gaming: 10, Premium: 7 },
-    creatief:  { Budget: 2, Mid: 6, Gaming: 3,  Premium: 10 },
-    algemeen:  { Budget: 7, Mid: 9, Gaming: 6,  Premium: 7  }
-  },
-  hz: {
-    rustig:   { Budget: 9, Mid: 7, Gaming: 1,  Premium: 5 },
-    soepel:   { Budget: 5, Mid: 8, Gaming: 4,  Premium: 6 },
-    vloeiend: { Budget: 2, Mid: 6, Gaming: 10, Premium: 7 },
-    extreem:  { Budget: 1, Mid: 3, Gaming: 10, Premium: 8 }
-  }
-};

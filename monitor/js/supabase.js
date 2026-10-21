@@ -52,8 +52,25 @@ function parseResolutie(value) {
 function parseJaNee(value) {
   if (!value) return "Nee";
   const s = String(value).toLowerCase();
-  if (s === "ja" || s === "true" || s === "yes" || s === "1" || s.includes("curved")) return "Ja";
+  // "Gebogen" is hoe Icecat het veld "Beeldscherm vorm" vult (anders "Flat");
+  // tot okt. 2026 stond hier alleen "curved", waardoor elke gebogen monitor
+  // zonder dat woord in de naam als vlak telde.
+  if (s === "ja" || s === "true" || s === "yes" || s === "1" || s.includes("curved") || s.includes("gebogen")) return "Ja";
   return "Nee";
+}
+
+/** "Ja"/"Nee", of "" als het niet bekend is (leeg veld telt niet als nee). */
+function jaNeeOnbekend(value) {
+  const s = String(value ?? "").trim().toLowerCase();
+  if (s === "ja") return "Ja";
+  if (s === "nee") return "Nee";
+  return "";
+}
+
+/** Eerste getal uit "90 W", "99 procent", "98,5 procent"; null als onbekend. */
+function parseGetal(value) {
+  const m = String(value ?? "").match(/\d+(?:[.,]\d+)?/);
+  return m ? parseFloat(m[0].replace(",", ".")) : null;
 }
 
 /**
@@ -87,6 +104,7 @@ function adaptRow(row) {
     resolutie:       parseResolutie(row.scherm_resolutie),
     paneeltype:      row.scherm_type ?? "",
     hz:              parseHz(row.refresh_rate),
+    hzOnbekend:      !row.refresh_rate,   // parseHz maakt van leeg 60 Hz
     responstijd:     row.responstijd ?? "",
     hdr:                 parseJaNee(row.hdr),
     hdmi_poorten:        parseFirstInt(row.hdmi_poorten),
@@ -95,6 +113,15 @@ function adaptRow(row) {
     gebogen:             parseJaNee(row.gebogen),
     usb_c:               parseJaNee(row.usb_c),
     beeldverhouding:     row.beeldverhouding ?? "",
+    // Sinds okt. 2026 (migrations/monitoren_extra_specs.sql in de pipeline).
+    // Onbekend blijft onbekend: de matching telt dat niet als "nee".
+    speakersBekend:      jaNeeOnbekend(row.speakers),
+    hoogteVerstelbaar:   jaNeeOnbekend(row.hoogte_verstelbaar),
+    webcam:              jaNeeOnbekend(row.webcam),
+    usbPdWatt:           parseGetal(row.usb_pd_watt),
+    hdmiVersie:          parseGetal(row.hdmi_versie),
+    srgb:                parseGetal(row.srgb_dekking),
+    dciP3:               parseGetal(row.dci_p3_dekking),
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          adaptAanbieders(row),

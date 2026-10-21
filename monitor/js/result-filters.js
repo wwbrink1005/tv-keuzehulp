@@ -1,5 +1,8 @@
-import { priceGroupsBySize, sizeGroupToAllowedSizes } from "./data.js";
-import { matchMonitors, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
+import { priceGroupsBySize, is4KOfMeer, AANBEVOLEN_SCHERPTE } from "./data.js";
+import {
+  matchMonitors, kiesBesteMatch, heeftWens, voldoetAanGame, beeldWensen, extraWensen, scherpGenoeg,
+  applyMinAanbiedersCascade, BAND_BESTE, DEFAULT_MIN_AANBIEDERS,
+} from "./matching.js";
 import { computeDynamicPriceGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
@@ -62,10 +65,16 @@ const filterState = {
   sizeGroup:    ""
 };
 
+// Sinds okt. 2026 ook de nieuwe Icecat-velden (hoogte, webcam, opladen via
+// USB-C, HDMI 2.1). Alleen wat zeker is telt: een onbekend veld is geen "ja".
 const FUNCTIE_DEFINITIES = [
-  { key: "curved", label: "Gebogen scherm", check: m => m.gebogen === "Ja" },
-  { key: "speakers", label: "Ingebouwde speakers", check: m => m.speakers === "Ja" },
+  { key: "hoogte", label: "In hoogte verstelbaar", check: m => heeftWens(m, "hoogte") === true },
+  { key: "usbcladen", label: "Laptop opladen via USB-C", check: m => heeftWens(m, "usbc") === true },
   { key: "usbc", label: "USB-C", check: m => m.usb_c === "Ja" },
+  { key: "webcam", label: "Ingebouwde webcam", check: m => heeftWens(m, "webcam") === true },
+  { key: "speakers", label: "Ingebouwde speakers", check: m => m.speakers === "Ja" },
+  { key: "curved", label: "Gebogen scherm", check: m => m.gebogen === "Ja" },
+  { key: "hdmi21", label: "HDMI 2.1 (PS5/Xbox op 120 Hz)", check: m => (m.hdmiVersie ?? 0) >= 2.1 },
 ];
 
 // Price buckets are recomputed fresh from the live-fetched catalog on every
@@ -407,6 +416,7 @@ function renderAllFilters() {
 function handleFilterChange(event) {
   const input = event.target.closest("input");
   if (!input) return;
+  meet("filter_gebruikt", { filter: input.closest(".filter-card")?.dataset.filter || input.name, waarde: input.value === "all" ? "alle" : String(input.value).slice(0, 40) });
 
   const name  = input.name;
   const value = input.value;
@@ -460,12 +470,10 @@ export async function initFilters() {
 
   // Load state from localStorage
   const answersData     = localStorage.getItem("monitor_answers");
-  const scoresData      = localStorage.getItem("monitor_scores");
   const sizeGroupData   = localStorage.getItem("monitor_selectedSizeGroup");
   const bestTypeData    = localStorage.getItem("monitor_bestType");
 
   filterState.answers   = answersData  ? JSON.parse(answersData)  : null;
-  filterState.scores    = scoresData   ? JSON.parse(scoresData)   : null;
   filterState.sizeGroup = sizeGroupData ?? "";
   filterState.priceLabels = new Set();
   filterState.bestType  = bestTypeData ?? "";
@@ -479,10 +487,15 @@ export async function initFilters() {
     allMonitors = [];
   }
 
-  // Full, non-price-filtered matchset (priceGroup = null → no restriction).
-  filterState.priceGroups = computeDynamicPriceGroups(allMonitors, filterState.sizeGroup);
-  const liveResult = matchMonitors(allMonitors, filterState.sizeGroup, null, filterState.answers, filterState.scores);
+  // Budget uit de quiz (maximumbedrag) is een echte grens, net als in de quiz.
+  // Past er in deze maat niets binnen, dan zonder grens (zelfde vangnet).
+  const cap = Number(filterState.answers?.budget) || null;
+  const zonderGrens = matchMonitors(allMonitors, filterState.sizeGroup, null, filterState.answers);
+  let liveResult = cap ? matchMonitors(allMonitors, filterState.sizeGroup, cap, filterState.answers) : zonderGrens;
+  const budgetZonderMatch = Boolean(cap && !(liveResult.filteredMatchedMonitors?.length));
+  if (budgetZonderMatch) liveResult = zonderGrens;
   let baseMatches = Array.isArray(liveResult.filteredMatchedMonitors) ? liveResult.filteredMatchedMonitors : [];
+  filterState.bestType = liveResult.bestType || filterState.bestType;
 
   // Fallback: if the live fetch yields nothing, fall back to the matches
   // that were already computed and stored at quiz-submit time.
@@ -499,6 +512,7 @@ export async function initFilters() {
   }
 
   filterState.baseMatches = baseMatches;
+  filterState.priceGroups = computeDynamicPriceGroups(baseMatches, filterState.sizeGroup);
 
   renderAllFilters();
 
@@ -528,4 +542,117 @@ export async function initFilters() {
   // Always use the freshly computed matches so the initial render
   // is consistent with what applyFilters() will produce later.
   applyFilters();
+  if (cap && baseMatches.length) initBudgetNote({ cap, result: liveResult, zonderGrens, budgetZonderMatch });
+  initMeting(cap);
+}
+
+// ───────── budget: "Meer budget?" en het vangnet als er niets binnen past ─────────
+const euroLabel = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const WENS_VOORDEEL = {
+  "4k": "een 4K-scherm", oled: "een OLED-scherm", gebogen: "een gebogen scherm",
+  usbc: "USB-C waarmee je je laptop oplaadt", hoogte: "een in hoogte verstelbare voet",
+  webcam: "een ingebouwde webcam", speakers: "ingebouwde speakers",
+};
+const GAME_VOORDEEL = {
+  console: "HDMI 2.1, zodat je PS5 of Xbox 120 beelden per seconde haalt",
+  rustig: "120 Hz of meer", snel: "144 Hz of meer", competitief: "240 Hz of meer",
+};
+
+// Welke wens heeft de beste monitor boven het budget, die geen enkele zichtbare
+// monitor binnen het budget zeker heeft? Dan noemen we die op de kaart.
+function wensBovenBudget(buiten, binnen, a) {
+  const kandidaten = [...beeldWensen(a), ...extraWensen(a)].map(w => [WENS_VOORDEEL[w], m => heeftWens(m, w) === true]);
+  if ((a?.gebruik ?? []).includes("gaming") && a?.game) kandidaten.unshift([GAME_VOORDEEL[a.game], m => voldoetAanGame(m, a.game) === true]);
+  // Geen wens, maar wel de scherpte die bij de maat hoort (27" QHD, 32" 4K)
+  const scherpte = AANBEVOLEN_SCHERPTE[filterState.sizeGroup];
+  if (scherpte) kandidaten.push([`een scherper scherm (${scherpte.naam}), zoals past bij deze maat`, m => scherpGenoeg(m, filterState.sizeGroup) === true]);
+  return kandidaten.find(([naam, f]) => naam && f(buiten) && !binnen.some(f))?.[0] ?? null;
+}
+
+function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch }) {
+  const binnenLijst = binnen.filteredMatchedMonitors ?? [];
+  const kaart = document.createElement("div");
+  kaart.className = "budget-kaart";
+  kaart.setAttribute("role", "note");
+
+  if (budgetZonderMatch) {
+    meet("budget_kaart", { actie: "niets_binnen_budget" });
+    kaart.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we in deze maat geen monitor.</strong> Dit zijn de monitoren die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
+    plaatsBudgetKaart(kaart);
+    return;
+  }
+
+  // Alleen tonen als er boven het budget monitoren zijn die duidelijk beter bij de
+  // wensen passen (passcore zonder prijsdeel). Vergelijk met wat je binnen budget
+  // echt ziet (2+ winkels), en tel erboven ook alleen wat je standaard ziet.
+  const zichtbaarBinnen = binnenLijst.filter(m => (m.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(m => m.wens)) : binnen.topWens;
+  const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;
+  const beter = (zonderGrens.filteredMatchedMonitors ?? []).filter(m => parsePrice(m.prijs) > cap && m.wens >= drempel);
+  const zichtbaar = beter.filter(m => (m.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const goedkoopsteBuiten = zichtbaar.map(m => parsePrice(m.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
+  if (!goedkoopsteBuiten) return;
+  const buitenBeste = kiesBesteMatch(zichtbaar);
+  const reden = buitenBeste ? wensBovenBudget(buitenBeste, zichtbaarBinnen, filterState.answers) : null;
+  const meer = goedkoopsteBuiten - cap;
+  let toontBuiten = false;
+  const teken = () => {
+    kaart.innerHTML = toontBuiten
+      ? `<div class="budget-kaart-tekst"><strong>Je ziet nu monitoren boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
+         <button type="button" class="budget-kaart-btn">Terug naar monitoren tot ${euroLabel(cap)}</button>`
+      : reden
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${reden}</strong><span>Binnen je budget is dat er niet bij 2 of meer winkels. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze monitoren</button>`
+        : `<div class="budget-kaart-tekst"><strong>Meer budget? Er zijn monitoren die nog beter bij je wensen passen</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze monitoren</button>`;
+    kaart.querySelector(".budget-kaart-btn").addEventListener("click", () => {
+      toontBuiten = !toontBuiten;
+      meet("budget_kaart", { actie: toontBuiten ? "klik_meer_budget" : "klik_terug", reden: reden ? "wens" : "score" });
+      lijstSoort = toontBuiten ? "boven_budget" : "binnen_budget";
+      filterState.baseMatches = toontBuiten ? beter : binnenLijst;
+      filterState.priceGroups = computeDynamicPriceGroups(filterState.baseMatches, filterState.sizeGroup);
+      // Andere lijst = verse start: alle filters terug naar standaard, zoals "Wis filters".
+      qs("#clearFiltersBtn")?.click();
+      teken();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+  teken();
+  plaatsBudgetKaart(kaart);
+  meet("budget_kaart", { actie: "getoond", reden: reden ? "wens" : "score", meer_euro: Math.round(meer) });
+}
+
+// De lijst wordt bij elk filter en elke sortering opnieuw getekend: zet de kaart
+// daarna steeds terug direct na de eerste monitor.
+function plaatsBudgetKaart(kaart) {
+  const grid = qs("#otherMatchesGrid");
+  if (!grid) return;
+  const zet = () => {
+    const items = [...grid.children].filter(el => el !== kaart && !el.classList.contains("rcard-skelet"));
+    if (!items.length) return;
+    const na = items[0];
+    if (na.nextElementSibling === kaart) return;
+    waker.disconnect();
+    na.after(kaart);
+    waker.observe(grid, { childList: true });
+  };
+  const waker = new MutationObserver(zet);
+  waker.observe(grid, { childList: true });
+  zet();
+}
+
+// ───────── meting (Umami, via shared/consent.js) ─────────
+const meet = (naam, props) => window.phTrackEvent?.(naam, { categorie: "monitor", ...props });
+let lijstSoort = "binnen_budget";
+
+function initMeting(cap) {
+  const budget = cap ? String(cap) : "geen_voorkeur";
+  const zichtbaar = () => document.querySelectorAll("#otherMatchesGrid > .rcard").length;
+  // Meegestuurd met elke winkelklik (shared/analytics.js)
+  window.phResultaatContext = () => ({ budget, lijst: zichtbaar(), lijst_soort: lijstSoort });
+  const beste = kiesBesteMatch(filterKeten().filter(genoegWinkels));
+  meet("resultaat_getoond", {
+    budget, maat: filterState.sizeGroup, gebruik: (filterState.answers?.gebruik ?? []).join("+"),
+    lijst: zichtbaar(), beste_merk: beste?.merk ?? "", beste_4k: beste ? String(is4KOfMeer(beste)) : "",
+  });
 }
