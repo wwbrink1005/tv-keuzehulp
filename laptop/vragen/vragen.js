@@ -232,7 +232,7 @@ function metBeschikbaarheid(st, id, opties) {
     if (binnen.some(l => eis(l) && andere.every(f => f(l)))) return o;
     const erboven = vergelijkbaar.filter(l => eis(l) && andere.every(f => f(l))).map(l => parsePrice(l.prijs));
     const systeemMist = os && !catalogus.some(l => l.os === os && eis(l)) && catalogus.some(eis);
-    const note = cap && erboven.length ? `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`
+    const note = cap && erboven.length ? (andere.length && binnen.some(eis) ? `Samen met je andere keuzes pas vanaf ${euro(Math.min(...erboven))}.` : `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`)
       : systeemMist ? `Geen enkele ${OS_LAPTOPNAAM[st.os]} heeft dit.`
       : andere.length ? "Niet in combinatie met je andere keuzes."
       : `Niet in ${lap(st).inch} inch.`;

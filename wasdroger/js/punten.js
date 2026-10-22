@@ -6,6 +6,7 @@ import {
   maakContext, vergelijk, zochtRegel, energiePunt, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
 import { heeftDroogprogramma, isCapaciteitInGroup, DROOGPROGRAMMA_DEFINITIES } from "./data.js";
+import { STIL_DREMPEL } from "./matching.js";
 
 export function buildContext(lijst, naam) {
   return maakContext(lijst, naam, {
@@ -17,9 +18,6 @@ export function buildContext(lijst, naam) {
 
 const HUISHOUDEN = { klein: "1 tot 2 personen", gemiddeld: "3 tot 4 personen", groot: "5 personen of meer" };
 
-// Zelfde grenzen als applyGeluidFilter() in matching.js.
-const STIL_DB = { belangrijk: 65, gemiddeld: 67 };
-
 /** "Waarom dit bij jou past": precies 4 punten. */
 export function buildResultPoints(w, answers, ctx) {
   const p = puntenLijst();
@@ -30,13 +28,9 @@ export function buildResultPoints(w, answers, ctx) {
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  if (STIL_DB[a.geluid] && Number.isFinite(w.geluidDb) && w.geluidDb <= STIL_DB[a.geluid]) vink("geluid-wens", "stil");
-  if (wil("energiezuinig") && ["A", "B", "C"].includes(w.energieLabel)) vink("energie-wens", "zuinig");
-  if (wil("uitgestelde-start") && ja(w.uitgesteldeStart)) vink("uitgesteld", "uitgestelde start");
-  if (wil("kinderslot") && ja(w.kinderslot)) vink("kinderslot", "kinderslot");
-  if (wil("wifi") && ja(w.wifi)) vink("wifi", "bediening via app");
-  if (wil("antikreuk") && ja(w.antikreuk)) vink("antikreuk", "anti-kreuk");
-  if (wil("vochtsensor") && ja(w.vochtsensor)) vink("vochtsensor", "vochtsensor");
+  if (a.stil === "ja" && Number.isFinite(w.geluidDb) && w.geluidDb <= STIL_DREMPEL) vink("geluid-wens", `stil (${getal(w.geluidDb)} dB)`);
+  if (wil("zuinig") && w.energieLabel === "A") vink("energie-wens", "energielabel A");
+  if (wil("app") && w.app === true) vink("wifi", "bediening via app");
   const programmas = (a.programmaAnswers || [])
     .filter((key) => key !== "geen" && heeftDroogprogramma(w.droogprogrammas, key))
     .map((key) => DROOGPROGRAMMA_DEFINITIES.find((d) => d.key === key)?.label.toLowerCase())

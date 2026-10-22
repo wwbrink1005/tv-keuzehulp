@@ -137,7 +137,7 @@ function metBeschikbaarheid(st, id, opties) {
     if (!binnen.some(w => andere.every(f => f(w)))) andere = [];
     if (binnen.some(w => eis(w) && andere.every(f => f(w)))) return o;
     const erboven = alle.filter(w => eis(w) && andere.every(f => f(w))).map(w => parsePrice(w.prijs));
-    const note = cap && erboven.length ? `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`
+    const note = cap && erboven.length ? (andere.length && binnen.some(eis) ? `Samen met je andere keuzes pas vanaf ${euro(Math.min(...erboven))}.` : `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`)
       : andere.length ? "Niet in combinatie met je andere keuzes."
       : "Niet in ons aanbod.";
     return { ...o, disabled: true, note };

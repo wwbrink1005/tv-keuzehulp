@@ -1,5 +1,8 @@
 import { priceGroupsByCapaciteit, capaciteitGroupToAllowedCapaciteit, heeftDroogprogramma, DROOGPROGRAMMA_DEFINITIES } from "./data.js";
-import { matchWasdrogers, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
+import {
+  matchWasdrogers, kiesBesteMatch, heeftProgramma, EXTRA_KENMERK, STIL_DREMPEL, lijst,
+  applyMinAanbiedersCascade, BAND_BESTE, DEFAULT_MIN_AANBIEDERS,
+} from "./matching.js";
 import { computeDynamicPriceGroups, computeDynamicDimensionGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
@@ -63,10 +66,12 @@ const filterState = {
   capaciteitGroup: ""
 };
 
+// Sinds okt. 2026: "Bediening met app" op het afgeleide veld (ook uit de naam).
+// Kinderslot en uitgestelde start blijven als filter, al heeft vrijwel elke droger ze.
 const FUNCTIE_DEFINITIES = [
+  { key: "wifi",             label: "Bediening met app",   check: w => w.app === true },
   { key: "kinderslot",       label: "Kinderslot",          check: w => w.kinderslot === "Ja" },
   { key: "uitgesteldeStart", label: "Uitgestelde start",   check: w => w.uitgesteldeStart === "Ja" },
-  { key: "wifi",             label: "Wifi-bediening",      check: w => w.wifi === "Ja" },
   { key: "inverter",         label: "Inverter motor",      check: w => w.inverter === "Ja" },
   { key: "antikreuk",        label: "Anti-kreukfunctie",   check: w => w.antikreuk === "Ja" },
   { key: "vochtsensor",      label: "Vochtsensor",         check: w => w.vochtsensor === "Ja" },
@@ -433,6 +438,7 @@ function renderAllFilters() {
 function handleFilterChange(event) {
   const input = event.target.closest("input");
   if (!input) return;
+  meet("filter_gebruikt", { filter: input.closest(".filter-card")?.dataset.filter || input.name, waarde: input.value === "all" ? "alle" : String(input.value).slice(0, 40) });
 
   const name  = input.name;
   const value = input.value;
@@ -499,14 +505,17 @@ export async function initFilters() {
     allWasdrogers = [];
   }
 
-  filterState.priceGroups   = computeDynamicPriceGroups(allWasdrogers, filterState.capaciteitGroup, capaciteitGroupToAllowedCapaciteit);
   filterState.breedteGroups = computeDynamicDimensionGroups(allWasdrogers, "breedteMm");
   filterState.diepteGroups  = computeDynamicDimensionGroups(allWasdrogers, "diepteMm");
   filterState.hoogteGroups  = computeDynamicDimensionGroups(allWasdrogers, "hoogteMm");
 
-  // No budget question was asked during the quiz, so the base match set is
-  // computed with priceGroup = null (the full, price-unrestricted result).
-  const result = matchWasdrogers(allWasdrogers, filterState.capaciteitGroup, null, filterState.answers);
+  // Budget uit de quiz (maximumbedrag) is een echte grens, net als in de quiz.
+  // Past er in deze maat niets binnen, dan zonder grens (zelfde vangnet).
+  const cap = Number(filterState.answers?.budget) || null;
+  const zonderGrens = matchWasdrogers(allWasdrogers, filterState.capaciteitGroup, null, filterState.answers);
+  let result = cap ? matchWasdrogers(allWasdrogers, filterState.capaciteitGroup, cap, filterState.answers) : zonderGrens;
+  const budgetZonderMatch = Boolean(cap && !(result.filteredMatchedWasdrogers?.length));
+  if (budgetZonderMatch) result = zonderGrens;
   filterState.baseMatches = Array.isArray(result.filteredMatchedWasdrogers) ? result.filteredMatchedWasdrogers : [];
 
   // Fallback: if the live fetch/computation yields nothing, seed the pool
@@ -526,6 +535,7 @@ export async function initFilters() {
   // No price bucket selected by default: show every matching wasdroger and
   // let the user optionally narrow by budget via the "Prijscategorie" filter.
   filterState.priceLabels = new Set();
+  filterState.priceGroups = computeDynamicPriceGroups(filterState.baseMatches, filterState.capaciteitGroup, capaciteitGroupToAllowedCapaciteit);
 
   renderAllFilters();
 
@@ -556,4 +566,110 @@ export async function initFilters() {
   // Always use the freshly computed matches so the initial render
   // is consistent with what applyFilters() will produce later.
   applyFilters();
+  if (cap && filterState.baseMatches.length) initBudgetNote({ cap, result, zonderGrens, budgetZonderMatch });
+  initMeting(cap);
+}
+
+// ───────── budget: "Meer budget?" en het vangnet als er niets binnen past ─────────
+const euroLabel = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const WENS_VOORDEEL = { zuinig: "een extra zuinige droger (energielabel A)", app: "bediening met een app" };
+const PROGRAMMA_NAAM = Object.fromEntries(DROOGPROGRAMMA_DEFINITIES.map(d => [d.key, d.label.toLowerCase()]));
+
+// Welke wens heeft de beste wasdroger boven het budget, die geen enkele
+// zichtbare wasdroger binnen het budget zeker heeft? Dan noemen we die.
+function wensBovenBudget(buiten, binnen, a) {
+  const kandidaten = [
+    ...lijst(a?.programmaAnswers).map(p => [`een programma voor ${PROGRAMMA_NAAM[p] ?? p}`, w => heeftProgramma(w, p) === true]),
+    ...lijst(a?.extraAnswers).map(e => [WENS_VOORDEEL[e], w => EXTRA_KENMERK[e]?.(w) === true]),
+  ];
+  if (a?.stil === "ja") kandidaten.push(["een stillere droger", w => Number.isFinite(w.geluidDb) && w.geluidDb <= STIL_DREMPEL]);
+  return kandidaten.find(([naam, f]) => naam && f(buiten) && !binnen.some(f))?.[0] ?? null;
+}
+
+function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch }) {
+  const binnenLijst = binnen.filteredMatchedWasdrogers ?? [];
+  const kaart = document.createElement("div");
+  kaart.className = "budget-kaart";
+  kaart.setAttribute("role", "note");
+
+  if (budgetZonderMatch) {
+    meet("budget_kaart", { actie: "niets_binnen_budget" });
+    kaart.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we in deze maat geen wasdroger.</strong> Dit zijn de wasdrogers die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
+    plaatsBudgetKaart(kaart);
+    return;
+  }
+
+  // Alleen tonen als er boven het budget wasdrogers zijn die duidelijk beter bij
+  // de wensen passen (passcore zonder prijsdeel). Vergelijk met wat je binnen
+  // budget echt ziet (2+ winkels), en tel erboven ook alleen wat je standaard ziet.
+  const zichtbaarBinnen = binnenLijst.filter(sb => (sb.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(sb => sb.wens)) : binnen.topWens;
+  const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;
+  const beter = (zonderGrens.filteredMatchedWasdrogers ?? []).filter(sb => parsePrice(sb.prijs) > cap && sb.wens >= drempel);
+  const zichtbaar = beter.filter(sb => (sb.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const goedkoopsteBuiten = zichtbaar.map(sb => parsePrice(sb.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
+  if (!goedkoopsteBuiten) return;
+  const buitenBeste = kiesBesteMatch(zichtbaar);
+  const reden = buitenBeste ? wensBovenBudget(buitenBeste, zichtbaarBinnen, filterState.answers) : null;
+  const meer = goedkoopsteBuiten - cap;
+  let toontBuiten = false;
+  const teken = () => {
+    kaart.innerHTML = toontBuiten
+      ? `<div class="budget-kaart-tekst"><strong>Je ziet nu wasdrogers boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
+         <button type="button" class="budget-kaart-btn">Terug naar wasdrogers tot ${euroLabel(cap)}</button>`
+      : reden
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${reden}</strong><span>Binnen je budget is dat er niet bij 2 of meer winkels. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze wasdrogers</button>`
+        : `<div class="budget-kaart-tekst"><strong>Meer budget? Er zijn wasdrogers die nog beter bij je wensen passen</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze wasdrogers</button>`;
+    kaart.querySelector(".budget-kaart-btn").addEventListener("click", () => {
+      toontBuiten = !toontBuiten;
+      meet("budget_kaart", { actie: toontBuiten ? "klik_meer_budget" : "klik_terug", reden: reden ? "wens" : "score" });
+      lijstSoort = toontBuiten ? "boven_budget" : "binnen_budget";
+      filterState.baseMatches = toontBuiten ? beter : binnenLijst;
+      filterState.priceGroups = computeDynamicPriceGroups(filterState.baseMatches, filterState.capaciteitGroup, capaciteitGroupToAllowedCapaciteit);
+      // Andere lijst = verse start: alle filters terug naar standaard, zoals "Wis filters".
+      qs("#clearFiltersBtn")?.click();
+      teken();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+  teken();
+  plaatsBudgetKaart(kaart);
+  meet("budget_kaart", { actie: "getoond", reden: reden ? "wens" : "score", meer_euro: Math.round(meer) });
+}
+
+// De lijst wordt bij elk filter en elke sortering opnieuw getekend: zet de kaart
+// daarna steeds terug direct na de eerste wasdroger.
+function plaatsBudgetKaart(kaart) {
+  const grid = qs("#otherMatchesGrid");
+  if (!grid) return;
+  const zet = () => {
+    const items = [...grid.children].filter(el => el !== kaart && !el.classList.contains("rcard-skelet"));
+    if (!items.length) return;
+    const na = items[0];
+    if (na.nextElementSibling === kaart) return;
+    waker.disconnect();
+    na.after(kaart);
+    waker.observe(grid, { childList: true });
+  };
+  const waker = new MutationObserver(zet);
+  waker.observe(grid, { childList: true });
+  zet();
+}
+
+// ───────── meting (Umami, via shared/consent.js) ─────────
+const meet = (naam, props) => window.phTrackEvent?.(naam, { categorie: "wasdroger", ...props });
+let lijstSoort = "binnen_budget";
+
+function initMeting(cap) {
+  const budget = cap ? String(cap) : "geen_voorkeur";
+  const zichtbaar = () => document.querySelectorAll("#otherMatchesGrid > .rcard").length;
+  // Meegestuurd met elke winkelklik (shared/analytics.js)
+  window.phResultaatContext = () => ({ budget, lijst: zichtbaar(), lijst_soort: lijstSoort });
+  const beste = kiesBesteMatch(filterKeten().filter(genoegWinkels));
+  meet("resultaat_getoond", {
+    budget, huishouden: filterState.capaciteitGroup, stil: filterState.answers?.stil ?? "",
+    lijst: zichtbaar(), beste_merk: beste?.merk ?? "", beste_label: beste?.energieLabel ?? "",
+  });
 }

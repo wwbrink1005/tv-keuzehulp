@@ -1,4 +1,4 @@
-import { heeftDroogprogramma, isCapaciteitInGroup, DROOGPROGRAMMA_DEFINITIES } from "./data.js";
+import { capaciteitGroupToAllowedCapaciteit, heeftDroogprogramma, isCapaciteitInGroup, ENERGIE_RANG } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 export const DEFAULT_MIN_AANBIEDERS = 2;
@@ -16,129 +16,132 @@ export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_
   return { effectiveMin, result };
 }
 
-// Geen scoring-as (zie data.js) — behouden als no-op zodat de call-sites/
-// localStorage-vorm elders niet hoeven te wijzigen, zelfde patroon als wasmachine.
+// Geen scoring-as (meer); behouden als no-op voor de localStorage-vorm.
 export function calculateScores() {
   return {};
 }
 
-// ─── Geluid filter ─────────────────────────────────────────────────────────────
+// ───────── Matching per wasdroger (sinds 22-10-2026) ─────────
+// Zelfde opzet als de wasmachine: de minimale trommelinhoud en het budget zijn
+// harde grenzen, elke droger krijgt een passcore en de lijst is alles wat dicht
+// bij de top zit. Vroeger een rij filters die stil wegvielen, met wensen die
+// vrijwel elke droger heeft (uitgestelde start, vochtsensor, kinderslot) en
+// anti-kreuk, dat bij Bosch en Siemens onterecht op "Nee" staat.
+//
+// Passcore = 100
+//   - een wens (programma of extra) die hij niet heeft: −150, onbekend: −40
+//   - stil gewenst: −4 per dB boven STIL_DREMPEL (62 dB)
+//   - energielabel: −1,5 per klasse onder A (stroomkosten), ook zonder wens
+//   - trommel kleiner of groter dan ideaal voor het huishouden
+//   - prijs: de duurste in de lijst verliest tot 5 punten
+// `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
+const WENS = 150, WENS_ONBEKEND = 40;
+// Drogers maken 56 tot 67 dB; tot en met 62 dB telt als stil.
+export const STIL_DREMPEL = 62;
+export const BAND_BESTE = 4;
+const BAND_LIJST = 10;
+const MIN_LIJST = 5;
+const MAX_LIJST = 30;
+const PRIJS_GEWICHT = 5;
+const PER_ENERGIEKLASSE = 1.5;
 
-export function applyGeluidFilter(wasdrogers, geluid) {
-  if (geluid === "belangrijk") {
-    const stil = wasdrogers.filter(w => w.geluidDb !== null && w.geluidDb <= 62);
-    if (stil.length > 0) return stil;
-    const redelijkStil = wasdrogers.filter(w => w.geluidDb !== null && w.geluidDb <= 65);
-    if (redelijkStil.length > 0) return redelijkStil;
-    return wasdrogers;
-  }
+const jaNee = v => (v === true || /^ja$/i.test(v ?? "") ? true : v === false || /^nee$/i.test(v ?? "") ? false : null);
+export const EXTRA_KENMERK = {
+  zuinig: w => (w.energieLabel ? w.energieLabel === "A" : null),
+  app: w => jaNee(w.app),
+};
 
-  if (geluid === "gemiddeld") {
-    const redelijk = wasdrogers.filter(w => w.geluidDb !== null && w.geluidDb <= 67);
-    if (redelijk.length > 0) return redelijk;
-    return wasdrogers;
-  }
+export const lijst = a => (Array.isArray(a) ? a : []).filter(v => v !== "geen");
 
-  // "niet" of onbeantwoord → geen filter
-  return wasdrogers;
+/** Heeft de droger dit programma? true / false / null (lijst onvolledig). */
+export function heeftProgramma(w, key) {
+  if (heeftDroogprogramma(w.droogprogrammas, key)) return true;
+  return w.programmasVolledig ? false : null;
 }
 
-// ─── Extra preferences ────────────────────────────────────────────────────────
-
-export function applyExtraFilter(wasdrogers, extraAnswers) {
-  if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
-    return wasdrogers;
-  }
-
-  let filtered = [...wasdrogers];
-
-  if (extraAnswers.includes("energiezuinig")) {
-    const zuinig = filtered.filter(w => ["A", "B", "C"].includes(w.energieLabel));
-    if (zuinig.length > 0) filtered = zuinig;
-  }
-
-  if (extraAnswers.includes("uitgestelde-start")) {
-    const us = filtered.filter(w => w.uitgesteldeStart === "Ja");
-    if (us.length > 0) filtered = us;
-  }
-
-  if (extraAnswers.includes("kinderslot")) {
-    const ks = filtered.filter(w => w.kinderslot === "Ja");
-    if (ks.length > 0) filtered = ks;
-  }
-
-  if (extraAnswers.includes("wifi")) {
-    const wf = filtered.filter(w => w.wifi === "Ja");
-    if (wf.length > 0) filtered = wf;
-  }
-
-  if (extraAnswers.includes("antikreuk")) {
-    const ak = filtered.filter(w => w.antikreuk === "Ja");
-    if (ak.length > 0) filtered = ak;
-  }
-
-  if (extraAnswers.includes("vochtsensor")) {
-    const vs = filtered.filter(w => w.vochtsensor === "Ja");
-    if (vs.length > 0) filtered = vs;
-  }
-
-  return filtered;
+function wensStraf(heeft) {
+  if (heeft === true) return 0;
+  return heeft === false ? WENS : WENS_ONBEKEND;
 }
 
-// ─── Specifieke droogprogramma's ──────────────────────────────────────────────
+function straffen(w, a) {
+  let s = 0;
+  for (const p of lijst(a.programmaAnswers)) s += wensStraf(heeftProgramma(w, p));
+  for (const e of lijst(a.extraAnswers)) s += wensStraf(EXTRA_KENMERK[e]?.(w) ?? null);
 
-export function applyProgrammaFilter(wasdrogers, programmaAnswers) {
-  if (!Array.isArray(programmaAnswers) || programmaAnswers.includes("geen") || programmaAnswers.length === 0) {
-    return wasdrogers;
+  if (a.stil === "ja" && Number.isFinite(w.geluidDb)) s += Math.max(0, w.geluidDb - STIL_DREMPEL) * 4;
+  const rang = ENERGIE_RANG[w.energieLabel];
+  if (Number.isFinite(rang)) s += rang * PER_ENERGIEKLASSE;
+
+  const cap = capaciteitGroupToAllowedCapaciteit[a.capaciteitGroup];
+  if (cap && Number.isFinite(w.capaciteit)) {
+    if (w.capaciteit < cap.idealMin) s += (cap.idealMin - w.capaciteit) * 20;
+    if (w.capaciteit > cap.idealMax) s += (w.capaciteit - cap.idealMax) * 4;
   }
-
-  let filtered = [...wasdrogers];
-
-  for (const key of programmaAnswers) {
-    const match = filtered.filter(w => heeftDroogprogramma(w.droogprogrammas, key));
-    if (match.length > 0) filtered = match;
-  }
-
-  return filtered;
+  return s;
 }
 
-// ─── Main matching function ───────────────────────────────────────────────────
+// Plek van een prijs binnen een lijst: 0 = goedkoopste, 1 = duurste.
+function prijsPlek(pool) {
+  const prijzen = pool.map(w => parsePrice(w.prijs)).sort((x, y) => x - y);
+  return prijs => (prijzen.length < 2 ? 0 : prijzen.filter(x => x < prijs).length / (prijzen.length - 1));
+}
 
-export function matchWasdrogers(wasdrogers, capaciteitGroup, priceGroup, answers) {
-  if (!Array.isArray(wasdrogers) || !capaciteitGroup) {
-    return { bestMatch: null, bestType: null, filteredMatchedWasdrogers: [] };
-  }
-
-  // 1. Filter by capaciteit + price
-  const filtered = wasdrogers.filter(w => {
-    const price = parsePrice(w.prijs);
-    return (
-      isCapaciteitInGroup(w.capaciteit, capaciteitGroup) &&
-      (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max))
-    );
+export function scoreWasdrogers(pool, answers = {}) {
+  const plek = prijsPlek(pool);
+  return pool.map(w => {
+    const wens = 100 - straffen(w, answers);
+    const fit = wens - PRIJS_GEWICHT * plek(parsePrice(w.prijs));
+    return { ...w, wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
   });
+}
 
-  if (filtered.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedWasdrogers: [] };
+/** Beste match: de goedkoopste van de drogers die even goed passen als de beste. */
+export function kiesBesteMatch(lijstIn) {
+  const metScore = (lijstIn ?? []).filter(w => Number.isFinite(w?.fit));
+  if (!metScore.length) return null;
+  const top = Math.max(...metScore.map(w => w.fit));
+  return metScore
+    .filter(w => w.fit >= top - BAND_BESTE)
+    .reduce((a, b) => {
+      const pa = parsePrice(a.prijs), pb = parsePrice(b.prijs);
+      return pb < pa || (pb === pa && b.fit > a.fit) ? b : a;
+    });
+}
+
+/**
+ * @param {object[]} wasdrogers    genormaliseerde drogers (utils.normalizeProducts)
+ * @param {string} capaciteitGroup klein / gemiddeld / groot
+ * @param {number|null} budget     maximumbedrag uit de quiz, of null (geen voorkeur)
+ * @param {object} answers         antwoorden uit de quiz
+ */
+export function matchWasdrogers(wasdrogers, capaciteitGroup, budget, answers) {
+  const leeg = { bestMatch: null, bestType: null, filteredMatchedWasdrogers: [], topWens: null };
+  if (!Array.isArray(wasdrogers) || !capaciteitGroup) return leeg;
+
+  const cap = Number(budget) || null;
+  const pool = wasdrogers.filter(w => isCapaciteitInGroup(w.capaciteit, capaciteitGroup) && (!cap || parsePrice(w.prijs) <= cap));
+  if (pool.length === 0) return leeg;
+
+  const gescoord = scoreWasdrogers(pool, { ...answers, capaciteitGroup }).sort((x, y) => y.fit - x.fit);
+  const top = gescoord[0].fit;
+  const resultaat = [];
+  let zichtbaar = 0;
+  for (const w of gescoord) {
+    if (zichtbaar >= MAX_LIJST) break;
+    if (w.fit < top - BAND_LIJST && zichtbaar >= MIN_LIJST) break;
+    resultaat.push(w);
+    if ((w.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS) zichtbaar++;
   }
+  resultaat.sort((x, y) => parsePrice(x.prijs) - parsePrice(y.prijs));
 
-  // 2. Apply geluid filter
-  let candidates = applyGeluidFilter(filtered, answers.geluid ?? "");
-
-  // 3. Apply extra preferences
-  candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
-
-  // 4. Apply specifieke droogprogramma's
-  candidates = applyProgrammaFilter(candidates, answers.programmaAnswers ?? []);
-
-  const matchedWasdrogers = candidates.length > 0 ? candidates : filtered;
-
-  // Best match = cheapest in the matched set
-  const bestMatch = matchedWasdrogers.reduce((cheapest, w) => {
-    return parsePrice(w.prijs) < parsePrice(cheapest.prijs) ? w : cheapest;
-  });
-
-  return { bestMatch, bestType: "Algemeen", filteredMatchedWasdrogers: matchedWasdrogers };
+  const bestMatch = kiesBesteMatch(resultaat);
+  return {
+    bestMatch,
+    bestType: "Algemeen",
+    filteredMatchedWasdrogers: resultaat,
+    topWens: Math.max(...resultaat.map(w => w.wens)),
+  };
 }
 
 // De kaartpunten ("Waarom dit bij jou past") staan in punten.js.

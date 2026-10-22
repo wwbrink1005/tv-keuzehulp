@@ -60,6 +60,19 @@ export function normalizeProducts(rawProducts) {
 
     if (!product.merk) return [];
 
+    // Programmalijst: een volledige lijst (5+ programma's) zegt ook wat er NIET
+    // op zit; een korte of lege lijst niet. Stoom staat bij Miele en Beko
+    // soms alleen in de naam ("Eco & Steam", "SteamCure").
+    const programmas = [String(product.droogprogrammas ?? ""), /steam|stoom/i.test(naam) ? "Stoom" : ""].filter(Boolean).join(", ");
+    // Bij Miele vult de scraper de vaste basislijst van elke Miele-droger in
+    // (Wol, Impregneren, Beddengoed ...): wat daarin staat klopt, maar wat er
+    // niet in staat (hygiëne, sport) is onbekend, niet "nee".
+    const programmasVolledig = !/^miele$/i.test(product.merk)
+      && String(product.droogprogrammas ?? "").split(/[,;]/).filter(s => s.trim()).length >= 5;
+    // App: het Icecat-/scraperveld, of een app-naam in de productnaam
+    const app = /^ja$/i.test(product.wifiRaw ?? "") || /homewhiz|home connect|smartthings|thinq|connectlife|wi-?fi/i.test(naam) ? true
+      : /^nee$/i.test(product.wifiRaw ?? "") ? false : null;
+
     return [{
       merk:             product.merk,
       naam,
@@ -77,7 +90,9 @@ export function normalizeProducts(rawProducts) {
       inverter:         product.inverter         ?? "Nee",
       antikreuk:        product.antikreuk        ?? "Nee",
       vochtsensor:      product.vochtsensor      ?? "Nee",
-      droogprogrammas:  product.droogprogrammas  ?? "",
+      droogprogrammas:  programmas,
+      programmasVolledig,
+      app,
       breedteMm:        Number.isFinite(product.breedteMm) ? product.breedteMm : null,
       diepteMm:         Number.isFinite(product.diepteMm)  ? product.diepteMm  : null,
       hoogteMm:         Number.isFinite(product.hoogteMm)  ? product.hoogteMm  : null,

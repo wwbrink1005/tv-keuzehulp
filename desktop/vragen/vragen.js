@@ -133,7 +133,7 @@ function opslagOpties(st, opties) {
     const eis = d => genoegOpslag(d, o.v) === true && andere.every(f => f(d));
     if (binnen.some(eis)) return o;
     const erboven = alle.filter(eis).map(d => parsePrice(d.prijs));
-    const note = cap && erboven.length ? `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`
+    const note = cap && erboven.length ? (andere.length && binnen.some(d => genoegOpslag(d, o.v) === true) ? `Samen met je andere keuzes pas vanaf ${euro(Math.min(...erboven))}.` : `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`)
       : andere.length ? "Niet in combinatie met je andere keuzes." : `Niet als ${TYPE_NAAM[st.behuizing] ?? "desktop"}.`;
     return { ...o, disabled: true, note };
   });

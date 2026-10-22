@@ -61,6 +61,7 @@ function adaptRow(row) {
     kinderslot:          parseJaNee(row.kinderslot),
     uitgesteldeStart:    parseJaNee(row.uitgestelde_start),
     wifi:                parseJaNee(row.wifi),
+    wifiRaw:             row.wifi ?? "",   // leeg = onbekend (utils.js leidt "app" af)
     inverter:            parseJaNee(row.inverter),
     antikreuk:           parseJaNee(row.antikreuk),
     vochtsensor:         parseJaNee(row.vochtsensor),
