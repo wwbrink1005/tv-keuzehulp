@@ -4,8 +4,8 @@
 // dezelfde scène als de robotstofzuiger-test). Vloervlakken, stof en accu tekent
 // de pagina zelf in perspectief. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera } from "../../shared/quiz3d.js";
-import { matchStofzuigers } from "../js/matching.js";
-import { normalizeProducts } from "../js/utils.js";
+import { matchStofzuigers, heeftExtra, voldoetAanZak, LOOPTIJD_MIN, ACTIERADIUS_MIN } from "../js/matching.js";
+import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 
 const camera = makeCamera({ camY: -3.4, camZ: 1.25, shiftX: -0.12, shiftY: -0.17 });
@@ -34,50 +34,125 @@ const isSteel = st => st.stofzuigerType === "Steelstofzuiger";
 const kind = st => (isSteel(st) ? "steel" : "cil");
 const typeNaam = st => (isSteel(st) ? "steelstofzuigers" : "sledestofzuigers");
 
+// Sinds okt. 2026: budget, woninggrootte (snoerlengte of accuduur) en een
+// extra's-vraag in plaats van de vloer- en huisdierenvraag (zie
+// docs/stofzuiger-keuzehulp-werking.md).
+const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const BUDGET_CAPS = { Cilinderstofzuiger: [150, 250], Steelstofzuiger: [300, 500] };
 const Q_TYPE = {
   id: "stofzuigerType", type: "radio",
   title: "Wat voor stofzuiger zoek je?",
   sub: "De stofzuiger in de kamer wisselt mee.",
-  why: "Een cilinderstofzuiger werkt met een snoer, is doorgaans krachtiger en heeft geen oplaadtijd. Een steelstofzuiger is draadloos, licht en wendbaar, maar heeft een beperkte accuduur. Dit bepaalt sterk welke stofzuigers voor je in aanmerking komen.",
-  options: [{ v: "Cilinderstofzuiger", label: "Cilinderstofzuiger, met snoer, krachtig", price: "€" }, { v: "Steelstofzuiger", label: "Steelstofzuiger, draadloos, licht en wendbaar", price: "€€€" }],
+  why: "Een stofzuiger met snoer (sledestofzuiger) is doorgaans krachtiger en heeft geen oplaadtijd. Een steelstofzuiger is draadloos, licht en wendbaar, maar heeft een beperkte accuduur. Dit bepaalt sterk welke stofzuigers voor je in aanmerking komen.",
+  options: [{ v: "Cilinderstofzuiger", label: "Met snoer, krachtig", price: "€" }, { v: "Steelstofzuiger", label: "Steelstofzuiger, draadloos, licht en wendbaar", price: "€€€" }],
 };
-const Q_VLOER = {
-  id: "vloertype", type: "radio",
-  title: "Welke vloeren ga je vooral stofzuigen?",
-  sub: "Zie welk deel van de vloer telt.",
-  why: "Niet elke stofzuiger presteert even goed op tapijt en op harde vloeren zoals parket of tegels. We geven voorrang aan stofzuigers die goed geschikt zijn voor het vloertype dat jij vooral hebt.",
-  options: [{ v: "tapijt", label: "Vooral tapijt of vloerkleden", price: "€€" }, { v: "harde_vloer", label: "Vooral harde vloeren, zoals parket of tegels", price: "€" }, { v: "allebei", label: "Allebei, ongeveer evenveel", price: "€€€" }],
+const Q_BUDGET = {
+  id: "budget", type: "radio",
+  title: "Wat wil je maximaal uitgeven?",
+  sub: st => `Bedragen voor een ${isSteel(st) ? "steelstofzuiger" : "stofzuiger met snoer"}. Je krijgt de beste binnen je budget.`,
+  why: "Met je budget zoeken we de beste stofzuiger die je ook echt wilt kopen. Past een stofzuiger die nog beter bij je wensen past net niet binnen je bedrag, dan laten we dat op de resultaatpagina zien.",
+  options: [],   // per type, zie question() hieronder
 };
-const Q_DIER = {
-  id: "huisdieren", type: "radio",
-  title: "Heb je huisdieren of last van allergieën?",
-  sub: "Dan telt het filter extra mee.",
-  why: "Bij huisdieren of allergieën geven we voorrang aan stofzuigers met HEPA-filtering, die fijnstof en allergenen beter afvangen dan een standaardfilter.",
-  options: [{ v: "huisdieren", label: "Ja, ik heb huisdieren", price: "€€" }, { v: "allergie", label: "Ik heb last van allergieën", price: "€€" }, { v: "geen", label: "Nee, geen van beide", price: "€" }],
+const Q_WONING = {
+  id: "woning", type: "radio",
+  title: "Hoe groot is je woning?",
+  sub: st => (isSteel(st) ? "Daar hangt af hoe lang de accu mee moet." : "Daar hangt af hoe lang het snoer moet zijn."),
+  why: "Met een steelstofzuiger wil je in één keer rond kunnen: voor een appartement is 30 minuten genoeg, voor een groot huis of met trappen minstens een uur. Bij een stofzuiger met snoer bepaalt de actieradius (snoer plus slang) hoe vaak je de stekker moet verplaatsen: 8 meter voor een appartement, 12 meter voor een groot huis.",
+  options: [{ v: "klein", label: "Appartement of klein huis", price: "€" }, { v: "gemiddeld", label: "Gemiddeld huis", price: "€€" }, { v: "groot", label: "Groot huis of met trappen", price: "€€€" }],
 };
 const Q_ZAK = {
   id: "zak", type: "radio",
   title: "Met of zonder stofzak?",
   sub: "Zie waar het stof terechtkomt.",
-  why: "Een stofzuiger met stofzak is vaak hygiënischer bij het legen, maar brengt vervangingskosten met zich mee. Een zakloze stofzuiger heeft geen wegwerpkosten, maar het stofreservoir moet je zelf schoonmaken.",
+  why: "Een stofzuiger met stofzak is hygiënischer bij het legen, maar je koopt af en toe nieuwe zakken. Een zakloze stofzuiger heeft geen wegwerpkosten, maar het stofreservoir maak je zelf schoon.",
   options: [{ v: "met_zak", label: "Met stofzak", price: "€" }, { v: "zonder_zak", label: "Zonder stofzak (zakloos)", price: "€€" }, { v: "geen_voorkeur", label: "Geen voorkeur", price: "€" }],
 };
-const Q_LOOP = {
-  id: "looptijd", type: "radio",
-  title: "Hoe lang wil je minimaal kunnen stofzuigen op 1 acculading?",
-  sub: "De accu-indicator laat het zien.",
-  why: "Steelstofzuigers verschillen sterk in accuduur. Voor een klein huis is een kortere looptijd vaak voldoende; voor een groter huis of om steeds te moeten opladen te voorkomen kies je beter een model met een langere looptijd.",
-  options: [{ v: "45min", label: "Geen voorkeur, ongeveer 45 minuten is prima", price: "€" }, { v: "60min", label: "Minstens 60 minuten", price: "€€" }, { v: "90min", label: "Minstens 90 minuten", price: "€€€" }],
-};
-const Q_GELUID = {
-  id: "geluid", type: "radio",
-  title: "Is een stil geluidsniveau belangrijk voor je?",
+const Q_STIL = {
+  id: "stil", type: "radio",
+  title: "Is een stille stofzuiger belangrijk voor je?",
   sub: "Zie hoeveel geluid er mag zijn.",
-  why: "Sommige stofzuigers zijn merkbaar stiller dan andere. Vind je dat belangrijk, dan geven we voorrang aan de stillere modellen binnen jouw gekozen type.",
-  options: [{ v: "belangrijk", label: "Ja, het liefst een stille stofzuiger", price: "€€" }, { v: "niet_belangrijk", label: "Nee, maakt mij niet uit", price: "€" }],
+  why: "Sommige stofzuigers zijn merkbaar stiller dan andere. Vind je dat belangrijk, dan komen de stillere modellen van het gekozen type bovenaan.",
+  options: [{ v: "ja", label: "Ja, het liefst een stille stofzuiger", price: "€€" }, { v: "nee", label: "Nee, het geluid maakt niet uit", price: "€" }],
 };
-// stap 4 hangt af van het type, net als in de huidige keuzehulp (zak bij slede, accu bij steel)
-const question = st => [Q_TYPE, Q_VLOER, Q_DIER, isSteel(st) ? Q_LOOP : Q_ZAK, Q_GELUID][st.q];
+const Q_EXTRA = {
+  id: "extra", type: "check", exclusive: "geen",
+  title: "Wat is nog meer belangrijk voor jou?",
+  sub: "Je keuzes verschijnen in de kamer.",
+  why: "Met huisdieren helpt een borstel die haren uit tapijt en meubels trekt. Bij allergie vangt een HEPA- of hygiënefilter fijnstof en pollen af. Een parketborstel met zachte haren beschermt harde vloeren. Sommige steelstofzuigers dweilen ook, en met een tweede of wisselbare accu kun je langer door.",
+  options: [
+    { v: "huisdieren", label: "Geschikt voor huisdierharen", price: "€€" },
+    { v: "allergie", label: "Filter voor allergie (HEPA)", price: "€€" },
+    { v: "parket", label: "Parketborstel voor harde vloeren", price: "€€" },
+    { v: "dweilen", label: "Kan ook dweilen", price: "€€€", when: st => isSteel(st) },
+    { v: "accu", label: "Extra of wisselbare accu", price: "€€€", when: st => isSteel(st) },
+    { v: "geen", label: "Geen extra wensen", price: "€" },
+  ],
+};
+// de zakvraag bestaat alleen bij een stofzuiger met snoer (steelstofzuigers zijn zakloos)
+const vragen = st => [Q_TYPE, Q_BUDGET, Q_WONING, ...(isSteel(st) ? [] : [Q_ZAK]), Q_STIL, Q_EXTRA];
+const QID = st => vragen(st)[st.q]?.id;
+
+// ───────── live catalogus: budgettelling en grijze opties ─────────
+let catalogus = null;
+const capVan = v => (v && v !== "geen" ? Number(v) : null);
+const budgetOpties = st => [...(BUDGET_CAPS[st.stofzuigerType] ?? BUDGET_CAPS.Cilinderstofzuiger).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }];
+const vanType = st => (catalogus ?? []).filter(x => (x.aanbieders ?? []).length >= 2 && x.stofzuigerType === st.stofzuigerType);
+function budgetCaption(st) {
+  const cap = capVan(st.budget);
+  if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste stofzuiger binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
+  if (!catalogus) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", cap ? "We zoeken de beste stofzuiger binnen dit bedrag." : "We kiezen puur op je wensen."];
+  const prijzen = vanType(st).map(x => parsePrice(x.prijs));
+  const binnen = cap ? prijzen.filter(x => x <= cap) : prijzen;
+  const naam = typeNaam(st);
+  if (!cap) return ["Geen voorkeur", `Alle ${prijzen.length} ${naam} doen mee, van ${euro(Math.min(...prijzen))} tot ${euro(Math.max(...prijzen))}. We kiezen puur op je wensen.`];
+  if (!binnen.length) return [`Tot ${euro(cap)}`, `Binnen dit bedrag vonden we geen ${naam}. We tonen dan de ${naam} die het best bij je passen, net erboven.`];
+  return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} ${naam} kosten ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}. We zoeken de beste die bij je wensen past.`];
+}
+// Grijs als geen stofzuiger bij 2+ winkels van dit type binnen het budget het
+// zeker heeft, samen met de eerdere keuzes (zak) en de al aangevinkte extra's.
+const EIS = {
+  zak: { met_zak: x => voldoetAanZak(x, "met_zak") === true, zonder_zak: x => voldoetAanZak(x, "zonder_zak") === true },
+  extra: Object.fromEntries(["huisdieren", "allergie", "parket", "dweilen", "accu"].map(v => [v, x => heeftExtra(x, v) === true])),
+};
+function eisenVan(st, totId, zonder) {
+  const eisen = [];
+  for (const q of vragen(st)) {
+    const eigenRadio = q.id === totId && !Array.isArray(st[q.id]);
+    if (EIS[q.id] && !eigenRadio) [].concat(st[q.id] ?? []).filter(v => EIS[q.id][v] && (q.id !== totId || v !== zonder)).forEach(v => eisen.push(EIS[q.id][v]));
+    if (q.id === totId) break;
+  }
+  return eisen;
+}
+function metBeschikbaarheid(st, q) {
+  if (!catalogus || !EIS[q.id]) return q;
+  const cap = capVan(st.budget), alle = vanType(st);
+  const binnen = cap ? alle.filter(x => parsePrice(x.prijs) <= cap) : alle;
+  return { ...q, options: q.options.map(o => {
+    const eis = EIS[q.id][o.v];
+    if (!eis) return o;
+    let andere = eisenVan(st, q.id, o.v);
+    if (!binnen.some(x => andere.every(f => f(x)))) andere = [];
+    if (binnen.some(x => eis(x) && andere.every(f => f(x)))) return o;
+    const erboven = alle.filter(x => eis(x) && andere.every(f => f(x))).map(x => parsePrice(x.prijs));
+    const note = cap && erboven.length ? (andere.length && binnen.some(eis) ? `Samen met je andere keuzes pas vanaf ${euro(Math.min(...erboven))}.` : `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`)
+      : andere.length && alle.some(eis) ? "Niet in combinatie met je andere keuzes." : `Niet bij de ${typeNaam(st)}.`;
+    return { ...o, disabled: true, note };
+  }) };
+}
+const WENS_NAAM = { huisdieren: "een borstel voor huisdierharen", allergie: "een filter voor allergie", parket: "een parketborstel", dweilen: "een dweilfunctie", accu: "een extra of wisselbare accu" };
+function extraCaption(st) {
+  const wensen = st.extra.filter(e => e !== "geen");
+  if (!wensen.length) return st.extra.length ? ["Geen extra wensen", "We kiezen puur op je eerdere antwoorden."] : ["Extra's", "Vink aan wat je belangrijk vindt."];
+  if (!catalogus) return ["Jouw extra's", "Je keuzes verschijnen in de kamer."];
+  const cap = capVan(st.budget);
+  const l = vanType(st).filter(x => !cap || parsePrice(x.prijs) <= cap);
+  const eisen = eisenVan(st, "extra", null);
+  const n = l.filter(x => eisen.every(f => f(x))).length;
+  const wat = eisen.length > 1 ? "alles wat je koos" : WENS_NAAM[wensen[0]];
+  const bij = cap ? ` binnen je budget` : "";
+  if (!n) return ["Jouw extra's", `Van de ${l.length} ${typeNaam(st)}${bij} heeft er geen zeker ${wat}. We tonen die er het meest van hebben.`];
+  return ["Jouw extra's", `${n} van de ${l.length} ${typeNaam(st)}${bij} ${n === 1 ? "heeft" : "hebben"} zeker ${wat}.`];
+}
 
 // ───────── overlays ─────────
 const P = (ctx, x, y, z = 0.016) => ctx.toPx(x, y, z);
@@ -135,17 +210,20 @@ function spot(ctx, w, label, dx = 60, dy = -40) {
   return spotLabel(ctx, ctx.toPx(...w), label, ctx.mobile ? 24 : dx, dy);
 }
 
-function stap4(ctx, st) {
+function accuView(ctx, st) {
   if (isSteel(st)) {
-    const min = { "45min": 45, "60min": 60, "90min": 90 }[st.looptijd];
+    const min = LOOPTIJD_MIN[st.woning];
     if (!min) return {};
     // balkjes naar verhouding: 45 min = 2, 60 = 3, 90 = 4 van de 4
-    const n = Math.round(min / 22.5), bars = Array.from({ length: 4 }, (_, i) => `<s class="${i < n ? "on" : ""}"></s>`).join("");
+    const n = Math.round(min / 15), bars = Array.from({ length: 4 }, (_, i) => `<s class="${i < n ? "on" : ""}"></s>`).join("");
     // label naast de handgreep, niet erboven (daar is bij inzoomen geen ruimte)
     const w = W("steel", [0, 0.03, 0.9]), p = ctx.toPx(w[0] + 0.32, w[1], w[2]);
-    const txt = st.looptijd === "45min" ? "<b>± 45 min</b> <span class=\"muted\">per acculading</span>" : `<b>Minstens ${min} min</b> <span class="muted">per acculading</span>`;
+    const txt = `<b>Minstens ${min} min</b> <span class="muted">per acculading</span>`;
     return { svg: "", html: tag(p, `<span class="batt"><i>${bars}</i>${txt}</span>`) };
   }
+  return {};
+}
+function zakView(ctx, st) {
   if (st.zak === "zonder_zak") return spot(ctx, W("cil", [0.07, 0, 0.3]), "<b>Stofreservoir</b>: legen en uitspoelen, geen zakken kopen");
   if (st.zak === "met_zak") return spot(ctx, W("cil", [0.07, 0, 0.24]), "<b>Stofzak</b>: stof blijft dicht bij het legen");
   return {};
@@ -153,8 +231,8 @@ function stap4(ctx, st) {
 
 // geluid: het filter werkt relatief (stiller dan de helft van het gekozen type), dus geen dB-getal
 function waves(ctx, st) {
-  if (!st.geluid) return {};
-  const soft = st.geluid !== "belangrijk", n = soft ? 5 : 2;
+  if (!st.stil) return {};
+  const soft = st.stil !== "ja", n = soft ? 5 : 2;
   const c = isSteel(st) ? W("steel", [0, 0.03, 0.95]) : W("cil", [0, 0, 0.14]);
   const half = isSteel(st) ? 0.07 : 0.24;
   const l = ctx.toPx(c[0] - half, c[1], c[2]), r = ctx.toPx(c[0] + half, c[1], c[2]);
@@ -168,86 +246,114 @@ function waves(ctx, st) {
   }
   // steel reikt hoog: label links ernaast i.p.v. erboven (rechtsboven zit de uitleg)
   const t = isSteel(st) ? ctx.toPx(c[0] - 0.5, c[1], 0.75) : ctx.toPx(c[0], c[1], 0.5);
-  const txt = soft ? "<b>Geen eis</b> <span class=\"muted\">aan het geluid</span>" : `<b>Stiller dan de helft</b> <span class="muted">van de ${typeNaam(st)}</span>`;
+  const txt = soft ? "<b>Geen eis</b> <span class=\"muted\">aan het geluid</span>" : `<b>Stiller dan gemiddeld</b> <span class="muted">voor ${typeNaam(st)}</span>`;
   return { svg, html: tag(t, txt) };
 }
 
 
 
-createQuiz3D({
+// extra's in beeld: hondenmand + filter (huisdieren), stofdeeltjes (allergie),
+// harde vloer (parket); de bestaande weergaven van de vroegere vragen
+function extraView(ctx, st) {
+  let svg = "", html = "";
+  const add = r => { svg += r.svg ?? ""; html += r.html ?? ""; };
+  if (st.extra.includes("parket")) add(floorAreas(ctx, { ...st, vloertype: "harde_vloer" }));
+  if (st.extra.includes("allergie")) add(filterView(ctx, { ...st, huisdieren: "allergie" }));
+  else if (st.extra.includes("huisdieren")) add(filterView(ctx, { ...st, huisdieren: "huisdieren" }));
+  return { svg, html };
+}
+
+const FOCUS = {
+  stofzuigerType: () => ({ x: 0.88, y: -1.0, z: 0.45, zoom: 1.4 }),
+  budget: () => ({ x: 0.88, y: -1.0, z: 0.45, zoom: 1.4 }),
+  woning: st => ({ x: 0.88, y: -1.0, z: isSteel(st) ? 0.6 : 0.35, zoom: isSteel(st) ? 1.3 : 1.2, anchorX: 0.38 }),
+  zak: st => ({ x: 0.88, y: -1.0, z: 0.35, zoom: 1.6, anchorX: 0.38 }),
+  stil: st => ({ x: 0.88, y: -1.0, z: isSteel(st) ? 0.6 : 0.35, zoom: 1.35 }),
+  extra: () => ({ x: 0.35, y: -1.1, z: 0.3, zoom: 1.15 }),
+};
+const FOCUS_DESKTOP = {
+  stofzuigerType: () => ({ x: 0.88, y: -1.0, z: 0.5, zoom: 1.0, anchorX: 0.66 }),
+  budget: () => ({ x: 0.88, y: -1.0, z: 0.5, zoom: 1.0, anchorX: 0.66 }),
+  woning: st => ({ x: 0.88, y: -1.0, z: isSteel(st) ? 0.6 : 0.4, zoom: isSteel(st) ? 1.3 : 1.0, anchorX: 0.6 }),
+  zak: () => ({ x: 0.88, y: -1.0, z: 0.4, zoom: 1.6, anchorX: 0.6 }),
+  stil: st => ({ x: 0.88, y: -1.0, z: isSteel(st) ? 0.55 : 0.4, zoom: isSteel(st) ? 1.1 : 1.35, anchorX: 0.64 }),
+  extra: () => ({ x: 0.4, y: -1.1, z: 0.4, zoom: 1.0, anchorX: 0.64 }),
+};
+
+const quiz = createQuiz3D({
   camera,
   captionTop: true,   // uitleg vast rechtsboven: de toestellen staan laag in beeld
-  steps: 5,
-  state: { stofzuigerType: null, vloertype: null, huisdieren: null, zak: null, looptijd: null, geluid: null },
+  steps: st => vragen(st).length,
+  state: { stofzuigerType: null, budget: null, woning: null, zak: null, stil: null, extra: [] },
   imgPath: n => `stofzuiger/vragen/img/${n}.webp`,
-  question,
+  question: st => {
+    const q = vragen(st)[st.q];
+    if (q.id === "budget") return { ...q, options: budgetOpties(st) };
+    return metBeschikbaarheid(st, q);
+  },
 
   images(st) {
-    const vac = isSteel(st) ? "steel" : st.q >= 3 && st.zak === "zonder_zak" ? "cil-zakloos" : "cil-zak";
+    const vac = isSteel(st) ? "steel" : st.zak === "zonder_zak" && QID(st) !== "stofzuigerType" ? "cil-zakloos" : "cil-zak";
     const list = ["woonkamer", vac];
-    if (st.q === 2 && st.huisdieren === "huisdieren") list.push("mand");
+    if (QID(st) === "extra" && st.extra.includes("huisdieren")) list.push("mand");
     return list;
   },
 
-  onAnswer(st, id) { if (id === "stofzuigerType") { st.zak = null; st.looptijd = null; } },
+  onAnswer(st, id) {
+    if (id === "stofzuigerType") {
+      st.zak = null;
+      st.extra = st.extra.filter(e => isSteel(st) || (e !== "dweilen" && e !== "accu"));
+      if (!budgetOpties(st).some(o => o.v === st.budget)) st.budget = null;
+    }
+  },
+  onNext(st, id) { meetStap(st, id); },
 
-  focus: st => [
-    { x: 0.88, y: -1.0, z: 0.45, zoom: 1.4 },
-    { x: 0.2, y: -1.2, z: 0.1, zoom: 1.0 },
-    { x: 0.35, y: -1.1, z: 0.3, zoom: 1.15 },
-    { x: 0.88, y: -1.0, z: isSteel(st) ? 0.6 : 0.35, zoom: isSteel(st) ? 1.3 : 1.6, anchorX: 0.38 },
-    { x: 0.88, y: -1.0, z: isSteel(st) ? 0.6 : 0.35, zoom: 1.35 },
-  ][st.q],
-  focusDesktop: st => [
-    { x: 0.88, y: -1.0, z: 0.5, zoom: 1.0, anchorX: 0.66 },
-    { x: 0.2, y: -1.2, z: 0.3, zoom: 1.0, anchorX: 0.62 },
-    { x: 0.4, y: -1.1, z: 0.4, zoom: 1.0, anchorX: 0.64 },
-    { x: 0.88, y: -1.0, z: isSteel(st) ? 0.6 : 0.4, zoom: isSteel(st) ? 1.3 : 1.6, anchorX: 0.6 },
-    { x: 0.88, y: -1.0, z: isSteel(st) ? 0.55 : 0.4, zoom: isSteel(st) ? 1.1 : 1.35, anchorX: 0.64 },
-  ][st.q],
+  focus: st => (FOCUS[QID(st)] ?? FOCUS.stofzuigerType)(st),
+  focusDesktop: st => (FOCUS_DESKTOP[QID(st)] ?? FOCUS_DESKTOP.stofzuigerType)(st),
 
   overlays(ctx) {
     const { st } = ctx;
     VIEW_W = ctx.width;
-    if (st.q === 1) return floorAreas(ctx, st);
-    if (st.q === 2) return filterView(ctx, st);
-    if (st.q === 3) return stap4(ctx, st);
-    if (st.q === 4) return waves(ctx, st);
-    return {};
+    switch (QID(st)) {
+      case "woning": return accuView(ctx, st);
+      case "zak": return zakView(ctx, st);
+      case "stil": return waves(ctx, st);
+      case "extra": return extraView(ctx, st);
+      default: return {};
+    }
   },
 
   caption(st) {
-    switch (st.q) {
-      case 0: return isSteel(st) ? ["Steelstofzuiger", "Draadloos, licht en snel gepakt; wel met een beperkte accuduur."]
-        : st.stofzuigerType ? ["Cilinderstofzuiger", "Met snoer: veel zuigkracht en geen oplaadtijd."] : ["Jouw woonkamer", "Kies wat voor stofzuiger je zoekt; de stofzuiger in de kamer wisselt mee."];
-      case 1: return {
-        tapijt: ["Vooral tapijt", "We geven voorrang aan stofzuigers die goed zijn op tapijt en vloerkleden."],
-        harde_vloer: ["Vooral harde vloeren", "We geven voorrang aan stofzuigers die goed zijn op parket en tegels."],
-        allebei: ["Allebei", "We zoeken een stofzuiger die op beide vloeren goed werkt."],
-      }[st.vloertype] ?? ["Vloeren", "Kies welke vloer je vooral stofzuigt."];
-      case 2: return {
-        huisdieren: ["Huisdieren", "We geven voorrang aan stofzuigers met een HEPA-filter voor haren en allergenen."],
-        allergie: ["Allergie", "We geven voorrang aan stofzuigers met een HEPA-filter: dat vangt fijnstof beter af."],
-        geen: ["Geen huisdieren of allergie", "Een standaardfilter is dan prima."],
-      }[st.huisdieren] ?? ["Filter", "Heb je huisdieren of allergieën?"];
-      case 3: if (isSteel(st)) return st.looptijd ? ["Accuduur", "We zoeken modellen die minstens zo lang meegaan op één lading."] : ["Accuduur", "Kies hoe lang je minstens wilt kunnen stofzuigen."];
-        return {
-          met_zak: ["Met stofzak", "Hygiënisch legen; je koopt wel af en toe nieuwe zakken."],
-          zonder_zak: ["Zakloos", "Geen wegwerpkosten; het reservoir maak je zelf schoon."],
-          geen_voorkeur: ["Geen voorkeur", "We houden modellen met en zonder zak in beeld."],
-        }[st.zak] ?? ["Stofzak", "Kies of je met of zonder stofzak wilt."];
-      default: return st.geluid === "belangrijk" ? ["Stil", `We geven voorrang aan modellen die stiller zijn dan de helft van de ${typeNaam(st)}.`]
-        : st.geluid ? ["Geluid maakt niet uit", "We letten niet op het geluid; dat geeft de meeste keuze."] : ["Geluid", "Kies of een stille stofzuiger belangrijk is."];
+    switch (QID(st)) {
+      case "stofzuigerType": return isSteel(st) ? ["Steelstofzuiger", "Draadloos, licht en snel gepakt; wel met een beperkte accuduur."]
+        : st.stofzuigerType ? ["Met snoer", "Veel zuigkracht en geen oplaadtijd."] : ["Jouw woonkamer", "Kies wat voor stofzuiger je zoekt; de stofzuiger in de kamer wisselt mee."];
+      case "budget": return budgetCaption(st);
+      case "woning": {
+        if (!st.woning) return ["Jouw woning", isSteel(st) ? "Kies hoe groot je woning is; de accuduur stemmen we erop af." : "Kies hoe groot je woning is; de lengte van het snoer stemmen we erop af."];
+        const t = { klein: "Appartement of klein huis", gemiddeld: "Gemiddeld huis", groot: "Groot huis of met trappen" }[st.woning];
+        return [t, isSteel(st) ? `We zoeken een accu die minstens ${LOOPTIJD_MIN[st.woning]} minuten meegaat.` : `We zoeken een bereik van minstens ${ACTIERADIUS_MIN[st.woning]} meter, zodat je niet steeds de stekker verplaatst.`];
+      }
+      case "zak": return {
+        met_zak: ["Met stofzak", "Hygiënisch legen; je koopt wel af en toe nieuwe zakken."],
+        zonder_zak: ["Zakloos", "Geen wegwerpkosten; het reservoir maak je zelf schoon."],
+        geen_voorkeur: ["Geen voorkeur", "We houden modellen met en zonder zak in beeld."],
+      }[st.zak] ?? ["Stofzak", "Kies of je met of zonder stofzak wilt."];
+      case "stil": return st.stil === "ja" ? ["Stil", `De stillere ${typeNaam(st)} komen bovenaan.`]
+        : st.stil ? ["Geluid maakt niet uit", "We letten niet op het geluid; dat geeft de meeste keuze."] : ["Geluid", "Kies of een stille stofzuiger belangrijk is."];
+      default: return extraCaption(st);
     }
   },
 
   async finish(st) {
+    meetStap(st, "extra");
     const answers = {
-      stofzuigerType: st.stofzuigerType ?? "", vloertype: st.vloertype ?? "", huisdieren: st.huisdieren ?? "",
-      zak: isSteel(st) ? "" : st.zak ?? "", looptijd: isSteel(st) ? st.looptijd ?? "" : "", geluid: st.geluid ?? "",
+      stofzuigerType: st.stofzuigerType ?? "", budget: capVan(st.budget), woning: st.woning ?? "",
+      zak: isSteel(st) ? "" : st.zak ?? "", stil: st.stil ?? "", extraAnswers: st.extra,
     };
-    const raw = await productenOfFout();
-    const result = matchStofzuigers(normalizeProducts(raw ?? []), answers);
+    const stofzuigers = normalizeProducts(await productenOfFout());
+    // Beste match binnen het budget; past er niets binnen, dan zonder grens.
+    let result = matchStofzuigers(stofzuigers, answers);
+    if (answers.budget && !result.bestMatch) result = matchStofzuigers(stofzuigers, answers, null);
     localStorage.setItem("stofzuiger_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("stofzuiger_bestType", result.bestType ?? "");
     localStorage.setItem("stofzuiger_filteredMatchedStofzuigers", JSON.stringify(result.filteredMatchedStofzuigers));
@@ -256,4 +362,21 @@ createQuiz3D({
   },
 
   preload: ["cil-zak", "steel", "cil-zakloos", "mand"],
+});
+
+// Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)
+function meetStap(st, id) {
+  const v = st[id];
+  window.phTrackEvent?.("quiz_stap", {
+    categorie: "stofzuiger", stap: id, nr: vragen(st).findIndex(q => q.id === id) + 1,
+    antwoord: Array.isArray(v) ? [...v].sort().join("+") : String(v ?? ""),
+  });
+}
+
+// Grijze opties en live tellingen zodra de catalogus binnen is
+productsPromise.then(raw => {
+  if (!raw?.length) return;
+  catalogus = normalizeProducts(raw);
+  if (EIS[QID(quiz.st)]) quiz.renderQuestion();
+  quiz.render();
 });

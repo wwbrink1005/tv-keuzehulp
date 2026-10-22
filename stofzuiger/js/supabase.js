@@ -38,13 +38,20 @@ function adaptRow(row) {
     vermogenWatt:           parseFirstFloat(row.vermogen_watt),
     stofcapaciteitLiter:    parseFirstFloat(row.stofcapaciteit_liter),
     luchtfiltering:         row.luchtfiltering ?? "",
-    looptijdMinuten:        parseFirstFloat(row.looptijd_minuten),
+    // "2 x 70 min" (twee accu's): de looptijd per accu is 70, niet 2
+    looptijdMinuten:        parseFirstFloat(String(row.looptijd_minuten ?? "").replace(/^\s*\d+\s*x\s*/i, "")),
+    looptijdRaw:            row.looptijd_minuten ?? "",   // "2 x 70 min" = twee accu's
     actieradiusMeter:       parseFirstFloat(row.actieradius_meter),
     kleur:                  row.kleur ?? "",
     breedte:                parseFirstFloat(row.breedte),
     diepte:                 parseFirstFloat(row.diepte),
     hoogte:                 parseFirstFloat(row.hoogte),
     gewichtKg:              parseFirstFloat(row.gewicht),
+    // Sinds okt. 2026 (migrations/stofzuigers_extra_specs.sql in de pipeline)
+    borstels:               row.borstels ?? "",
+    speciaalMondstuk:       row.speciaal_mondstuk ?? "",
+    soortReiniging:         row.soort_reiniging ?? "",
+    verwisselbareAccu:      row.verwisselbare_accu ?? "",
     icecat_afbeelding:      row.icecat_afbeelding ?? "",
     icecat_afbeeldingen:    Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:             adaptAanbieders(row),

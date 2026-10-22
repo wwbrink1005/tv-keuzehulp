@@ -39,6 +39,41 @@ export function formatPriceLabel(priceValue) {
  * gevuld is; een enkel ontbrekend geval mag niet het hele product laten
  * verdwijnen, dat hoort bij de matching-fallback (zie matching.js).
  */
+// ─── Kenmerken uit naam en Icecat (sinds okt. 2026) ─────────────────────────
+// Bosch en Miele (samen meer dan de helft) staan niet in Icecat, maar hun
+// productnamen zeggen het: "ProAnimal"/"Cat & Dog" (huisdieren), "Allergy"/
+// "ProHygienic" (allergie), "Parquet"/"Hardfloor" (parketborstel), "Aqua"
+// (dweilen), "HX3 Plus" (tweede accu). Icecat vult aan voor de andere merken.
+// Alles true / null: een naam zonder zo'n woord zegt niet dat het ontbreekt.
+// "PET" staat bij Bosch vast aan het typenummer (BCS711PET, BGB41PET1)
+const HUISDIER = /animal|cat ?& ?dog|(\d|\b)pet(\d|\b)|haustier/i;
+// "HYG" in een Bosch-typenummer (BCS712HYG5, BGL8HYG0L) = de ProHygienic-uitvoering
+const ALLERGIE = /allerg|hygien|hepa|(\d|\b)hyg(\d|\b)/i;
+// Bosch Unlimited: wisselbare accu (Power for ALL), bij elk model in de serie
+const WISSELACCU = /\bunlimited\b/i;
+const PARKET = /parquet|parket|hard ?floor|hardfloor/i;
+const DWEIL = /\baqua\b|wet ?& ?dry|nat en droog|dweil/i;
+// Geen stofzuigers met steel of snoer: robots en kruimelzuigers (zitten in de
+// feed, horen bij de robotstofzuiger-keuzehulp of nergens).
+const GEEN_STOFZUIGER = /robot ?stofzuiger|\brobot\b|kruimelzuiger|ergomini/i;
+
+function ja(v) { return /^ja$/i.test(String(v ?? "").trim()); }
+function nee(v) { return /^nee$/i.test(String(v ?? "").trim()); }
+
+function kenmerken(p, naam) {
+  const borstels = `${p.borstels ?? ""} ${p.speciaalMondstuk ?? ""}`;
+  const filter = String(p.luchtfiltering ?? "");
+  return {
+    huisdieren: HUISDIER.test(naam) || /turbo|pet|huisdier|dier/i.test(borstels) ? true : null,
+    allergie: ALLERGIE.test(naam) || /hepa|hygi[eë]n|allerg/i.test(filter) ? true : null,
+    parket: PARKET.test(naam) || /parket|parquet|hard floor|harde vloer/i.test(borstels) ? true : null,
+    dweilen: DWEIL.test(naam) || /nat/i.test(p.soortReiniging ?? "") ? true : /^droog$/i.test(String(p.soortReiniging ?? "").trim()) ? false : null,
+    // "2 x 70 min" (Miele Triflex HX3 Plus) = twee accu's
+    extraAccu: ja(p.verwisselbareAccu) || WISSELACCU.test(naam) || /\bplus\b.*hx3|hx3 plus/i.test(naam) || /2 ?x/i.test(String(p.looptijdRaw ?? "")) ? true
+      : nee(p.verwisselbareAccu) ? false : null,
+  };
+}
+
 export function normalizeProducts(rawProducts) {
   if (!Array.isArray(rawProducts)) return [];
 
@@ -58,6 +93,7 @@ export function normalizeProducts(rawProducts) {
     const afbeeldingen = Array.isArray(product.icecat_afbeeldingen) ? product.icecat_afbeeldingen : [];
 
     if (!product.merk) return [];
+    if (GEEN_STOFZUIGER.test(naam)) return [];
 
     const ondergrondenRuw = String(product.reinigtOndergronden || "").toLowerCase();
 
@@ -85,6 +121,7 @@ export function normalizeProducts(rawProducts) {
       diepteMm:                Number.isFinite(product.diepte) ? product.diepte : null,
       hoogteMm:                Number.isFinite(product.hoogte) ? product.hoogte : null,
       gewichtKg:               Number.isFinite(product.gewichtKg) ? product.gewichtKg : null,
+      ...kenmerken(product, naam),
       afbeelding,
       afbeeldingen,
       aanbieders,

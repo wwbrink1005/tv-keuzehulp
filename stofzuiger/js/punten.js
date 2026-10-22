@@ -6,7 +6,9 @@ import {
   maakContext, vergelijk, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
 
-const LOOPTIJD_MINIMUM = { "60min": 60, "90min": 90 };
+import { voldoetAanZak, genoegBereik, heeftExtra, lijst } from "./matching.js";
+
+const EXTRA_TEKST = { huisdieren: "voor huisdierharen", allergie: "filter voor allergie", parket: "parketborstel", dweilen: "kan ook dweilen", accu: "extra of wisselbare accu" };
 
 export function buildContext(lijst, naam) {
   return maakContext(lijst, naam, {
@@ -27,13 +29,12 @@ export function buildResultPoints(s, answers, ctx) {
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  if (a.vloertype === "tapijt" && s.geschiktTapijt) vink("vloer", "geschikt voor tapijt");
-  else if (a.vloertype === "harde_vloer" && s.geschiktHardeVloer) vink("vloer", "geschikt voor harde vloeren");
-  else if (a.vloertype === "allebei" && s.geschiktTapijt && s.geschiktHardeVloer) vink("vloer", "tapijt én harde vloer");
-  if ((a.huisdieren === "huisdieren" || a.huisdieren === "allergie") && s.heeftHepaFilter) vink("hepa", "HEPA-filter");
-  if (a.zak === "met_zak" && s.containerType === "Stofzak") vink("zak", "met stofzak");
-  if (a.zak === "zonder_zak" && s.containerType === "Zakloos") vink("zak", "zakloos");
-  if (LOOPTIJD_MINIMUM[a.looptijd] && s.looptijdMinuten >= LOOPTIJD_MINIMUM[a.looptijd]) vink("looptijd", `minstens ${LOOPTIJD_MINIMUM[a.looptijd]} minuten accu`);
+  if (!isSteel && (a.zak === "met_zak" || a.zak === "zonder_zak") && voldoetAanZak(s, a.zak) === true) vink("zak", a.zak === "met_zak" ? "met stofzak" : "zakloos");
+  if (a.woning && genoegBereik(s, a.woning) === true) {
+    if (isSteel) vink("looptijd", `${getal(s.looptijdMinuten)} minuten accu`);
+    else vink("bereik", `${getal(s.actieradiusMeter, 1)} meter bereik`);
+  }
+  for (const e of lijst(a.extraAnswers)) if (heeftExtra(s, e) === true) vink(e === "allergie" ? "hepa" : e, EXTRA_TEKST[e]);
   zochtRegel(p, delen);
 
   // 2. Wat deze kaart onderscheidt binnen de lijst
@@ -62,7 +63,9 @@ export function buildResultPoints(s, answers, ctx) {
   prijsPunten(p, s, ctx);
 
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
-  if (s.heeftHepaFilter) p.voeg(40, "hepa", `<strong>HEPA-filter</strong>: houdt fijnstof en allergenen vast`);
+  if (s.allergie === true) p.voeg(40, "hepa", `<strong>Filter voor allergie</strong>: houdt fijnstof en allergenen vast`);
+  if (s.huisdieren === true) p.voeg(43, "huisdieren", `<strong>Voor huisdierharen</strong>: borstel die haren uit tapijt trekt`);
+  if (s.dweilen === true) p.voeg(44, "dweilen", `<strong>Ook dweilen</strong>: zuigen en dweilen in één keer`);
   if (isSteel && Number.isFinite(s.looptijdMinuten)) p.voeg(41, "looptijd", `<strong>${getal(s.looptijdMinuten)} minuten</strong> op een acculading`);
   if (!isSteel && Number.isFinite(s.actieradiusMeter)) p.voeg(42, "bereik", `<strong>${getal(s.actieradiusMeter, 1)} meter</strong> bereik zonder stekker te verplaatsen`);
   p.voeg(90, "type", isSteel
@@ -99,7 +102,8 @@ export function buildAlleSpecs(s, raw) {
       ["Accuduur", Number.isFinite(s.looptijdMinuten) ? `${getal(s.looptijdMinuten)} minuten` : null],
       ["Bereik", Number.isFinite(s.actieradiusMeter) ? `${getal(s.actieradiusMeter, 1)} meter` : null],
       ["Geluid", Number.isFinite(s.geluidsniveauDb) ? `${getal(s.geluidsniveauDb)} dB` : null],
-      ["Tapijt", jaNee(s.geschiktTapijt)], ["Harde vloer", jaNee(s.geschiktHardeVloer)],
+      ["Voor huisdieren", jaNee(s.huisdieren)], ["Parketborstel", jaNee(s.parket)],
+      ["Ook dweilen", jaNee(s.dweilen)], ["Extra/wisselbare accu", jaNee(s.extraAccu)],
     ] },
     { titel: "Afmetingen en overig", rijen: [
       ["Hoogte", mm(s.hoogteMm)], ["Breedte", mm(s.breedteMm)], ["Diepte", mm(s.diepteMm)],
