@@ -1,4 +1,4 @@
-import { applyMinAanbiedersCascade } from "./matching.js";
+import { applyMinAanbiedersCascade, kiesBesteMatch } from "./matching.js";
 import { formatPriceLabel, parsePrice, qs } from "./utils.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
 import { toonGeenUitslag, toonGeenFilterResultaat } from "../../shared/resultaat-status.js";
@@ -43,6 +43,8 @@ function displayOtherMatchesRedesign(filteredMatchedBeamers) {
   const prices = filteredMatchedBeamers.map(b => parsePrice(b.prijs));
   const minPrice = Math.min(...prices);
   const ctx = buildContext(filteredMatchedBeamers);
+  // Beste match uit de huidige (eventueel gefilterde) lijst
+  const beste = kiesBesteMatch(filteredMatchedBeamers);
 
   container.innerHTML = filteredMatchedBeamers
     .map((beamer, index) => {
@@ -51,7 +53,7 @@ function displayOtherMatchesRedesign(filteredMatchedBeamers) {
       const specs = buildSpecChips(beamer);
       const points = buildResultPoints(beamer, currentAnswers, ctx);
 
-      return buildCardHtml({ product: beamer, index, isCheapest, specs, points });
+      return buildCardHtml({ product: beamer, index, isCheapest, isBeste: beamer === beste, specs, points });
     })
     .join("");
 
@@ -80,10 +82,17 @@ const SORT_LABELS = {
   "price-desc": "Prijs (hoog-laag)"
 };
 
+// Op prijs, met de beste match bovenaan bij "laag-hoog"; bij "hoog-laag"
+// staat hij gewoon op zijn plek (zelfde als de andere keuzehulpen).
 function sortMatchesByPrice(matches, sortValue) {
   const list = Array.isArray(matches) ? [...matches] : [];
   list.sort((a, b) => parsePrice(a.prijs) - parsePrice(b.prijs));
-  if (sortValue === "price-desc") list.reverse();
+  if (sortValue === "price-desc") return list.reverse();
+  const beste = kiesBesteMatch(list);
+  if (beste) {
+    list.splice(list.indexOf(beste), 1);
+    list.unshift(beste);
+  }
   return list;
 }
 
@@ -154,6 +163,7 @@ function initSortControl() {
       const option = event.target.closest(".sort-option");
       if (!option) return;
       applySortAndRender(option.dataset.value || "price-asc");
+      window.phTrackEvent?.("sorteren", { categorie: "beamer", volgorde: option.dataset.value || "price-asc" });
       setSortOpen(false);
     });
 

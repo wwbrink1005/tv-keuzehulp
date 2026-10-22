@@ -28,6 +28,38 @@ export function formatPriceLabel(priceValue) {
   return integerPrice.toLocaleString("nl-NL");
 }
 
+// ─── Helderheid en smart-tv (sinds okt. 2026) ───────────────────────────────
+// Lasermodellen zonder lumenwaarde in Icecat, nagekeken bij fabrikant en
+// winkels (22-10-2026). ANSI-lumen; bij twee opgaven de laagste.
+const LUMEN_VAST = [
+  { patroon: /hisense c2 ultra/i, lumen: 3000 },
+  { patroon: /hisense c3\b/i, lumen: 2500 },
+  { patroon: /hisense pt1\b/i, lumen: 2500 },
+  { patroon: /premiere lpf5d/i, lumen: 500 },
+  { patroon: /ef-21w?\b/i, lumen: 1000 },
+  { patroon: /eh-ls670/i, lumen: 3600 },
+];
+const lumenVast = naam => LUMEN_VAST.find(v => v.patroon.test(naam))?.lumen ?? null;
+
+// Smart tv: "Smart TV" is maar bij de helft ingevuld; een besturingssysteem
+// (Google TV, VIDAA, Tizen) of een lijst video-apps zegt het ook.
+// Vaste kenmerken: Epson EpiqVision Mini (EF-21/61/62/72) heeft Google TV
+// ingebouwd; bij BenQ betekent een "i" achter het model een meegeleverde
+// Android TV-stick (TH575i, TK705i, W2720i).
+const SMART_VAST = /\bef-(21|61|62|72)\w*\b|benq \w+\d+(st)?i\b/i;
+// Icecat zet de Epson EH-LS670 op "normale projectieafstand"; het is een
+// ultrakorte (0,3 tot 0,7 m van de muur).
+const WORP_VAST = [{ patroon: /eh-ls670/i, worp: "Projector met ultrakorte projectieafstand" }];
+
+function isSmart(p, naam) {
+  if (/^ja$/i.test(p.smartTvRaw ?? "")) return true;
+  if (SMART_VAST.test(naam)) return true;
+  if (String(p.besturingssysteem ?? "").trim() || String(p.videoApps ?? "").trim()) return true;
+  if (/google tv|android tv|smart/i.test(naam)) return true;
+  if (/^nee$/i.test(p.smartTvRaw ?? "")) return false;
+  return null;
+}
+
 /**
  * Normalizes raw beamer products from Supabase to a consistent internal
  * shape. Geen harde partitie (een beamer heeft geen fysieke pasvorm-eis
@@ -58,14 +90,17 @@ export function normalizeProducts(rawProducts) {
       merk:                    product.merk,
       naam,
       prijs,
-      helderheidLumen:         Number.isFinite(product.helderheidLumen) ? product.helderheidLumen : null,
+      helderheidLumen:         Number.isFinite(product.helderheidLumen) ? product.helderheidLumen
+                                 : Number.isFinite(product.helderheidAlt) ? product.helderheidAlt : lumenVast(naam),
+      // true / false / null (onbekend)
+      smart:                   isSmart(product, naam),
       resolutie:               product.resolutie ?? "",
       projectietechnologie:    product.projectietechnologie ?? "",
       lichtbronType:           product.lichtbronType ?? "",
       lichtbronLevensduurUur:  Number.isFinite(product.lichtbronLevensduurUur) ? product.lichtbronLevensduurUur : null,
-      worpType:                product.worpType ?? "",
+      worpType:                WORP_VAST.find(v => v.patroon.test(naam))?.worp ?? product.worpType ?? "",
       marktPositionering:      product.marktPositionering ?? "",
-      smartTv:                 product.smartTv ?? "Nee",
+      smartTv:                 isSmart(product, naam) === true ? "Ja" : "Nee",
       ingebouwdeLuidsprekers:  product.ingebouwdeLuidsprekers ?? "Nee",
       hdr:                     product.hdr ?? "Nee",
       support3d:               product.support3d ?? "Nee",

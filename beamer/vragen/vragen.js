@@ -4,8 +4,9 @@
 // Het projectiescherm, het beeld en de lichtbundel tekent de pagina zelf met de
 // camera uit Blender, zodat alles exact aansluit. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, spotColumn } from "../../shared/quiz3d.js";
-import { matchBeamers } from "../js/matching.js";
-import { normalizeProducts } from "../js/utils.js";
+import { matchBeamers, heeftWens, helderGenoeg, scherpGenoeg, draagbaarGenoeg } from "../js/matching.js";
+import { normalizeProducts, parsePrice } from "../js/utils.js";
+import { BUDGET_CAPS } from "../js/data.js";
 import { fetchProducts } from "../js/supabase.js";
 
 const camera = makeCamera({ camY: -(3 + 2.45) });
@@ -36,6 +37,7 @@ const LOOK = {
 };
 const SHARP = { "heel-goed": "", prima: "blur(1.4px)", "maakt-niet-uit": "blur(.7px)" };
 
+const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
 const Q = [
   {
     id: "gebruik", type: "radio",
@@ -43,6 +45,13 @@ const Q = [
     sub: "Op het scherm zie je waar het om draait.",
     why: "Een beamer voor thuisbioscoop legt de nadruk op contrast en beeldkwaliteit in het donker. Voor gamen is een lage inputlag belangrijk. Voor werk en presentaties telt vooral helderheid en makkelijk aansluiten. Gebruik je 'm voor van alles wat, dan kijken we breder.",
     options: [{ v: "thuisbioscoop", label: "Films en series thuis", price: "€€" }, { v: "gamen", label: "Gamen", price: "€€" }, { v: "werk", label: "Werk en presentaties", price: "€€" }, { v: "mix", label: "Een beetje van alles", price: "€€" }],
+  },
+  {
+    id: "budget", type: "radio",
+    title: "Wat wil je maximaal uitgeven?",
+    sub: "Je krijgt de beste beamer binnen je budget.",
+    why: "Met je budget zoeken we de beste beamer die je ook echt wilt kopen. Past een beamer die nog beter bij je wensen past net niet binnen je bedrag, dan laten we dat op de resultaatpagina zien.",
+    options: [...BUDGET_CAPS.map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }],
   },
   {
     id: "licht", type: "radio",
@@ -69,14 +78,79 @@ const Q = [
     id: "extra", type: "check", exclusive: "geen",
     title: "Nog iets belangrijk?",
     sub: "Je keuzes verschijnen in beeld.",
-    why: "Smart TV met apps laat je direct streamen zonder losse tv-stick. Ingebouwde speakers schelen een aparte geluidsinstallatie. Een laser-lichtbron gaat veel langer mee dan een traditionele lamp. Een stil apparaat valt minder op tijdens het kijken. Kan hij dicht tegen de muur of het scherm staan, dan heb je minder ruimte nodig.",
-    options: [{ v: "smart-tv", label: "Smart TV met apps (Netflix e.d.)", price: "€€" }, { v: "speakers", label: "Ingebouwde speakers", price: "€" }, { v: "laser", label: "Laser-lichtbron (lange levensduur)", price: "€€€" }, { v: "stil", label: "Stil apparaat (weinig ventilatorgeluid)", price: "€€" }, { v: "korte-worp", label: "Dicht tegen de muur kunnen zetten", price: "€€€" }, { v: "geen", label: "Geen voorkeur", price: "€" }],
+    why: "Smart TV met apps laat je direct streamen zonder losse tv-stick. Een laser-lichtbron gaat veel langer mee dan een traditionele lamp. Een stil apparaat valt minder op tijdens het kijken. Kan hij dicht tegen de muur of het scherm staan, dan heb je minder ruimte nodig. Ingebouwde speakers hebben vrijwel alle beamers, daar hoef je niet op te letten.",
+    options: [{ v: "smart-tv", label: "Smart TV met apps (Netflix e.d.)", price: "€€" }, { v: "laser", label: "Laser-lichtbron (lange levensduur)", price: "€€€" }, { v: "stil", label: "Stil apparaat (weinig ventilatorgeluid)", price: "€€" }, { v: "korte-worp", label: "Dicht tegen de muur kunnen zetten", price: "€€€" }, { v: "geen", label: "Geen voorkeur", price: "€" }],
   },
 ];
+const QID = st => Q[st.q]?.id;
+const NA = (st, id) => st.q >= Q.findIndex(q => q.id === id);   // deze vraag bereikt of voorbij
+
+// ───────── live catalogus: budgettelling en grijze opties ─────────
+let catalogus = null;
+const capVan = v => (v && v !== "geen" ? Number(v) : null);
+const zichtbaar = () => (catalogus ?? []).filter(b => (b.aanbieders ?? []).length >= 2);
+function budgetCaption(st) {
+  const cap = capVan(st.budget);
+  if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste beamer binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
+  if (!catalogus) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", cap ? "We zoeken de beste beamer binnen dit bedrag." : "We kiezen puur op je wensen."];
+  const prijzen = zichtbaar().map(b => parsePrice(b.prijs));
+  const binnen = cap ? prijzen.filter(x => x <= cap) : prijzen;
+  if (!cap) return ["Geen voorkeur", `Alle ${prijzen.length} beamers doen mee, van ${euro(Math.min(...prijzen))} tot ${euro(Math.max(...prijzen))}. We kiezen puur op je wensen.`];
+  return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} beamers kosten ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}. We zoeken de beste die bij je wensen past.`];
+}
+
+// Grijs als er binnen het budget geen beamer bij 2+ winkels is die er zeker aan
+// voldoet, samen met je eerdere keuzes. Zelfde regel als bij de andere
+// keuzehulpen; bij een keuzerondje telt het eigen antwoord niet als eis.
+const EIS = {
+  licht: { normaal: b => helderGenoeg(b, "normaal") === true, licht: b => helderGenoeg(b, "licht") === true },
+  beeldkwaliteit: { "heel-goed": b => scherpGenoeg(b, "heel-goed") === true, prima: b => scherpGenoeg(b, "prima") === true },
+  draagbaar: { ja: b => draagbaarGenoeg(b, "ja") === true },
+  extra: Object.fromEntries(["smart-tv", "laser", "stil", "korte-worp"].map(v => [v, b => heeftWens(b, v) === true])),
+};
+function eisenVan(st, totId, zonder) {
+  const eisen = [];
+  for (const q of Q) {
+    const eigenRadio = q.id === totId && !Array.isArray(st[q.id]);
+    if (EIS[q.id] && !eigenRadio) [].concat(st[q.id] ?? []).filter(v => EIS[q.id][v] && (q.id !== totId || v !== zonder)).forEach(v => eisen.push(EIS[q.id][v]));
+    if (q.id === totId) break;
+  }
+  return eisen;
+}
+function metBeschikbaarheid(st, q) {
+  if (!catalogus || !EIS[q.id]) return q;
+  const cap = capVan(st.budget), alle = zichtbaar();
+  const binnen = cap ? alle.filter(b => parsePrice(b.prijs) <= cap) : alle;
+  return { ...q, options: q.options.map(o => {
+    const eis = EIS[q.id][o.v];
+    if (!eis) return o;
+    let andere = eisenVan(st, q.id, o.v);
+    if (!binnen.some(b => andere.every(f => f(b)))) andere = [];
+    if (binnen.some(b => eis(b) && andere.every(f => f(b)))) return o;
+    const erboven = alle.filter(b => eis(b) && andere.every(f => f(b))).map(b => parsePrice(b.prijs));
+    const note = cap && erboven.length ? `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`
+      : "Niet in combinatie met je andere keuzes.";
+    return { ...o, disabled: true, note };
+  }) };
+}
+const WENS_NAAM = { "smart-tv": "apps zoals Netflix", laser: "een laser-lichtbron", stil: "een stil apparaat", "korte-worp": "een korte projectieafstand" };
+function extraCaption(st) {
+  const wensen = st.extra.filter(e => e !== "geen");
+  if (!wensen.length) return st.extra.length ? ["Geen voorkeur", "We kiezen puur op je eerdere antwoorden."] : ["Extra's", "Vink aan wat je belangrijk vindt."];
+  if (!catalogus) return ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."];
+  const cap = capVan(st.budget);
+  const lijst = zichtbaar().filter(b => !cap || parsePrice(b.prijs) <= cap);
+  const eisen = eisenVan(st, "extra", null);
+  const n = lijst.filter(b => eisen.every(f => f(b))).length;
+  const wat = eisen.length > 1 ? "alles wat je koos" : WENS_NAAM[wensen[0]];
+  const bij = cap ? " binnen je budget" : "";
+  if (!n) return ["Jouw extra's", `Geen van de ${lijst.length} beamers${bij} heeft ${wat}. We tonen de beamers die er het meest van hebben.`];
+  return ["Jouw extra's", `${n} van de ${lijst.length} beamers${bij} ${n === 1 ? "heeft" : "hebben"} ${wat}.`];
+}
 
 const light = st => st.licht || "normaal";
-const ust = st => st.q === 4 && st.extra.includes("korte-worp");
-const projector = st => (ust(st) ? "ust" : st.q >= 3 && st.draagbaar === "ja" ? "mini" : "groot");
+const ust = st => QID(st) === "extra" && st.extra.includes("korte-worp");
+const projector = st => (ust(st) ? "ust" : NA(st, "draagbaar") && st.draagbaar === "ja" ? "mini" : "groot");
 
 // ───────── scherm + lichtbundel (blijvende elementen) ─────────
 let screenEl, imgEl, slideEl, glowEl, hudEl;
@@ -100,7 +174,7 @@ function afterRender(ctx) {
   const src = `shared/img/scherm/scherm-${CONTENT[st.gebruik] ?? "films"}.webp`;
   if (imgEl.getAttribute("src") !== src) imgEl.src = src;
   hudEl.classList.toggle("is-on", st.gebruik === "gamen");
-  const sharp = st.q === 2 && st.beeldkwaliteit ? SHARP[st.beeldkwaliteit] : "";
+  const sharp = QID(st) === "beeldkwaliteit" && st.beeldkwaliteit ? SHARP[st.beeldkwaliteit] : "";
   const [op, filt] = look.img.split(";").map(s => s.split(":")[1]);
   for (const el of [imgEl, slideEl]) {
     el.style.opacity = (el === slideEl) === werk ? op : "0";
@@ -109,12 +183,12 @@ function afterRender(ctx) {
   Object.assign(glowEl.style, { left: `${tl.x - pw * 0.25}px`, top: `${tl.y - ph * 0.3}px`, width: `${pw * 1.5}px`, height: `${ph * 1.6}px`, opacity: String(look.glow), backgroundImage: werk ? "none" : `url("${src}")`, backgroundColor: werk ? "#fff" : "" });
 }
 
-createQuiz3D({
+const quiz = createQuiz3D({
   camera,
-  steps: 5,
-  state: { gebruik: null, licht: null, beeldkwaliteit: null, draagbaar: null, extra: [] },
+  steps: Q.length,
+  state: { gebruik: null, budget: null, licht: null, beeldkwaliteit: null, draagbaar: null, extra: [] },
   imgPath: n => `beamer/vragen/img/${n}.webp`,
-  question: st => Q[st.q],
+  question: st => metBeschikbaarheid(st, Q[st.q]),
   setup, afterRender,
 
   images(st) {
@@ -136,21 +210,21 @@ createQuiz3D({
       svg += `<polygon points="${[L, c[2], c[1], c[0], c[3]].map(p => `${p.x},${p.y}`).join(" ")}" fill="url(#beam)" style="stroke:none"/>`;
       svg += `<circle cx="${L.x}" cy="${L.y}" r="3" fill="#fff" style="stroke:none" opacity=".9"/>`;
     }
-    if (st.q === 2 && st.beeldkwaliteit) {
+    if (QID(st) === "beeldkwaliteit" && st.beeldkwaliteit) {
       const p = ctx.toPx(SCREEN.w / 2, SCREEN.y, SCREEN.z0 + SCREEN.h);
       const t = { "heel-goed": "Zo scherp mogelijk: <b>4K</b>", prima: "Prima: <b>Full HD</b>", "maakt-niet-uit": "Scherpte <b>maakt niet uit</b>" }[st.beeldkwaliteit];
       html += `<div class="tag is-on" style="left:${p.x - 70}px;top:${p.y - 10}px">${t}</div>`;
     }
-    if (st.q === 3 && st.draagbaar) {
+    if (QID(st) === "draagbaar" && st.draagbaar) {
       const pj = projector(st);
       const [x, y, z] = LENS[pj];
       const label = pj === "mini" ? "<b>Draagbaar</b>: licht en compact" : st.draagbaar === "nee" ? "<b>Vaste plek</b>: meer licht en beeld" : "Draagbaar of vast: <b>allebei goed</b>";
       const r = spotColumn(ctx, [{ x, y, z, label }], { zBot: z, zTop: z, edgeX: 0.9, edgeY: y });
       svg += r.svg; html += r.html;
     }
-    if (st.q === 4) {
+    if (QID(st) === "extra") {
       const [lx, ly, lz] = LENS[projector(st)];
-      const onPj = [["speakers", "Ingebouwde <b>speakers</b>"], ["laser", "<b>Laser</b>: gaat jaren mee"], ["stil", "<b>Stil</b>: weinig ventilator"], ["korte-worp", "<b>Korte worp</b>: vlak onder het scherm"]]
+      const onPj = [["laser", "<b>Laser</b>: gaat jaren mee"], ["stil", "<b>Stil</b>: weinig ventilator"], ["korte-worp", "<b>Korte worp</b>: vlak onder het scherm"]]
         .filter(([k]) => st.extra.includes(k));
       const pts = onPj.map(([, label], i) => ({ x: lx + (i - (onPj.length - 1) / 2) * 0.16, y: ly, z: lz, label }));
       let r = spotColumn(ctx, pts, { zBot: lz, zTop: lz, edgeX: 1.3, edgeY: ly });
@@ -163,45 +237,47 @@ createQuiz3D({
     return { svg, html };
   },
 
-  hideCaption: (st, mobile) => st.q === 4 && !mobile,
-
   caption(st) {
-    switch (st.q) {
-      case 0:
+    switch (QID(st)) {
+      case "gebruik":
         return {
           thuisbioscoop: ["Films en series", "Contrast en diep zwart maken het verschil, vooral in een donkere kamer."],
           gamen: ["Gamen", "Een lage inputlag zorgt dat je beeld direct reageert op je controller."],
           werk: ["Werk en presentaties", "Helderheid en makkelijk aansluiten tellen hier het zwaarst."],
           mix: ["Een beetje van alles", "We zoeken een beamer die overal goed in is."],
         }[st.gebruik] ?? ["Jouw thuisbioscoop", "Een scherm van 100 inch aan de muur waar nu de tv hangt. Kies waarvoor je 'm gebruikt."];
-      case 1:
+      case "budget": return budgetCaption(st);
+      case "licht":
         return {
           licht: ["Veel omgevingslicht", "Daglicht spoelt het beeld weg. Je hebt dan een heel heldere beamer nodig (veel ANSI lumen)."],
           normaal: ["Normaal verduisterd", "'s Avonds met de gordijnen dicht is een gemiddelde helderheid genoeg."],
           donker: ["Verduisterd", "In het donker is minder helderheid nodig en zie je het beste contrast."],
         }[st.licht] ?? ["Licht in de kamer", "Kies hoe licht het meestal is. Zie wat dat met het beeld doet."];
-      case 2:
+      case "beeldkwaliteit":
         return {
           "heel-goed": ["Zo scherp mogelijk", "Op een scherm van 100 inch zie je het verschil tussen 4K en Full HD echt."],
           prima: ["Gewoon prima", "Full HD is voor de meeste films en series ruim voldoende, en voordeliger."],
           "maakt-niet-uit": ["Maakt niet uit", "Dan weegt scherpte niet mee in het advies."],
         }[st.beeldkwaliteit] ?? ["Scherpte", "Kies hoe belangrijk een scherp beeld is."];
-      case 3:
+      case "draagbaar":
         return {
           ja: ["Draagbaar", "Klein en licht: makkelijk mee naar een andere kamer, de tuin of op vakantie."],
           nee: ["Vaste plek", "Een grotere beamer geeft meestal meer licht en een beter beeld."],
           "maakt-niet-uit": ["Maakt niet uit", "We kijken naar beide soorten."],
         }[st.draagbaar] ?? ["Meenemen?", "Kies of de beamer vaak verplaatst wordt."];
-      default:
-        if (st.extra.some(e => e !== "geen")) return ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."];
-        return ["Extra's", "Vink aan wat je belangrijk vindt."];
+      default: return extraCaption(st);
     }
   },
 
+  onNext(st, id) { meetStap(st, id); },
+
   async finish(st) {
-    const answers = { gebruik: st.gebruik ?? "", licht: st.licht ?? "", beeldkwaliteit: st.beeldkwaliteit ?? "", draagbaar: st.draagbaar ?? "", extraAnswers: st.extra };
-    const raw = await productenOfFout();
-    const result = matchBeamers(normalizeProducts(raw ?? []), answers);
+    meetStap(st, "extra");
+    const answers = { gebruik: st.gebruik ?? "", budget: capVan(st.budget), licht: st.licht ?? "", beeldkwaliteit: st.beeldkwaliteit ?? "", draagbaar: st.draagbaar ?? "", extraAnswers: st.extra };
+    const beamers = normalizeProducts(await productenOfFout());
+    // Beste match binnen het budget; past er niets binnen, dan zonder grens.
+    let result = matchBeamers(beamers, answers);
+    if (answers.budget && !result.bestMatch) result = matchBeamers(beamers, answers, null);
     localStorage.setItem("beamer_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("beamer_bestType", result.bestType ?? "");
     localStorage.setItem("beamer_filteredMatchedBeamers", JSON.stringify(result.filteredMatchedBeamers));
@@ -210,4 +286,21 @@ createQuiz3D({
   },
 
   preload: ["avond", "groot", "dag", "donker", "mini", "ust"],
+});
+
+// Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)
+function meetStap(st, id) {
+  const v = st[id];
+  window.phTrackEvent?.("quiz_stap", {
+    categorie: "beamer", stap: id, nr: Q.findIndex(q => q.id === id) + 1,
+    antwoord: Array.isArray(v) ? [...v].sort().join("+") : String(v ?? ""),
+  });
+}
+
+// Grijze opties en live tellingen zodra de catalogus binnen is
+productsPromise.then(raw => {
+  if (!raw?.length) return;
+  catalogus = normalizeProducts(raw);
+  if (EIS[QID(quiz.st)]) quiz.renderQuestion();
+  quiz.render();
 });

@@ -5,9 +5,8 @@ import {
   esc, getal, ja,
   maakContext, vergelijk, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
-import {
-  helderheidMin, GEWICHT_DRAAGBAAR_MAX_KG, RESOLUTIE_HOOG, RESOLUTIE_LAAG, GELUID_STIL_MAX_DB, KORTE_WORP_TYPES,
-} from "./data.js";
+import { helderheidMin, RESOLUTIE_LAAG, KORTE_WORP_TYPES } from "./data.js";
+import { heeftWens, draagbaarGenoeg, is4K } from "./matching.js";
 
 const resKort = (r) => String(r ?? "").replace(/\s*\(.*\)/, "");
 const LICHT = { licht: "een kamer met licht aan", normaal: "een avond met de gordijnen dicht" };
@@ -31,13 +30,12 @@ export function buildResultPoints(b, answers, ctx) {
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  if (a.beeldkwaliteit === "heel-goed" && RESOLUTIE_HOOG.has(b.resolutie)) vink("res", `${esc(resKort(b.resolutie))}`);
-  if (a.draagbaar === "ja" && Number.isFinite(b.gewichtKg) && b.gewichtKg <= GEWICHT_DRAAGBAAR_MAX_KG) vink("gewicht", "licht en draagbaar");
-  if (wil("smart-tv") && ja(b.smartTv)) vink("smart", "apps zoals Netflix");
-  if (wil("speakers") && ja(b.ingebouwdeLuidsprekers)) vink("speakers", "ingebouwde speakers");
-  if (wil("laser") && b.lichtbronType === "Laser") vink("licht", "laser-lichtbron");
-  if (wil("stil") && Number.isFinite(b.geluidDb) && b.geluidDb <= GELUID_STIL_MAX_DB) vink("geluid", "stil");
-  if (wil("korte-worp") && KORTE_WORP_TYPES.has(b.worpType)) vink("worp", "korte projectieafstand");
+  if (a.beeldkwaliteit === "heel-goed" && is4K(b)) vink("res", `${esc(resKort(b.resolutie))}`);
+  if (a.draagbaar === "ja" && draagbaarGenoeg(b, "ja") === true) vink("gewicht", "licht en draagbaar");
+  if (wil("smart-tv") && heeftWens(b, "smart-tv") === true) vink("smart", "apps zoals Netflix");
+  if (wil("laser") && heeftWens(b, "laser") === true) vink("licht", "laser-lichtbron");
+  if (wil("stil") && heeftWens(b, "stil") === true) vink("geluid", "stil");
+  if (wil("korte-worp") && heeftWens(b, "korte-worp") === true) vink("worp", "korte projectieafstand");
   zochtRegel(p, delen);
 
   // 2. Wat deze kaart onderscheidt binnen de lijst
@@ -63,7 +61,7 @@ export function buildResultPoints(b, answers, ctx) {
   }
 
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
-  if (RESOLUTIE_HOOG.has(b.resolutie)) p.voeg(40, "res", `<strong>${esc(resKort(b.resolutie))}</strong>: scherper dan Full HD`);
+  if (is4K(b)) p.voeg(40, "res", `<strong>${esc(resKort(b.resolutie))}</strong>: scherper dan Full HD`);
   if (b.lichtbronType === "Laser" || b.lichtbronType === "LED") p.voeg(41, "licht", `<strong>${esc(b.lichtbronType)}-lichtbron</strong>: geen lamp die vervangen moet worden`);
   if (ja(b.smartTv)) p.voeg(42, "smart", `<strong>Apps ingebouwd</strong>: Netflix en YouTube zonder extra kastje`);
   if (KORTE_WORP_TYPES.has(b.worpType)) p.voeg(43, "worp", `<strong>Korte projectieafstand</strong>: groot beeld vlak voor de muur`);

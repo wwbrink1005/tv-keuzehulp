@@ -38,7 +38,7 @@ export const RESOLUTIE_HOOG = new Set([
   "UHD 4K (3840x2160)", "4K (4096x2400)", "4K+ (5120x3200)", "WUXGA (1920x1200)",
 ]);
 export const RESOLUTIE_LAAG = new Set([
-  "720p (1280x720)", "SVGA (800x600)", "XGA (1024x768)",
+  "720p (1280x720)", "SVGA (800x600)", "XGA (1024x768)", "WXGA (1280x800)",
 ]);
 
 // ─── Geluidsniveau (dB) → drempel voor de "stil apparaat"-extra ────────────
@@ -52,6 +52,11 @@ export const KORTE_WORP_TYPES = new Set([
   "Projector met korte projectieafstand",
   "Projector met ultrakorte projectieafstand",
 ]);
+
+// ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
+// Twee maximumbedragen plus "Geen voorkeur". Uit de live catalogus (okt. 2026,
+// 2+ winkels): rond een derde en twee derde van de prijzen (€560 en €1.030).
+export const BUDGET_CAPS = [500, 1000];
 
 // ─── Static fallback price groups (alleen als de dynamische berekening niets
 // oplevert, bv. vóór de catalogus geladen is) ───────────────────────────────

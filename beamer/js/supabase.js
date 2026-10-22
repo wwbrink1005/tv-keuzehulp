@@ -73,6 +73,13 @@ function adaptRow(row) {
     zoom:                    parseJaNee(row.zoom),
     kleur:                   row.kleur ?? "",
     gewichtKg:               parseGewichtKg(row.gewicht),
+    // Sinds okt. 2026 (migrations/beamers_extra_specs.sql in de pipeline).
+    // Tweede helderheidsveld alleen als het ISO- of ANSI-lumen is: "LED
+    // lumens" is een marketingmaat (Aopen QH12a: 5500 LED lm = 135 ANSI lm).
+    helderheidAlt:           /\b(iso|ansi)\b/i.test(row.helderheid_alt ?? "") ? parseFirstFloat(row.helderheid_alt) : null,
+    smartTvRaw:              row.smart_tv ?? "",
+    besturingssysteem:       row.besturingssysteem ?? "",
+    videoApps:               row.video_apps ?? "",
     breedte:                 parseFirstFloat(row.breedte),
     diepte:                  parseFirstFloat(row.diepte),
     hoogte:                  parseFirstFloat(row.hoogte),

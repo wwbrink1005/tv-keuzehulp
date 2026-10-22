@@ -1,5 +1,8 @@
-import { priceGroupsFallback, GELUID_STIL_MAX_DB, KORTE_WORP_TYPES } from "./data.js";
-import { matchBeamers, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
+import { priceGroupsFallback } from "./data.js";
+import {
+  matchBeamers, kiesBesteMatch, heeftWens, helderGenoeg, scherpGenoeg, draagbaarGenoeg, extraWensen,
+  applyMinAanbiedersCascade, BAND_BESTE, DEFAULT_MIN_AANBIEDERS,
+} from "./matching.js";
 import { computeDynamicPriceGroups, computeDynamicLumenGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
@@ -57,14 +60,14 @@ const filterState = {
   bestType:         "",
 };
 
+// Speakers eruit sinds okt. 2026: 34 van de 36 beamers hebben ze.
 const FUNCTIE_DEFINITIES = [
-  { key: "smart-tv", label: "Smart TV met apps",  check: b => b.smartTv === "Ja" },
-  { key: "speakers", label: "Ingebouwde speakers", check: b => b.ingebouwdeLuidsprekers === "Ja" },
+  { key: "smart-tv", label: "Smart TV met apps",  check: b => heeftWens(b, "smart-tv") === true },
   { key: "hdr",       label: "HDR-ondersteuning",   check: b => b.hdr === "Ja" },
   { key: "3d",        label: "3D-ondersteuning",    check: b => b.support3d === "Ja" },
   { key: "wifi",      label: "Wifi",                check: b => b.wifi === "Ja" },
-  { key: "stil",      label: "Stil apparaat",        check: b => b.geluidDb !== null && b.geluidDb <= GELUID_STIL_MAX_DB },
-  { key: "korte-worp", label: "Korte projectieafstand", check: b => KORTE_WORP_TYPES.has(b.worpType) },
+  { key: "stil",      label: "Stil apparaat",        check: b => heeftWens(b, "stil") === true },
+  { key: "korte-worp", label: "Korte projectieafstand", check: b => heeftWens(b, "korte-worp") === true },
 ];
 
 const WORP_TYPE_LABELS = {
@@ -409,6 +412,7 @@ function renderAllFilters() {
 function handleFilterChange(event) {
   const input = event.target.closest("input");
   if (!input) return;
+  meet("filter_gebruikt", { filter: input.closest(".filter-card")?.dataset.filter || input.name, waarde: input.value === "all" ? "alle" : String(input.value).slice(0, 40) });
 
   const name  = input.name;
   const value = input.value;
@@ -469,7 +473,13 @@ export async function initFilters() {
     allBeamers = [];
   }
 
-  const result = matchBeamers(allBeamers, filterState.answers ?? {});
+  // Budget uit de quiz (maximumbedrag) is een echte grens, net als in de quiz.
+  // Past er niets binnen, dan zonder grens (zelfde vangnet).
+  const cap = Number(filterState.answers?.budget) || null;
+  const zonderGrens = matchBeamers(allBeamers, filterState.answers ?? {}, null);
+  let result = cap ? matchBeamers(allBeamers, filterState.answers ?? {}, cap) : zonderGrens;
+  const budgetZonderMatch = Boolean(cap && !(result.filteredMatchedBeamers?.length));
+  if (budgetZonderMatch) result = zonderGrens;
   filterState.baseMatches = Array.isArray(result.filteredMatchedBeamers) ? result.filteredMatchedBeamers : [];
 
   // Fallback: if the live fetch/computation yields nothing, seed the pool
@@ -514,4 +524,113 @@ export async function initFilters() {
   }
 
   applyFilters();
+  if (cap && filterState.baseMatches.length) initBudgetNote({ cap, result, zonderGrens, budgetZonderMatch });
+  initMeting(cap);
+}
+
+// ───────── budget: "Meer budget?" en het vangnet als er niets binnen past ─────────
+const euroLabel = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const WENS_VOORDEEL = {
+  "smart-tv": "apps zoals Netflix ingebouwd", laser: "een laser-lichtbron die jaren meegaat",
+  stil: "een stille beamer", "korte-worp": "een beamer die dicht bij de muur kan staan",
+};
+const LICHT_VOORDEEL = { normaal: "een beamer die helder genoeg is voor je kamer", licht: "een beamer die helder genoeg is voor een lichte kamer" };
+
+// Welke wens heeft de beste beamer boven het budget, die geen enkele
+// zichtbare beamer binnen het budget zeker heeft? Dan noemen we die.
+function wensBovenBudget(buiten, binnen, a) {
+  const kandidaten = extraWensen(a).map(w => [WENS_VOORDEEL[w], sb => heeftWens(sb, w) === true]);
+  if (a?.draagbaar === "ja") kandidaten.unshift(["een beamer die licht genoeg is om mee te nemen", b => draagbaarGenoeg(b, "ja") === true]);
+  if (a?.beeldkwaliteit === "heel-goed") kandidaten.unshift(["4K, zo scherp mogelijk", b => scherpGenoeg(b, "heel-goed") === true]);
+  if (LICHT_VOORDEEL[a?.licht]) kandidaten.unshift([LICHT_VOORDEEL[a.licht], b => helderGenoeg(b, a.licht) === true]);
+  return kandidaten.find(([naam, f]) => naam && f(buiten) && !binnen.some(f))?.[0] ?? null;
+}
+
+function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch }) {
+  const binnenLijst = binnen.filteredMatchedBeamers ?? [];
+  const kaart = document.createElement("div");
+  kaart.className = "budget-kaart";
+  kaart.setAttribute("role", "note");
+
+  if (budgetZonderMatch) {
+    meet("budget_kaart", { actie: "niets_binnen_budget" });
+    kaart.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we geen beamer.</strong> Dit zijn de beamers die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
+    plaatsBudgetKaart(kaart);
+    return;
+  }
+
+  // Alleen tonen als er boven het budget beamers zijn die duidelijk beter bij
+  // de wensen passen (passcore zonder prijsdeel). Vergelijk met wat je binnen
+  // budget echt ziet (2+ winkels), en tel erboven ook alleen wat je standaard ziet.
+  const zichtbaarBinnen = binnenLijst.filter(sb => (sb.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(sb => sb.wens)) : binnen.topWens;
+  const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;
+  const beter = (zonderGrens.filteredMatchedBeamers ?? []).filter(sb => parsePrice(sb.prijs) > cap && sb.wens >= drempel);
+  const zichtbaar = beter.filter(sb => (sb.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const goedkoopsteBuiten = zichtbaar.map(sb => parsePrice(sb.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
+  if (!goedkoopsteBuiten) return;
+  const buitenBeste = kiesBesteMatch(zichtbaar);
+  const reden = buitenBeste ? wensBovenBudget(buitenBeste, zichtbaarBinnen, filterState.answers) : null;
+  const meer = goedkoopsteBuiten - cap;
+  let toontBuiten = false;
+  const teken = () => {
+    kaart.innerHTML = toontBuiten
+      ? `<div class="budget-kaart-tekst"><strong>Je ziet nu beamers boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
+         <button type="button" class="budget-kaart-btn">Terug naar beamers tot ${euroLabel(cap)}</button>`
+      : reden
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${reden}</strong><span>Binnen je budget is dat er niet bij 2 of meer winkels. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze beamers</button>`
+        : `<div class="budget-kaart-tekst"><strong>Meer budget? Er zijn beamers die nog beter bij je wensen passen</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze beamers</button>`;
+    kaart.querySelector(".budget-kaart-btn").addEventListener("click", () => {
+      toontBuiten = !toontBuiten;
+      meet("budget_kaart", { actie: toontBuiten ? "klik_meer_budget" : "klik_terug", reden: reden ? "wens" : "score" });
+      lijstSoort = toontBuiten ? "boven_budget" : "binnen_budget";
+      filterState.baseMatches = toontBuiten ? beter : binnenLijst;
+      filterState.priceGroups = computeDynamicPriceGroups(filterState.baseMatches);
+      filterState.lumenGroups = computeDynamicLumenGroups(filterState.baseMatches);
+      // Andere lijst = verse start: alle filters terug naar standaard, zoals "Wis filters".
+      qs("#clearFiltersBtn")?.click();
+      teken();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+  teken();
+  plaatsBudgetKaart(kaart);
+  meet("budget_kaart", { actie: "getoond", reden: reden ? "wens" : "score", meer_euro: Math.round(meer) });
+}
+
+// De lijst wordt bij elk filter en elke sortering opnieuw getekend: zet de kaart
+// daarna steeds terug direct na de eerste beamer.
+function plaatsBudgetKaart(kaart) {
+  const grid = qs("#otherMatchesGrid");
+  if (!grid) return;
+  const zet = () => {
+    const items = [...grid.children].filter(el => el !== kaart && !el.classList.contains("rcard-skelet"));
+    if (!items.length) return;
+    const na = items[0];
+    if (na.nextElementSibling === kaart) return;
+    waker.disconnect();
+    na.after(kaart);
+    waker.observe(grid, { childList: true });
+  };
+  const waker = new MutationObserver(zet);
+  waker.observe(grid, { childList: true });
+  zet();
+}
+
+// ───────── meting (Umami, via shared/consent.js) ─────────
+const meet = (naam, props) => window.phTrackEvent?.(naam, { categorie: "beamer", ...props });
+let lijstSoort = "binnen_budget";
+
+function initMeting(cap) {
+  const budget = cap ? String(cap) : "geen_voorkeur";
+  const zichtbaar = () => document.querySelectorAll("#otherMatchesGrid > .rcard").length;
+  // Meegestuurd met elke winkelklik (shared/analytics.js)
+  window.phResultaatContext = () => ({ budget, lijst: zichtbaar(), lijst_soort: lijstSoort });
+  const beste = kiesBesteMatch(filterKeten().filter(genoegWinkels));
+  meet("resultaat_getoond", {
+    budget, gebruik: filterState.answers?.gebruik ?? "", licht: filterState.answers?.licht ?? "",
+    lijst: zichtbaar(), beste_merk: beste?.merk ?? "",
+  });
 }
