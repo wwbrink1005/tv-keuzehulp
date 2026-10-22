@@ -156,6 +156,28 @@ const ICON = {
   slot: `<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>`,
   wifi: `<svg viewBox="0 0 24 24"><path d="M3 9.5a13 13 0 0 1 18 0"/><path d="M6.5 13a8 8 0 0 1 11 0"/><path d="M10 16.5a3 3 0 0 1 4 0"/><circle cx="12" cy="19.5" r=".8"/></svg>`,
 };
+// uitleg in het bijschrift over de optie die je het laatst aanklikte (programma's en extra's)
+const UITLEG = {
+  programma: {
+    wol: ["Wol", "Droogt wol op lage temperatuur met rustige trommelbewegingen, zodat truien niet krimpen of vervilten. Kijk wel altijd even op het waslabel."],
+    sport: ["Sport en outdoor", "Droogt sportkleding en jassen op lage temperatuur, zodat ademende en waterafstotende stoffen goed blijven werken."],
+    stoom: ["Stoom", "Frist kleding op en haalt kreukels en geurtjes eruit, zonder dat je hoeft te wassen."],
+    allergie: ["Allergie/hygiëne", "Droogt op een hogere temperatuur, tegen huisstofmijt en bacteriën. Fijn bij allergie of astma."],
+    dekbed: ["Beddengoed en dons", "Droogt een dekbed of donsjas gelijkmatig, zodat de vulling luchtig blijft en niet gaat klonteren."],
+  },
+  extra: {
+    zuinig: ["Energielabel A", "Verbruikt ruim een derde minder stroom dan een droger met label C; dat scheelt elk jaar op je energierekening."],
+    app: ["Bediening met een app", "Start de droger op afstand en krijg een melding op je telefoon als de was droog is."],
+  },
+};
+let laatste = {};   // per vraag de optie die het laatst is aangeklikt
+// uitleg bij de laatst aangeklikte optie; is die weer uitgevinkt, dan bij de laatste die nog aanstaat
+function uitleg(st, id) {
+  const aan = (st[id] ?? []).filter(v => UITLEG[id][v]);
+  const v = aan.includes(laatste[id]) ? laatste[id] : aan.at(-1);
+  return v ? UITLEG[id][v] : null;
+}
+
 const PROG = { wol: "Wol", sport: "Outdoor", stoom: "Stoom", allergie: "Hygiëne", dekbed: "Dekbed", jeans: "Jeans", baby: "Baby" };
 const progList = st => { const l = st.programma.filter(p => PROG[p]).map(p => PROG[p]); return l.length ? l : ["Kastdroog", "Mix"]; };
 let progIdx = 0;
@@ -183,7 +205,8 @@ function spots(ctx, pts, edgeX) {
   const gap = ctx.mobile ? 26 : 34;
   const ys = placed.map(d => d.px.y);
   for (let i = 1; i < ys.length; i++) ys[i] = Math.max(ys[i], ys[i - 1] + gap);
-  const overflow = ys[ys.length - 1] - (ctx.height - 20);
+  // op desktop staat rechtsonder het bijschrift: labels blijven daarboven
+  const overflow = ys[ys.length - 1] - (ctx.height - (ctx.mobile ? 20 : 150));
   if (overflow > 0) for (let i = 0; i < ys.length; i++) ys[i] -= overflow;
   for (let i = ys.length - 2; i >= 0; i--) ys[i] = Math.min(ys[i], ys[i + 1] - gap);
   placed.forEach((d, i) => {
@@ -291,7 +314,11 @@ quiz = createQuiz3D({
     return list;
   },
 
-  onAnswer(st, id) { if (id === "programma") progIdx = 0; },
+  onAnswer(st, id, v) {
+    if (UITLEG[id]) laatste[id] = v;
+    // display springt naar het programma dat je net aanvinkte
+    if (id === "programma") progIdx = Math.max(0, progList(st).indexOf(PROG[v]));
+  },
 
   focus: st => FOCUS[QID(st)],
   focusDesktop: st => FOCUS_DESKTOP[QID(st)],
@@ -321,8 +348,8 @@ quiz = createQuiz3D({
         ja: ["Liefst stil", `De stilste drogers komen bovenaan; tot ${STIL_DREMPEL} dB telt als stil.`],
         nee: ["Geluid maakt niet uit", "We letten niet op het geluid; dat geeft de meeste keuze."],
       }[st.stil] ?? ["Geluid", "Kies of de droger stil moet zijn tijdens het drogen."];
-      case "extra": return wensCaption(st, "extra", st.extra.includes("geen") ? ["Geen extra wensen", "We kiezen puur op je eerdere antwoorden."] : ["Extra's", "Vink aan wat je belangrijk vindt; het verschijnt op de droger."]);
-      default: return wensCaption(st, "programma", st.programma.includes("geen") ? ["Geen specifieke wensen", "Elke droger heeft de standaardprogramma's zoals katoen en mix."] : ["Droogprogramma's", "Kies welke programma's je zeker wilt hebben."]);
+      case "extra": return uitleg(st, "extra") ?? wensCaption(st, "extra", st.extra.includes("geen") ? ["Geen extra wensen", "We kiezen puur op je eerdere antwoorden."] : ["Extra's", "Vink aan wat je belangrijk vindt; het verschijnt op de droger."]);
+      default: return uitleg(st, "programma") ?? wensCaption(st, "programma", st.programma.includes("geen") ? ["Geen specifieke wensen", "Elke droger heeft de standaardprogramma's zoals katoen en mix."] : ["Droogprogramma's", "Kies welke programma's je zeker wilt hebben."]);
     }
   },
 
