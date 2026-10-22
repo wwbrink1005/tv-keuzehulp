@@ -2,6 +2,7 @@
 // Zelfde opzet als koelkast/js/punten.js; bouwstenen in shared/punten-basis.js.
 //
 // Let op: `vermogen_watt` 0 betekent onbekend (28% van de catalogus).
+// subwooferLos, achterspeakers, wifiStreaming: true/false/null uit utils.js.
 
 import {
   esc, getal, ja,
@@ -9,7 +10,9 @@ import {
 } from "../../shared/punten-basis.js";
 import { breedteGroupToRange } from "./data.js";
 
-const atmos = (s) => /atmos|dts:x|dts x/i.test(s.audio_decoders ?? "");
+const atmos = (s) => s.atmos === true;
+const sub = (s) => s.subwooferLos === true;
+const wifi = (s) => s.wifiStreaming === true;
 const kanalenGetal = (s) => {
   const m = String(s.kanalen ?? "").match(/^(\d+)(?:\.(\d+))?(?:\.(\d+))?/);
   return m ? Number(m[1]) + Number(m[2] ?? 0) + Number(m[3] ?? 0) : NaN;
@@ -36,11 +39,11 @@ export function buildResultPoints(s, answers, ctx) {
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  if (a.subwoofer === "ja" && ja(s.subwoofer_meegeleverd)) vink("sub", "losse subwoofer");
-  if (a.subwoofer === "nee" && !ja(s.subwoofer_meegeleverd)) vink("sub", "zonder losse subwoofer");
+  if (a.subwoofer === "ja" && sub(s)) vink("sub", "losse subwoofer");
+  if (a.subwoofer === "nee" && s.subwooferLos === false) vink("sub", "zonder losse subwoofer");
   if (wil("surround") && atmos(s)) vink("atmos", "Dolby Atmos");
-  if (wil("wandmontage") && ja(s.wandmontage)) vink("muur", "aan de muur te hangen");
-  if (wil("streaming") && ja(s.wifi)) vink("wifi", "wifi-streaming");
+  if (wil("achter") && s.achterspeakers === true) vink("achter", "losse achterspeakers");
+  if (wil("streaming") && wifi(s)) vink("wifi", "WiFi-streaming");
   zochtRegel(p, delen);
 
   // 2. Wat deze kaart onderscheidt binnen de lijst
@@ -53,18 +56,19 @@ export function buildResultPoints(s, answers, ctx) {
   });
   prijsPunten(p, s, ctx);
 
-  // 3. Breedte vertaald naar de eigen tv
+  // 3. Breedte vertaald naar de eigen tv (alleen als hij in het geadviseerde vak valt)
   const r = breedteGroupToRange[a.breedte];
   if (r && TV[a.breedte] && Number.isFinite(s.breedte_mm) && s.breedte_mm >= r.min && s.breedte_mm < r.max) {
     p.voeg(30, "breedte", `<strong>${getal(s.breedte_mm / 10)} cm breed</strong>: past bij ${TV[a.breedte]}`);
   }
   if (atmos(s) && (gebruik.includes("films") || gebruik.includes("gaming"))) p.voeg(31, "atmos", `<strong>Dolby Atmos</strong>: geluid van boven en opzij, ook bij films en games`);
   if (gebruik.includes("tv") && kanalenGetal(s) >= 3) p.voeg(32, "spraak", `<strong>Middenkanaal</strong>: stemmen in films en nieuws beter verstaanbaar`);
-  if (gebruik.includes("muziek") && ja(s.wifi)) p.voeg(33, "wifi", `<strong>Wifi</strong>: muziek via Spotify of AirPlay zonder bluetooth-haperingen`);
+  if (gebruik.includes("muziek") && wifi(s)) p.voeg(33, "wifi", `<strong>WiFi</strong>: muziek via ${s.airplay ? "AirPlay" : "Spotify Connect"} zonder bluetooth-haperingen`);
+  if (gebruik.includes("films") && s.achterspeakers === true) p.voeg(34, "achter", `<strong>Losse achterspeakers</strong>: geluid echt van achteren`);
 
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
   if (ja(s.earc)) p.voeg(40, "earc", `<strong>HDMI eARC</strong>: bedienen met je tv-afstandsbediening`);
-  if (ja(s.subwoofer_meegeleverd)) p.voeg(41, "sub", `<strong>Losse subwoofer</strong> voor stevige bas`);
+  if (sub(s)) p.voeg(41, "sub", `<strong>Losse subwoofer</strong> voor stevige bas`);
   if (atmos(s)) p.voeg(42, "atmos", `<strong>Dolby Atmos</strong> voor ruimtelijk geluid`);
   if (s.kanalen) p.voeg(90, "kanalen", `<strong>${esc(kanalenKort(s))} kanalen</strong>`);
   if (Number.isFinite(s.breedte_mm)) p.voeg(91, "breedte", `<strong>${getal(s.breedte_mm / 10)} cm</strong> breed`);
@@ -77,7 +81,7 @@ export function buildResultPoints(s, answers, ctx) {
 export function buildSpecChips(s) {
   const specs = [];
   if (s.kanalen) specs.push(s.kanalen);
-  if (s.subwoofer_meegeleverd === "Ja") specs.push("Incl. subwoofer");
+  if (sub(s)) specs.push("Incl. subwoofer");
   if (s.vermogen_watt) specs.push(`${s.vermogen_watt}W`);
   if (s.breedte_mm) specs.push(`${Math.round(s.breedte_mm / 10)} cm breed`);
   return specs;
@@ -87,11 +91,14 @@ export function buildAlleSpecs(s, raw) {
   const cmv = (mm) => (Number.isFinite(mm) && mm > 0 ? `${getal(mm / 10, 1)} cm` : null);
   return schoonSpecs([
     { titel: "Geluid", rijen: [
-      ["Kanalen", kanalenKort(s)], ["Subwoofer", s.subwoofer_meegeleverd],
+      ["Kanalen", kanalenKort(s)], ["Losse subwoofer", s.subwooferLos == null ? null : s.subwooferLos ? "Ja" : "Nee"],
+      ["Achterspeakers", s.achterspeakers == null ? null : s.achterspeakers ? "Ja" : "Nee"],
       ["Vermogen", s.vermogen_watt > 0 ? `${getal(s.vermogen_watt)} watt` : null], ["Formaten", s.audio_decoders],
     ] },
     { titel: "Aansluitingen", rijen: [
-      ["HDMI", String(s.hdmi_poorten ?? "")], ["eARC", s.earc], ["Wifi", s.wifi], ["Bluetooth", s.bluetooth],
+      ["HDMI", String(s.hdmi_poorten ?? "")], ["eARC", s.earc], ["WiFi", s.wifiStreaming == null ? null : s.wifiStreaming ? "Ja" : "Nee"],
+      ["AirPlay", s.airplay == null ? null : s.airplay ? "Ja" : "Nee"], ["Spotify Connect", s.spotifyConnect == null ? null : s.spotifyConnect ? "Ja" : "Nee"],
+      ["Bluetooth", s.bluetooth],
     ] },
     { titel: "Afmetingen en overig", rijen: [
       ["Breedte", cmv(s.breedte_mm)], ["Hoogte", cmv(s.hoogte_mm)], ["Diepte", cmv(s.diepte_mm)],

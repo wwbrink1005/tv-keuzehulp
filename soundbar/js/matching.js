@@ -1,4 +1,4 @@
-import { getSoundbarTier, breedteGroupToRange, scoringSystem, TIER_ORDER } from "./data.js";
+import { getSoundbarTier, breedteGroupToRange, breedteMaxMm } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 export const DEFAULT_MIN_AANBIEDERS = 2;
@@ -16,194 +16,164 @@ export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_
   return { effectiveMin, result };
 }
 
-// ─── Score computation ────────────────────────────────────────────────────────
+// ─── Wensen ─────────────────────────────────────────────────────────────────
+// De kenmerken (subwooferLos, achterspeakers, atmos, wifiStreaming,
+// middenkanaal) leidt utils.js af: true / false / null (onbekend).
+const lijst = v => (Array.isArray(v) ? v : v ? [v] : []);
+export const extraWensen = a => lijst(a?.extraAnswers).filter(w => w !== "geen");
+const gebruikVan = a => lijst(a?.gebruik);
 
-export function calculateScores(answers) {
-  const scores = { Compact: 0, Allround: 0, HomeCinema: 0, Premium: 0 };
-
-  const gebruik = Array.isArray(answers.gebruik)
-    ? answers.gebruik
-    : (answers.gebruik ? [answers.gebruik] : []);
-
-  for (const g of gebruik) {
-    if (scoringSystem.gebruik[g]) {
-      for (const tier of TIER_ORDER) {
-        scores[tier] += scoringSystem.gebruik[g][tier] ?? 0;
-      }
-    }
+/** Heeft de soundbar deze extra wens? true / false / null (onbekend). */
+export function heeftWens(sb, wens) {
+  switch (wens) {
+    case "surround": return sb.atmos ?? null;
+    case "achter": return sb.achterspeakers ?? null;
+    case "streaming": return sb.wifiStreaming ?? null;
+    default: return true;
   }
-
-  return scores;
 }
 
-// ─── Subwoofer-filter (vraag 3) ────────────────────────────────────────────────
-
-export function applySubwooferFilter(soundbars, subwoofer) {
-  if (subwoofer === "ja") {
-    const met = soundbars.filter(sb => sb.subwoofer_meegeleverd === "Ja");
-    if (met.length > 0) return met;
-    return soundbars;
-  }
-
-  if (subwoofer === "nee") {
-    const zonder = soundbars.filter(sb => sb.subwoofer_meegeleverd === "Nee");
-    if (zonder.length > 0) return zonder;
-    return soundbars;
-  }
-
-  // "maakt-niet-uit" → geen filter
-  return soundbars;
+/** Past de soundbar bij het antwoord op de subwoofervraag? true / false / null. */
+export function voldoetAanSubwoofer(sb, antwoord) {
+  const los = sb.subwooferLos ?? null;
+  if (antwoord === "ja") return los;
+  if (antwoord === "nee") return los === null ? null : !los;
+  return true;
 }
 
-// ─── Extra wensen (vraag 4) ────────────────────────────────────────────────────
-
-export function applyExtraFilter(soundbars, extraAnswers) {
-  if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
-    return soundbars;
-  }
-
-  let filtered = [...soundbars];
-
-  if (extraAnswers.includes("surround")) {
-    const surround = filtered.filter(sb => {
-      const d = String(sb.audio_decoders || "").toLowerCase();
-      return d.includes("atmos") || d.includes("dts:x") || d.includes("dts x");
-    });
-    if (surround.length > 0) filtered = surround;
-  }
-
-  if (extraAnswers.includes("wandmontage")) {
-    const wand = filtered.filter(sb => sb.wandmontage === "Ja");
-    if (wand.length > 0) filtered = wand;
-  }
-
-  if (extraAnswers.includes("streaming")) {
-    const streaming = filtered.filter(sb => sb.wifi === "Ja");
-    if (streaming.length > 0) filtered = streaming;
-  }
-
-  return filtered;
+/** Past hij binnen de gekozen maximale breedte? (onbekende breedte: alleen bij "groot"/"weet-ik-niet") */
+export function pastBreedte(sb, groep) {
+  const max = breedteMaxMm[groep];
+  if (max === undefined || max === Number.POSITIVE_INFINITY) return true;
+  return Number.isFinite(sb.breedte_mm) && sb.breedte_mm < max;
 }
 
-// Strikte versie van de wensfilters: alleen soundbars die aan ÁLLE wensen
-// voldoen (subwoofer + extra's), zonder terug te vallen. Gebruikt om eerst een
-// tier te zoeken waarin alle wensen vervuld worden, voordat er een wens mag
-// wegvallen (zie matchSoundbars).
-const heeftAtmos = sb => {
-  const d = String(sb.audio_decoders || "").toLowerCase();
-  return d.includes("atmos") || d.includes("dts:x") || d.includes("dts x");
-};
+// ───────── Matching per soundbar (sinds 22-10-2026) ─────────
+// Zelfde opzet als tv, printer, laptop, wasmachine en monitor: breedte (als
+// maximum) en budget zijn harde grenzen, elke soundbar krijgt een passcore en
+// de lijst is alles wat dicht bij de top zit. Vroeger won één klasse
+// (Compact/Allround/Premium) en kwamen er filters achteraan die wegvielen als
+// er niets overbleef; "Nee, geen subwoofer" telde een onbekende als "nee".
+//
+// Passcore = 100
+//   - 150 per uitgesproken wens die de soundbar niet heeft (subwoofer ja/nee,
+//     Dolby Atmos, losse achterspeakers, WiFi); 50 bij onbekend
+//   - breedte: 3 punten per 10 cm smaller dan het geadviseerde vak (max 15)
+//   - gebruik (voorkeur, geen vraag om aan te vinken):
+//       tv-kijken: middenkanaal voor stemmen; films: Atmos, losse subwoofer,
+//       achterspeakers; muziek: WiFi-streaming, losse subwoofer; gamen: Atmos
+//   - prijs: de duurste in de lijst verliest tot PRIJS_GEWICHT punten
+// `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
+const WENS = 150, WENS_ONBEKEND = 50;
+export const BAND_BESTE = 4;
+const BAND_LIJST = 10;
+const MIN_LIJST = 5;
+const MAX_LIJST = 30;
+const PRIJS_GEWICHT = 6;
 
-function voldoetAanAlleWensen(soundbars, answers) {
-  const sub = answers.subwoofer ?? "";
-  const extra = Array.isArray(answers.extraAnswers) ? answers.extraAnswers : [];
-  return soundbars.filter(sb =>
-    (sub !== "ja" || sb.subwoofer_meegeleverd === "Ja") &&
-    (sub !== "nee" || sb.subwoofer_meegeleverd === "Nee") &&
-    (!extra.includes("surround") || heeftAtmos(sb)) &&
-    (!extra.includes("wandmontage") || sb.wandmontage === "Ja") &&
-    (!extra.includes("streaming") || sb.wifi === "Ja")
-  );
+function wensStraf(heeft) {
+  if (heeft === true) return 0;
+  return heeft === false ? WENS : WENS_ONBEKEND;
 }
+const straf = (waarde, nee, onbekend) => (waarde === false ? nee : waarde == null ? onbekend : 0);
 
-// ─── Main matching function ───────────────────────────────────────────────────
+function straffen(sb, a) {
+  let s = 0;
+  const gebruik = gebruikVan(a);
+  if (a.subwoofer === "ja" || a.subwoofer === "nee") s += wensStraf(voldoetAanSubwoofer(sb, a.subwoofer));
+  for (const w of extraWensen(a)) s += wensStraf(heeftWens(sb, w));
 
-export function matchSoundbars(soundbars, breedteGroup, priceGroup, answers, scores) {
-  if (!Array.isArray(soundbars) || !breedteGroup) {
-    return { bestMatch: null, bestType: null, filteredMatchedSoundbars: [] };
+  // Breedte: smaller dan het ideaal mag, maar hoe dichterbij hoe beter
+  const ideaal = breedteGroupToRange[a.breedte];
+  if (ideaal && a.breedte !== "compact") {
+    if (!Number.isFinite(sb.breedte_mm)) s += 5;
+    else if (sb.breedte_mm < ideaal.min) s += Math.min(15, Math.round((ideaal.min - sb.breedte_mm) / 100 * 3));
   }
 
-  const range = breedteGroupToRange[breedteGroup];
+  // Gebruik. Wie zelf "geen losse subwoofer" kiest, krijgt daar geen aftrek voor.
+  const subOk = a.subwoofer !== "nee";
+  if (gebruik.includes("tv")) s += straf(sb.middenkanaal, 8, 3);
+  if (gebruik.includes("films")) {
+    s += straf(sb.atmos, 10, 4);
+    if (subOk) s += straf(sb.subwooferLos, 6, 3);
+  }
+  if (gebruik.includes("muziek")) {
+    s += straf(sb.wifiStreaming, 8, 3);
+    if (subOk) s += straf(sb.subwooferLos, 4, 2);
+  }
+  if (gebruik.includes("gaming")) s += straf(sb.atmos, 8, 3);
+  return s;
+}
 
-  // 1. Filter op breedte + prijs
-  let filtered = soundbars.filter(sb => {
-    const price = parsePrice(sb.prijs);
-    const withinBreedte = !range || (Number.isFinite(sb.breedte_mm) && sb.breedte_mm >= range.min && sb.breedte_mm < range.max);
-    return (
-      withinBreedte &&
-      (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max))
-    );
+function bonussen(sb, a) {
+  const gebruik = gebruikVan(a);
+  let b = 0;
+  if (gebruik.includes("films") && sb.achterspeakers === true) b += 4;
+  if (gebruik.includes("muziek") && (sb.airplay === true || sb.spotifyConnect === true)) b += 2;
+  return b;
+}
+
+// Plek van een prijs binnen een lijst: 0 = goedkoopste, 1 = duurste.
+function prijsPlek(pool) {
+  const prijzen = pool.map(sb => parsePrice(sb.prijs)).sort((x, y) => x - y);
+  return prijs => (prijzen.length < 2 ? 0 : prijzen.filter(x => x < prijs).length / (prijzen.length - 1));
+}
+
+export function scoreSoundbars(pool, answers = {}) {
+  const plek = prijsPlek(pool);
+  return pool.map(sb => {
+    const wens = 100 - straffen(sb, answers) + bonussen(sb, answers);
+    const fit = wens - PRIJS_GEWICHT * plek(parsePrice(sb.prijs));
+    return { ...sb, tier: getSoundbarTier(sb), wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
   });
+}
 
-  if (filtered.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedSoundbars: [] };
-  }
-
-  // 2. Beste tier op basis van score
-  const sortedTiers = Object.entries(scores)
-    .sort((a, b) => Number(b[1]) - Number(a[1]));
-
-  let matchedSoundbars = [];
-  let bestType = null;
-
-  // 2a. Eerst de best scorende tier waarin ALLE wensen vervuld kunnen worden.
-  // De tier komt uit het gebruik (een voorkeur), de wensen zijn expliciet
-  // aangevinkt: die gaan voor. Zonder deze stap viel bv. "Dolby Atmos" bij
-  // "vooral tv-kijken" stil weg (die tier heeft per definitie geen Atmos),
-  // terwijl er in dezelfde breedte wel Atmos-soundbars waren.
-  const scoresAflopend = [...new Set(sortedTiers.map(([, s]) => Number(s)))];
-  for (const score of scoresAflopend) {
-    const tiers = sortedTiers.filter(([, s]) => Number(s) === score).map(([t]) => t);
-    let beste = null, besteNaam = null;
-    for (const tier of tiers) {
-      const kandidaten = voldoetAanAlleWensen(filtered.filter(sb => getSoundbarTier(sb) === tier), answers);
-      if (kandidaten.length && (!beste || kandidaten.length < beste.length)) { beste = kandidaten; besteNaam = tier; }
-    }
-    if (beste) { matchedSoundbars = beste; bestType = besteNaam; break; }
-  }
-
-  // 2b. Kan dat in geen enkele tier: de best scorende tier, waarbij een wens
-  // die daar niet bestaat wegvalt (gracieuze degradatie).
-  for (let i = 0; i < sortedTiers.length && matchedSoundbars.length === 0; i++) {
-    const [, topScore] = sortedTiers[i];
-    const tiersWithTopScore = sortedTiers
-      .filter(([, s]) => Number(s) === Number(topScore))
-      .map(([t]) => t);
-
-    // Bij een gelijke stand tussen tiers (bv. "muziek": Allround en Premium
-    // scoren allebei 8) voegen we ze niet samen — dat maakt de resultatenlijst
-    // juist breder (getest: 45 van de 117 soundbars bij zo'n samenvoeging).
-    // We evalueren elke getelde tier apart en kiezen de kleinste niet-lege
-    // resultatenset, zelfde patroon als monitor/laptop.
-    let bestTierCandidates = null;
-    let bestTierName = null;
-
-    for (const tier of tiersWithTopScore) {
-      let tierCandidates = filtered.filter(sb => getSoundbarTier(sb) === tier);
-      tierCandidates = applySubwooferFilter(tierCandidates, answers.subwoofer ?? "");
-      tierCandidates = applyExtraFilter(tierCandidates, answers.extraAnswers ?? []);
-      if (tierCandidates.length === 0) continue;
-      if (bestTierCandidates === null || tierCandidates.length < bestTierCandidates.length) {
-        bestTierCandidates = tierCandidates;
-        bestTierName = tier;
-      }
-    }
-
-    if (bestTierCandidates === null) continue;
-
-    matchedSoundbars = bestTierCandidates;
-    bestType = bestTierName;
-    break;
-  }
-
-  // Verplichte eindfallback: als de tier-cascade niets opleverde, val terug
-  // op alle breedte+prijs-gefilterde soundbars (met subwoofer/extra-filter
-  // waar mogelijk), zodat een prijscategorie met wél voorraad nooit "geen
-  // resultaten" teruggeeft.
-  if (matchedSoundbars.length === 0) {
-    let fallback = applySubwooferFilter(filtered, answers.subwoofer ?? "");
-    fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
-    if (fallback.length === 0) fallback = [...filtered];
-    matchedSoundbars = fallback;
-    bestType = "Algemeen";
-  }
-
-  // Beste match = goedkoopste in de gematchte set
-  const bestMatch = matchedSoundbars.reduce((cheapest, sb) => {
-    return parsePrice(sb.prijs) < parsePrice(cheapest.prijs) ? sb : cheapest;
+/** Beste match: de goedkoopste van de soundbars die even goed passen als de beste. */
+export function kiesBesteMatch(lijstIn) {
+  const kandidaten = (lijstIn ?? []).filter(sb => Number.isFinite(sb?.fit));
+  if (!kandidaten.length) return null;
+  const top = Math.max(...kandidaten.map(sb => sb.fit));
+  return kandidaten.filter(sb => sb.fit >= top - BAND_BESTE).reduce((a, b) => {
+    const pa = parsePrice(a.prijs), pb = parsePrice(b.prijs);
+    return pb < pa || (pb === pa && b.fit > a.fit) ? b : a;
   });
+}
 
-  return { bestMatch, bestType, filteredMatchedSoundbars: matchedSoundbars };
+/**
+ * @param {object[]} soundbars  genormaliseerde soundbars (utils.normalizeProducts)
+ * @param {string} breedteGroup antwoord op de breedtevraag
+ * @param {number|null} budget  maximumbedrag uit de quiz, of null (geen voorkeur)
+ * @param {object} answers      antwoorden uit de quiz
+ */
+export function matchSoundbars(soundbars, breedteGroup, budget, answers) {
+  const leeg = { bestMatch: null, bestType: null, filteredMatchedSoundbars: [], topWens: null };
+  if (!Array.isArray(soundbars) || !breedteGroup) return leeg;
+
+  const cap = Number(budget) || null;
+  const pool = soundbars.filter(sb => pastBreedte(sb, breedteGroup) && (!cap || parsePrice(sb.prijs) <= cap));
+  if (pool.length === 0) return leeg;
+
+  const gescoord = scoreSoundbars(pool, { ...(answers ?? {}), breedte: breedteGroup }).sort((x, y) => y.fit - x.fit);
+  const top = gescoord[0].fit;
+  // Alles binnen de band, maar door tot er minstens MIN_LIJST soundbars in
+  // zitten die door het standaardfilter "2+ winkels" op de resultaatpagina komen.
+  const uit = [];
+  let zichtbaar = 0;
+  for (const sb of gescoord) {
+    if (zichtbaar >= MAX_LIJST) break;
+    if (sb.fit < top - BAND_LIJST && zichtbaar >= MIN_LIJST) break;
+    uit.push(sb);
+    if ((sb.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS) zichtbaar++;
+  }
+  uit.sort((x, y) => parsePrice(x.prijs) - parsePrice(y.prijs));
+
+  const bestMatch = kiesBesteMatch(uit);
+  return {
+    bestMatch,
+    bestType: bestMatch?.tier ?? null,
+    filteredMatchedSoundbars: uit,
+    topWens: Math.max(...uit.map(sb => sb.wens)),
+  };
 }
 
 // De kaartpunten ("Waarom dit bij jou past") staan in punten.js.

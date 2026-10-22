@@ -10,6 +10,23 @@ export const breedteGroupToRange = {
   "weet-ik-niet": null // geen breedtefilter
 };
 
+// Sinds okt. 2026 is de breedte een MAXIMUM (past onder/voor je tv), geen vak:
+// een soundbar die iets smaller is, staat prima. Hoe dichter bij het vak
+// hierboven (het ideaal), hoe hoger de score (matching.js). Bij "groot" geen
+// maximum. Met maar ~50 soundbars bij 2+ winkels bleven er met een vak plus
+// budget soms nauwelijks over.
+export const breedteMaxMm = {
+  "compact":   800,
+  "gemiddeld": 1100,
+  "groot":     Number.POSITIVE_INFINITY,
+};
+
+// ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
+// Twee maximumbedragen plus "Geen voorkeur". Uit de live catalogus (okt. 2026,
+// 2+ winkels): rond een derde en twee derde van de prijzen (€299 en €549).
+// Lager afgerond: tot €250 zijn er ook compacte soundbars (vanaf €145).
+export const BUDGET_CAPS = [250, 500];
+
 // ─── Tv-grootte → geadviseerde breedtegroep (vraag 1 → advies bij vraag 2) ─────
 // Zelfde patroon als de tv-keuzehulp's kijkafstand → tv-grootte-advies: vraag 1
 // vraagt iets dat mensen makkelijk weten (tv-formaat in inch), vraag 2 toont op
@@ -101,13 +118,3 @@ export function getKanalenGroep(soundbar) {
   return "Tv-geluid verbeteren";
 }
 
-// ─── Scoring system ───────────────────────────────────────────────────────────
-// Elk antwoord geeft een score per soundbar-tier.
-export const scoringSystem = {
-  gebruik: {
-    tv:      { Compact: 9, Allround: 8, HomeCinema: 5, Premium: 5  },
-    films:   { Compact: 3, Allround: 7, HomeCinema: 9, Premium: 10 },
-    muziek:  { Compact: 6, Allround: 8, HomeCinema: 7, Premium: 8  },
-    gaming:  { Compact: 4, Allround: 7, HomeCinema: 8, Premium: 10 }
-  }
-};

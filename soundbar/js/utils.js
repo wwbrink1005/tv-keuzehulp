@@ -43,6 +43,53 @@ export function getStoredSelection() {
 // daarvoor bestaat niet in de catalogus.
 const GEEN_TV_SOUNDBAR = /speaker ?steun|muurbeugel|wandbeugel|beugel|houder|mspeaker|luidsprekerbalk|slim soundbar - sb/i;
 
+// ─── Losse subwoofer, achterspeakers, WiFi (sinds okt. 2026) ───────────────
+// Icecat's "Meegeleverde subwoofer" staat ook op "Ja" bij soundbars met de bas
+// ín de bar (TCL S45H: "Subwoofer locatie: Ingebouwd"). Locatie, gewicht en een
+// draadloze verbinding zeggen wél of er een losse subwoofer bij zit.
+//
+// Vaste kenmerken voor modellen zonder (volledige) Icecat-gegevens, nagekeken
+// bij fabrikant en winkels (22-10-2026), net als de vaste Miele-kenmerken bij
+// de wasmachine. Alleen wat zeker is; de rest blijft onbekend.
+const VAST = [
+  { patroon: /sonos (ray|beam|arc)/i, subLos: false, achter: false, wifi: true },
+  { patroon: /bravia theatre bar [89]/i, subLos: false, achter: false, wifi: true },
+  { patroon: /bravia theatre bar 6/i, subLos: true, achter: false, wifi: false },
+  { patroon: /bravia theatre system 6/i, subLos: true, achter: true },
+  { patroon: /ht-s2000/i, subLos: false, achter: false, wifi: false },
+  { patroon: /dht-s(316|517)/i, subLos: true, achter: false, wifi: false },
+  { patroon: /denon home soundbar/i, subLos: false, achter: false, wifi: true },
+  { patroon: /sound suite/i, subLos: false, achter: false },
+  { patroon: /hisense hs2000/i, subLos: false, achter: false },
+  // afneembare achterspeakers (JBL) en sets met achterspeakers (Samsung Q990)
+  { patroon: /jbl bar (800|1000|1300) mk2/i, achter: true },
+  { patroon: /q990/i, achter: true },
+];
+const vastVoor = naam => VAST.filter(v => v.patroon.test(naam)).reduce((a, v) => ({ ...a, ...v }), {});
+const jaNee = v => (/^ja$/i.test(String(v ?? "").trim()) ? true : /^nee$/i.test(String(v ?? "").trim()) ? false : null);
+const kg = v => { const m = String(v ?? "").replace(",", ".").match(/(\d+(?:\.\d+)?)\s*(kg|g)\b/i); return m ? parseFloat(m[1]) / (m[2].toLowerCase() === "g" ? 1000 : 1) : null; };
+const hoofdKanalen = k => { const m = String(k ?? "").match(/^(\d+)/); return m ? parseInt(m[1], 10) : null; };
+
+function subwooferLos(p, naam, vast) {
+  if (vast.subLos !== undefined) return vast.subLos;
+  if (/gescheiden/i.test(p.subwooferLocatie)) return true;
+  if (/ingebouwd/i.test(p.subwooferLocatie)) return false;
+  const gewicht = kg(p.subwooferGewicht);
+  if (gewicht !== null) return gewicht > 0;
+  if (/draadloos/i.test(p.subwooferVerbinding)) return true;
+  if (/subwoofer/i.test(naam) && !/ingebouwde subwoofer|built-in sub/i.test(naam)) return true;
+  // "Ja" zonder meer zegt niet of hij los staat; "Nee" wel dat er geen is.
+  return jaNee(p.subwooferRaw) === false ? false : null;
+}
+
+function achterspeakers(p, vast) {
+  if (vast.achter !== undefined) return vast.achter;
+  if ((kg(p.achterspeakerGewicht) ?? 0) > 0) return true;
+  // Minder dan 4 hoofdkanalen (2.x, 3.x): daar horen geen losse achterspeakers bij.
+  const hoofd = hoofdKanalen(p.kanalen);
+  return hoofd !== null && hoofd < 4 ? false : null;
+}
+
 export function normalizeProducts(rawProducts) {
   if (!Array.isArray(rawProducts)) return [];
 
@@ -64,6 +111,11 @@ export function normalizeProducts(rawProducts) {
 
     if (!product.merk) return [];
 
+    const vast = vastVoor(naam);
+    const decoders = String(product.audio_decoders ?? "");
+    const hoofd = hoofdKanalen(product.kanalen);
+    const wifiBekend = vast.wifi ?? jaNee(product.wifiRaw);
+
     return [{
       merk:                 product.merk,
       naam,
@@ -80,6 +132,17 @@ export function normalizeProducts(rawProducts) {
       wandmontage:          product.wandmontage  ?? "Nee",
       wifi:                 product.wifi         ?? "Nee",
       bluetooth:            product.bluetooth    ?? "Nee",
+      // Afgeleid, true / false / null (onbekend). Zie de toelichting bovenaan.
+      subwooferLos:         subwooferLos(product, naam, vast),
+      achterspeakers:       achterspeakers(product, vast),
+      // Hoogtekanalen (x.x.2, x.x.4) zijn er alleen voor Atmos/DTS:X, ook als
+      // de decoderlijst afgekapt is (Samsung Q930F: 9.1.4, "Dolby Digital").
+      atmos:                /atmos|dts:x|dts x/i.test(decoders) || /^\d+\.\d+\.[1-9]/.test(String(product.kanalen ?? "")) ? true : decoders ? false : null,
+      middenkanaal:         hoofd === null ? null : hoofd >= 3,
+      wifiStreaming:        wifiBekend,
+      airplay:              jaNee(product.airplay),
+      spotifyConnect:       jaNee(product.spotifyConnect),
+      chromecast:           jaNee(product.chromecast),
       afbeelding,
       afbeeldingen,
       aanbieders

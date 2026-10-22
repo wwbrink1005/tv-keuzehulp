@@ -173,6 +173,8 @@ function eisenVan(st, totId, zonder) {
   const eisen = [];
   for (const q of vragen(st)) {
     if (!EIS[q.id]) continue;
+    // Bij een keuzerondje (gamevraag) is het eigen antwoord geen eis voor de andere opties
+    if (q.id === totId && !Array.isArray(st[q.id])) break;
     const gekozen = [].concat(st[q.id] ?? []).filter(v => EIS[q.id][v] && (q.id !== totId || v !== zonder));
     gekozen.forEach(v => eisen.push(EIS[q.id][v]));
     if (q.id === totId) break;

@@ -79,6 +79,18 @@ function adaptRow(row) {
     wandmontage:          parseJaNee(row.wandmontage),
     wifi:                 parseJaNee(row.wifi),
     bluetooth:            parseJaNee(row.bluetooth),
+    // Sinds okt. 2026 (migrations/soundbars_extra_specs.sql in de pipeline).
+    // Ruwe waarden: utils.js leidt er "losse subwoofer", "achterspeakers" en
+    // "WiFi" uit af, waarbij onbekend onbekend blijft (geen "Nee").
+    subwooferRaw:         row.subwoofer_meegeleverd ?? "",
+    wifiRaw:              row.wifi ?? "",
+    subwooferLocatie:     row.subwoofer_locatie ?? "",
+    subwooferGewicht:     row.subwoofer_gewicht ?? "",
+    subwooferVerbinding:  row.subwoofer_verbinding ?? "",
+    achterspeakerGewicht: row.achterspeaker_gewicht ?? "",
+    airplay:              row.airplay ?? "",
+    spotifyConnect:       row.spotify_connect ?? "",
+    chromecast:           row.chromecast ?? "",
     icecat_afbeelding:    row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen:  Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:           adaptAanbieders(row),
