@@ -50,6 +50,17 @@
 .screen .music i { display: block; height: .25em; border-radius: 1em; background: rgba(255,255,255,.2); margin-top: .6em; overflow: hidden; }
 .screen .music em { display: block; height: 100%; width: 38%; background: #fff; border-radius: inherit; }
 /* geluidsgolven uit de soundbar */
+/* bovenaanzicht bij "losse achterspeakers" (rechtsboven, boven de labels en het bijschrift) */
+.plan { position: absolute; right: 20px; top: 20px; width: 220px; padding: 12px 12px 10px; border-radius: 16px; background: rgba(255,255,255,.94); box-shadow: 0 10px 30px rgba(40,30,20,.18); pointer-events: none; animation: plan-in .4s ease both; }
+.plan svg { display: block; width: 100%; height: auto; }
+.plan .muur { fill: #f6f3ee; stroke: #d8d0c4; stroke-width: 1.5; }
+.plan .meubel { fill: #c9a786; } .plan .tvlijn { fill: #1d1d1f; }
+.plan .bank { fill: #d9c3b0; } .plan .bank.rug { fill: #c4a68e; }
+.plan .spk { fill: #2a2a2e; }
+.plan .boog { fill: none; stroke: var(--c-accent, #0954a3); stroke-width: 1.6; stroke-linecap: round; opacity: .75; }
+.plan p { margin: 8px 2px 0; font-size: 12px; line-height: 1.4; color: #3a3a3f; }
+@keyframes plan-in { from { opacity: 0; transform: translateY(-6px); } }
+@media (max-width: 900px) { .plan { right: auto; left: 10px; top: 10px; width: 130px; padding: 8px; border-radius: 12px; } .plan p { display: none; } }
 .waves { position: absolute; height: 0; transform: translate(-50%, 0); pointer-events: none; opacity: 0; transition: opacity .5s ease; }
 .waves.is-on { opacity: 1; }
 .waves i {

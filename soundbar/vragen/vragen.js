@@ -147,6 +147,26 @@ function extraCaption(st) {
   return ["Jouw extra's", `${n} van de ${lijst.length} soundbars die bij je ${bij} passen ${n === 1 ? "heeft" : "hebben"} ${wat}.`];
 }
 
+// Bovenaanzicht van de kamer voor de achterspeakers: die staan achter de bank,
+// buiten het camerabeeld. Schematisch, zonder merk of vorm van een bepaald model.
+function plattegrond(st) {
+  const sub = st.subwoofer && st.subwoofer !== "nee";
+  const boog = (x, y, r, a0, a1) => { const p = a => [x + r * Math.cos(a), y + r * Math.sin(a)]; const [x0, y0] = p(a0), [x1, y1] = p(a1); return `<path class="boog" d="M${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1}"/>`; };
+  const golven = (x, y, a) => [10, 17, 24].map(r => boog(x, y, r, a - 0.6, a + 0.6)).join("");
+  return `<div class="plan"><svg viewBox="0 0 200 160" aria-hidden="true">
+    <rect class="muur" x="4" y="4" width="192" height="152" rx="6"/>
+    <rect class="meubel" x="52" y="10" width="96" height="14" rx="2"/>
+    <rect class="tvlijn" x="64" y="6" width="72" height="3" rx="1.5"/>
+    <rect class="spk" x="72" y="14" width="56" height="6" rx="3"/>
+    ${golven(100, 20, Math.PI / 2)}
+    ${sub ? `<rect class="spk" x="156" y="12" width="14" height="14" rx="3"/>` : ""}
+    <rect class="bank" x="56" y="96" width="88" height="22" rx="6"/>
+    <rect class="bank rug" x="54" y="116" width="92" height="8" rx="4"/>
+    <rect class="spk" x="30" y="134" width="12" height="12" rx="3"/><rect class="spk" x="158" y="134" width="12" height="12" rx="3"/>
+    ${golven(36, 134, -Math.PI / 4)}${golven(164, 134, -3 * Math.PI / 4)}
+  </svg><p><b>Bovenaanzicht</b>: de achterspeakers staan achter of naast je bank, draadloos verbonden met de soundbar.</p></div>`;
+}
+
 const barGroup = st => (st.breedte && st.breedte !== "weet-ik-niet" ? st.breedte : advised(st));
 const inch = st => TV_INCH[st.tvgrootte || "43-55"];
 
@@ -223,6 +243,7 @@ const quiz = createQuiz3D({
       if (st.extra.includes("streaming")) pts.push({ x: bw / 4, y: BAR.yf, z: 0, label: "<b>WiFi</b>: Spotify, AirPlay, Chromecast" });
       const zb = BAR.z0 + BAR.h / 2;
       add(spotColumn(ctx, pts, { zBot: zb, zTop: zb, edgeX: Math.max(w / 2, bw / 2) + 0.12, edgeY: TV_Y }));
+      if (st.extra.includes("achter")) html += plattegrond(st);
     }
     return { svg, html };
   },
