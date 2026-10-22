@@ -1,11 +1,13 @@
 // De desktop-vragenpagina op de 3D-werkplek. Basisrender = het
 // bureau; de pc (tower met glazen zijpaneel, mini-pc of all-in-one) is een
 // transparante laag (render/scene.py). De gewone 27"-monitor hergebruiken we uit
-// de monitor-test. Vraag 5 (extra's) bestaat alleen bij een tower, net als in de
-// huidige keuzehulp. Motor: shared/quiz3d.js.
+// de monitor-test. Sinds okt. 2026 zes vragen: de extra's-vraag (RGB,
+// waterkoeling) is vervallen, want die gegevens zijn er bij vrijwel geen
+// desktop; budget en Windows/Mac kwamen erbij. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, spotColumn, placeQuad } from "../../shared/quiz3d.js";
-import { calculateScores, matchDesktops } from "../js/matching.js";
-import { normalizeProducts } from "../js/utils.js";
+import { matchDesktops, voldoetAanGebruik, genoegOpslag, OS_WENS } from "../js/matching.js";
+import { normalizeProducts, parsePrice } from "../js/utils.js";
+import { budgetCapsByType } from "../js/data.js";
 import { fetchProducts } from "../js/supabase.js";
 
 const camera = makeCamera({ camY: -2.15, camZ: 1.25, shiftY: -0.14 });
@@ -40,6 +42,20 @@ const Q = [
     options: [{ v: "tower", label: "Grote, uitbreidbare behuizing (tower)", price: "€€€" }, { v: "mini-pc", label: "Mini pc", price: "€" }, { v: "all-in-one", label: "Beeldscherm en computer in één", price: "€€" }, { v: "maakt-niet-uit", label: "Maakt niet uit", price: "€" }],
   },
   {
+    id: "budget", type: "radio",
+    title: "Wat wil je maximaal uitgeven?",
+    sub: "Je krijgt de beste desktop binnen je budget.",
+    why: "Met je budget zoeken we de beste desktop die je ook echt wilt kopen. Past een desktop die nog beter bij je wensen past net niet binnen je bedrag, dan laten we dat op de resultaatpagina zien.",
+    options: [],   // per type, zie question() hieronder
+  },
+  {
+    id: "os", type: "radio",
+    title: "Windows of Mac?",
+    sub: "Kies het systeem dat je wilt gebruiken.",
+    why: "Windows draait de meeste programma's en games. Een Mac (Mac mini of iMac) is fijn als je al een iPhone of MacBook hebt. Maakt het je niet uit, dan kijken we naar alle desktops.",
+    options: [{ v: "windows", label: "Windows", price: "€€" }, { v: "mac", label: "Mac", price: "€€€" }, { v: "egal", label: "Maakt niet uit", price: "€€" }],
+  },
+  {
     id: "gebruik", type: "check", max: 2, exclusive: "allround",
     title: "Waar ga je je desktop voor gebruiken?",
     sub: "Kies er maximaal 2. Het scherm laat zien wat je doet.",
@@ -67,14 +83,61 @@ const Q = [
       { v: "veel", label: "Veel, 2 TB of meer", price: "€€€", when: st => !isMini(st) },
     ],
   },
-  {
-    id: "extra", type: "check", exclusive: "geen",
-    title: "Wat is nog meer belangrijk voor jou?",
-    sub: "Het zijpaneel gaat eraf: je keuzes verschijnen in de tower.",
-    why: "RGB-verlichting geeft je setup een stijlvolle uitstraling. Waterkoeling zorgt voor lagere temperaturen bij intensief gebruik. ",
-    options: [{ v: "rgb", label: "Verlichting in de behuizing (RGB)", price: "€€" }, { v: "waterkoeling", label: "Waterkoeling", price: "€€€" }, { v: "geen", label: "Geen extra wensen", price: "€" }],
-  },
 ];
+const QID = st => Q[st.q]?.id;
+const NA = (st, id) => st.q >= Q.findIndex(q => q.id === id);
+
+// ───────── budget, systeem en opslag uit de live catalogus ─────────
+const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const capVan = v => (v && v !== "geen" ? Number(v) : null);
+const budgetOpties = t => [...(budgetCapsByType[t] ?? budgetCapsByType["maakt-niet-uit"]).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }];
+const TYPE_NAAM = { tower: "tower", "mini-pc": "mini-pc", "all-in-one": "all-in-one" };
+let catalogus = null;
+const vanType = st => (catalogus ?? []).filter(d => (d.aanbieders ?? []).length >= 2
+  && (!st.behuizing || st.behuizing === "maakt-niet-uit" || d.behuizingCategory === st.behuizing));
+const typeTekst = st => (TYPE_NAAM[st.behuizing] ? ` van het type ${TYPE_NAAM[st.behuizing]}` : "");
+function budgetCaption(st) {
+  const cap = capVan(st.budget);
+  if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste desktop binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
+  if (!catalogus) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", cap ? "We zoeken de beste desktop binnen dit bedrag." : "We kiezen puur op je wensen."];
+  const prijzen = vanType(st).map(d => parsePrice(d.prijs));
+  const binnen = cap ? prijzen.filter(x => x <= cap) : prijzen;
+  if (!cap) return ["Geen voorkeur", `Alle ${prijzen.length} desktops${typeTekst(st)} doen mee, van ${euro(Math.min(...prijzen))} tot ${euro(Math.max(...prijzen))}. We kiezen puur op je wensen.`];
+  if (!binnen.length) return [`Tot ${euro(cap)}`, `Binnen dit bedrag vonden we geen desktop${typeTekst(st)}. We tonen dan de desktops die het best bij je passen, net erboven.`];
+  return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} desktops${typeTekst(st)} kosten ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}. We zoeken de beste die bij je wensen past.`];
+}
+// Windows/Mac grijs als het binnen type en budget niet bestaat (zelfde als laptop)
+function osOpties(st, opties) {
+  if (!catalogus) return opties;
+  const cap = capVan(st.budget), alle = vanType(st);
+  return opties.map(o => {
+    const sys = OS_WENS[o.v];
+    if (!sys) return o;
+    const van = alle.filter(d => d.systeem === sys);
+    if (!van.length) return { ...o, disabled: true, note: `Niet als ${TYPE_NAAM[st.behuizing] ?? "desktop"}.` };
+    if (cap && !van.some(d => parsePrice(d.prijs) <= cap)) return { ...o, disabled: true, note: `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...van.map(d => parsePrice(d.prijs))))}.` };
+    return o;
+  });
+}
+// Opslag grijs als geen desktop binnen type, budget, systeem en gebruik het zeker heeft
+function opslagOpties(st, opties) {
+  if (!catalogus) return opties;
+  const cap = capVan(st.budget), sys = OS_WENS[st.os];
+  let alle = vanType(st);
+  if (sys && alle.some(d => d.systeem === sys)) alle = alle.filter(d => d.systeem === sys);
+  const binnen = cap ? alle.filter(d => parsePrice(d.prijs) <= cap) : alle;
+  let andere = [d => voldoetAanGebruik(d, st.gebruik) === true];
+  if (!binnen.some(andere[0])) andere = [];
+  return opties.map(o => {
+    if (o.v === "weinig") return o;
+    const eis = d => genoegOpslag(d, o.v) === true && andere.every(f => f(d));
+    if (binnen.some(eis)) return o;
+    const erboven = alle.filter(eis).map(d => parsePrice(d.prijs));
+    const note = cap && erboven.length ? `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`
+      : andere.length ? "Niet in combinatie met je andere keuzes." : `Niet als ${TYPE_NAAM[st.behuizing] ?? "desktop"}.`;
+    return { ...o, disabled: true, note };
+  });
+}
 
 const LOAD = { licht: [15, 5, "Licht gebruik", "Surfen en mailen: een zuinige processor, geen losse videokaart nodig."], gemiddeld: [45, 35, "Gemiddeld gebruik", "Kantoorwerk, lichte foto's en af en toe een spelletje."], intensief: [90, 95, "Intensief gebruik", "4K-gaming, video en 3D: een krachtige videokaart en veel werkgeheugen."] };
 const STORE = {
@@ -86,8 +149,9 @@ const usages = st => (st.gebruik.includes("allround") || !st.gebruik.length ? ["
 const VIEW = { dagelijks: "algemeen", werk: "thuiswerk", creatief: "creatief", gaming: "gaming" };
 
 // dicht zijpaneel; pas bij de extra's-vraag gaat het eraf zodat je naar binnen kijkt
+// (die vraag is sinds okt. 2026 vervallen; de lagen blijven voor de visual agent)
 function towerLayer(st) {
-  if (st.q < 4) return "tower";
+  if (QID(st) !== "extra") return "tower";
   const r = st.extra.includes("rgb"), w = st.extra.includes("waterkoeling");
   return r && w ? "tower-rgb-water" : r ? "tower-rgb" : w ? "tower-water" : "tower-open";
 }
@@ -117,17 +181,18 @@ function afterRender(ctx) {
   const c = [[-SCREEN.w / 2, SCREEN.y, SCREEN.z0 + SCREEN.h], [SCREEN.w / 2, SCREEN.y, SCREEN.z0 + SCREEN.h], [SCREEN.w / 2, SCREEN.y, SCREEN.z0], [-SCREEN.w / 2, SCREEN.y, SCREEN.z0]];
   placeQuad(scr, SW, Math.round(SW * SCREEN.h / SCREEN.w), c.map(p => ctx.toPx(...p)));
   clearInterval(cycleTimer);
-  if (st.q === 0) showView("bureaublad");
-  else if (st.q === 1) {
+  const id = QID(st);
+  if (id === "behuizing" || id === "budget" || id === "os") showView("bureaublad");
+  else if (id === "gebruik") {
     const u = usages(st).map(k => VIEW[k]);
     cycle %= u.length; showView(u[cycle]);
     if (u.length > 1) cycleTimer = setInterval(() => { cycle = (cycle + 1) % u.length; showView(u[cycle]); }, 2800);
-  } else if (st.q === 2) {
+  } else if (id === "intensiteit") {
     const [cpu, gpu] = LOAD[st.intensiteit] ?? [20, 10];
     scr.querySelector("#cpuV").textContent = `${cpu}%`; scr.querySelector("#cpuB").style.width = `${cpu}%`;
     scr.querySelector("#gpuV").textContent = `${gpu}%`; scr.querySelector("#gpuB").style.width = `${gpu}%`;
     showView("prestaties");
-  } else if (st.q === 3) {
+  } else if (id === "opslag") {
     const [t, p, free] = STORE[st.opslag] ?? ["Opslag", "Kies hoeveel ruimte je nodig hebt.", 50];
     scr.querySelector("#stT").textContent = t; scr.querySelector("#stP").textContent = p;
     scr.querySelector("#stPhotos").style.width = `${82 - free}%`;
@@ -135,12 +200,18 @@ function afterRender(ctx) {
   } else showView(VIEW[usages(st)[0]]);
 }
 
-createQuiz3D({
+const quiz = createQuiz3D({
   camera,
-  steps: st => (isTower(st) ? 5 : 4),
-  state: { behuizing: null, gebruik: [], intensiteit: null, opslag: null, extra: [] },
+  steps: Q.length,
+  state: { behuizing: null, budget: null, os: null, gebruik: [], intensiteit: null, opslag: null, extra: [] },
   imgPath: n => (n.includes("/") ? n : `desktop/vragen/img/${n}.webp`),
-  question: st => Q[st.q],
+  question: st => {
+    const q = Q[st.q];
+    if (q.id === "budget") return { ...q, options: budgetOpties(st.behuizing) };
+    if (q.id === "os") return { ...q, options: osOpties(st, q.options) };
+    if (q.id === "opslag") return { ...q, options: opslagOpties(st, q.options) };
+    return q;
+  },
   setup, afterRender,
 
   images(st) {
@@ -153,11 +224,11 @@ createQuiz3D({
 
   focus: () => ({ x: 0.15, y: -0.2, z: 1.0, zoom: 1.45 }),
   // bij de extra's de tower in het midden, zodat de labels er rechts naast passen
-  focusDesktop: st => (st.q === 4 ? { x: 0.52, y: -0.2, z: 0.98, zoom: 1.45, anchorX: 0.5 } : { x: 0.17, y: -0.2, z: 1.0, zoom: 1.4, anchorX: 0.62 }),
+  focusDesktop: st => (QID(st) === "extra" ? { x: 0.52, y: -0.2, z: 0.98, zoom: 1.45, anchorX: 0.5 } : { x: 0.17, y: -0.2, z: 1.0, zoom: 1.4, anchorX: 0.62 }),
 
   overlays(ctx) {
     const { st } = ctx;
-    if (st.q === 4) {
+    if (QID(st) === "extra") {
       const pts = [];
       if (st.extra.includes("rgb")) pts.push({ x: 0.58, y: TOWER.y0, z: 0, label: "<b>RGB</b>: verlichting in de kast" });
       if (st.extra.includes("waterkoeling")) pts.push({ x: 0.5, y: TOWER.y0, z: 0, label: "<b>Waterkoeling</b>: koeler en stiller" });
@@ -167,40 +238,67 @@ createQuiz3D({
     return {};
   },
 
-  hideCaption: (st, mobile) => st.q === 4 && !mobile,
-
   caption(st) {
-    switch (st.q) {
-      case 0: return {
+    switch (QID(st)) {
+      case "behuizing": return {
         tower: ["Tower", "Krachtig en uitbreidbaar: later een andere videokaart of meer geheugen erin is geen probleem."],
         "mini-pc": ["Mini-pc", "Klein, stil en zuinig. Ideaal als je weinig ruimte hebt en niet zwaar gamet."],
         "all-in-one": ["All-in-one", "Computer en beeldscherm in één: weinig kabels en een opgeruimd bureau."],
         "maakt-niet-uit": ["Maakt niet uit", "We kijken naar alle soorten desktops."],
       }[st.behuizing] ?? ["Jouw werkplek", "Kies een behuizing; de pc op het bureau wisselt mee."];
-      case 1: return st.gebruik.length ? ["Jouw gebruik", "Het scherm wisselt tussen wat je gekozen hebt."] : ["Gebruik", "Kies waarvoor je de desktop gebruikt."];
-      case 2: return st.intensiteit ? [LOAD[st.intensiteit][2], LOAD[st.intensiteit][3]] : ["Belasting", "Kies hoe intensief je de desktop gebruikt."];
-      case 3: return st.opslag ? [STORE[st.opslag][0], STORE[st.opslag][1]] : ["Opslag", "Kies hoeveel ruimte je nodig hebt."];
+      case "budget": return budgetCaption(st);
+      case "os": return {
+        windows: ["Windows", "Draait de meeste programma's en games."],
+        mac: ["Mac", "Een Mac mini of iMac: fijn samen met je iPhone of MacBook."],
+        egal: ["Maakt niet uit", "We kijken naar Windows-pc's en Macs."],
+      }[st.os] ?? ["Windows of Mac", "Kies het systeem dat je wilt gebruiken."];
+      case "gebruik": return st.gebruik.length ? ["Jouw gebruik", "Het scherm wisselt tussen wat je gekozen hebt."] : ["Gebruik", "Kies waarvoor je de desktop gebruikt."];
+      case "intensiteit": return st.intensiteit ? [LOAD[st.intensiteit][2], LOAD[st.intensiteit][3]] : ["Belasting", "Kies hoe intensief je de desktop gebruikt."];
+      case "opslag": return st.opslag ? [STORE[st.opslag][0], STORE[st.opslag][1]] : ["Opslag", "Kies hoeveel ruimte je nodig hebt."];
       default: return st.extra.some(e => e !== "geen") ? ["Jouw extra's", "De tower laat zien wat je gekozen hebt."] : ["Extra's", "Vink aan wat je belangrijk vindt."];
     }
   },
 
-  onAnswer(st, id) { if (id === "gebruik") cycle = Math.max(0, st.gebruik.length - 1); },
+  onAnswer(st, id) {
+    if (id === "gebruik") cycle = Math.max(0, st.gebruik.length - 1);
+    // ander type: een eerder gekozen bedrag hoort misschien niet meer bij de opties
+    if (id === "behuizing" && !budgetOpties(st.behuizing).some(o => o.v === st.budget)) st.budget = null;
+  },
   onBack(st) { if (st.q === 0) st.opslag = null; },
+  onNext(st, id) { meetStap(st, id); },
 
   async finish(st) {
-    // zonder tower bestaat de extra's-vraag niet; de huidige keuzehulp vult dan "geen" in
-    const answers = { gebruik: st.gebruik, behuizing: st.behuizing ?? "", intensiteit: st.intensiteit ?? "", opslag: st.opslag ?? "", extraAnswers: isTower(st) ? st.extra : ["geen"] };
-    const scores = calculateScores(answers);
-    const raw = await productenOfFout();
-    const result = matchDesktops(normalizeProducts(raw ?? []), st.behuizing, null, answers, scores);
+    meetStap(st, "opslag");
+    const answers = { gebruik: st.gebruik, behuizing: st.behuizing ?? "", budget: capVan(st.budget), os: st.os ?? "", intensiteit: st.intensiteit ?? "", opslag: st.opslag ?? "", extraAnswers: ["geen"] };
+    const desktops = normalizeProducts(await productenOfFout());
+    // Beste match binnen het budget; past er niets binnen, dan zonder grens.
+    let result = matchDesktops(desktops, st.behuizing, answers.budget, answers);
+    if (answers.budget && !result.bestMatch) result = matchDesktops(desktops, st.behuizing, null, answers);
     localStorage.setItem("desktop_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("desktop_bestType", result.bestType ?? "");
-    localStorage.setItem("desktop_scores", JSON.stringify(scores));
+    localStorage.removeItem("desktop_scores");
     localStorage.setItem("desktop_filteredMatchedDesktops", JSON.stringify(result.filteredMatchedDesktops));
     localStorage.setItem("desktop_answers", JSON.stringify(answers));
     localStorage.setItem("desktop_selectedBehuizingType", st.behuizing ?? "");
     window.location.href = "desktop/resultaat/";
   },
 
-  preload: ["bureau", MONITOR, "tower", "mini", "aio", "tower-open", "tower-rgb", "tower-water", "tower-rgb-water"],
+  preload: ["bureau", MONITOR, "tower", "mini", "aio"],
+});
+
+// Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)
+function meetStap(st, id) {
+  const v = st[id];
+  window.phTrackEvent?.("quiz_stap", {
+    categorie: "desktop", stap: id, nr: Q.findIndex(q => q.id === id) + 1,
+    antwoord: Array.isArray(v) ? [...v].sort().join("+") : String(v ?? ""),
+  });
+}
+
+// Grijze opties en live tellingen zodra de catalogus binnen is
+productsPromise.then(raw => {
+  if (!raw?.length) return;
+  catalogus = normalizeProducts(raw);
+  if (["os", "opslag"].includes(QID(quiz.st))) quiz.renderQuestion();
+  quiz.render();
 });

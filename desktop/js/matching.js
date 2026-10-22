@@ -16,226 +16,165 @@ export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_
   return { effectiveMin, result };
 }
 
-// ─── Score computation ────────────────────────────────────────────────────────
+// ─── Punten per processorklasse ─────────────────────────────────────────────
 
 export function calculateScores(answers) {
   const scores = { Budget: 0, Mid: 0, Krachtig: 0, Topklasse: 0 };
-
   const gebruik     = Array.isArray(answers.gebruik) ? answers.gebruik : (answers.gebruik ? [answers.gebruik] : []);
   const intensiteit = answers.intensiteit ?? "";
-
   for (const g of gebruik) {
-    if (scoringSystem.gebruik[g]) {
-      for (const tier of TIER_ORDER) {
-        scores[tier] += scoringSystem.gebruik[g][tier] ?? 0;
-      }
-    }
+    if (scoringSystem.gebruik[g]) for (const tier of TIER_ORDER) scores[tier] += scoringSystem.gebruik[g][tier] ?? 0;
   }
-
   if (intensiteit && scoringSystem.intensiteit[intensiteit]) {
-    for (const tier of TIER_ORDER) {
-      scores[tier] += scoringSystem.intensiteit[intensiteit][tier] ?? 0;
-    }
+    for (const tier of TIER_ORDER) scores[tier] += scoringSystem.intensiteit[intensiteit][tier] ?? 0;
   }
-
   return scores;
 }
 
-// ─── Opslag filter ────────────────────────────────────────────────────────────
+// ─── Wensen: true / false / null (onbekend) ────────────────────────────────
+const lijst = v => (Array.isArray(v) ? v : v ? [v] : []);
+export const OS_WENS = { windows: "Windows", mac: "macOS" };
 
-export function applyOpslagFilter(desktops, opslag) {
-  if (opslag === "veel") {
-    const big = desktops.filter(d => d.opslag >= 2000);
-    if (big.length > 0) return big;
-    const medium = desktops.filter(d => d.opslag >= 1000);
-    if (medium.length > 0) return medium;
-    return desktops;
-  }
-
-  if (opslag === "gemiddeld") {
-    const medium = desktops.filter(d => d.opslag >= 1000);
-    if (medium.length > 0) return medium;
-    return desktops;
-  }
-
-  // "weinig" → 512 GB is fine, no filter
-  return desktops;
+/** Opslagwens waargemaakt? */
+export function genoegOpslag(d, opslag) {
+  const min = { gemiddeld: 1000, veel: 2000 }[opslag];
+  if (!min) return true;
+  return d.opslag > 0 ? d.opslag >= min : null;
 }
 
-// ─── Werkgeheugen (RAM) filter ─────────────────────────────────────────────
-// Geen eigen vraag — leunt op de al-bestaande "intensiteit"-vraag, zelfde
-// patroon als laptop. ram_gb werd tot nu toe alleen als infobullet gebruikt,
-// nooit om te filteren — waardoor bv. "intensief" + "gaming" een desktop met
-// een sterke GPU maar slechts 8 GB RAM als top-match kon opleveren.
-// Werkgeheugen is een voorkeur: alleen toepassen als er genoeg keus overblijft,
-// en een onbekend werkgeheugen (0 in de catalogus) sluit niet uit.
-const vergelijkbaar = lijst => lijst.filter(d => (d.aanbieders ?? []).length >= 2).length;
-
-export function applyRamFilter(desktops, intensiteit) {
-  if (intensiteit === "gemiddeld" || intensiteit === "intensief") {
-    const medium = desktops.filter(d => !d.ram || d.ram >= 16);
-    if (medium.length > 0 && (vergelijkbaar(medium) >= 3 || vergelijkbaar(medium) >= vergelijkbaar(desktops))) return medium;
-    return desktops;
+/** Krachtig genoeg voor wat je ermee doet? Gamen: losse videokaart. Creatief: losse videokaart of een krachtige processor. */
+export function voldoetAanGebruik(d, gebruik) {
+  const g = lijst(gebruik);
+  if (g.includes("gaming")) return d.gpuLos ?? null;
+  if (g.includes("creatief")) {
+    if (d.gpuLos === true) return true;
+    if (d.processorTier == null) return null;
+    return d.processorTier === "Krachtig" || d.processorTier === "Topklasse";
   }
-
-  // "licht" → geen RAM-eis (8 GB is prima)
-  return desktops;
+  return true;
 }
 
-// ─── Extra preferences filter ─────────────────────────────────────────────────
+// ───────── Matching per desktop (sinds 22-10-2026) ─────────
+// Zelfde opzet als laptop: behuizing en budget zijn harde grenzen, het gekozen
+// systeem (Windows/Mac) ook zodra het er is. Elke desktop krijgt een passcore
+// en de lijst is alles wat dicht bij de top zit. Vroeger telde alleen de
+// videokaart (de processor kwam nooit uit Icecat) en vielen wensen stil weg.
+//
+// Passcore = 100
+//   - 3 per punt dat de processorklasse achterloopt op de best passende klasse
+//   - 150 per wens die de desktop niet waarmaakt (opslag, krachtig genoeg voor
+//     creatief werk); losse videokaart bij gamen dubbel; 50 bij onbekend
+//   - werkgeheugen bij gemiddeld en intensief gebruik
+//   - prijs: bij licht gebruik wint goedkoper duidelijk, bij intensief niet
+// `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
+const PUNTEN_PER_KLASSEPUNT = 3;
+const WENS = 150, WENS_ONBEKEND = 50, OS_MIS = 1000;
+export const BAND_BESTE = 4;
+const BAND_LIJST = 10;
+const MIN_LIJST = 5;
+const MAX_LIJST = 30;
+const PRIJS_GEWICHT = { licht: 8, gemiddeld: 4, intensief: 1 };
 
-export function applyExtraFilter(desktops, extraAnswers) {
-  if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
-    return desktops;
-  }
-
-  let filtered = [...desktops];
-
-  if (extraAnswers.includes("rgb")) {
-    const r = filtered.filter(d => d.rgb === "Ja");
-    if (r.length > 0) filtered = r;
-  }
-
-  if (extraAnswers.includes("waterkoeling")) {
-    const wk = filtered.filter(d => d.waterkoeling === "Ja");
-    if (wk.length > 0) filtered = wk;
-  }
-
-  if (extraAnswers.includes("wifi")) {
-    // De catalogus noemt de wifi-standaard ("Wifi 6E (802.11ax)"), nooit "Ja".
-    const w = filtered.filter(d => Boolean(d.wifi) && d.wifi !== "Nee");
-    if (w.length > 0) filtered = w;
-  }
-
-  return filtered;
+function wensStraf(heeft) {
+  if (heeft === true) return 0;
+  return heeft === false ? WENS : WENS_ONBEKEND;
 }
 
-// ─── Main matching function ───────────────────────────────────────────────────
-
-// Strikte versie van de expliciete wensen: opslag, videokaart bij gamen, RGB,
-// waterkoeling. Zie matchDesktops, stap 2a.
-function voldoetAanAlleWensen(desktops, answers) {
-  const opslag = answers.opslag ?? "";
-  const gebruik = Array.isArray(answers.gebruik) ? answers.gebruik : [];
-  const extra = Array.isArray(answers.extraAnswers) ? answers.extraAnswers : [];
-  return desktops.filter(d =>
-    (opslag !== "veel" || d.opslag >= 2000) &&
-    (opslag !== "gemiddeld" || d.opslag >= 1000) &&
-    (!gebruik.includes("gaming") || d.gpuTier !== "Budget") &&
-    (!extra.includes("rgb") || d.rgb === "Ja") &&
-    (!extra.includes("waterkoeling") || d.waterkoeling === "Ja") &&
-    (!extra.includes("wifi") || (Boolean(d.wifi) && d.wifi !== "Nee"))
-  );
+function straffen(d, a) {
+  let s = 0;
+  const gebruik = lijst(a.gebruik);
+  const os = OS_WENS[a.os];
+  if (os) s += d.systeem ? (d.systeem === os ? 0 : OS_MIS) : WENS_ONBEKEND;
+  const kracht = voldoetAanGebruik(d, gebruik);
+  s += gebruik.includes("gaming") && kracht === false ? 2 * WENS : wensStraf(kracht);
+  s += wensStraf(genoegOpslag(d, a.opslag));
+  if (d.ram > 0) {
+    if (a.intensiteit === "intensief") s += d.ram < 16 ? 12 : d.ram < 32 ? 4 : 0;
+    else if (a.intensiteit === "gemiddeld") s += d.ram < 16 ? 8 : 0;
+  }
+  return s;
 }
 
-export function matchDesktops(desktops, behuizingType, priceGroup, answers, scores) {
-  if (!Array.isArray(desktops)) {
-    return { bestMatch: null, bestType: null, filteredMatchedDesktops: [] };
-  }
+// Plek van een prijs binnen een lijst: 0 = goedkoopste, 1 = duurste.
+function prijsPlek(pool) {
+  const prijzen = pool.map(d => parsePrice(d.prijs)).sort((x, y) => x - y);
+  return prijs => (prijzen.length < 2 ? 0 : prijzen.filter(x => x < prijs).length / (prijzen.length - 1));
+}
 
-  // 1. Filter by behuizing category + price.
-  // "maakt-niet-uit" (or no type selected) means every category is allowed —
-  // including products whose category we couldn't classify (behuizingCategory
-  // is null), since excluding them would throw away most of the catalog.
-  let filtered = desktops.filter(d => {
-    const price  = parsePrice(d.prijs);
-    const typeOk = !behuizingType || behuizingType === "maakt-niet-uit" ||
-                   d.behuizingCategory === behuizingType;
-    return typeOk && (!priceGroup || (price >= priceGroup.min && price <= priceGroup.max));
+export function scoreDesktops(pool, answers = {}) {
+  const scores = calculateScores(answers);
+  const top = Math.max(...TIER_ORDER.map(t => scores[t]));
+  const plek = prijsPlek(pool);
+  const gewicht = PRIJS_GEWICHT[answers.intensiteit] ?? 4;
+  return pool.map(d => {
+    // Onbekende processor: als middenklasse rekenen, met een kleine aftrek
+    const tier = d.processorTier ?? "Mid";
+    const klasse = Math.max(0, top - scores[tier]) * PUNTEN_PER_KLASSEPUNT + (d.processorTier ? 0 : 6);
+    const wens = 100 - klasse - straffen(d, answers);
+    const fit = wens - gewicht * plek(parsePrice(d.prijs));
+    return { ...d, tier, wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
   });
-
-  if (filtered.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedDesktops: [] };
-  }
-
-  // 2. Pick best-scoring GPU tier(s) by total score. Rather than stopping at
-  // the first tier (or tied tiers) that has ANY stock, we widen to the next
-  // best-scoring tier(s) until we hit a reasonable result count. This
-  // matters for behuizing types where discrete GPUs are rare (all-in-one,
-  // mini-pc): almost all stock sits in "Budget", so stopping at the first
-  // nonempty tier could strand someone on a tiny niche tier (e.g. 2 gaming
-  // all-in-ones) while ignoring 35 perfectly fine Budget ones with a lower
-  // (but still relevant) score.
-  const MIN_RESULTS = 5;
-  const sortedTiers = Object.entries(scores)
-    .sort((a, b) => Number(b[1]) - Number(a[1]));
-
-  let matchedDesktops = [];
-  let bestType = null;
-  const tiersSoFar = [];
-
-  // 2a. Tiers in volgorde van score, alleen desktops die aan ALLE wensen
-  // voldoen, aangevuld tot MIN_RESULTS. Wie niet gamet of creatief werkt,
-  // krijgt daarbij geen pc's met losse videokaart bijgemengd zolang er al
-  // pc's zonder zijn (eerder zat in 113 van de 198 combinaties met "werk" of
-  // "dagelijks" een gaming-pc tussen de resultaten).
-  const gebruik = Array.isArray(answers.gebruik) ? answers.gebruik : [];
-  const wilGpu = gebruik.includes("gaming") || gebruik.includes("creatief");
-  let strikt = [];
-  const striktTiers = [];
-  for (const [tier] of sortedTiers) {
-    if (!wilGpu && tier !== "Budget" && strikt.some(d => d.gpuTier === "Budget")) break;
-    const kandidaten = voldoetAanAlleWensen(filtered.filter(d => d.gpuTier === tier), answers);
-    if (vergelijkbaar(kandidaten) === 0) continue;
-    strikt = strikt.concat(kandidaten);
-    striktTiers.push(tier);
-    if (vergelijkbaar(strikt) >= MIN_RESULTS) break;
-  }
-  if (strikt.length) {
-    matchedDesktops = applyRamFilter(strikt, answers.intensiteit ?? "");
-    bestType = striktTiers.join(" / ");
-  }
-
-  // 2b. Kan dat nergens: de oude cascade, waarin een wens die er niet is
-  // gracieus wegvalt.
-  for (let i = 0; i < sortedTiers.length && !strikt.length; i++) {
-    const [tier] = sortedTiers[i];
-    tiersSoFar.push(tier);
-
-    let candidates = filtered.filter(d => tiersSoFar.includes(d.gpuTier));
-    if (candidates.length === 0) continue;
-
-    // 3. Apply opslag filter
-    candidates = applyOpslagFilter(candidates, answers.opslag ?? "");
-
-    // 3b. Apply werkgeheugen (RAM) filter
-    candidates = applyRamFilter(candidates, answers.intensiteit ?? "");
-
-    // 4. Apply extra preferences
-    candidates = applyExtraFilter(candidates, answers.extraAnswers ?? []);
-
-    if (candidates.length === 0) continue;
-
-    matchedDesktops = candidates;
-    bestType = tiersSoFar.join(" / ");
-
-    if (matchedDesktops.length >= MIN_RESULTS) break;
-  }
-
-  // Fallback: if tier matching yielded nothing, use all behuizing+price
-  // filtered desktops (still applying opslag/extra where possible) so a
-  // non-empty price bucket never results in an empty result set.
-  if (matchedDesktops.length === 0) {
-    let fallback = applyOpslagFilter(filtered, answers.opslag ?? "");
-    fallback = applyRamFilter(fallback, answers.intensiteit ?? "");
-    fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
-    if (fallback.length === 0) fallback = [...filtered];
-    matchedDesktops = fallback;
-    bestType = "Algemeen";
-  }
-
-  // Best match = cheapest in the matched set
-  const bestMatch = matchedDesktops.reduce((cheapest, d) =>
-    parsePrice(d.prijs) < parsePrice(cheapest.prijs) ? d : cheapest
-  );
-
-  return { bestMatch, bestType, filteredMatchedDesktops: matchedDesktops };
 }
 
-export function computeMatchForPriceGroup(desktops, behuizingType, priceGroup, answers, scores) {
-  return matchDesktops(desktops, behuizingType, priceGroup, answers, scores);
+/**
+ * Beste match: de goedkoopste van de desktops die even goed passen als de
+ * beste; bij intensief gebruik eerst de krachtigste processorklasse daarvan.
+ */
+export function kiesBesteMatch(lijstIn, answers) {
+  let kandidaten = (lijstIn ?? []).filter(d => Number.isFinite(d?.fit));
+  if (!kandidaten.length) return null;
+  const top = Math.max(...kandidaten.map(d => d.fit));
+  kandidaten = kandidaten.filter(d => d.fit >= top - BAND_BESTE);
+  if (answers?.intensiteit === "intensief") {
+    const rang = d => TIER_ORDER.indexOf(d.tier ?? d.processorTier ?? "Mid");
+    const hoogste = Math.max(...kandidaten.map(rang));
+    kandidaten = kandidaten.filter(d => rang(d) === hoogste);
+  }
+  return kandidaten.reduce((x, y) => {
+    const px = parsePrice(x.prijs), py = parsePrice(y.prijs);
+    return py < px || (py === px && y.fit > x.fit) ? y : x;
+  });
 }
 
-// ─── Result points ────────────────────────────────────────────────────────────
+/**
+ * @param {object[]} desktops     genormaliseerde desktops (utils.normalizeProducts)
+ * @param {string} behuizingType  antwoord op de behuizingvraag
+ * @param {number|null} budget    maximumbedrag uit de quiz, of null
+ * @param {object} answers        antwoorden uit de quiz
+ */
+export function matchDesktops(desktops, behuizingType, budget, answers) {
+  const leeg = { bestMatch: null, bestType: null, filteredMatchedDesktops: [], topWens: null };
+  if (!Array.isArray(desktops)) return leeg;
+
+  const cap = Number(budget) || null;
+  let pool = desktops.filter(d =>
+    (!behuizingType || behuizingType === "maakt-niet-uit" || d.behuizingCategory === behuizingType) &&
+    (!cap || parsePrice(d.prijs) <= cap));
+  // Het gekozen systeem is een harde grens zodra het er is (zelfde als laptop):
+  // liever 3 Macs dan een Windows-pc ertussen.
+  const os = OS_WENS[answers?.os];
+  if (os && pool.some(d => d.systeem === os)) pool = pool.filter(d => d.systeem === os);
+  if (pool.length === 0) return leeg;
+
+  const gescoord = scoreDesktops(pool, answers ?? {}).sort((x, y) => y.fit - x.fit);
+  const top = gescoord[0].fit;
+  const uit = [];
+  let zichtbaar = 0;
+  for (const d of gescoord) {
+    if (zichtbaar >= MAX_LIJST) break;
+    if (d.fit < top - BAND_LIJST && zichtbaar >= MIN_LIJST) break;
+    uit.push(d);
+    if ((d.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS) zichtbaar++;
+  }
+  uit.sort((x, y) => parsePrice(x.prijs) - parsePrice(y.prijs));
+
+  const bestMatch = kiesBesteMatch(uit, answers);
+  return {
+    bestMatch,
+    bestType: bestMatch?.tier ?? null,
+    filteredMatchedDesktops: uit,
+    topWens: Math.max(...uit.map(d => d.wens)),
+  };
+}
 
 // De kaartpunten ("Waarom dit bij jou past") staan in punten.js.

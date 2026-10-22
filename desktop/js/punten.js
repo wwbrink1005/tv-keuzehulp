@@ -11,7 +11,8 @@ import {
 import { TIER_ORDER } from "./data.js";
 
 const opslagTekst = (gb) => (gb >= 1024 ? `${getal(gb / 1024, 1)} TB` : `${getal(gb)} GB`);
-const heeftGpu = (d) => Boolean(d.gpu) && d.gpu !== "Niet beschikbaar" && d.gpuTier !== "Budget";
+const heeftGpu = (d) => d.gpuLos === true;
+const KLASSE_TEKST = { Budget: "instapprocessor", Mid: "processor uit de middenklasse", Krachtig: "krachtige processor", Topklasse: "processor uit de topklasse" };
 const heeftWifi = (d) => Boolean(d.wifi) && d.wifi !== "Nee";
 const BEHUIZING = { tower: "tower", "mini-pc": "mini-pc", "all-in-one": "all-in-one" };
 
@@ -24,9 +25,9 @@ export function buildContext(lijst, naam) {
 }
 
 function gebruikPunt(d, gebruik, intensiteit) {
-  const t = d.gpuTier;
-  if (gebruik.includes("gaming") && (t === "Topklasse" || t === "Krachtig")) return "Krachtig genoeg om <strong>moderne games</strong> soepel te spelen";
-  if (gebruik.includes("creatief") && (t === "Topklasse" || t === "Krachtig")) return "Krachtig genoeg voor <strong>foto- en videobewerking</strong>";
+  const t = d.processorTier;
+  if (gebruik.includes("gaming") && heeftGpu(d)) return `<strong>${esc(d.gpu)}</strong>: krachtig genoeg om moderne games soepel te spelen`;
+  if (gebruik.includes("creatief") && (heeftGpu(d) || t === "Topklasse" || t === "Krachtig")) return "Krachtig genoeg voor <strong>foto- en videobewerking</strong>";
   if (gebruik.includes("werk")) return "Ruim voldoende voor <strong>werk en studie</strong>";
   if (gebruik.includes("dagelijks") || intensiteit === "licht") return "Meer dan genoeg voor <strong>surfen, mailen en streamen</strong>";
   return null;
@@ -44,6 +45,8 @@ export function buildResultPoints(d, answers, ctx) {
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
   if (BEHUIZING[a.behuizing] && d.behuizingCategory === a.behuizing) vink("behuizing", BEHUIZING[a.behuizing]);
+  if (a.os === "mac" && d.systeem === "macOS") vink("os", "Mac");
+  if (a.os === "windows" && d.systeem === "Windows") vink("os", "Windows");
   if (a.opslag === "veel" && d.opslag >= 2000) vink("opslag", `${opslagTekst(d.opslag)} opslag`);
   else if (a.opslag === "gemiddeld" && d.opslag >= 1000) vink("opslag", `${opslagTekst(d.opslag)} opslag`);
   if (wil("rgb") && ja(d.rgb)) vink("rgb", "RGB-verlichting");
@@ -63,6 +66,7 @@ export function buildResultPoints(d, answers, ctx) {
 
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
   if (heeftGpu(d)) p.voeg(40, "gpu", `<strong>${esc(d.gpu)}</strong> videokaart`);
+  if (d.processorNaam && KLASSE_TEKST[d.processorTier]) p.voeg(42, "cpu", `<strong>${esc(d.processorNaam)}</strong>: ${KLASSE_TEKST[d.processorTier]}`);
   if (heeftWifi(d)) p.voeg(41, "wifi", `<strong>${esc(d.wifi.replace(/\s*\(.*\)/, ""))}</strong>: geen netwerkkabel nodig`);
   if (d.ram > 0) p.voeg(90, "ram", `<strong>${getal(d.ram)} GB</strong> werkgeheugen`);
   if (d.opslag > 0) p.voeg(91, "opslag", `<strong>${opslagTekst(d.opslag)}</strong> opslag`);
@@ -98,7 +102,7 @@ export function buildAlleSpecs(d, raw) {
       ["Werkgeheugen", d.ram > 0 ? `${getal(d.ram)} GB` : null],
       ["Opslag", d.opslag > 0 ? opslagTekst(d.opslag) : null],
       ["Videokaart", d.gpu && d.gpu !== "Niet beschikbaar" ? d.gpu : "Geïntegreerd"],
-      ["Processor", d.processorFabrikant],
+      ["Processor", d.processorNaam || d.processorFabrikant],
     ] },
     { titel: "Behuizing", rijen: [
       ["Type", d.behuizing || raw?.type_product], ["Waterkoeling", d.waterkoeling], ["RGB-verlichting", d.rgb], ["Kleur", d.kleur],

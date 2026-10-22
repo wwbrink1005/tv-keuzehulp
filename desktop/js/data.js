@@ -47,9 +47,18 @@ export function getGpuTier(gpu) {
 // so we classify using both, with type_product taking priority since it has
 // far better coverage and includes the all-in-one category that
 // type_behuizing doesn't have at all.
-export function classifyBehuizing(typeProduct, typeBehuizing) {
+export function classifyBehuizing(typeProduct, typeBehuizing, naam = "") {
   const tp = String(typeProduct ?? "").toLowerCase();
   const tb = String(typeBehuizing ?? "").toLowerCase();
+  const n = String(naam ?? "").toLowerCase();
+
+  // Een paar winkels leveren alleen "Desktops" als type (HP OmniStudio is een
+  // all-in-one, OmniDesk een tower). Dan zegt de naam het.
+  if (!tb && (tp === "desktops" || !tp)) {
+    if (/all-in-one|alles-in-|omnistudio|\baio\b|imac/.test(n)) return "all-in-one";
+    if (/mini ?pc|mac mini|\bmini\b/.test(n)) return "mini-pc";
+    if (/desktop|tower|omnidesk/.test(n)) return "tower";
+  }
 
   if (tp.includes("alles-in-één") || tp.includes("alles-in-een") ||
       tp.includes("all-in-one") || tp.includes("all in one")) {
@@ -93,27 +102,50 @@ export const priceGroupsByType = {
   ]
 };
 
+// ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
+// Twee maximumbedragen plus "Geen voorkeur", per soort. Uit de live catalogus
+// (okt. 2026, 2+ winkels): goedkoopste desktops rond €725, tower €800-3.200,
+// all-in-one €725-1.800, mini-pc €1.000-1.950 (vooral Mac mini).
+export const budgetCapsByType = {
+  "tower":          [1000, 1500],
+  "all-in-one":     [900, 1300],
+  "mini-pc":        [1200, 1500],
+  "maakt-niet-uit": [1000, 1500],
+};
+
+// ─── Processorklasse ────────────────────────────────────────────────────────
+// Sinds okt. 2026 de basis van de matching (vroeger de videokaart, omdat de
+// processor nooit uit Icecat kwam). Zelfde indeling als de laptop:
+// Core/Ryzen 3 = Budget, 5 = Mid, 7 = Krachtig, 9 = Topklasse; Apple M = Mid,
+// M Pro = Krachtig, M Max/Ultra = Topklasse.
+export { getProcessorTier } from "../../laptop/js/data.js";
+
+// Zonder processorfamilie (sommige HP's) zegt het modelnummer het:
+// Intel Core Ultra 2xx (225 = 5, 265 = 7, 285 = 9), AMD Ryzen 8500G/7800X3D.
+export function familieUitModel(model) {
+  const m = String(model ?? "").trim();
+  let r = m.match(/^2([0-8])\d[a-z]*$/i);
+  if (r) { const d = +r[1]; return `Intel Core Ultra ${d <= 4 ? 5 : d <= 7 ? 7 : 9}`; }
+  r = m.match(/^i([3579])-/i);
+  if (r) return `Intel Core i${r[1]}`;
+  r = m.match(/^\d([3579])\d{2}[a-z0-9]*$/i);
+  if (r) return `AMD Ryzen ${r[1]}`;
+  return "";
+}
+
 // ─── Scoring system ───────────────────────────────────────────────────────────
-// Scores per GPU tier per answer value. Higher = better match.
+// Punten per processorklasse per antwoord (zelfde als laptop). Hoger = beter.
 export const scoringSystem = {
   gebruik: {
-    dagelijks: { Budget: 10, Mid: 8,  Krachtig: 4,  Topklasse: 1  },
-    // De tier is hier de videokaart (de catalogus heeft bijna geen
-    // processorgegevens). Werk heeft geen losse videokaart nodig: Budget
-    // (geïntegreerde graphics) voorop. Eerder kreeg "werk" vooral gaming-pc's.
-    werk:      { Budget: 9,  Mid: 7,  Krachtig: 5,  Topklasse: 3  },
-    gaming:    { Budget: 1,  Mid: 5,  Krachtig: 9,  Topklasse: 10 },
-    creatief:  { Budget: 2,  Mid: 6,  Krachtig: 9,  Topklasse: 10 },
-    // Voor wie te veel doelen heeft om er 2 te kiezen: 1 gebalanceerde score
-    // die middenin leunt, i.p.v. dat de gebruiker gedwongen wordt een
-    // onvolledige selectie te maken.
-    allround:  { Budget: 5,  Mid: 8,  Krachtig: 7,  Topklasse: 4  }
+    dagelijks: { Budget: 9, Mid: 8, Krachtig: 5, Topklasse: 2 },
+    werk:      { Budget: 6, Mid: 9, Krachtig: 8, Topklasse: 5 },
+    gaming:    { Budget: 1, Mid: 5, Krachtig: 9, Topklasse: 10 },
+    creatief:  { Budget: 2, Mid: 6, Krachtig: 9, Topklasse: 10 },
+    allround:  { Budget: 5, Mid: 8, Krachtig: 7, Topklasse: 4 }
   },
   intensiteit: {
-    licht:     { Budget: 10, Mid: 7,  Krachtig: 3,  Topklasse: 1  },
-    // Gemiddeld gebruik zegt op zich niets over een videokaart; die komt pas
-    // in beeld bij gamen of creatief werk (zie scoringSystem.gebruik).
-    gemiddeld: { Budget: 8,  Mid: 8,  Krachtig: 6,  Topklasse: 3  },
-    intensief: { Budget: 1,  Mid: 5,  Krachtig: 9,  Topklasse: 10 }
+    licht:     { Budget: 10, Mid: 7,  Krachtig: 3, Topklasse: 1  },
+    gemiddeld: { Budget: 6,  Mid: 10, Krachtig: 6, Topklasse: 3  },
+    intensief: { Budget: 1,  Mid: 5,  Krachtig: 9, Topklasse: 10 }
   }
 };

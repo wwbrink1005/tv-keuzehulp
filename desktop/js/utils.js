@@ -1,4 +1,15 @@
-import { classifyBehuizing } from "./data.js";
+import { classifyBehuizing, getProcessorTier, familieUitModel } from "./data.js";
+
+// Losse videokaart: true / false / null (onbekend). "Niet beschikbaar" of
+// "Aparte grafische adapter: Nee" = geen; een Mac heeft er nooit een.
+const GEINTEGREERD = /\b(hd|uhd|iris\s*(xe)?)\s*graphics\b|\bradeon(\(tm\))?\s+graphics\b|\bradeon\s+\d{3}m\b/i;
+function losseGpu(p, isMac) {
+  const g = String(p.gpuModelRaw ?? p.gpu ?? "").trim();
+  if (g && !/^niet beschikbaar$/i.test(g) && !GEINTEGREERD.test(g)) return true;
+  if (/^niet beschikbaar$/i.test(g) || /^nee$/i.test(p.gpuApart ?? "") || isMac) return false;
+  if (/^ja$/i.test(p.gpuApart ?? "")) return true;
+  return null;
+}
 
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -72,6 +83,12 @@ export function normalizeProducts(rawProducts) {
 
     if (!product.merk) return [];
 
+    const isMac = /macos/i.test(product.os ?? "") || /^apple$/i.test(product.merk);
+    const familie = product.processorFamilie || familieUitModel(product.processorModel);
+    // Processor bekend? Apple via de scraper ("Apple M4"), de rest via Icecat.
+    const processorBekend = Boolean(product.processor || familie);
+    const processorNaam = product.processor || [familie, product.processorModel].filter(Boolean).join(" ");
+
     return [{
       merk:         product.merk,
       naam,
@@ -81,7 +98,13 @@ export function normalizeProducts(rawProducts) {
       gpuTier:      product.gpuTier    ?? "Budget",
       gpu:          product.gpu        ?? "",
       behuizing:    product.behuizing  ?? null,
-      behuizingCategory: classifyBehuizing(product.type_product, product.behuizing),
+      behuizingCategory: classifyBehuizing(product.type_product, product.behuizing, naam),
+      // Sinds okt. 2026: processorklasse, losse videokaart, systeem
+      processorNaam,
+      processorTier: processorBekend ? getProcessorTier(product.processor || processorNaam, familie) : null,
+      gpuLos:       losseGpu(product, isMac),
+      systeem:      isMac ? "macOS" : /windows/i.test(product.os ?? "") ? "Windows" : null,
+      marktPositionering: product.marktPositionering ?? "",
       wifi:         product.wifi       ?? "Nee",
       kleur:        product.kleur      ?? "",
       rgb:          product.rgb        ?? "Nee",

@@ -44,6 +44,14 @@ function adaptRow(row) {
     usbC:                parseFirstInt(row.usb32_gen2_type_c),
     os:                  row.os                ?? "",
     processorFabrikant:  row.processor_fabrikant ?? "",
+    // Sinds okt. 2026 echt gevuld (de pipeline zocht het niet-bestaande
+    // Icecat-veld "Processor"; zie keuzehulp-pipeline/config.py).
+    processor:           row.processor ?? "",
+    processorFamilie:    row.processor_familie ?? "",
+    processorModel:      row.processor_model ?? "",
+    gpuApart:            row.gpu_apart ?? "",
+    gpuModelRaw:         row.gpu_model ?? "",
+    marktPositionering:  row.markt_positionering ?? "",
     icecat_afbeelding:   row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen: Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:          adaptAanbieders(row),
