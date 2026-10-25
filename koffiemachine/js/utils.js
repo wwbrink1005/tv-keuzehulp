@@ -1,3 +1,5 @@
+import { classificeerType } from "./matching.js";
+import { capsuleSysteemVan, melkVan } from "./data.js";
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -53,12 +55,31 @@ export function normalizeProducts(rawProducts) {
     const afbeeldingen = Array.isArray(product.icecat_afbeeldingen) ? product.icecat_afbeeldingen : [];
 
     if (!product.merk) return [];
+    // Losse koffiemolens horen niet in deze keuzehulp (Krups F203, GX3328)
+    if (/koffiemolen/i.test(naam)) return [];
+
+    const jaNee = v => (v === "Ja" ? true : v === "Nee" ? false : null);
+    const k = { ...product, naam };
+    const type = classificeerType(k);
+    const systeem = capsuleSysteemVan(naam, product.capsuleSysteem);
+    const spuiten = product.aantalSpuiten;
 
     return [{
       merk:                    product.merk,
       naam,
       prijs,
       typeProduct:             product.typeProduct ?? "",
+      // Afgeleid (okt. 2026), zie data.js en matching.js classificeerType
+      type,
+      systeem,
+      melk:                    melkVan(k, type, systeem),
+      molen:                   /baristina|la specialista|grind/i.test(naam) ? true : jaNee(product.molenRaw),
+      tweeKopjes:              product.tweeKopjesRaw === "Ja" || spuiten >= 2 ? true : product.tweeKopjesRaw === "Nee" || spuiten === 1 ? false : null,
+      app:                     jaNee(product.wifiRaw),
+      aantalDranken:           Array.isArray(product.varianten) && product.varianten.length ? product.varianten.length : null,
+      thermoskan:              /thermo/i.test(naam) || /thermoskan/i.test(product.gezetteKoffie ?? "") ? true : /kan/i.test(product.gezetteKoffie ?? "") ? false : null,
+      timer:                   jaNee(product.timerRaw),
+      breedteMm:               Number.isFinite(product.breedte) ? product.breedte : null,
       automatiseringsgraad:    product.automatiseringsgraad ?? "",
       koffieInvoertype:        product.koffieInvoertype ?? "",
       capsuleSysteem:          product.capsuleSysteem ?? "",

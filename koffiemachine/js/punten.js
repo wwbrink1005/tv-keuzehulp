@@ -5,8 +5,8 @@ import {
   esc, getal, ja, opsomming,
   maakContext, vergelijk, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
-import { WATERTANK_MAX, MELK_AUTOMATISCH_WAARDEN } from "./data.js";
-import { classificeerType } from "./matching.js";
+import { SYSTEEM_LABEL } from "./data.js";
+import { heeftWens, wensenVan } from "./matching.js";
 
 const TYPE_TEKST = {
   volautomaat: "volautomaat",
@@ -14,7 +14,11 @@ const TYPE_TEKST = {
   capsules: "capsules of pads",
   filter: "filterkoffie",
 };
-const HOEVEELHEID = { klein: "1 tot 2 personen", gemiddeld: "een gemiddeld huishouden", groot: "een groot huishouden of veel bezoek" };
+const WENS_TEKST = {
+  "melk-auto": "cappuccino op één knop", "melk-stoom": "melk opschuimen", melk: "ook cappuccino", molen: "ingebouwde bonenmaler",
+  "zonder-molen": "voor gemalen koffie", tweekopjes: "twee kopjes tegelijk", app: "bediening met de app",
+  dranken: "veel koffiesoorten", thermoskan: "thermoskan", timer: "timer", grind: "bonenmaler",
+};
 
 export function buildContext(lijst, naam) {
   return maakContext(lijst, naam, {
@@ -25,33 +29,19 @@ export function buildContext(lijst, naam) {
   });
 }
 
-const tankKlopt = (k, hoeveelheid, type) => {
-  const l = k.capaciteitWatertankL;
-  const t = WATERTANK_MAX[type] ?? WATERTANK_MAX.volautomaat;
-  if (!Number.isFinite(l)) return false;
-  return (hoeveelheid === "klein" && l <= t.klein)
-    || (hoeveelheid === "gemiddeld" && l > t.klein && l <= t.gemiddeld)
-    || (hoeveelheid === "groot" && l > t.gemiddeld);
-};
 
 /** "Waarom dit bij jou past": precies 4 punten. */
 export function buildResultPoints(k, answers, ctx) {
   const p = puntenLijst();
   const a = answers || {};
-  const wensen = Array.isArray(a.extraAnswers) ? a.extraAnswers : [];
-  const wil = (x) => wensen.includes(x);
   const varianten = Array.isArray(k.varianten) ? k.varianten : [];
 
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  if (a.type && classificeerType(k) === a.type) vink("type", TYPE_TEKST[a.type]);
-  if (a.melk === "automatisch" && MELK_AUTOMATISCH_WAARDEN.has(k.melkToevoegen)) vink("melk", "melk automatisch opgeschuimd");
-  else if (a.melk === "handmatig" && ja(k.melkopschuimer)) vink("melk", "melkopschuimer");
-  if (wil("touchbediening") && String(k.bediening ?? "").includes("Touch")) vink("bediening", "touchbediening");
-  if (wil("wifi") && ja(k.wifi)) vink("wifi", "bediening via app");
-  if (wil("antikalk") && ja(k.automatischAntikalk)) vink("antikalk", "ontkalkt zelf");
-  if (wil("thee") && varianten.includes("Thee")) vink("thee", "zet ook thee");
+  if (a.type && k.type === a.type) vink("type", TYPE_TEKST[a.type]);
+  if (a.systeem && SYSTEEM_LABEL[a.systeem] && k.systeem === a.systeem) vink("systeem", SYSTEEM_LABEL[a.systeem]);
+  for (const w of wensenVan(a)) if (heeftWens(k, w) === true) vink(w.startsWith("melk") ? "melk" : w.includes("molen") || w === "grind" ? "molen" : w, WENS_TEKST[w]);
   zochtRegel(p, delen);
 
   // 2. Wat deze kaart onderscheidt binnen de lijst
@@ -69,30 +59,38 @@ export function buildResultPoints(k, answers, ctx) {
   });
   prijsPunten(p, k, ctx);
 
-  // 3. Watertank vertaald naar het eigen huishouden
-  if (HOEVEELHEID[a.hoeveelheid] && tankKlopt(k, a.hoeveelheid, a.type)) {
-    p.voeg(30, "tank", `<strong>${getal(k.capaciteitWatertankL, 1)} liter</strong> watertank: past bij ${HOEVEELHEID[a.hoeveelheid]}`);
+  // 3. Kopjes per kan (filter)
+  if (k.type === "filter" && Number.isFinite(k.capaciteitKopjes) && k.capaciteitKopjes >= 4) {
+    p.voeg(30, "kopjes", `<strong>${getal(k.capaciteitKopjes)} kopjes</strong> per kan`);
   }
 
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
   if (varianten.length >= 3) p.voeg(40, "varianten", `Maakt <strong>${opsomming(varianten.slice(0, 3).map((v) => v.toLowerCase()))}</strong>${varianten.length > 3 ? ` en nog ${varianten.length - 3} andere soorten` : ""}`);
   if (ja(k.zelfreinigend)) p.voeg(41, "reinigen", `<strong>Reinigt zichzelf</strong>`);
   if (ja(k.automatischAntikalk)) p.voeg(42, "antikalk", `<strong>Ontkalkt automatisch</strong>`);
-  if (ja(k.ingebouwdeMolen)) p.voeg(43, "molen", `<strong>Ingebouwde molen</strong>: elke kop vers gemalen`);
-  if (k.capsuleSysteem) p.voeg(44, "systeem", `Werkt met <strong>${esc(k.capsuleSysteem)}</strong>`);
+  if (k.melk === "auto") p.voeg(39, "melk", `<strong>Cappuccino op één knop</strong>: de machine schuimt de melk zelf op`);
+  if (k.molen === true && k.type !== "capsules") p.voeg(43, "molen", `<strong>Ingebouwde molen</strong>: elke kop vers gemalen`);
+  if (k.tweeKopjes === true && k.type !== "filter") p.voeg(44, "tweekopjes", `<strong>Twee kopjes</strong> tegelijk`);
+  if (k.thermoskan === true) p.voeg(44, "thermoskan", `<strong>Thermoskan</strong>: koffie blijft uren warm`);
+  if (k.systeem) p.voeg(45, "systeem", `Werkt met <strong>${esc(SYSTEEM_LABEL[k.systeem])}</strong>`);
   if (Number.isFinite(k.capaciteitWatertankL)) p.voeg(90, "tank", `<strong>${getal(k.capaciteitWatertankL, 1)} liter</strong> watertank`);
   if (k.typeProduct) p.voeg(91, "type", `<strong>${esc(k.typeProduct)}</strong>`);
   if (k.merk) p.voeg(92, "merk", `Van <strong>${esc(k.merk)}</strong>`);
-  if (ja(k.melkopschuimer)) p.voeg(93, "melk", `<strong>Melkopschuimer</strong> voor cappuccino`);
+  if (k.melk === "stoom") p.voeg(93, "melk", `<strong>Stoompijpje</strong> om melk op te schuimen`);
   winkelVangnet(p, k);
   return p.top4();
 }
 
+const TYPE_CHIP = { volautomaat: "Volautomaat", halfautomaat: "Halfautomaat", capsules: "Capsules/pads", filter: "Filterkoffie" };
+const MELK_CHIP = { auto: "Cappuccino op één knop", stoom: "Stoompijpje" };
+
 export function buildSpecChips(k) {
   const specs = [];
-  if (k.typeProduct) specs.push(k.typeProduct);
-  if (k.capaciteitWatertankL !== null && k.capaciteitWatertankL !== undefined) specs.push(`${k.capaciteitWatertankL} l`);
-  if (k.merk) specs.push(k.merk);
+  if (TYPE_CHIP[k.type]) specs.push(TYPE_CHIP[k.type]);
+  if (k.systeem) specs.push(SYSTEEM_LABEL[k.systeem]);
+  if (MELK_CHIP[k.melk]) specs.push(MELK_CHIP[k.melk]);
+  if (k.type === "filter" && Number.isFinite(k.capaciteitKopjes)) specs.push(`${k.capaciteitKopjes} kopjes`);
+  if (k.molen === true && (k.type === "halfautomaat" || k.type === "filter")) specs.push("Bonenmaler");
   return specs;
 }
 

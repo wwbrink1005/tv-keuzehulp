@@ -1,55 +1,70 @@
-// ─── Type koffiemachine (Q1) → Icecat "Type product" + "Koffiezet apparaat
-// type" samen ─────────────────────────────────────────────────────────────
-// Live prijscorrelatie (493 producten, geverifieerd): filter mediaan €68,
-// koffiecupmachine €82, koffiepadmachine €94, espressomachine €449 — sterk
-// prijsbepalend, vandaar de belangrijkste/eerste vraag.
+// ─── Type koffiemachine ───────────────────────────────────────────────────
+// Het 4-weg type (volautomaat / halfautomaat / capsules / filter) staat in
+// matching.js classificeerType(): Icecat's "Type product" is niet altijd
+// betrouwbaar (Nespresso-capsulemachines als "Espressomachine", La Specialista
+// als volautomaat), dus naam, invoertype en pompdruk wegen mee.
 //
-// LET OP — Icecat's "Type product" is niet altijd betrouwbaar voor capsule-
-// machines: 15 van de 271 "Espressomachine"-producten zijn in werkelijkheid
-// Nespresso/Dolce Gusto-capsulemachines die Icecat toch als "Espressomachine"
-// labelt (bv. "Krups Dolce Gusto Genio S Plus KP3408" — half-identieke
-// buurmodellen krijgen wél correct "Koffiepadmachine"). Gevonden doordat een
-// gebruiker "halfautomaat" koos en alleen Dolce Gusto-cupmachines terugkreeg
-// (sessie-onderzoek). "Koffie invoertype" is hier betrouwbaarder: is dat
-// UITSLUITEND "Koffiecapsule"/"Koffiepad" (geen bonen/gemalen ernaast), dan
-// is het altijd een capsule-/padmachine, ongeacht wat "Type product" zegt —
-// zie isPureCapsuleInvoer() in matching.js.
-export const TYPE_MAPPING = {
-  volautomaat:  { typeProduct: ["Espressomachine"], automatiseringsgraad: ["Volledig automatisch"] },
-  halfautomaat: { typeProduct: ["Espressomachine"], automatiseringsgraad: ["Half automatisch", "Handmatig"] },
-  capsules:     { typeProduct: ["Koffiepadmachine", "Koffiecupmachine"] },
-  filter:       { typeProduct: ["Filterkoffiezetapparaat"] },
+// Sinds okt. 2026 geen watertankvraag meer: de tank zegt kopers weinig. Bij
+// filterkoffie telt het aantal kopjes per kan (zie matching.js KOPJES_MIN).
+
+// ─── Capsulesysteem (sinds okt. 2026) ─────────────────────────────────────
+// Uit de productnaam: die is altijd duidelijk ("Nespresso Vertuo Pop",
+// "Dolce Gusto Genio S"), het Icecat-veld niet (Vertuo Pop staat er als
+// gewone "Nespresso", een L'OR Barista als "Nespresso").
+export const SYSTEEM_LABEL = {
+  nespresso: "Nespresso", vertuo: "Nespresso Vertuo", dolcegusto: "Dolce Gusto", senseo: "Senseo-pads", lor: "L'OR Barista",
+};
+export function capsuleSysteemVan(naam, icecat) {
+  const t = String(naam ?? "");
+  if (/vertuo/i.test(t)) return "vertuo";
+  if (/l['’]?or barista/i.test(t)) return "lor";
+  if (/dolce\s?gusto/i.test(t)) return "dolcegusto";
+  if (/senseo/i.test(t)) return "senseo";
+  if (/nespresso/i.test(t)) return "nespresso";
+  const i = String(icecat ?? "");
+  if (/vertuo/i.test(i)) return "vertuo";
+  if (/dolce/i.test(i)) return "dolcegusto";
+  if (/senseo/i.test(i)) return "senseo";
+  if (/l'or/i.test(i)) return "lor";
+  if (/nespresso/i.test(i)) return "nespresso";
+  return null;
+}
+
+// ─── Melk (sinds okt. 2026) ───────────────────────────────────────────────
+// "auto" = cappuccino op één knop (melkkaraf, LatteGo, LatteCrema, Lattissima,
+// Aeroccino; bij Dolce Gusto via melkcapsules), "stoom" = zelf opschuimen
+// met een stoompijpje, "geen" = geen melksysteem, null = onbekend.
+const AUTO_NAAM = /lattego|lattecrema|lattissima|latte\b|& ?milk|\+ ?milk|aeroccino|cappuccino/i;
+// Series waarvan alle modellen cappuccino op één knop maken (en de data het
+// vaak niet zegt): Miele CM, Krups Evidence, Krups Intuition Experience.
+const AUTO_SERIE = /\bMiele\s+CM\s?\d|evidence|intuition experience/i;
+export function melkVan(k, type, systeem) {
+  if (type === "filter") return "geen";
+  if (systeem === "dolcegusto") return "auto";
+  if (k.melkToevoegen === "Automatisch" || k.melkreservoirRaw === "Ja" || AUTO_NAAM.test(k.naam) || AUTO_SERIE.test(k.naam)) return "auto";
+  // Bij capsulemachines betekent "Soort toevoegen melk: Handmatig" zelf melk
+  // erbij doen (Vertuo Pop), geen stoompijpje; een opschuimer (Lattissima,
+  // Aeroccino) werkt daar op een knop.
+  if (type === "capsules") return k.melkopschuimerRaw === "Ja" ? "auto" : systeem ? "geen" : null;
+  if (k.melkToevoegen === "Handmatig" || k.melkToevoegen === "Pijp" || k.melkopschuimerRaw === "Ja") return "stoom";
+  if (k.melkopschuimerRaw === "Nee") return "geen";
+  // Capsulemachines met melk zeggen dat altijd in de naam (Lattissima, & Milk,
+  // Aeroccino); zonder zo'n woord heeft de machine geen melksysteem.
+  if (type === "capsules" && systeem) return "geen";
+  return null;
+}
+
+// ─── Budgetvraag (sinds okt. 2026) ─────────────────────────────────────────
+// Twee maximumbedragen per type, plus "Geen voorkeur": rond een derde en
+// twee derde van de prijzen (live catalogus, ook 1 winkel, okt. 2026).
+export const budgetCaps = {
+  volautomaat: [450, 700], halfautomaat: [200, 400], capsules: [90, 130], filter: [50, 75],
 };
 
-// ─── Watertank (l) → hoeveelheid-kopjes-vraag (Q2) ─────────────────────────
-// Betrouwbaarder dan "Capaciteit in kopjes" — dat veld betekent bij
-// espressomachines "aantal kopjes gelijktijdig" (vaak 1-2) maar bij filter-
-// apparaten "totale kan-inhoud" (soms 15+), dus niet 1-op-1 vergelijkbaar
-// over types heen.
-//
-// LET OP — de watertank-range verschilt drastisch per type (sessie-
-// onderzoek, volledige histogram per type gecontroleerd): volautomaten
-// clusteren rond 1,7-2,3 l, halfautomaten 1,0-3,0 l, capsulemachines vrijwel
-// allemaal 0,5-1,0 l, filterapparaten 0,6-1,8 l met een piek rond 1,25 l. Eén
-// globale drempel (was: klein ≤1,0/gemiddeld ≤1,8) liet de vraag bij
-// volautomaat en capsules bijna niets filteren (bijna alle volautomaten
-// vielen boven "klein", bijna alle capsulemachines vielen al onder "klein") —
-// daarom per type eigen drempels, elk gekalibreerd op een ongeveer gelijke
-// verdeling binnen dat type:
-export const WATERTANK_MAX = {
-  volautomaat:  { klein: 1.7, gemiddeld: 2.0 },   // n=176: 20% / 61% / 19%
-  halfautomaat: { klein: 1.2, gemiddeld: 2.0 },   // n=52: 29% / 37% / 35%
-  capsules:     { klein: 0.7, gemiddeld: 1.0 },   // n=148: 35% / 53% / 11%
-  filter:       { klein: 1.0, gemiddeld: 1.32 },  // n=49: 33% / 59% / 8%
-};
-
-// ─── Melk-opschuimen (Q3) ───────────────────────────────────────────────────
-// Q3 wordt overgeslagen in de quiz als bij Q1 "filter" gekozen is: van de 69
-// filterkoffiezetapparaten heeft 94% geen enkel melk-gerelateerd Icecat-veld
-// (fysiek geen melksysteem, niet "toevallig niet ingevuld") — geverifieerd
-// tegen de volledige live catalogus. Bij espressomachines heeft wél ~50% een
-// waarde (Ja/Nee), dus daar is het een echte, zinnige vraag.
-export const MELK_AUTOMATISCH_WAARDEN = new Set(["Automatisch"]);
+// Bij koffiemachines doen ook modellen bij 1 winkel mee (besluit okt. 2026):
+// winkels verkopen eigen modelvarianten (Siemens EQ alleen bij Coolblue of
+// Expert), waardoor de 2-winkelregel 91% van de volautomaten wegfilterde.
+export const MIN_WINKELS = 1;
 
 // ─── Prijsgroepen (fallback, alleen als dynamische berekening niets geeft) ──
 export const priceGroupsFallback = [
