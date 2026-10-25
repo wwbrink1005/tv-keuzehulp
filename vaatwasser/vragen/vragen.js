@@ -5,10 +5,10 @@
 // (render/scene.py). Display, energielabel en labels tekent de pagina zelf.
 // Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, placeQuad } from "../../shared/quiz3d.js";
-import { matchVaatwassers } from "../js/matching.js";
-import { normalizeProducts } from "../js/utils.js";
+import { matchVaatwassers, poolVoor, heeftWens } from "../js/matching.js";
+import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
-import { gezinsgrootteMinCouverts, GELUID_BELANGRIJK_DB, GELUID_BELANGRIJK_FALLBACK_DB, GELUID_GEMIDDELD_DB } from "../js/data.js";
+import { budgetCaps, RUIM_COUVERTS } from "../js/data.js";
 
 const camera = makeCamera({ camY: -3.6, camZ: 1.35, shiftX: -0.15, shiftY: -0.18 });
 const productsPromise = fetchProducts().catch(() => null);
@@ -45,66 +45,114 @@ function dispCorners(st) {
   return [[xa, yb, z], [xb, yb, z], [xb, yv, z], [xa, yv, z]].map(p => door(st, p, 14));
 }
 
-const Q = [
-  {
-    id: "plaatsing", type: "radio",
-    title: "Wat voor vaatwasser zoek je?",
-    sub: "De vaatwasser in de keuken wisselt mee.",
-    why: "Een inbouwvaatwasser verdwijnt achter een keukenkastje en past in de nis van je keuken (vaak al aanwezig na een verbouwing of bij een bestaande keukeninrichting). Een vrijstaande vaatwasser heeft een eigen afwerkte behuizing en kan overal in de keuken staan, ook zonder passende nis.",
-    options: [{ v: "inbouw", label: "Inbouw, past in mijn keukennis", price: "€€" }, { v: "vrijstaand", label: "Vrijstaand, overal te plaatsen", price: "€" }],
-  },
-  {
-    id: "gezinsgrootte", type: "radio",
-    title: "Voor hoeveel personen doe je de afwas?",
-    sub: "De vaatwasser vult zich mee.",
-    why: "De grootte van je huishouden bepaalt hoeveel couverts (het aantal complete gedekte tafels dat in één keer past) je nodig hebt. Voor 1-2 personen is een compacte vaatwasser vaak al ruim voldoende. Bij 3-4 personen past 13-14 couverts beter, en bij 5 of meer personen is 15 couverts of meer aan te raden.",
-    options: [{ v: "klein", label: "1-2 personen", price: "€" }, { v: "gemiddeld", label: "3-4 personen", price: "€€" }, { v: "groot", label: "5 of meer personen", price: "€€€" }],
-  },
-  {
-    id: "geluid", type: "radio",
-    title: "Hoe belangrijk is een stille vaatwasser?",
-    sub: "Zie hoeveel geluid er mag zijn.",
-    why: "Het geluidsniveau tijdens het wassen varieert flink tussen vaatwassers. Staat de vaatwasser in of naast een open keuken/woonkamer, of vind je het gewoon belangrijk? Dan zoeken we gericht naar stillere modellen (lager dB-niveau).",
-    options: [{ v: "belangrijk", label: "Erg belangrijk, moet stil zijn", price: "€€€" }, { v: "gemiddeld", label: "Een beetje belangrijk", price: "€€" }, { v: "niet", label: "Niet belangrijk", price: "€" }],
-  },
-  {
-    id: "energie", type: "radio",
-    title: "Hoe belangrijk is energiezuinigheid?",
-    sub: "Het energielabel laat zien welke klassen meedoen.",
-    why: "Vaatwassers verschillen flink in energielabel (A tot en met G). Een energiezuiniger label betekent een lager verbruik op je energierekening, vooral merkbaar als je de vaatwasser vaak gebruikt.",
-    options: [{ v: "belangrijk", label: "Erg belangrijk, zo zuinig mogelijk", price: "€€€" }, { v: "gemiddeld", label: "Een beetje belangrijk", price: "€€" }, { v: "niet", label: "Maakt niet uit", price: "€" }],
-  },
-  {
-    id: "extra", type: "check", exclusive: "geen",
-    title: "Welke van de volgende mag niet ontbreken?",
-    sub: "Je keuzes verschijnen op de vaatwasser.",
-    why: "Een kinderslot voorkomt dat kinderen de instellingen wijzigen. Halve lading bespaart water/energie bij een kleine afwas. Wifi/app-bediening laat je de vaatwasser op afstand bedienen. Een in hoogte verstelbare bovenkorf geeft ruimte voor grotere borden of pannen. AquaStop beschermt tegen waterschade bij een lekkage. Een invertermotor is stiller en gaat langer mee. Glasbescherming wast breekbaar glaswerk zachter. Een hogere droogklasse betekent drogere vaat zonder na te hoeven drogen. Je kunt meerdere opties aanvinken.",
-    options: [
-      { v: "kinderslot", label: "Kinderslot", price: "€€" }, { v: "halve-lading", label: "Halve lading mogelijk", price: "€€" },
-      { v: "wifi", label: "Wifi/app-bediening", price: "€€€" }, { v: "verstelbare-bovenkorf", label: "In hoogte verstelbare bovenkorf", price: "€€" },
-      { v: "aquastop", label: "Lekkagebescherming (AquaStop)", price: "€€" }, { v: "inverter", label: "Stille, duurzame invertermotor", price: "€€" },
-      { v: "glasbescherming", label: "Glasbescherming", price: "€€" }, { v: "extra-droog", label: "Extra droge vaat", price: "€€€" },
-      { v: "geen", label: "Geen extra wensen", price: "€" },
-    ],
-  },
-  {
-    id: "programma", type: "check", exclusive: "geen",
-    title: "Welke afwasprogramma's wil je zeker hebben?",
-    sub: "Het display laat je programma's zien.",
-    why: "Niet elke vaatwasser heeft dezelfde programma's. Eco wast zuiniger op een lagere temperatuur, intensief verwijdert hardnekkig vuil op hogere temperatuur, snel is ideaal voor een korte cyclus tussendoor, stil is extra geluidsarm voor gebruik 's avonds, voorwas voorkomt vastgekoekt vuil, en een glas/breekbaar-programma wast kwetsbaar glaswerk zachter. Je kunt meerdere opties aanvinken.",
-    options: [
-      { v: "eco", label: "Eco", price: "€€" }, { v: "intensief", label: "Intensief", price: "€€" }, { v: "snel", label: "Snel", price: "€€" },
-      { v: "stil", label: "Stil", price: "€€€" }, { v: "voorwas", label: "Voorwas", price: "€€" }, { v: "glas", label: "Glas/Breekbaar", price: "€€" },
-      { v: "geen", label: "Geen specifieke wensen", price: "€" },
-    ],
-  },
-];
+// Sinds okt. 2026: de maat (45 of 60 cm, standaard- of hoge nis) en het budget
+// i.p.v. personen, geluid, energie en afwasprogramma's; stil en zuinig zijn
+// nu extra's (zie docs/vaatwasser-keuzehulp-werking.md).
+const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const Q_PLAATSING = {
+  id: "plaatsing", type: "radio",
+  title: "Wat voor vaatwasser zoek je?",
+  sub: "De vaatwasser in de keuken wisselt mee.",
+  why: "Een inbouwvaatwasser verdwijnt achter een keukenkastje en past in de nis van je keuken (vaak al aanwezig na een verbouwing of bij een bestaande keukeninrichting). Een vrijstaande vaatwasser heeft een eigen afwerkte behuizing en kan overal in de keuken staan, ook zonder passende nis.",
+  options: [{ v: "inbouw", label: "Inbouw, past in mijn keukennis", price: "€€" }, { v: "vrijstaand", label: "Vrijstaand, overal te plaatsen", price: "€" }],
+};
+const Q_MAAT_INBOUW = {
+  id: "maat", type: "radio",
+  title: "Hoe groot is de nis?",
+  sub: "Meet de breedte en de hoogte van de opening onder het aanrecht.",
+  why: "De meeste nissen zijn 60 cm breed en 82 cm hoog. In een hoge nis (87 cm) past ook een XXL-vaatwasser met meer ruimte voor hoge borden; een gewone past daar ook, met een hogere plint. Een smalle nis van 45 cm vraagt een smalle vaatwasser met 9 à 10 couverts, genoeg voor 1 of 2 personen.",
+  options: [
+    { v: "standaard", label: "60 cm breed, standaardhoogte (82 cm)", price: "€€" },
+    { v: "hoog", label: "60 cm breed, hoge nis (87 cm)", price: "€€€" },
+    { v: "smal", label: "45 cm breed (smal)", price: "€€" },
+    { v: "", label: "Weet ik nog niet", price: "€" },
+  ],
+};
+const Q_MAAT_VRIJ = {
+  id: "maat", type: "radio",
+  title: "Hoe breed mag hij zijn?",
+  sub: "Zie hoeveel vaat er in past.",
+  why: "Een gewone vaatwasser is 60 cm breed en heeft 12 tot 16 couverts. Een smalle van 45 cm heeft 9 à 10 couverts: genoeg voor 1 of 2 personen, en hij past in een kleinere keuken.",
+  options: [
+    { v: "breed", label: "60 cm, voor een gezin", price: "€€" },
+    { v: "smal", label: "45 cm smal, voor 1-2 personen", price: "€" },
+    { v: "", label: "Maakt niet uit", price: "€" },
+  ],
+};
+const budgetVraag = st => ({
+  id: "budget", type: "radio",
+  title: "Wat wil je maximaal uitgeven?",
+  sub: "Je krijgt de beste vaatwasser binnen je budget.",
+  why: "Met je budget zoeken we de beste vaatwasser die je ook echt wilt kopen. Past een vaatwasser die nog beter bij je wensen past net niet binnen je bedrag, dan laten we dat op de resultaatpagina zien.",
+  options: [...(budgetCaps[st.plaatsing] ?? budgetCaps.inbouw).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }],
+});
+const Q_EXTRA = {
+  id: "extra", type: "check", exclusive: "geen",
+  title: "Wat is nog meer belangrijk voor jou?",
+  sub: "Je keuzes verschijnen op de vaatwasser.",
+  why: `Bij stil en zuinig komen de stilste en zuinigste van dit type bovenaan. Droogt beter: de deur gaat aan het eind vanzelf op een kier, zodat ook plastic droog uit de machine komt. Een besteklade bovenin maakt ruimte in de onderkorf en houdt bestek apart. Met ${RUIM_COUVERTS} couverts of meer past de afwas van een groot gezin in één keer. Eco, intensief en snel heeft elke vaatwasser; kinderslot, wifi en AquaStop vind je als filter op de resultaatpagina.`,
+  options: [
+    { v: "stil", label: "Stiller dan de meeste", price: "€€" },
+    { v: "energiezuinig", label: "Zo zuinig mogelijk", price: "€€" },
+    { v: "droog", label: "Droogt beter: deur gaat vanzelf open", price: "€€" },
+    { v: "besteklade", label: "Besteklade bovenin", price: "€€" },
+    { v: "ruim", label: `Extra veel ruimte (${RUIM_COUVERTS}+ couverts)`, price: "€€€", when: st => st.maat !== "smal" },
+    { v: "geen", label: "Geen extra wensen", price: "€" },
+  ],
+};
+const vragen = st => [Q_PLAATSING, st.plaatsing === "vrijstaand" ? Q_MAAT_VRIJ : Q_MAAT_INBOUW, budgetVraag(st), Q_EXTRA];
+const QID = st => vragen(st)[st.q]?.id;
 
-// ───────── display ─────────
-const PROG = { eco: "Eco 50°", intensief: "Intensief 70°", snel: "Snel", stil: "Stil", voorwas: "Voorwas", glas: "Glas 40°" };
-const progList = st => { const l = st.programma.filter(p => PROG[p]).map(p => PROG[p]); return l.length ? l : ["Eco 50°", "Auto 45-65°"]; };
-let progIdx = 0;
-const dispHTML = st => `<span class="big prog">${st.q === 5 ? progList(st)[progIdx % progList(st).length] : "Eco 50°"}</span>`;
+// ───────── live catalogus: budgettelling en grijze opties ─────────
+let catalogus = null;
+const capVan = v => (v && v !== "geen" ? Number(v) : null);
+const zichtbaarIn = st => poolVoor(catalogus ?? [], { plaatsing: st.plaatsing, maat: st.maat })
+  .filter(v => (v.aanbieders ?? []).length >= 2);
+const welke = st => (st.maat === "smal" ? "smalle " : "") + (st.plaatsing === "vrijstaand" ? "vrijstaande vaatwassers" : "inbouwvaatwassers");
+function budgetCaption(st) {
+  const cap = capVan(st.budget);
+  if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste vaatwasser binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
+  if (!catalogus) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", cap ? "We zoeken de beste vaatwasser binnen dit bedrag." : "We kiezen puur op je wensen."];
+  const prijzen = zichtbaarIn(st).map(v => parsePrice(v.prijs));
+  if (!prijzen.length) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", "We zoeken de beste vaatwasser die bij je keuzes past."];
+  const binnen = cap ? prijzen.filter(x => x <= cap) : prijzen;
+  if (!cap) return ["Geen voorkeur", `Alle ${prijzen.length} ${welke(st)} doen mee, van ${euro(Math.min(...prijzen))} tot ${euro(Math.max(...prijzen))}.`];
+  if (!binnen.length) return [`Tot ${euro(cap)}`, `Geen ${welke(st)} tot ${euro(cap)}; de goedkoopste kost ${euro(Math.min(...prijzen))}. We tonen dan de best passende.`];
+  return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} ${welke(st)} ${binnen.length === 1 ? "kost" : "kosten"} ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}.`];
+}
+// Grijs als geen vaatwasser bij 2+ winkels binnen plaatsing, maat en budget
+// het zeker heeft, samen met de andere aangevinkte wensen.
+const EIS = { extra: Object.fromEntries(["droog", "besteklade", "ruim"].map(w => [w, v => heeftWens(v, w) === true])) };
+function metBeschikbaarheid(st, q) {
+  if (!catalogus || !EIS[q.id]) return q;
+  const cap = capVan(st.budget), alle = zichtbaarIn(st);
+  const binnen = cap ? alle.filter(v => parsePrice(v.prijs) <= cap) : alle;
+  return { ...q, options: q.options.map(o => {
+    const eis = EIS[q.id][o.v];
+    if (!eis || (o.when && !o.when(st))) return o;
+    let andere = st.extra.filter(e => e !== o.v && EIS.extra[e]).map(e => EIS.extra[e]);
+    if (!binnen.some(v => andere.every(f => f(v)))) andere = [];
+    if (binnen.some(v => eis(v) && andere.every(f => f(v)))) return o;
+    if (!alle.some(eis)) return { ...o, disabled: true, note: `Geen van deze ${welke(st)} heeft dat.` };
+    const erboven = alle.filter(v => eis(v) && andere.every(f => f(v))).map(v => parsePrice(v.prijs));
+    const note = cap && erboven.length ? (andere.length && binnen.some(eis) ? `Samen met je andere keuzes pas vanaf ${euro(Math.min(...erboven))}.` : `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`)
+      : "Niet in combinatie met je andere keuzes.";
+    return { ...o, disabled: true, note };
+  }) };
+}
+const WENS_NAAM = { droog: "een deur die vanzelf opengaat", besteklade: "een besteklade", ruim: `${RUIM_COUVERTS}+ couverts` };
+function extraCaption(st) {
+  const wensen = st.extra.filter(e => EIS.extra[e]);
+  if (!st.extra.some(e => e !== "geen")) return st.extra.length ? ["Geen extra wensen", "We kijken dan naar plaatsing, maat en prijs."] : ["Extra's", "Vink aan wat je belangrijk vindt; het verschijnt op de vaatwasser."];
+  if (!catalogus || !wensen.length) return ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."];
+  const cap = capVan(st.budget);
+  const l = zichtbaarIn(st).filter(v => !cap || parsePrice(v.prijs) <= cap);
+  const n = l.filter(v => wensen.every(w => EIS.extra[w](v))).length;
+  return ["Jouw extra's", `${n} van de ${l.length} ${welke(st)}${cap ? " binnen je budget" : ""} ${n === 1 ? "heeft" : "hebben"} zeker ${wensen.length > 1 ? "alles wat je koos" : WENS_NAAM[wensen[0]]}.`];
+}
+
+// ───────── display (alleen vrijstaand, in de voorkant) ─────────
+const dispHTML = () => `<span class="big prog">Eco 50°</span>`;
 
 // ───────── overlays ─────────
 // label boven het apparaat; nooit tegen de bovenrand van het beeld (op mobiel staat het apparaat hoog)
@@ -138,47 +186,17 @@ function plaatsView(ctx, st) {
   return { svg: "", html: tag(t, kindOf(st) === "ib" ? "<b>Inbouw</b> <span class=\"muted\">achter een keukenfront</span>" : "<b>Vrijstaand</b> <span class=\"muted\">eigen behuizing en bovenblad</span>") };
 }
 
-function couvertView(ctx, st) {
-  const gg = st.gezinsgrootte;
-  if (!gg) return {};
-  const min = gezinsgrootteMinCouverts[gg];
-  const t = ctx.toPx(cx(st), g(st).yf, 1.02);
-  return { svg: "", html: tag(t, min ? `<b>Minstens ${min} couverts</b> <span class="muted">per wasbeurt</span>` : "<b>Elk aantal couverts</b> <span class=\"muted\">is genoeg</span>") };
-}
-
-// geluidsgolven: meer bogen = meer toegestaan geluid; grenzen uit data.js
-const SOUND = {
-  belangrijk: { n: 2, tag: `<b>Liefst max. ${GELUID_BELANGRIJK_DB} dB</b> <span class="muted">zo stil als een bibliotheek</span>` },
-  gemiddeld: { n: 4, tag: `<b>Max. ${GELUID_GEMIDDELD_DB} dB</b> <span class="muted">zachter dan een gesprek</span>` },
-  niet: { n: 5, soft: true, tag: "<b>Geen eis</b> <span class=\"muted\">aan het geluid</span>" },
+// maat: de open vaatwasser vult zich mee (45 cm = kleine render, XXL = grote)
+const MAAT_TAG = {
+  standaard: "<b>60 × 82 cm</b> <span class=\"muted\">de gangbare nis, 12-16 couverts</span>",
+  hoog: "<b>60 × 87 cm</b> <span class=\"muted\">ook XXL: meer ruimte voor hoge borden</span>",
+  breed: "<b>60 cm breed</b> <span class=\"muted\">12-16 couverts</span>",
+  smal: "<b>45 cm breed</b> <span class=\"muted\">9-10 couverts</span>",
 };
-function waves(ctx, st) {
-  const s = SOUND[st.geluid];
-  if (!s) return {};
-  const G = g(st), y = G.yf - 0.05, l = ctx.toPx(G.x0, y, 0.45), r = ctx.toPx(G.x1, y, 0.45);
-  const w = r.x - l.x, a = 38 * Math.PI / 180;
-  let svg = "";
-  for (let i = 0; i < s.n; i++) {
-    const rad = w * (0.1 + i * 0.075), dy = Math.sin(a) * rad, dx = Math.cos(a) * rad;
-    const style = `style="animation-delay:${(i * 0.18).toFixed(2)}s"`, cls = `wave${s.soft ? " soft" : ""}`;
-    svg += `<path class="${cls}" ${style} d="M${r.x + dx} ${r.y - dy} A${rad} ${rad} 0 0 1 ${r.x + dx} ${r.y + dy}"/>`;
-    svg += `<path class="${cls}" ${style} d="M${l.x - dx} ${l.y - dy} A${rad} ${rad} 0 0 0 ${l.x - dx} ${l.y + dy}"/>`;
-  }
-  return { svg, html: tag(ctx.toPx(cx(st), G.yf, 1.02), s.tag) };
-}
-
-// energielabel: welke klassen doen mee (zoals applyEnergieFilter in matching.js)
-const KLASSEN = [["A", "#00a651"], ["B", "#50b848"], ["C", "#bed630"], ["D", "#e8d400"], ["E", "#fdb913"], ["F", "#f37021"], ["G", "#ed1c24"]];
-const TOEGESTAAN = { belangrijk: "AB", gemiddeld: "ABCD", niet: "ABCDEFG" };
-function energieView(ctx, st) {
-  if (!st.energie) return {};
-  const ok = TOEGESTAAN[st.energie], G = g(st);
-  const p = ctx.toPx(G.x1 + 0.08, G.yf, 0.6);
-  // naast de vrijstaande is rechts weinig ruimte: dan links van het apparaat
-  const left = kindOf(st) === "vs" ? ctx.toPx(G.x0 - 0.08, G.yf, 0.6).x - (ctx.mobile ? 128 : 168) : p.x;
-  const rows = KLASSEN.map(([k, c], i) => `<div class="row ${ok.includes(k) ? "" : "off"}"><span class="bar" style="width:${34 + i * 13}px;background:${c}">${k}</span>${ok.includes(k) ? '<span class="ok">✓</span>' : ""}</div>`).join("");
-  const note = { belangrijk: "Liefst A of B; zijn die er niet, dan ook C.", gemiddeld: "Klasse A t/m D.", niet: "Alle klassen doen mee." }[st.energie];
-  return { svg: "", html: `<div class="elabel" style="left:${left}px;top:${p.y}px"><h6>Energieklasse</h6>${rows}<p>${note}</p></div>` };
+function maatView(ctx, st) {
+  if (!MAAT_TAG[st.maat]) return {};
+  const t = ctx.toPx(cx(st), g(st).yf, 1.02);
+  return { svg: "", html: tag(t, MAAT_TAG[st.maat]) };
 }
 
 function extraSpots(ctx, st) {
@@ -188,32 +206,12 @@ function extraSpots(ctx, st) {
   // bediening: inbouw op de bovenrand van de (open) deur, vrijstaand in de voorkant
   const panel = kind === "ib" ? open90([G.x0 + 0.08, -0.6, 0.862]) : [G.x0 + 0.1, G.yf - 0.05, 0.78];
   const panel2 = kind === "ib" ? open90([G.x1 - 0.05, -0.6, 0.862]) : [G.x0 + 0.7 - 0.25, G.yf - 0.05, 0.78];
-  if (e.includes("kinderslot")) pts.push({ w: panel, label: "<b>Kinderslot</b>: knoppen vergrendeld" });
-  if (e.includes("wifi")) pts.push({ w: panel2, label: "<b>Wifi</b>: starten en meldingen via de app" });
-  if (e.includes("verstelbare-bovenkorf")) pts.push({ w: [G.x1 - 0.03, G.yf - 0.1, 0.58], label: "<b>Verstelbare bovenkorf</b>: ruimte voor grote borden" });
-  if (e.includes("halve-lading")) pts.push({ w: [c + 0.05, G.yf - 0.05, 0.64], label: "<b>Halve lading</b>: alleen de bovenkorf wassen" });
-  if (e.includes("glasbescherming")) pts.push({ w: [G.x0 + 0.1, G.yf - 0.05, 0.57], label: "<b>Glasbescherming</b>: zachter voor glaswerk" });
-  if (e.includes("extra-droog")) pts.push({ w: [c, G.yf + 0.1, G.top - 0.03], label: "<b>Extra droog</b>: hogere droogklasse" });
-  if (e.includes("inverter")) pts.push({ w: [c, -0.32, 0.12], label: "<b>Invertermotor</b>: stiller en slijtvaster" });
-  if (e.includes("aquastop")) pts.push({ w: [G.x1 - 0.05, G.yf - 0.03, 0.05], label: "<b>AquaStop</b>: sluit het water af bij een lek" });
+  if (e.includes("droog")) pts.push({ w: panel, label: "<b>Droogt beter</b>: deur gaat vanzelf op een kier" });
+  if (e.includes("energiezuinig")) pts.push({ w: panel2, label: "<b>Zuinig</b>: een van de zuinigste van dit type" });
+  if (e.includes("besteklade")) pts.push({ w: [G.x1 - 0.03, G.yf - 0.1, 0.66], label: "<b>Besteklade</b> bovenin" });
+  if (e.includes("ruim")) pts.push({ w: [c + 0.05, G.yf - 0.05, 0.5], label: `<b>${RUIM_COUVERTS}+ couverts</b>: ruimte voor een groot gezin` });
+  if (e.includes("stil")) pts.push({ w: [c, -0.32, 0.12], label: "<b>Stil</b>: stiller dan de meeste" });
   return spots(ctx, pts, G.x1 + 0.02, G.yf);
-}
-
-function lens(ctx, st) {
-  const c = dispCorners(st), m = c.reduce((a, p) => [a[0] + p[0] / 4, a[1] + p[1] / 4, a[2] + p[2] / 4], [0, 0, 0]);
-  const from = ctx.toPx(...m), G = g(st);
-  // rechts van de inbouw; bij vrijstaand links (rechts is het beeld bijna op)
-  const vs = kindOf(st) === "vs";
-  const at = vs ? ctx.toPx(G.x0 - 0.05, G.yf, 0.78) : ctx.toPx(G.x1 + 0.05, G.yf, 0.78);
-  const W_ = ctx.mobile ? 190 : 250;
-  const x = vs ? at.x - W_ - (ctx.mobile ? 8 : 24) : at.x + (ctx.mobile ? 8 : 24);
-  const l = progList(st), i = progIdx % l.length;
-  const svg = `<line x1="${from.x}" y1="${from.y}" x2="${vs ? x + W_ : x}" y2="${at.y}" class="leader"/>`;
-  const html = `<div class="spot is-on" style="left:${from.x}px;top:${from.y}px"></div><div class="lens" style="left:${x}px;top:${at.y}px"><div class="scr"><div class="prog">${l[i]}</div>
-    <div class="meta"><span>${st.programma.filter(p => PROG[p]).length ? "Jouw programma's" : "Standaardprogramma's"}</span><span>${i + 1}/${l.length}</span></div>
-    <div class="dots">${l.map((_, k) => `<i class="${k === i ? "on" : ""}"></i>`).join("")}</div></div>
-    <p>Zo kies je straks je programma op het display.</p></div>`;
-  return { svg, html };
 }
 
 let disp, quiz;
@@ -221,38 +219,35 @@ function setup(scene) {
   disp = document.createElement("div");
   disp.className = "wdisp";
   scene.querySelector(".layers").after(disp);
-  setInterval(() => {
-    if (!quiz || quiz.st.q !== 5 || document.hidden) return;
-    progIdx += 1;
-    quiz.render();
-  }, 1600);
 }
 
 function afterRender(ctx) {
   const st = ctx.st, html = dispHTML(st);
   if (disp.innerHTML !== html) disp.innerHTML = html;
-  // het display is alleen te zien als de deur dicht is (vrijstaand) of op een kier staat (inbouw)
-  const show = kindOf(st) === "vs" ? ![1, 4].includes(st.q) : st.q === 5;
+  // het display zit alleen bij vrijstaand in de voorkant, en is te zien als de deur dicht is
+  const show = kindOf(st) === "vs" && !deurOpen(st);
   disp.style.opacity = show ? "1" : "0";
   placeQuad(disp, 300, kindOf(st) === "vs" ? 86 : 65, dispCorners(st).map(p => ctx.toPx(...p)));
 }
 
+const deurOpen = st => ["maat", "extra"].includes(QID(st));
+const MAAT_RENDER = { smal: "klein", hoog: "groot" };
+const FOCUS = { plaatsing: 0, maat: 1, budget: 2, extra: 4 };
+
 quiz = createQuiz3D({
   camera,
-  steps: 6,
-  state: { plaatsing: null, gezinsgrootte: null, geluid: null, energie: null, extra: [], programma: [] },
+  steps: st => vragen(st).length,
+  state: { plaatsing: null, maat: null, budget: null, extra: [] },
   imgPath: n => `vaatwasser/vragen/img/${n}.webp`,
-  question: st => Q[st.q],
+  question: st => metBeschikbaarheid(st, vragen(st)[st.q]),
   setup, afterRender,
 
   images(st) {
-    const k = kindOf(st), size = st.gezinsgrootte ?? "gemiddeld";
-    const state = st.q === 1 || st.q === 4 ? `open-${size}` : st.q === 5 && k === "ib" ? "kier" : "dicht";
+    const k = kindOf(st), size = MAAT_RENDER[st.maat] ?? "gemiddeld";
+    const state = deurOpen(st) ? `open-${size}` : "dicht";
     // bij vrijstaand zit er gewoon een keukenkastje in de nis
     return ["keuken", ...(k === "vs" ? ["kast"] : []), `${k}-${state}`];
   },
-
-  onAnswer(st, id) { if (id === "programma") progIdx = 0; },
 
   focus: st => {
     const c = cx(st);
@@ -262,8 +257,7 @@ quiz = createQuiz3D({
       { x: c, y: -0.6, z: 0.5, zoom: 1.35 },
       { x: c, y: -0.6, z: 0.5, zoom: 1.2, anchorX: kindOf(st) === "vs" ? 0.65 : 0.35 },
       { x: c, y: -0.9, z: 0.35, zoom: 1.35, anchorX: 0.32 },
-      { x: c, y: -0.6, z: 0.75, zoom: 1.6, anchorX: kindOf(st) === "vs" ? 0.72 : 0.3 },
-    ][st.q];
+    ][FOCUS[QID(st)] ?? 0];
   },
   focusDesktop: st => {
     const c = cx(st), vs = kindOf(st) === "vs";
@@ -273,52 +267,51 @@ quiz = createQuiz3D({
       { x: c, y: -0.6, z: 0.55, zoom: 1.25, anchorX: 0.64 },
       { x: c, y: -0.6, z: 0.55, zoom: 1.25, anchorX: vs ? 0.72 : 0.56 },
       { x: c, y: -0.9, z: 0.45, zoom: 1.3, anchorX: vs ? 0.7 : 0.55 },
-      { x: c, y: -0.6, z: 0.75, zoom: 1.7, anchorX: vs ? 0.78 : 0.52 },
-    ][st.q];
+    ][FOCUS[QID(st)] ?? 0];
   },
 
   overlays(ctx) {
     const { st } = ctx;
-    if (st.q === 0) return plaatsView(ctx, st);
-    if (st.q === 1) return couvertView(ctx, st);
-    if (st.q === 2) return waves(ctx, st);
-    if (st.q === 3) return energieView(ctx, st);
-    if (st.q === 4) return extraSpots(ctx, st);
-    return lens(ctx, st);
-  },
-
-  hideCaption: (st, mobile) => !mobile && st.q === 4 && st.extra.some(e => e !== "geen"),
-
-  caption(st) {
-    switch (st.q) {
-      case 0: return {
-        inbouw: ["Inbouw", "Verdwijnt achter een keukenfront in de nis van je keuken."],
-        vrijstaand: ["Vrijstaand", "Een eigen behuizing en bovenblad: kan overal staan, ook zonder nis."],
-      }[st.plaatsing] ?? ["Jouw keuken", "Kies wat voor vaatwasser je zoekt; de keuken wisselt mee."];
-      case 1: return {
-        klein: ["1-2 personen", "Een kleinere afwas: elk aantal couverts volstaat."],
-        gemiddeld: ["3-4 personen", "Minstens 13 couverts: dan past de afwas van een dag in één keer."],
-        groot: ["5 of meer personen", "Minstens 15 couverts. Zulke vaatwassers hebben vaak een besteklade bovenin."],
-      }[st.gezinsgrootte] ?? ["Couverts", "Kies voor hoeveel personen je de afwas doet."];
-      case 2: return {
-        belangrijk: ["Zo stil mogelijk", `We zoeken modellen tot ${GELUID_BELANGRIJK_DB} dB. Zijn die er niet, dan tot ${GELUID_BELANGRIJK_FALLBACK_DB} dB.`],
-        gemiddeld: ["Redelijk stil", `We laten de luidste modellen weg: maximaal ${GELUID_GEMIDDELD_DB} dB.`],
-        niet: ["Geluid maakt niet uit", "We letten niet op het geluid; dat geeft de meeste keuze."],
-      }[st.geluid] ?? ["Geluid", "Kies hoe stil de vaatwasser moet zijn."];
-      case 3: return {
-        belangrijk: ["Zo zuinig mogelijk", "We zoeken energieklasse A of B; zijn die er niet, dan ook C."],
-        gemiddeld: ["Redelijk zuinig", "We laten de minst zuinige klassen (E t/m G) weg."],
-        niet: ["Maakt niet uit", "Alle energieklassen doen mee."],
-      }[st.energie] ?? ["Energie", "Kies hoe belangrijk een zuinige vaatwasser is."];
-      case 4: return st.extra.includes("geen") ? ["Geen extra wensen", "We kijken dan naar plaatsing, couverts, geluid en energie."] : ["Extra's", "Vink aan wat je belangrijk vindt; het verschijnt op de vaatwasser."];
-      default: return st.programma.some(p => PROG[p]) ? ["Jouw programma's", "Alleen vaatwassers met deze programma's komen in je advies."] : st.programma.includes("geen") ? ["Geen specifieke wensen", "Elke vaatwasser heeft standaardprogramma's zoals eco en auto."] : ["Afwasprogramma's", "Kies welke programma's je zeker wilt hebben."];
+    switch (QID(st)) {
+      case "plaatsing": return plaatsView(ctx, st);
+      case "maat": return maatView(ctx, st);
+      case "extra": return extraSpots(ctx, st);
+      default: return {};
     }
   },
 
+  hideCaption: (st, mobile) => !mobile && QID(st) === "extra" && st.extra.some(e => e !== "geen") && !st.extra.some(e => EIS.extra[e]),
+
+  caption(st) {
+    switch (QID(st)) {
+      case "plaatsing": return {
+        inbouw: ["Inbouw", "Verdwijnt achter een keukenfront in de nis van je keuken."],
+        vrijstaand: ["Vrijstaand", "Een eigen behuizing en bovenblad: kan overal staan, ook zonder nis."],
+      }[st.plaatsing] ?? ["Jouw keuken", "Kies wat voor vaatwasser je zoekt; de keuken wisselt mee."];
+      case "maat": return {
+        standaard: ["Standaardnis", "60 cm breed en 82 cm hoog: de meeste nissen. XXL-modellen passen hier niet."],
+        hoog: ["Hoge nis", "Hier past ook een XXL-vaatwasser, met meer ruimte voor hoge borden."],
+        breed: ["60 cm breed", "De gewone maat: 12 tot 16 couverts."],
+        smal: ["45 cm smal", "9 à 10 couverts: genoeg voor 1 of 2 personen."],
+        "": [st.plaatsing === "vrijstaand" ? "Maakt niet uit" : "Maat onbekend", "We kijken naar alle maten; de beste prijs telt mee."],
+      }[st.maat] ?? ["Maat", st.plaatsing === "vrijstaand" ? "Kies hoe breed hij mag zijn." : "Kies de maat van je nis."];
+      case "budget": return budgetCaption(st);
+      default: return extraCaption(st);
+    }
+  },
+
+  // Terug naar vraag 1: plaatsing kan veranderen, en daarmee de maten en bedragen.
+  onBack(st) { if (st.q === 0) { st.maat = null; st.budget = null; } },
+
+  onNext(st, id) { meetStap(st, id); },
+
   async finish(st) {
-    const answers = { gezinsgrootte: st.gezinsgrootte ?? "", geluid: st.geluid ?? "", energie: st.energie ?? "", extraAnswers: st.extra, programmaAnswers: st.programma, plaatsing: st.plaatsing };
-    const raw = await productenOfFout();
-    const result = matchVaatwassers(normalizeProducts(raw ?? []), answers);
+    meetStap(st, "extra");
+    const answers = { plaatsing: st.plaatsing, maat: st.maat ?? "", budget: capVan(st.budget), extraAnswers: st.extra.filter(e => e !== "ruim" || st.maat !== "smal") };
+    const vaatwassers = normalizeProducts(await productenOfFout());
+    // Beste match binnen het budget; past er niets binnen, dan zonder grens.
+    let result = matchVaatwassers(vaatwassers, answers);
+    if (answers.budget && !result.bestMatch) result = matchVaatwassers(vaatwassers, answers, null);
     localStorage.setItem("vaatwasser_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("vaatwasser_bestType", result.bestType ?? "");
     localStorage.setItem("vaatwasser_filteredMatchedVaatwassers", JSON.stringify(result.filteredMatchedVaatwassers));
@@ -327,5 +320,22 @@ quiz = createQuiz3D({
     window.location.href = "vaatwasser/resultaat/";
   },
 
-  preload: ["ib-dicht", "ib-open-gemiddeld", "kast", "vs-dicht", "ib-open-klein", "ib-open-groot", "ib-kier", "vs-open-gemiddeld", "vs-open-klein", "vs-open-groot"],
+  preload: ["ib-dicht", "ib-open-gemiddeld", "kast", "vs-dicht", "ib-open-klein", "ib-open-groot", "vs-open-gemiddeld", "vs-open-klein", "vs-open-groot"],
+});
+
+// Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)
+function meetStap(st, id) {
+  const v = st[id];
+  window.phTrackEvent?.("quiz_stap", {
+    categorie: "vaatwasser", stap: id, nr: vragen(st).findIndex(q => q.id === id) + 1,
+    antwoord: Array.isArray(v) ? [...v].sort().join("+") : String(v ?? ""),
+  });
+}
+
+// Grijze opties en live tellingen zodra de catalogus binnen is
+productsPromise.then(raw => {
+  if (!raw?.length) return;
+  catalogus = normalizeProducts(raw);
+  if (["extra", "budget"].includes(QID(quiz.st))) quiz.renderQuestion();
+  quiz.render();
 });

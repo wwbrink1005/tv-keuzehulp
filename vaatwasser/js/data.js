@@ -9,27 +9,55 @@
 const INBOUW_WAARDEN = ["Volledig ingebouwd", "Semi-ingebouwd", "Onderbouw"];
 const VRIJSTAAND_WAARDEN = ["Vrijstaand", "Aanrecht"];
 
-export function classifyPlaatsing(apparaatplaatsing) {
+// Okt. 2026: zonder plaatsing de naam proberen. Vier Miele-modellen (G .. SCi,
+// G .. SCU) misten de plaatsing en vielen zo stil weg uit de keuzehulp.
+export function classifyPlaatsing(apparaatplaatsing, naam = "") {
   if (INBOUW_WAARDEN.includes(apparaatplaatsing)) return "inbouw";
   if (VRIJSTAAND_WAARDEN.includes(apparaatplaatsing)) return "vrijstaand";
+  if (/ge[iï]ntegreer|inbouw|onderbouw|\bSC[iU]\b|\bVi\b/i.test(naam)) return "inbouw";
+  if (/vrijstaand/i.test(naam)) return "vrijstaand";
   return null;
 }
 
-// ─── Gezinsgrootte → minimaal aantal couverts (zachte voorkeur) ────────────
-// Net als koelkast's netto-inhoud-drempel: geen harde partitie, want 90% van
-// de catalogus zit sowieso tussen 13-16 couverts (geverifieerd tegen live
-// data) — een harde ondergrens zou "klein huishouden" bijna niets laten zien.
-export const gezinsgrootteMinCouverts = {
-  klein:     0,
-  gemiddeld: 13,
-  groot:     15,
-};
+// ─── Maat (sinds okt. 2026) ────────────────────────────────────────────────
+// "smal" = 45 cm breed. Bij inbouw 60 cm ook de hoogte: "xxl" (86-87 cm)
+// past niet in een standaardnis van 82 cm; een standaardmodel past wel in
+// een hoge nis (met een hogere plint).
+export function maatVan(plaatsing, breedteMm, hoogteMm) {
+  if (Number.isFinite(breedteMm) && breedteMm < 500) return "smal";
+  if (plaatsing === "inbouw" && Number.isFinite(hoogteMm) && hoogteMm >= 845) return "xxl";
+  return "breed";
+}
+/** Past deze maat bij het antwoord? */
+export function pastMaat(v, antwoord) {
+  switch (antwoord) {
+    case "standaard": return v.maat === "breed";
+    case "hoog": return v.maat === "breed" || v.maat === "xxl";
+    case "breed": return v.maat === "breed" || v.maat === "xxl";
+    case "smal": return v.maat === "smal";
+    default: return true;
+  }
+}
 
-// ─── "Stil" drempels voor de geluid-vraag ──────────────────────────────────
-// Live dB-range 37-58, mediaan 44 (geverifieerd tegen live data).
-export const GELUID_BELANGRIJK_DB = 40;
-export const GELUID_BELANGRIJK_FALLBACK_DB = 42;
-export const GELUID_GEMIDDELD_DB = 46;
+// Droogt beter: de deur gaat aan het eind vanzelf open (Bosch EfficientDry,
+// Siemens autoOpen/Zeolith, AEG AirDry, Miele AutoOpen) of er zit een
+// zeoliet- of PerfectDry-systeem in. true / false / null (onbekend).
+export function droogtBeter(droogsysteem, automatischeDeuropening) {
+  if (automatischeDeuropening === "Ja") return true;
+  const d = String(droogsysteem ?? "");
+  if (/efficientdry|perfectdry|zeolit|airdry|auto ?open/i.test(d)) return true;
+  if (d) return false;
+  return null;
+}
+
+// ─── Budgetvraag (sinds okt. 2026) ─────────────────────────────────────────
+// Twee maximumbedragen per soort, plus "Geen voorkeur": rond een derde en
+// twee derde van de prijzen (live catalogus, 2+ winkels, okt. 2026).
+// Smal (45 cm) heeft maar 6 modellen per soort: dezelfde bedragen.
+export const budgetCaps = { inbouw: [750, 950], vrijstaand: [600, 750] };
+
+export const RUIM_COUVERTS = 15;
+export const LABEL_VOLGORDE = ["A", "B", "C", "D", "E", "F", "G"];
 
 // ─── Static fallback price groups (alleen als de dynamische berekening niets
 // oplevert, bv. vóór de catalogus geladen is) ───────────────────────────────

@@ -1,4 +1,4 @@
-import { classifyPlaatsing } from "./data.js";
+import { classifyPlaatsing, maatVan, droogtBeter } from "./data.js";
 
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -58,7 +58,7 @@ export function normalizeProducts(rawProducts) {
 
     if (!product.merk) return [];
 
-    const plaatsing = classifyPlaatsing(product.apparaatplaatsing);
+    const plaatsing = classifyPlaatsing(product.apparaatplaatsing, naam);
     if (!plaatsing) return [];
 
     const breedteMm = Number.isFinite(product.breedteMm) ? product.breedteMm : null;
@@ -70,6 +70,8 @@ export function normalizeProducts(rawProducts) {
       naam,
       prijs,
       plaatsing,
+      maat:                   maatVan(plaatsing, breedteMm, hoogteMm),
+      droogtBeter:            droogtBeter(product.droogsysteem, product.automatischeDeuropening),
       // Ruwe Icecat-waarde bewaard naast de grof gepartitioneerde `plaatsing`
       // (inbouw/vrijstaand) — gebruikt voor de "Type plaatsing"-filterkaart,
       // zodat wie specifiek een semi-ingebouwd of onderbouw-model zoekt dat

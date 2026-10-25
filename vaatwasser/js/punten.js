@@ -5,13 +5,11 @@ import {
   esc, getal, cm, opsomming, ja, maten,
   maakContext, vergelijk, zochtRegel, energiePunt, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
-import { gezinsgrootteMinCouverts, GELUID_BELANGRIJK_FALLBACK_DB, GELUID_GEMIDDELD_DB } from "./data.js";
-import { heeftAfwasprogramma } from "./matching.js";
+import { pastMaat } from "./data.js";
+import { extraWensen, heeftWens } from "./matching.js";
 
-const PROGRAMMA_LABELS = { eco: "eco", intensief: "intensief", snel: "snel", stil: "stil", voorwas: "voorwas", glas: "glas" };
-const STIL_DB = { belangrijk: GELUID_BELANGRIJK_FALLBACK_DB, gemiddeld: GELUID_GEMIDDELD_DB };
-const ZUINIG = { belangrijk: ["A", "B", "C"], gemiddeld: ["A", "B", "C", "D"] };
-const HUISHOUDEN = { klein: "1 tot 2 personen", gemiddeld: "3 tot 4 personen", groot: "5 personen of meer" };
+const WENS_TEKST = { droog: "deur gaat vanzelf open", besteklade: "besteklade", ruim: "15+ couverts" };
+const MAAT_TEKST = { standaard: "past in een standaardnis", hoog: "past in je hoge nis", smal: "45 cm smal", breed: "60 cm breed" };
 
 export function buildContext(lijst, naam) {
   return maakContext(lijst, naam, {
@@ -25,28 +23,13 @@ export function buildContext(lijst, naam) {
 export function buildResultPoints(v, answers, ctx) {
   const p = puntenLijst();
   const a = answers || {};
-  const wensen = Array.isArray(a.extraAnswers) ? a.extraAnswers : [];
-  const wil = (x) => wensen.includes(x);
 
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
   if (a.plaatsing && a.plaatsing === v.plaatsing) vink("plaatsing", v.plaatsing === "inbouw" ? "inbouw" : "vrijstaand");
-  if (STIL_DB[a.geluid] && Number.isFinite(v.geluidDb) && v.geluidDb <= STIL_DB[a.geluid]) vink("geluid-wens", "stil");
-  if (ZUINIG[a.energie]?.includes(v.energieLabel)) vink("energie-wens", "zuinig");
-  if (wil("halve-lading") && ja(v.halveLading)) vink("halve", "halve lading");
-  if (wil("verstelbare-bovenkorf") && ja(v.verstelbareBovenkorf)) vink("korf", "verstelbare bovenkorf");
-  if (wil("aquastop") && ja(v.aquastop)) vink("aquastop", "AquaStop");
-  if (wil("wifi") && ja(v.wifi)) vink("wifi", "bediening via app");
-  if (wil("kinderslot") && ja(v.kinderslot)) vink("kinderslot", "kinderslot");
-  if (wil("inverter") && ja(v.inverter)) vink("inverter", "invertermotor");
-  if (wil("glasbescherming") && ja(v.glasbescherming)) vink("glas", "glasbescherming");
-  if (wil("extra-droog") && v.droogprestaties === "A") vink("droog", "extra droge vaat");
-  const programmas = (a.programmaAnswers || [])
-    .filter((key) => key !== "geen" && heeftAfwasprogramma(v.afwasprogrammas, key))
-    .map((key) => PROGRAMMA_LABELS[key])
-    .filter(Boolean);
-  if (programmas.length) vink("programmas", `${programmas.length > 1 ? "programma's" : "programma"} ${opsomming(programmas)}`);
+  if (MAAT_TEKST[a.maat] && pastMaat(v, a.maat)) vink("maat", MAAT_TEKST[a.maat]);
+  for (const w of extraWensen(a)) if (heeftWens(v, w) === true) vink(w === "droog" ? "deur" : w, WENS_TEKST[w]);
   zochtRegel(p, delen);
 
   // 2. Wat deze kaart onderscheidt binnen de lijst
@@ -63,14 +46,9 @@ export function buildResultPoints(v, answers, ctx) {
   energiePunt(p, ctx, v.energieLabel);
   prijsPunten(p, v, ctx);
 
-  // 3. Couverts vertaald naar het eigen huishouden
-  const min = gezinsgrootteMinCouverts[a.gezinsgrootte];
-  if (HUISHOUDEN[a.gezinsgrootte] && Number.isFinite(v.couverts) && min > 0 && v.couverts >= min) {
-    p.voeg(30, "couverts", `<strong>${getal(v.couverts)} couverts</strong>: genoeg voor ${HUISHOUDEN[a.gezinsgrootte]}`);
-  }
-
-  // 4. Kenmerken waar niet om gevraagd is, en het vangnet
-  if (ja(v.automatischeDeuropening)) p.voeg(40, "deur", `<strong>Deur gaat vanzelf open</strong> na het programma: drogere vaat`);
+  // 3. Kenmerken waar niet om gevraagd is, en het vangnet
+  if (v.droogtBeter === true) p.voeg(40, "deur", `<strong>Droogt beter</strong>: de deur gaat na het programma vanzelf open`);
+  if (heeftWens(v, "besteklade") === true) p.voeg(43, "besteklade", `<strong>Besteklade</strong> bovenin`);
   if (ja(v.aquastop)) p.voeg(41, "aquastop", `<strong>AquaStop</strong> tegen waterschade`);
   if (ja(v.verstelbareBovenkorf)) p.voeg(42, "korf", `<strong>Verstelbare bovenkorf</strong> voor grote borden`);
   if (Number.isFinite(v.couverts)) p.voeg(90, "couverts", `<strong>${getal(v.couverts)} couverts</strong>`);

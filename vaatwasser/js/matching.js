@@ -1,4 +1,4 @@
-import { gezinsgrootteMinCouverts, GELUID_BELANGRIJK_DB, GELUID_BELANGRIJK_FALLBACK_DB, GELUID_GEMIDDELD_DB } from "./data.js";
+import { pastMaat, RUIM_COUVERTS, LABEL_VOLGORDE } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 export const DEFAULT_MIN_AANBIEDERS = 2;
@@ -16,121 +16,111 @@ export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_
   return { effectiveMin, result };
 }
 
-// Een vaatwasser heeft geen natuurlijke prestatie-tier-as (net als koelkast/
-// vriezer) — wél een echte harde partitie (inbouw vs vrijstaand, in
-// tegenstelling tot wasdroger waar die niet bestond). Structuur: harde
-// plaatsing-filter, dan een reeks gracieus degraderende zachte
-// voorkeursfilters, met een verplichte eindfallback.
-
-// ─── Hard filter: inbouw vs vrijstaand ─────────────────────────────────────
+// ─── Harde filters: inbouw/vrijstaand en de maat ───────────────────────────
 
 export function filterByPlaatsing(vaatwassers, plaatsing) {
   return vaatwassers.filter(v => v.plaatsing === plaatsing);
 }
 
-// ─── Zachte voorkeur: gezinsgrootte → minimaal aantal couverts ────────────
-
-export function applyGezinsgrootteFilter(vaatwassers, gezinsgrootte) {
-  const min = gezinsgrootteMinCouverts[gezinsgrootte];
-  if (!min) return vaatwassers;
-  const filtered = vaatwassers.filter(v => v.couverts !== null && v.couverts >= min);
-  return filtered.length > 0 ? filtered : vaatwassers;
+/** Plaatsing + maat: de vaatwassers die mogen meedoen (zonder budget).
+ *  Gracieus: geen enkele in die maat, dan alle van die plaatsing. */
+export function poolVoor(vaatwassers, answers) {
+  const opPlaatsing = filterByPlaatsing(vaatwassers, answers?.plaatsing);
+  const opMaat = opPlaatsing.filter(v => pastMaat(v, answers?.maat));
+  return opMaat.length ? opMaat : opPlaatsing;
 }
 
-// ─── Geluid filter ─────────────────────────────────────────────────────────
+// ───────── Matching per vaatwasser (sinds 25-10-2026) ─────────
+// Zelfde opzet als de andere keuzehulpen: plaatsing, maat en budget zijn een
+// harde grens, elke vaatwasser krijgt een passcore en de lijst is alles wat
+// dicht bij de top zit. Vroeger: filters na elkaar (ook op kenmerken die per
+// merk wel of niet ingevuld zijn) en de goedkoopste als "beste match".
+//
+// Passcore = 100
+//   - een wens (droogt beter, besteklade, 15+ couverts) die hij niet heeft:
+//     −150, onbekend: −40
+//   - zuinig gewenst: −5 per labelstap boven de zuinigste van de lijst
+//     (onbekend −15, als drie stappen: onbekend mag niet winnen van label C)
+//   - stil gewenst: −2 per dB boven de stilste van de lijst (onbekend −6).
+//     Bewust de stilste, niet het gemiddelde: anders won een vaatwasser van
+//     44 dB (boven het gemiddelde) op prijs van een van 38 dB.
+//   - prijs: de duurste in de lijst verliest tot 5 punten
+// `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
+const WENS_STRAF = 150, WENS_ONBEKEND = 40;
+export const BAND_BESTE = 4;
+const BAND_LIJST = 10;
+const MIN_LIJST = 5;
+const MAX_LIJST = 30;
+const PRIJS_GEWICHT = 5;
 
-export function applyGeluidFilter(vaatwassers, geluid) {
-  if (geluid === "belangrijk") {
-    const stil = vaatwassers.filter(v => v.geluidDb !== null && v.geluidDb <= GELUID_BELANGRIJK_DB);
-    if (stil.length > 0) return stil;
-    const redelijkStil = vaatwassers.filter(v => v.geluidDb !== null && v.geluidDb <= GELUID_BELANGRIJK_FALLBACK_DB);
-    if (redelijkStil.length > 0) return redelijkStil;
-    return vaatwassers;
+export const lijst = a => (Array.isArray(a) ? a : []).filter(v => v !== "geen");
+// Zuinig en stil zijn een score; de rest zijn wensen.
+export const WENSEN = ["droog", "besteklade", "ruim"];
+export const extraWensen = a => lijst(a?.extraAnswers).filter(w => WENSEN.includes(w));
+
+/** Heeft de vaatwasser deze wens? true / false / null (onbekend). */
+export function heeftWens(v, wens) {
+  switch (wens) {
+    case "droog": return v.droogtBeter;
+    case "besteklade": return v.bestekType ? /lade/i.test(v.bestekType) : null;
+    case "ruim": return Number.isFinite(v.couverts) ? v.couverts >= RUIM_COUVERTS : null;
+    default: return true;
   }
-
-  if (geluid === "gemiddeld") {
-    const redelijk = vaatwassers.filter(v => v.geluidDb !== null && v.geluidDb <= GELUID_GEMIDDELD_DB);
-    if (redelijk.length > 0) return redelijk;
-    return vaatwassers;
-  }
-
-  return vaatwassers;
 }
 
-// ─── Energiezuinigheid filter ───────────────────────────────────────────────
+const labelRang = v => (LABEL_VOLGORDE.includes(v.energieLabel) ? LABEL_VOLGORDE.indexOf(v.energieLabel) : null);
 
-export function applyEnergieFilter(vaatwassers, energie) {
-  if (energie === "belangrijk") {
-    const zuinig = vaatwassers.filter(v => ["A", "B"].includes(v.energieLabel));
-    if (zuinig.length > 0) return zuinig;
-    const redelijkZuinig = vaatwassers.filter(v => ["A", "B", "C"].includes(v.energieLabel));
-    if (redelijkZuinig.length > 0) return redelijkZuinig;
-    return vaatwassers;
+function straffen(v, a, ctx) {
+  let s = 0;
+  for (const w of extraWensen(a)) {
+    const h = heeftWens(v, w);
+    s += h === true ? 0 : h === false ? WENS_STRAF : WENS_ONBEKEND;
   }
-
-  if (energie === "gemiddeld") {
-    const redelijk = vaatwassers.filter(v => ["A", "B", "C", "D"].includes(v.energieLabel));
-    if (redelijk.length > 0) return redelijk;
-    return vaatwassers;
+  const ex = lijst(a.extraAnswers);
+  // 5 per labelstap: groter dan de marge van de Beste match (4)
+  if (ex.includes("energiezuinig")) {
+    const r = labelRang(v);
+    s += r === null ? 15 : (r - ctx.besteLabel) * 5;
   }
-
-  return vaatwassers;
+  if (ex.includes("stil")) {
+    s += Number.isFinite(v.geluidDb) ? (v.geluidDb - ctx.stilste) * 2 : 6;
+  }
+  return s;
 }
 
-// ─── Extra preferences (Functies) ──────────────────────────────────────────
-
-export function applyExtraFilter(vaatwassers, extraAnswers) {
-  if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
-    return vaatwassers;
-  }
-
-  let filtered = [...vaatwassers];
-
-  if (extraAnswers.includes("kinderslot")) {
-    const ks = filtered.filter(v => v.kinderslot === "Ja");
-    if (ks.length > 0) filtered = ks;
-  }
-
-  if (extraAnswers.includes("halve-lading")) {
-    const hl = filtered.filter(v => v.halveLading === "Ja");
-    if (hl.length > 0) filtered = hl;
-  }
-
-  if (extraAnswers.includes("wifi")) {
-    const wf = filtered.filter(v => v.wifi === "Ja");
-    if (wf.length > 0) filtered = wf;
-  }
-
-  if (extraAnswers.includes("verstelbare-bovenkorf")) {
-    const vb = filtered.filter(v => v.verstelbareBovenkorf === "Ja");
-    if (vb.length > 0) filtered = vb;
-  }
-
-  if (extraAnswers.includes("aquastop")) {
-    const aq = filtered.filter(v => v.aquastop === "Ja");
-    if (aq.length > 0) filtered = aq;
-  }
-
-  if (extraAnswers.includes("inverter")) {
-    const inv = filtered.filter(v => v.inverter === "Ja");
-    if (inv.length > 0) filtered = inv;
-  }
-
-  if (extraAnswers.includes("glasbescherming")) {
-    const gb = filtered.filter(v => v.glasbescherming === "Ja");
-    if (gb.length > 0) filtered = gb;
-  }
-
-  if (extraAnswers.includes("extra-droog")) {
-    const ed = filtered.filter(v => v.droogprestaties === "A");
-    if (ed.length > 0) filtered = ed;
-  }
-
-  return filtered;
+// Plek van een prijs binnen een lijst: 0 = goedkoopste, 1 = duurste.
+function prijsPlek(pool) {
+  const prijzen = pool.map(v => parsePrice(v.prijs)).sort((x, y) => x - y);
+  return prijs => (prijzen.length < 2 ? 0 : prijzen.filter(x => x < prijs).length / (prijzen.length - 1));
 }
 
-// ─── Specifieke afwasprogramma's ───────────────────────────────────────────
+export function scoreVaatwassers(pool, answers = {}) {
+  const plek = prijsPlek(pool);
+  const db = pool.map(v => v.geluidDb).filter(Number.isFinite);
+  const rangen = pool.map(labelRang).filter(r => r !== null);
+  const ctx = {
+    stilste: db.length ? Math.min(...db) : 0,
+    besteLabel: rangen.length ? Math.min(...rangen) : 0,
+  };
+  return pool.map(v => {
+    const wens = 100 - straffen(v, answers, ctx);
+    const fit = wens - PRIJS_GEWICHT * plek(parsePrice(v.prijs));
+    return { ...v, wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
+  });
+}
 
+/** Beste match: de goedkoopste van de vaatwassers die even goed passen als de beste. */
+export function kiesBesteMatch(lijstIn) {
+  const metScore = (lijstIn ?? []).filter(v => Number.isFinite(v?.fit));
+  if (!metScore.length) return null;
+  const top = Math.max(...metScore.map(v => v.fit));
+  return metScore.filter(v => v.fit >= top - BAND_BESTE).reduce((x, y) => {
+    const px = parsePrice(x.prijs), py = parsePrice(y.prijs);
+    return py < px || (py === px && y.fit > x.fit) ? y : x;
+  });
+}
+
+// ─── Afwasprogramma's (alleen nog voor de filter op de resultaatpagina) ────
 const PROGRAMMA_PATRONEN = {
   eco:       /eco/i,
   intensief: /intensi(ef|ve)/i,
@@ -146,65 +136,37 @@ export function heeftAfwasprogramma(afwasprogrammas, key) {
   return patroon.test(String(afwasprogrammas ?? ""));
 }
 
-export function applyProgrammaFilter(vaatwassers, programmaAnswers) {
-  if (!Array.isArray(programmaAnswers) || programmaAnswers.includes("geen") || programmaAnswers.length === 0) {
-    return vaatwassers;
+/**
+ * @param {object[]} vaatwassers  genormaliseerde vaatwassers (utils.normalizeProducts)
+ * @param {object} answers        antwoorden uit de quiz (answers.budget: maximum of null)
+ * @param {number|null} [budget]  overschrijft answers.budget (null = zonder grens)
+ */
+export function matchVaatwassers(vaatwassers, answers, budget = answers?.budget) {
+  const leeg = { bestMatch: null, bestType: null, filteredMatchedVaatwassers: [], topWens: null };
+  if (!Array.isArray(vaatwassers) || !answers?.plaatsing) return leeg;
+
+  const cap = Number(budget) || null;
+  const pool = poolVoor(vaatwassers, answers).filter(v => !cap || parsePrice(v.prijs) <= cap);
+  if (pool.length === 0) return leeg;
+
+  const gescoord = scoreVaatwassers(pool, answers).sort((x, y) => y.fit - x.fit);
+  const top = gescoord[0].fit;
+  const uit = [];
+  let zichtbaar = 0;
+  for (const v of gescoord) {
+    if (zichtbaar >= MAX_LIJST) break;
+    if (v.fit < top - BAND_LIJST && zichtbaar >= MIN_LIJST) break;
+    uit.push(v);
+    if ((v.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS) zichtbaar++;
   }
+  uit.sort((x, y) => parsePrice(x.prijs) - parsePrice(y.prijs));
 
-  let filtered = [...vaatwassers];
-
-  for (const key of programmaAnswers) {
-    const match = filtered.filter(v => heeftAfwasprogramma(v.afwasprogrammas, key));
-    if (match.length > 0) filtered = match;
-  }
-
-  return filtered;
-}
-
-// ─── Main matching function ───────────────────────────────────────────────
-
-export function matchVaatwassers(vaatwassers, answers) {
-  if (!Array.isArray(vaatwassers) || !answers?.plaatsing) {
-    return { bestMatch: null, bestType: null, filteredMatchedVaatwassers: [] };
-  }
-
-  // 1. Hard filter: plaatsing
-  const filtered = filterByPlaatsing(vaatwassers, answers.plaatsing);
-  if (filtered.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedVaatwassers: [] };
-  }
-
-  // 2. Zachte voorkeur: gezinsgrootte
-  let matched = applyGezinsgrootteFilter(filtered, answers.gezinsgrootte);
-
-  // 3. Geluid
-  matched = applyGeluidFilter(matched, answers.geluid ?? "");
-
-  // 4. Energiezuinigheid
-  matched = applyEnergieFilter(matched, answers.energie ?? "");
-
-  // 5. Extra's
-  matched = applyExtraFilter(matched, answers.extraAnswers ?? []);
-
-  // 6. Specifieke afwasprogramma's
-  matched = applyProgrammaFilter(matched, answers.programmaAnswers ?? []);
-
-  // Verplichte eindfallback: nooit leeg teruggeven als de plaatsing-
-  // gefilterde set wél voorraad heeft.
-  if (matched.length === 0) {
-    let fallback = applyGezinsgrootteFilter(filtered, answers.gezinsgrootte);
-    fallback = applyGeluidFilter(fallback, answers.geluid ?? "");
-    if (fallback.length === 0) fallback = [...filtered];
-    matched = fallback;
-  }
-
-  const bestType = answers.plaatsing === "inbouw" ? "Inbouw" : "Vrijstaand";
-
-  const bestMatch = matched.reduce((cheapest, v) => {
-    return parsePrice(v.prijs) < parsePrice(cheapest.prijs) ? v : cheapest;
-  });
-
-  return { bestMatch, bestType, filteredMatchedVaatwassers: matched };
+  return {
+    bestMatch: kiesBesteMatch(uit),
+    bestType: answers.plaatsing === "inbouw" ? "Inbouw" : "Vrijstaand",
+    filteredMatchedVaatwassers: uit,
+    topWens: Math.max(...uit.map(v => v.wens)),
+  };
 }
 
 // De kaartpunten ("Waarom dit bij jou past") staan in punten.js.
