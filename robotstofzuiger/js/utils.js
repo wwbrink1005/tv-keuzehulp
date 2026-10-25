@@ -41,6 +41,22 @@ function parseBasisstationHoogte(afmetingen) {
   return Number.isFinite(hoogte) ? hoogte : null;
 }
 
+// ─── Basisstation (sinds okt. 2026) ───────────────────────────────────────
+// "alles"      = station leegt de stofbak én wast de dweilpads/vult water bij
+//                (schoonwaterreservoir in het station, of een naam als Omni,
+//                Ultra, Qrevo, Saros, Matrix, X50, Combo, Aqua 10, Complete)
+// "zelflegend" = station leegt alleen de stofbak ("+", "Plus", stofbak in het station)
+// "opladen"    = alleen opladen (Icecat zegt "Zelflegend: Nee")
+// null         = onbekend
+const ALLES_NAAM = /\bomni|\bultra\b|qrevo|saros|matrix|\bx50\b|\bx1[12]\b|combo|aqua 10|complete|\bl[1-5]0s?\b/i;
+const ZELFLEGEND_NAAM = /\+|\bplus\b/i;
+function station(p, naam) {
+  if (Number.isFinite(p.waterBasis) || ALLES_NAAM.test(naam)) return "alles";
+  if (/^ja$/i.test(p.zelflegendRaw ?? "") || Number.isFinite(p.stofBasis) || ZELFLEGEND_NAAM.test(naam)) return "zelflegend";
+  if (/^nee$/i.test(p.zelflegendRaw ?? "")) return "opladen";
+  return null;
+}
+
 /**
  * Normalizes raw robotstofzuiger products from Supabase to a consistent
  * internal shape. Geen harde partitie (in tegenstelling tot vaatwasser/
@@ -73,7 +89,14 @@ export function normalizeProducts(rawProducts) {
       navigatieType:           product.navigatieType    ?? "",
       natDweilen:              product.natDweilen       ?? "Nee",
       zuigkracht:              Number.isFinite(product.zuigkracht) ? product.zuigkracht : null,
-      looptijdMin:             Number.isFinite(product.looptijdMin) ? product.looptijdMin : null,
+      // Een looptijd boven 10 uur is een datafout (Ecovacs T90s: "999 min")
+      looptijdMin:             Number.isFinite(product.looptijdMin) && product.looptijdMin <= 600 ? product.looptijdMin : null,
+      station:                 station(product, naam),
+      // Dweilpad dat omhoog gaat op tapijt: true / false / null
+      dweilOmhoog:             /^ja$/i.test(product.ophefbareDweilRaw ?? "") ? true : /^nee$/i.test(product.ophefbareDweilRaw ?? "") ? false : null,
+      // Buiten 1-9 cm is geen drempel maar een datafout (Roborock Qrevo 5AE: "10 cm",
+      // Ecovacs T90 Omni: "0,09 cm"; elke robot komt over 1 cm)
+      drempelCm:               Number.isFinite(product.drempelCm) && product.drempelCm >= 1 && product.drempelCm <= 9 ? product.drempelCm : null,
       geluidDb:                Number.isFinite(product.geluidDb) ? product.geluidDb : null,
       zelflegend:              product.zelflegend       ?? "Nee",
       obstakeldetectie:        product.obstakeldetectie ?? "Nee",

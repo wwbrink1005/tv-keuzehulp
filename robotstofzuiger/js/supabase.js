@@ -68,6 +68,12 @@ function adaptRow(row) {
     basisstationAfmetingen:  row.basisstation_afmetingen ?? "",
     diameterCm:              parseFirstFloat(row.diameter),
     kleur:                   row.kleur ?? "",
+    // Sinds okt. 2026 (migrations/robotstofzuigers_extra_specs.sql in de pipeline)
+    zelflegendRaw:           row.zelflegend ?? "",
+    stofBasis:               parseFirstFloat(row.stof_basis),
+    waterBasis:              parseFirstFloat(row.water_basis),
+    ophefbareDweilRaw:       row.ophefbare_dweil ?? "",
+    drempelCm:               parseFirstFloat(row.drempel_cm),
     icecat_afbeelding:       row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen:     Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:              adaptAanbieders(row),

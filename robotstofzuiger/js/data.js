@@ -20,6 +20,16 @@ export const woninggrootteMinLooptijd = {
   groot:     250,
 };
 
+// ─── Budgetvraag (sinds okt. 2026) ─────────────────────────────────────────
+// Twee maximumbedragen plus "Geen voorkeur". Uit de live catalogus (okt. 2026,
+// 2+ winkels): rond een derde en twee derde van de prijzen (€440 en €700).
+export const BUDGET_CAPS = [400, 700];
+
+// Extra's: grenzen
+export const LAAG_MAX_MM = 90;          // past onder de meeste banken en bedden
+export const HOGE_DREMPEL_CM = 4;       // over hogere drempels en deurlijsten
+export const HUISDIER_PA = 20000;       // veel zuigkracht voor haren in tapijt
+
 // ─── "Stil" drempels voor de geluid-vraag ──────────────────────────────────
 // Live dB-range 51-80, mediaan 65 (geverifieerd tegen live data).
 export const GELUID_BELANGRIJK_DB = 60;

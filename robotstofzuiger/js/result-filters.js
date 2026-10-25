@@ -1,5 +1,8 @@
 import { priceGroupsFallback, heeftLidarNavigatie } from "./data.js";
-import { matchRobotstofzuigers, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
+import {
+  matchRobotstofzuigers, kiesBesteMatch, heeftExtra, heeftStation, genoegLooptijd, lijst,
+  applyMinAanbiedersCascade, BAND_BESTE, DEFAULT_MIN_AANBIEDERS,
+} from "./matching.js";
 import { computeDynamicPriceGroups, computeDynamicDimensionGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
@@ -58,7 +61,11 @@ const filterState = {
 };
 
 const FUNCTIE_DEFINITIES = [
-  { key: "zelflegend",        label: "Zelflegend stofreservoir",  check: r => r.zelflegend === "Ja" },
+  { key: "alles",             label: "Station wast dweilpads",    check: r => r.station === "alles" },
+  { key: "zelflegend",        label: "Zelflegend station",        check: r => r.station === "alles" || r.station === "zelflegend" },
+  { key: "laag",              label: "Past onder lage meubels",   check: r => heeftExtra(r, "laag") === true },
+  { key: "drempel",           label: "Over hoge drempels",        check: r => heeftExtra(r, "drempel") === true },
+  { key: "dweilomhoog",       label: "Dweilpad omhoog op tapijt", check: r => r.dweilOmhoog === true },
   { key: "obstakeldetectie",  label: "Obstakeldetectie",          check: r => r.obstakeldetectie === "Ja" },
   { key: "hepa",              label: "HEPA-filter",               check: r => r.hepaFilter === "Ja" },
   { key: "wifi",              label: "Wifi/app-bediening",        check: r => r.wifi === "Ja" },
@@ -399,6 +406,7 @@ function renderAllFilters() {
 function handleFilterChange(event) {
   const input = event.target.closest("input");
   if (!input) return;
+  meet("filter_gebruikt", { filter: input.closest(".filter-card")?.dataset.filter || input.name, waarde: input.value === "all" ? "alle" : String(input.value).slice(0, 40) });
 
   const name  = input.name;
   const value = input.value;
@@ -459,7 +467,13 @@ export async function initFilters() {
     allRobots = [];
   }
 
-  const result = matchRobotstofzuigers(allRobots, filterState.answers ?? {});
+  // Budget uit de quiz (maximumbedrag) is een echte grens, net als in de quiz.
+  // Past er niets binnen, dan zonder grens (zelfde vangnet).
+  const cap = Number(filterState.answers?.budget) || null;
+  const zonderGrens = matchRobotstofzuigers(allRobots, filterState.answers ?? {}, null);
+  let result = cap ? matchRobotstofzuigers(allRobots, filterState.answers ?? {}, cap) : zonderGrens;
+  const budgetZonderMatch = Boolean(cap && !(result.filteredMatchedRobotstofzuigers?.length));
+  if (budgetZonderMatch) result = zonderGrens;
   filterState.baseMatches = Array.isArray(result.filteredMatchedRobotstofzuigers) ? result.filteredMatchedRobotstofzuigers : [];
 
   // Fallback: if the live fetch/computation yields nothing, seed the pool
@@ -505,4 +519,111 @@ export async function initFilters() {
   }
 
   applyFilters();
+  if (cap && filterState.baseMatches.length) initBudgetNote({ cap, result, zonderGrens, budgetZonderMatch });
+  initMeting(cap);
+}
+
+// ───────── budget: "Meer budget?" en het vangnet als er niets binnen past ─────────
+const euroLabel = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const WENS_VOORDEEL = {
+  huisdieren: "extra veel zuigkracht voor huisdierharen", laag: "een robot die onder lage meubels past",
+  drempel: "een robot die over hoge drempels komt",
+};
+
+// Welke wens heeft de beste robotstofzuiger boven het budget, die geen enkele
+// zichtbare robotstofzuiger binnen het budget zeker heeft? Dan noemen we die.
+function wensBovenBudget(buiten, binnen, a) {
+  const kandidaten = lijst(a?.extraAnswers).map(w => [WENS_VOORDEEL[w], r => heeftExtra(r, w) === true]);
+  if (a?.station === "zelflegend" || a?.station === "alles") kandidaten.unshift([a.station === "alles" ? "een station dat ook de dweilpads wast en water bijvult" : "een station dat de stofbak leegt", r => heeftStation(r, a.station) === true]);
+  if (a?.woninggrootte) kandidaten.push(["een accu die lang genoeg meegaat voor je oppervlak", r => genoegLooptijd(r, a.woninggrootte) === true]);
+  return kandidaten.find(([naam, f]) => naam && f(buiten) && !binnen.some(f))?.[0] ?? null;
+}
+
+function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch }) {
+  const binnenLijst = binnen.filteredMatchedRobotstofzuigers ?? [];
+  const kaart = document.createElement("div");
+  kaart.className = "budget-kaart";
+  kaart.setAttribute("role", "note");
+
+  if (budgetZonderMatch) {
+    meet("budget_kaart", { actie: "niets_binnen_budget" });
+    kaart.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we geen robotstofzuiger.</strong> Dit zijn de robots die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
+    plaatsBudgetKaart(kaart);
+    return;
+  }
+
+  // Alleen tonen als er boven het budget robots zijn die duidelijk beter bij
+  // de wensen passen (passcore zonder prijsdeel). Vergelijk met wat je binnen
+  // budget echt ziet (2+ winkels), en tel erboven ook alleen wat je standaard ziet.
+  const zichtbaarBinnen = binnenLijst.filter(sb => (sb.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(sb => sb.wens)) : binnen.topWens;
+  const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;
+  const beter = (zonderGrens.filteredMatchedRobotstofzuigers ?? []).filter(sb => parsePrice(sb.prijs) > cap && sb.wens >= drempel);
+  const zichtbaar = beter.filter(sb => (sb.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const goedkoopsteBuiten = zichtbaar.map(sb => parsePrice(sb.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
+  if (!goedkoopsteBuiten) return;
+  const buitenBeste = kiesBesteMatch(zichtbaar);
+  const reden = buitenBeste ? wensBovenBudget(buitenBeste, zichtbaarBinnen, filterState.answers) : null;
+  const meer = goedkoopsteBuiten - cap;
+  let toontBuiten = false;
+  const teken = () => {
+    kaart.innerHTML = toontBuiten
+      ? `<div class="budget-kaart-tekst"><strong>Je ziet nu robots boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
+         <button type="button" class="budget-kaart-btn">Terug naar robots tot ${euroLabel(cap)}</button>`
+      : reden
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${reden}</strong><span>Binnen je budget is dat er niet bij 2 of meer winkels. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze robots</button>`
+        : `<div class="budget-kaart-tekst"><strong>Meer budget? Er zijn robots die nog beter bij je wensen passen</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze robots</button>`;
+    kaart.querySelector(".budget-kaart-btn").addEventListener("click", () => {
+      toontBuiten = !toontBuiten;
+      meet("budget_kaart", { actie: toontBuiten ? "klik_meer_budget" : "klik_terug", reden: reden ? "wens" : "score" });
+      lijstSoort = toontBuiten ? "boven_budget" : "binnen_budget";
+      filterState.baseMatches = toontBuiten ? beter : binnenLijst;
+      filterState.priceGroups = computeDynamicPriceGroups(filterState.baseMatches);
+      filterState.hoogteGroups = computeDynamicDimensionGroups(filterState.baseMatches, "hoogteMm");
+      // Andere lijst = verse start: alle filters terug naar standaard, zoals "Wis filters".
+      qs("#clearFiltersBtn")?.click();
+      teken();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+  teken();
+  plaatsBudgetKaart(kaart);
+  meet("budget_kaart", { actie: "getoond", reden: reden ? "wens" : "score", meer_euro: Math.round(meer) });
+}
+
+// De lijst wordt bij elk filter en elke sortering opnieuw getekend: zet de kaart
+// daarna steeds terug direct na de eerste robotstofzuiger.
+function plaatsBudgetKaart(kaart) {
+  const grid = qs("#otherMatchesGrid");
+  if (!grid) return;
+  const zet = () => {
+    const items = [...grid.children].filter(el => el !== kaart && !el.classList.contains("rcard-skelet"));
+    if (!items.length) return;
+    const na = items[0];
+    if (na.nextElementSibling === kaart) return;
+    waker.disconnect();
+    na.after(kaart);
+    waker.observe(grid, { childList: true });
+  };
+  const waker = new MutationObserver(zet);
+  waker.observe(grid, { childList: true });
+  zet();
+}
+
+// ───────── meting (Umami, via shared/consent.js) ─────────
+const meet = (naam, props) => window.phTrackEvent?.(naam, { categorie: "robotstofzuiger", ...props });
+let lijstSoort = "binnen_budget";
+
+function initMeting(cap) {
+  const budget = cap ? String(cap) : "geen_voorkeur";
+  const zichtbaar = () => document.querySelectorAll("#otherMatchesGrid > .rcard").length;
+  // Meegestuurd met elke winkelklik (shared/analytics.js)
+  window.phResultaatContext = () => ({ budget, lijst: zichtbaar(), lijst_soort: lijstSoort });
+  const beste = kiesBesteMatch(filterKeten().filter(genoegWinkels));
+  meet("resultaat_getoond", {
+    budget, station: filterState.answers?.station ?? "", vloer: filterState.answers?.vloer ?? "",
+    extra: lijst(filterState.answers?.extraAnswers).join("+"), lijst: zichtbaar(), beste_merk: beste?.merk ?? "",
+  });
 }

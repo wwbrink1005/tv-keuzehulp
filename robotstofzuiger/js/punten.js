@@ -5,9 +5,11 @@ import {
   esc, getal, ja,
   maakContext, vergelijk, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
-import { heeftLidarNavigatie, woninggrootteMinLooptijd, GELUID_BELANGRIJK_FALLBACK_DB, GELUID_GEMIDDELD_DB } from "./data.js";
+import { heeftLidarNavigatie, woninggrootteMinLooptijd } from "./data.js";
+import { heeftExtra, heeftStation, lijst } from "./matching.js";
 
-const STIL_DB = { belangrijk: GELUID_BELANGRIJK_FALLBACK_DB, gemiddeld: GELUID_GEMIDDELD_DB };
+const STATION_TEKST = { alles: "station wast dweilpads en vult water bij", zelflegend: "station leegt de stofbak" };
+const EXTRA_TEKST = { huisdieren: "veel zuigkracht voor huisdierharen", laag: "past onder lage meubels", drempel: "over hoge drempels" };
 const WONING = { gemiddeld: "een hele begane grond", groot: "een grote, open leefruimte" };
 
 export function buildContext(lijst, naam) {
@@ -30,15 +32,9 @@ export function buildResultPoints(r, answers, ctx) {
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  if (a.navigatie === "belangrijk" && lidar) vink("navigatie", "LiDAR-navigatie");
-  if (a.dweilen === "ja" && ja(r.natDweilen)) vink("dweilen", "zuigt én dweilt");
-  if (STIL_DB[a.geluid] && Number.isFinite(r.geluidDb) && r.geluidDb <= STIL_DB[a.geluid]) vink("geluid-wens", "stil");
-  if (wil("zelflegend") && ja(r.zelflegend)) vink("zelflegend", "leegt zichzelf");
-  if (wil("obstakeldetectie") && ja(r.obstakeldetectie)) vink("obstakel", "ontwijkt obstakels");
-  if (wil("hepa") && ja(r.hepaFilter)) vink("hepa", "HEPA-filter");
-  if (wil("wifi") && ja(r.wifi)) vink("wifi", "bediening via app");
-  if (wil("alexa") && ja(r.alexa)) vink("alexa", "werkt met Alexa");
-  if (wil("google-assistent") && ja(r.googleAssistent)) vink("google", "werkt met Google Assistent");
+  if ((a.station === "zelflegend" || a.station === "alles") && heeftStation(r, a.station) === true) vink("zelflegend", STATION_TEKST[r.station]);
+  if (a.vloer === "tapijt" && r.dweilOmhoog === true) vink("dweilen", "dweilpad gaat omhoog op tapijt");
+  for (const e of lijst(a.extraAnswers)) if (heeftExtra(r, e) === true) vink(e, EXTRA_TEKST[e]);
   zochtRegel(p, delen);
 
   // 2. Wat deze kaart onderscheidt binnen de lijst
@@ -66,7 +62,9 @@ export function buildResultPoints(r, answers, ctx) {
   }
 
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
-  if (ja(r.zelflegend)) p.voeg(40, "zelflegend", `<strong>Leegt zichzelf</strong> in het basisstation`);
+  if (r.station === "alles") p.voeg(39, "zelflegend", `<strong>Volledig station</strong>: leegt de stofbak en wast de dweilpads`);
+  if (r.station === "zelflegend") p.voeg(40, "zelflegend", `<strong>Leegt zichzelf</strong> in het basisstation`);
+  if (heeftExtra(r, "laag") === true) p.voeg(44, "hoogte", `<strong>${getal(r.hoogteMm / 10, 1)} cm hoog</strong>: past onder lage meubels`);
   if (lidar) p.voeg(41, "navigatie", `<strong>LiDAR-navigatie</strong>: maakt een plattegrond en zuigt systematisch`);
   if (ja(r.obstakeldetectie)) p.voeg(42, "obstakel", `<strong>Ontwijkt obstakels</strong> zoals snoeren en sokken`);
   if (ja(r.natDweilen)) p.voeg(43, "dweilen", `<strong>Zuigt én dweilt</strong>`);
