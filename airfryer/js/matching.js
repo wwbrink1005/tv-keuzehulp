@@ -16,104 +16,125 @@ export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_
   return { effectiveMin, result };
 }
 
-// Airfryers hebben geen fysieke pasvorm-eis zoals vaatwasser (inbouw/
-// vrijstaand) of wasmachine (capaciteit) — dus geen harde eerste filter.
-// Alle vragen zijn zachte, gracieus degraderende voorkeursfilters die in
-// cascade worden toegepast op de volledige catalogus.
+// ───────── Matching per airfryer (sinds 25-10-2026) ─────────
+// Zelfde opzet als de andere keuzehulpen: het budget is een harde grens, elke
+// airfryer krijgt een passcore en de lijst is alles wat dicht bij de top zit.
+// Vroeger: filters na elkaar (ook op grillen/braden, die bij de helft
+// gewoon niet ingevuld zijn) en de goedkoopste als "beste match".
+//
+// Passcore = 100
+//   - een wens (dubbele mand of juist 1 mand, kijkglas, stomen) die hij niet
+//     heeft: −150, onbekend: −40
+//   - personen: −3 per liter te weinig inhoud (onbekend −6)
+//   - compact gewenst: −1,5 per dm² meer aanrechtruimte dan de kleinste van de
+//     lijst (onbekend −6)
+//   - prijs: de duurste in de lijst verliest tot 5 punten
+// `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
+const WENS_STRAF = 150, WENS_ONBEKEND = 40;
+export const BAND_BESTE = 4;
+const BAND_LIJST = 10;
+const MIN_LIJST = 5;
+const MAX_LIJST = 30;
+const PRIJS_GEWICHT = 5;
 
-// ─── Personen (via capaciteit in liter) ─────────────────────────────────────
+export const lijst = a => (Array.isArray(a) ? a : []).filter(v => v !== "geen");
+export const WENSEN = ["kijkglas", "stomen"];
+export const extraWensen = a => lijst(a?.extraAnswers).filter(w => WENSEN.includes(w));
 
-export function applyPersonenFilter(airfryers, personen) {
+/** Heeft de airfryer deze wens? true / false / null (onbekend). */
+export function heeftWens(af, wens) {
+  switch (wens) {
+    case "kijkglas": return af.heeftKijkglas;
+    case "stomen": return af.kanStomen;
+    case "dubbel": return af.dubbel;
+    case "enkel": return af.dubbel === null ? null : !af.dubbel;
+    default: return true;
+  }
+}
+
+/** Mand-wens uit de antwoorden: "dubbel", "enkel" of "" (maakt niet uit). */
+export const mandWens = a => (a?.dubbeleMand === "ja" ? "dubbel" : a?.dubbeleMand === "nee" ? "enkel" : "");
+
+/** Groot genoeg voor het aantal personen? true / false / null. */
+export function genoegInhoud(af, personen) {
   const min = capaciteitLiterMin[personen];
-  if (min === undefined) return airfryers;
-  const filtered = airfryers.filter(a => a.capaciteitLiter !== null && a.capaciteitLiter >= min);
-  return filtered.length > 0 ? filtered : airfryers;
+  if (!min) return true;
+  return Number.isFinite(af.capaciteitLiter) ? af.capaciteitLiter >= min : null;
 }
 
-// ─── Constructietype (enkele/dubbele mand) ─────────────────────────────────
+const straf = h => (h === true ? 0 : h === false ? WENS_STRAF : WENS_ONBEKEND);
 
-export function applyConstructietypeFilter(airfryers, dubbeleMand) {
-  if (dubbeleMand === "ja") {
-    const dubbel = airfryers.filter(a => a.constructietype === "Dubbel");
-    return dubbel.length > 0 ? dubbel : airfryers;
+function straffen(af, a, ctx) {
+  let s = 0;
+  if (mandWens(a)) s += straf(heeftWens(af, mandWens(a)));
+  for (const w of extraWensen(a)) s += straf(heeftWens(af, w));
+  const min = capaciteitLiterMin[a.personen];
+  if (min) s += Number.isFinite(af.capaciteitLiter) ? Math.max(0, min - af.capaciteitLiter) * 3 : 6;
+  if (lijst(a.extraAnswers).includes("compact")) {
+    s += Number.isFinite(af.oppervlakDm2) ? (af.oppervlakDm2 - ctx.kleinste) * 1.5 : 6;
   }
-  if (dubbeleMand === "nee") {
-    const enkel = airfryers.filter(a => a.constructietype === "Enkel");
-    return enkel.length > 0 ? enkel : airfryers;
-  }
-  return airfryers;
+  return s;
 }
 
-// ─── Gebruik (grillen/braden/stomen/drogen) ────────────────────────────────
-
-export function applyGebruikFilter(airfryers, gebruik) {
-  if (gebruik === "grillen-braden") {
-    const f = airfryers.filter(a => a.grillen === "Ja" || a.braadfunctie === "Ja");
-    return f.length > 0 ? f : airfryers;
-  }
-
-  if (gebruik === "alles-in-1") {
-    const strict = airfryers.filter(a =>
-      a.grillen === "Ja" && a.braadfunctie === "Ja" && (a.stoomfunctie === "Ja" || a.dehydratiefunctie === "Ja")
-    );
-    if (strict.length > 0) return strict;
-    const relaxed = airfryers.filter(a => a.grillen === "Ja" && a.braadfunctie === "Ja");
-    if (relaxed.length > 0) return relaxed;
-    return airfryers;
-  }
-
-  // "frituren-bakken" (basisgebruik, vrijwel elke airfryer voldoet) of geen antwoord
-  return airfryers;
+// Plek van een prijs binnen een lijst: 0 = goedkoopste, 1 = duurste.
+function prijsPlek(pool) {
+  const prijzen = pool.map(af => parsePrice(af.prijs)).sort((x, y) => x - y);
+  return prijs => (prijzen.length < 2 ? 0 : prijzen.filter(x => x < prijs).length / (prijzen.length - 1));
 }
 
-// ─── Extra preferences (Functies) ──────────────────────────────────────────
-
-export function applyExtraFilter(airfryers, extraAnswers) {
-  if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
-    return airfryers;
-  }
-
-  let filtered = [...airfryers];
-
-  if (extraAnswers.includes("kijkglas")) {
-    const kg = filtered.filter(a => a.kijkglas === "Ja");
-    if (kg.length > 0) filtered = kg;
-  }
-
-  if (extraAnswers.includes("display")) {
-    const ds = filtered.filter(a => a.display === "Ja");
-    if (ds.length > 0) filtered = ds;
-  }
-
-  if (extraAnswers.includes("vaatwasserbestendig")) {
-    const vw = filtered.filter(a => a.vaatwasserbestendig === "Ja");
-    if (vw.length > 0) filtered = vw;
-  }
-
-  return filtered;
-}
-
-// ─── Main matching function ───────────────────────────────────────────────
-
-export function matchAirfryers(airfryers, answers) {
-  if (!Array.isArray(airfryers) || airfryers.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedAirfryers: [] };
-  }
-
-  let matched = applyPersonenFilter(airfryers, answers?.personen ?? "");
-  matched = applyConstructietypeFilter(matched, answers?.dubbeleMand ?? "");
-  matched = applyGebruikFilter(matched, answers?.gebruik ?? "");
-  matched = applyExtraFilter(matched, answers?.extraAnswers ?? []);
-
-  // Verplichte eindfallback: geen harde partitie hier, dus de volledige
-  // catalogus is zelf al de basis om op terug te vallen.
-  if (matched.length === 0) matched = [...airfryers];
-
-  const bestMatch = matched.reduce((cheapest, a) => {
-    return parsePrice(a.prijs) < parsePrice(cheapest.prijs) ? a : cheapest;
+export function scoreAirfryers(pool, answers = {}) {
+  const plek = prijsPlek(pool);
+  const opp = pool.map(af => af.oppervlakDm2).filter(Number.isFinite);
+  const ctx = { kleinste: opp.length ? Math.min(...opp) : 0 };
+  return pool.map(af => {
+    const wens = 100 - straffen(af, answers, ctx);
+    const fit = wens - PRIJS_GEWICHT * plek(parsePrice(af.prijs));
+    return { ...af, wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
   });
+}
 
-  return { bestMatch, bestType: "Algemeen", filteredMatchedAirfryers: matched };
+/** Beste match: de goedkoopste van de airfryers die even goed passen als de beste. */
+export function kiesBesteMatch(lijstIn) {
+  const metScore = (lijstIn ?? []).filter(af => Number.isFinite(af?.fit));
+  if (!metScore.length) return null;
+  const top = Math.max(...metScore.map(af => af.fit));
+  return metScore.filter(af => af.fit >= top - BAND_BESTE).reduce((x, y) => {
+    const px = parsePrice(x.prijs), py = parsePrice(y.prijs);
+    return py < px || (py === px && y.fit > x.fit) ? y : x;
+  });
+}
+
+/**
+ * @param {object[]} airfryers    genormaliseerde airfryers (utils.normalizeProducts)
+ * @param {object} answers        antwoorden uit de quiz (answers.budget: maximum of null)
+ * @param {number|null} [budget]  overschrijft answers.budget (null = zonder grens)
+ */
+export function matchAirfryers(airfryers, answers, budget = answers?.budget) {
+  const leeg = { bestMatch: null, bestType: null, filteredMatchedAirfryers: [], topWens: null };
+  if (!Array.isArray(airfryers) || airfryers.length === 0) return leeg;
+
+  const cap = Number(budget) || null;
+  const pool = airfryers.filter(af => !cap || parsePrice(af.prijs) <= cap);
+  if (pool.length === 0) return leeg;
+
+  const gescoord = scoreAirfryers(pool, answers ?? {}).sort((x, y) => y.fit - x.fit);
+  const top = gescoord[0].fit;
+  const uit = [];
+  let zichtbaar = 0;
+  for (const af of gescoord) {
+    if (zichtbaar >= MAX_LIJST) break;
+    if (af.fit < top - BAND_LIJST && zichtbaar >= MIN_LIJST) break;
+    uit.push(af);
+    if ((af.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS) zichtbaar++;
+  }
+  uit.sort((x, y) => parsePrice(x.prijs) - parsePrice(y.prijs));
+
+  return {
+    bestMatch: kiesBesteMatch(uit),
+    bestType: "Algemeen",
+    filteredMatchedAirfryers: uit,
+    topWens: Math.max(...uit.map(af => af.wens)),
+  };
 }
 
 // De kaartpunten ("Waarom dit bij jou past") staan in punten.js.

@@ -53,6 +53,13 @@ export function normalizeProducts(rawProducts) {
     const afbeeldingen = Array.isArray(product.icecat_afbeeldingen) ? product.icecat_afbeeldingen : [];
 
     if (!product.merk) return [];
+    // Geen inhoud en geen type: een accessoire (Philips HD9959/00 grillpan), geen airfryer
+    if (!Number.isFinite(product.capaciteitLiter) && !product.constructietype) return [];
+
+    // Okt. 2026: true / false / null, onbekend is niet "nee" (zie data.js)
+    const jaNee = v => (v === "Ja" ? true : v === "Nee" ? false : null);
+    const mm = v => (Number.isFinite(v) && v > 0 ? (v < 100 ? v * 10 : v) : null);
+    const b = mm(product.breedte), d = mm(product.diepte);
 
     return [{
       merk:                 product.merk,
@@ -72,6 +79,14 @@ export function normalizeProducts(rawProducts) {
       dehydratiefunctie:    product.dehydratiefunctie ?? "Nee",
       warmhoudfunctie:      product.warmhoudfunctie ?? "Nee",
       kijkglas:             product.kijkglas ?? "Nee",
+      heeftKijkglas:        jaNee(product.kijkglasRaw),
+      // Stomen: Icecat "Stoomfunctie" of de naam (Philips 5000 "Met Stoomfunctie")
+      kanStomen:            product.stoomRaw === "Ja" || /stoom|steam/i.test(naam) ? true : jaNee(product.stoomRaw),
+      dubbel:               product.constructietype === "Dubbel" ? true : product.constructietype === "Enkel" ? false : null,
+      // Oppervlak op het aanrecht (dm²), voor "compact"
+      oppervlakDm2:         b && d ? Math.round(b * d / 1000) / 10 : null,
+      breedteMm:            b,
+      diepteMm:             d,
       display:              product.display ?? "Nee",
       vaatwasserbestendig:  product.vaatwasserbestendig ?? "Nee",
       kleur:                product.kleur ?? "",

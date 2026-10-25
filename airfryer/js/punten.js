@@ -6,6 +6,7 @@ import {
   maakContext, vergelijk, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
 import { capaciteitLiterMin } from "./data.js";
+import { extraWensen, heeftWens } from "./matching.js";
 
 const HUISHOUDEN = { klein: "1 tot 2 personen", gemiddeld: "3 tot 4 personen", groot: "5 personen of meer" };
 
@@ -14,6 +15,7 @@ export function buildContext(lijst, naam) {
     liter: (p) => p.capaciteitLiter,
     watt: (p) => p.vermogenWatt,
     programmas: (p) => p.aantalProgrammas,
+    opp: (p) => p.oppervlakDm2,
   });
 }
 
@@ -31,19 +33,16 @@ function functies(a) {
 export function buildResultPoints(f, answers, ctx) {
   const p = puntenLijst();
   const a = answers || {};
-  const wensen = Array.isArray(a.extraAnswers) ? a.extraAnswers : [];
-  const wil = (x) => wensen.includes(x);
 
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
   const vink = (onderwerp, tekst) => { delen.push(`<strong>${tekst}</strong>`); p.gebruikt.add(onderwerp); };
-  if (a.dubbeleMand === "ja" && f.constructietype === "Dubbel") vink("mand", "dubbele mand");
-  if ((a.gebruik === "grillen-braden" || a.gebruik === "alles-in-1") && functies(f).length) {
-    vink("functies", `ook ${functies(f).join("/")}`);
+  if (a.dubbeleMand === "ja" && f.dubbel === true) vink("mand", "dubbele mand");
+  for (const w of extraWensen(a)) if (heeftWens(f, w) === true) vink(w, { kijkglas: "kijkglas", stomen: "ook stomen" }[w]);
+  // compact: hooguit 1 dm² groter dan de kleinste van de lijst
+  if ((a.extraAnswers ?? []).includes("compact") && Number.isFinite(f.oppervlakDm2) && ctx.opp?.length && f.oppervlakDm2 <= ctx.opp[0] + 1) {
+    vink("compact", "compact");
   }
-  if (wil("kijkglas") && ja(f.kijkglas)) vink("kijkglas", "kijkglas");
-  if (wil("display") && ja(f.display)) vink("display", "display");
-  if (wil("vaatwasserbestendig") && ja(f.vaatwasserbestendig)) vink("vaatwasser", "vaatwasserbestendig");
   zochtRegel(p, delen);
 
   // 2. Wat deze kaart onderscheidt binnen de lijst
@@ -68,7 +67,9 @@ export function buildResultPoints(f, answers, ctx) {
   // 4. Kenmerken waar niet om gevraagd is, en het vangnet
   if (f.constructietype === "Dubbel") p.voeg(40, "mand", `<strong>Dubbele mand</strong>: 2 gerechten tegelijk, elk op hun eigen stand`);
   if (functies(f).length >= 2) p.voeg(41, "functies", `<strong>Meer dan frituren</strong>: ook ${functies(f).join(", ").replace(/, ([^,]*)$/, " en $1")}`);
-  if (ja(f.kijkglas)) p.voeg(42, "kijkglas", `<strong>Kijkglas</strong>: je ziet je eten zonder de mand te openen`);
+  if (f.heeftKijkglas === true) p.voeg(42, "kijkglas", `<strong>Kijkglas</strong>: je ziet je eten zonder de mand te openen`);
+  if (f.kanStomen === true) p.voeg(42, "stomen", `<strong>Stoomfunctie</strong>: ook groente en vis stomen`);
+  if (f.breedteMm && f.diepteMm) p.voeg(95, "maat", `<strong>${getal(f.breedteMm / 10)} × ${getal(f.diepteMm / 10)} cm</strong> op het aanrecht`);
   if (ja(f.vaatwasserbestendig)) p.voeg(43, "vaatwasser", `<strong>Vaatwasserbestendige</strong> mand en onderdelen`);
   if (Number.isFinite(f.capaciteitLiter)) p.voeg(90, "liter", `<strong>${getal(f.capaciteitLiter, 1)} liter</strong> inhoud`);
   if (Number.isFinite(f.vermogenWatt)) p.voeg(91, "watt", `<strong>${getal(f.vermogenWatt)} watt</strong> vermogen`);

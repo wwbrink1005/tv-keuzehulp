@@ -4,10 +4,10 @@
 // het eten op de plank ervoor zijn transparante lagen (render/scene.py). Het display
 // tekent de pagina zelf in perspectief. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, placeQuad } from "../../shared/quiz3d.js";
-import { matchAirfryers } from "../js/matching.js";
-import { normalizeProducts } from "../js/utils.js";
+import { matchAirfryers, heeftWens, mandWens } from "../js/matching.js";
+import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
-import { capaciteitLiterMin } from "../js/data.js";
+import { capaciteitLiterMin, budgetCaps } from "../js/data.js";
 
 const camera = makeCamera({ camX: -0.72, camY: -1.9, camZ: 1.42, shiftX: -0.12, shiftY: -0.12 });
 const productsPromise = fetchProducts().catch(() => null);
@@ -25,8 +25,8 @@ async function productenOfFout() {
 // geometrie (m) zoals in render/scene.py: airfryer op het werkblad (z = 0.9), plank ervoor
 const Z0 = 0.9, AX = -0.66, AYB = -0.07;
 const SIZES = { klein: [0.25, 0.3, 0.29], gemiddeld: [0.29, 0.35, 0.32], groot: [0.33, 0.39, 0.35], dubbel: [0.42, 0.37, 0.32] };
-const BOARD = { x: -0.98, y: -0.43 };
 const sizeOf = st => (st.q >= 1 && st.dubbeleMand === "ja" ? "dubbel" : st.personen ?? "gemiddeld");
+const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
 const dims = st => { const [w, d, h] = SIZES[sizeOf(st)]; return { w, d, h, x0: AX - w / 2, x1: AX + w / 2, yf: AYB - d }; };
 function dispCorners(st) {
   const { h, yf } = dims(st), pz0 = Z0 + h * 0.64, pz1 = Z0 + h - 0.035, zc = (pz0 + pz1) / 2, y = yf - 0.0056;
@@ -49,22 +49,80 @@ const Q = [
     options: [{ v: "ja", label: "Ja, dubbele mand", price: "€€€" }, { v: "nee", label: "Nee, 1 mand is genoeg", price: "€" }, { v: "maakt-niet-uit", label: "Maakt me niet uit", price: "€€" }],
   },
   {
-    id: "gebruik", type: "radio",
-    title: "Wat wil je er vooral mee doen?",
-    sub: "Op de plank zie je wat je ermee maakt.",
-    why: "Elke airfryer kan frituren en bakken. Wil je ook grillen en braden, dan zoeken we naar modellen met die extra functies. Wil je een echt alles-in-1-apparaat dat ook kan stomen of drogen/dehydrateren, dan zoeken we naar de meest veelzijdige modellen.",
-    options: [{ v: "frituren-bakken", label: "Vooral frituren en bakken", price: "€" }, { v: "grillen-braden", label: "Ook grillen en braden", price: "€€" }, { v: "alles-in-1", label: "Ook bakken, stomen en drogen (alles-in-1)", price: "€€€" }],
+    id: "budget", type: "radio",
+    title: "Wat wil je maximaal uitgeven?",
+    sub: "Je krijgt de beste airfryer binnen je budget.",
+    why: "Met je budget zoeken we de beste airfryer die je ook echt wilt kopen. Met een dubbele mand ligt de prijs hoger, dus de bedragen passen bij je vorige keuze. Past een airfryer die nog beter bij je wensen past net niet binnen je bedrag, dan laten we dat op de resultaatpagina zien.",
+    options: [],
   },
   {
     id: "extra", type: "check", exclusive: "geen",
     title: "Nog iets belangrijk?",
     sub: "Je keuzes verschijnen op de airfryer.",
-    why: "Een kijkglas laat je het eten zien tijdens het bakken, zonder de mand open te trekken. Een ingebouwd display maakt instellen makkelijker. Vaatwasserbestendige onderdelen schelen afwas. Je kunt meerdere opties aanvinken.",
-    options: [{ v: "kijkglas", label: "Kijkglas (zie je het eten tijdens het bakken)", price: "€€" }, { v: "display", label: "Ingebouwd display", price: "€€" }, { v: "vaatwasserbestendig", label: "Vaatwasserbestendige onderdelen", price: "€€" }, { v: "geen", label: "Geen voorkeur", price: "€" }],
+    why: "Een kijkglas laat je het eten zien tijdens het bakken, zonder de mand open te trekken. Met een stoomfunctie kun je ook groente en vis stomen, en blijft vlees sappiger. Compact: de airfryer neemt zo min mogelijk ruimte in op het aanrecht. Een display, timer en vaatwasserbestendige mand heeft vrijwel elke airfryer.",
+    options: [
+      { v: "kijkglas", label: "Kijkglas: het eten zien tijdens het bakken", price: "€€" },
+      { v: "stomen", label: "Ook stomen", price: "€€€" },
+      { v: "compact", label: "Compact: weinig ruimte op het aanrecht", price: "€" },
+      { v: "geen", label: "Geen extra wensen", price: "€" },
+    ],
   },
 ];
 
-const ETEN = { "frituren-bakken": "friet", "grillen-braden": "grill", "alles-in-1": "alles" };
+// Sinds okt. 2026: geen gebruiksvraag meer (grillen/braden/drogen staan bij de
+// helft van de airfryers niet ingevuld, terwijl vrijwel elke airfryer het kan).
+const capsVoor = st => budgetCaps[st.dubbeleMand === "ja" ? "dubbel" : st.dubbeleMand === "nee" ? "enkel" : "alles"];
+const vraag = st => {
+  const q = Q[st.q];
+  if (q.id !== "budget") return q;
+  return { ...q, options: [...capsVoor(st).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }] };
+};
+
+// ───────── live catalogus: budgettelling en grijze opties ─────────
+let catalogus = null;
+const capVan = v => (v && v !== "geen" ? Number(v) : null);
+const zichtbaarIn = st => (catalogus ?? []).filter(af => (af.aanbieders ?? []).length >= 2 && (!mandWens(st) || heeftWens(af, mandWens(st)) === true));
+const welke = st => (st.dubbeleMand === "ja" ? "airfryers met een dubbele mand" : st.dubbeleMand === "nee" ? "airfryers met 1 mand" : "airfryers");
+function budgetCaption(st) {
+  const cap = capVan(st.budget);
+  if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste airfryer binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
+  if (!catalogus) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", cap ? "We zoeken de beste airfryer binnen dit bedrag." : "We kiezen puur op je wensen."];
+  const prijzen = zichtbaarIn(st).map(af => parsePrice(af.prijs));
+  if (!prijzen.length) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", "We zoeken de beste airfryer die bij je keuzes past."];
+  const binnen = cap ? prijzen.filter(x => x <= cap) : prijzen;
+  if (!cap) return ["Geen voorkeur", `Alle ${prijzen.length} ${welke(st)} doen mee, van ${euro(Math.min(...prijzen))} tot ${euro(Math.max(...prijzen))}.`];
+  if (!binnen.length) return [`Tot ${euro(cap)}`, `Geen ${welke(st)} tot ${euro(cap)}; de goedkoopste kost ${euro(Math.min(...prijzen))}. We tonen dan de best passende.`];
+  return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} ${welke(st)} ${binnen.length === 1 ? "kost" : "kosten"} ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}.`];
+}
+// Grijs als geen airfryer bij 2+ winkels binnen mand en budget het zeker
+// heeft, samen met de andere aangevinkte wens.
+const EIS = { extra: { kijkglas: af => heeftWens(af, "kijkglas") === true, stomen: af => heeftWens(af, "stomen") === true } };
+function metBeschikbaarheid(st, q) {
+  if (!catalogus || !EIS[q.id]) return q;
+  const cap = capVan(st.budget), alle = zichtbaarIn(st);
+  const binnen = cap ? alle.filter(af => parsePrice(af.prijs) <= cap) : alle;
+  return { ...q, options: q.options.map(o => {
+    const eis = EIS[q.id][o.v];
+    if (!eis) return o;
+    let andere = st.extra.filter(e => e !== o.v && EIS.extra[e]).map(e => EIS.extra[e]);
+    if (!binnen.some(af => andere.every(f => f(af)))) andere = [];
+    if (binnen.some(af => eis(af) && andere.every(f => f(af)))) return o;
+    if (!alle.some(eis)) return { ...o, disabled: true, note: `Geen van deze ${welke(st)} heeft dat.` };
+    const erboven = alle.filter(af => eis(af) && andere.every(f => f(af))).map(af => parsePrice(af.prijs));
+    const note = cap && erboven.length ? (andere.length && binnen.some(eis) ? `Samen met je andere keuze pas vanaf ${euro(Math.min(...erboven))}.` : `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`)
+      : "Niet in combinatie met je andere keuzes.";
+    return { ...o, disabled: true, note };
+  }) };
+}
+function extraCaption(st) {
+  const wensen = st.extra.filter(e => EIS.extra[e]);
+  if (!st.extra.some(e => e !== "geen")) return st.extra.length ? ["Geen extra wensen", "We kijken dan naar inhoud, manden en prijs."] : ["Extra's", "Vink aan wat je belangrijk vindt; het verschijnt op de airfryer."];
+  if (!catalogus || !wensen.length) return ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."];
+  const cap = capVan(st.budget);
+  const l = zichtbaarIn(st).filter(af => !cap || parsePrice(af.prijs) <= cap);
+  const n = l.filter(af => wensen.every(w => EIS.extra[w](af))).length;
+  return ["Jouw extra's", `${n} van de ${l.length} ${welke(st)}${cap ? " binnen je budget" : ""} ${n === 1 ? "heeft" : "hebben"} zeker ${wensen.length > 1 ? "alles wat je koos" : wensen[0] === "kijkglas" ? "een kijkglas" : "een stoomfunctie"}.`];
+}
 const tag = (p, html) => `<div class="tag is-on" style="left:${p.x}px;top:${Math.max(p.y, 56)}px">${html}</div>`;
 const above = (ctx, st) => ctx.toPx(AX, dims(st).yf, Z0 + dims(st).h + 0.07);
 
@@ -97,15 +155,12 @@ function overlays(ctx) {
     const t = { ja: "<b>2 manden</b> <span class=\"muted\">elk een eigen tijd en temperatuur</span>", nee: "<b>1 mand</b> <span class=\"muted\">compacter en voordeliger</span>", "maakt-niet-uit": "<b>1 of 2 manden</b> <span class=\"muted\">allebei goed</span>" }[st.dubbeleMand];
     return { svg: "", html: tag(above(ctx, st), t) };
   }
-  if (st.q === 2 && st.gebruik) {
-    const t = { "frituren-bakken": "<b>Frituren en bakken</b> <span class=\"muted\">dat kan elke airfryer</span>", "grillen-braden": "<b>Grillen en braden</b> <span class=\"muted\">met grill- of braadfunctie</span>", "alles-in-1": "<b>Alles-in-1</b> <span class=\"muted\">ook bakken, stomen en drogen</span>" }[st.gebruik];
-    return { svg: "", html: tag(ctx.toPx(BOARD.x, BOARD.y, Z0 + 0.16), t) };
-  }
+
   if (st.q === 3) {
     const e = st.extra, pts = [], c = sizeOf(st) === "dubbel" ? AX - D.w / 4 : AX;
-    if (e.includes("display")) pts.push({ w: [AX + 0.03, D.yf - 0.006, Z0 + D.h * 0.8], label: "<b>Display</b>: tijd en temperatuur instellen" });
+    if (e.includes("stomen")) pts.push({ w: [AX + 0.03, D.yf - 0.006, Z0 + D.h * 0.8], label: "<b>Stomen</b>: ook groente en vis" });
     if (e.includes("kijkglas")) pts.push({ w: [c, D.yf - 0.02, Z0 + D.h * 0.43], label: "<b>Kijkglas</b>: eten zien zonder de mand open te trekken" });
-    if (e.includes("vaatwasserbestendig")) pts.push({ w: [c + 0.03, D.yf - 0.07, Z0 + D.h * 0.2], label: "<b>Vaatwasserbestendig</b>: mand en rooster mogen in de vaatwasser" });
+    if (e.includes("compact")) pts.push({ w: [c + 0.03, D.yf - 0.07, Z0 + D.h * 0.05], label: "<b>Compact</b>: weinig ruimte op het aanrecht" });
     return spots(ctx, pts, D.x1 + 0.02, D.yf);
   }
   return {};
@@ -123,36 +178,34 @@ function afterRender(ctx) {
   placeQuad(disp, 300, 106, dispCorners(ctx.st).map(p => ctx.toPx(...p)));
 }
 
-createQuiz3D({
+const quiz = createQuiz3D({
   camera,
   steps: 4,
-  state: { personen: null, dubbeleMand: null, gebruik: null, extra: [] },
+  state: { personen: null, dubbeleMand: null, budget: null, extra: [] },
   imgPath: n => `airfryer/vragen/img/${n}.webp`,
-  question: st => Q[st.q],
+  question: st => metBeschikbaarheid(st, vraag(st)),
   setup, afterRender, overlays,
 
   images(st) {
     const glas = st.q >= 3 && st.extra.includes("kijkglas") ? "-glas" : "";
-    const list = ["keuken", `af-${sizeOf(st)}${glas}`];
-    if (st.q >= 2 && st.gebruik) list.push(`eten-${ETEN[st.gebruik]}`);
-    return list;
+    return ["keuken", `af-${sizeOf(st)}${glas}`];
   },
 
   focus: st => [
     { x: AX, y: -0.25, z: 1.05, zoom: 1.5 },
     { x: AX, y: -0.25, z: 1.05, zoom: 1.5 },
-    { x: -0.82, y: -0.35, z: 1.0, zoom: 1.35 },
+    { x: AX, y: -0.25, z: 1.05, zoom: 1.5 },
     { x: AX, y: -0.25, z: 1.05, zoom: 1.7, anchorX: 0.35 },
   ][st.q],
   focusDesktop: st => [
     { x: AX, y: -0.25, z: 1.07, zoom: 1.45, anchorX: 0.64 },
     { x: AX, y: -0.25, z: 1.07, zoom: 1.45, anchorX: 0.64 },
-    { x: -0.82, y: -0.35, z: 1.03, zoom: 1.4, anchorX: 0.62 },
+    { x: AX, y: -0.25, z: 1.07, zoom: 1.45, anchorX: 0.64 },
     // airfryer iets links van het midden: rechts is dan ruimte voor de (lange) labels
     { x: AX, y: -0.25, z: 1.07, zoom: 1.45, anchorX: sizeOf(st) === "dubbel" ? 0.47 : 0.5 },
   ][st.q],
 
-  hideCaption: (st, mobile) => !mobile && st.q === 3 && st.extra.some(e => e !== "geen"),
+  hideCaption: (st, mobile) => !mobile && st.q === 3 && st.extra.some(e => e !== "geen") && !st.extra.some(e => EIS.extra[e]),
 
   caption(st) {
     switch (st.q) {
@@ -166,19 +219,23 @@ createQuiz3D({
         nee: ["1 mand", "Compacter en vaak voordeliger."],
         "maakt-niet-uit": ["Maakt niet uit", "We houden modellen met 1 en 2 manden in beeld."],
       }[st.dubbeleMand] ?? ["Manden", "Kies of je 2 gerechten tegelijk wilt kunnen maken."];
-      case 2: return {
-        "frituren-bakken": ["Frituren en bakken", "Friet en snacks: dat kan elke airfryer."],
-        "grillen-braden": ["Grillen en braden", "We zoeken modellen met een grill- of braadfunctie."],
-        "alles-in-1": ["Alles-in-1", "We zoeken de meest veelzijdige modellen: ook bakken, stomen en drogen."],
-      }[st.gebruik] ?? ["Gebruik", "Kies wat je er vooral mee wilt doen."];
-      default: return st.extra.includes("geen") ? ["Geen voorkeur", "We kijken dan naar inhoud, manden en functies."] : ["Extra's", "Vink aan wat je belangrijk vindt; het verschijnt op de airfryer."];
+      case 2: return budgetCaption(st);
+      default: return extraCaption(st);
     }
   },
 
+  // Terug naar vraag 2: de mandkeuze bepaalt de budgetbedragen.
+  onBack(st) { if (st.q <= 1) st.budget = null; },
+
+  onNext(st, id) { meetStap(st, id); },
+
   async finish(st) {
-    const answers = { personen: st.personen ?? "", dubbeleMand: st.dubbeleMand ?? "", gebruik: st.gebruik ?? "", extraAnswers: st.extra };
-    const raw = await productenOfFout();
-    const result = matchAirfryers(normalizeProducts(raw ?? []), answers);
+    meetStap(st, "extra");
+    const answers = { personen: st.personen ?? "", dubbeleMand: st.dubbeleMand ?? "", budget: capVan(st.budget), extraAnswers: st.extra };
+    const airfryers = normalizeProducts(await productenOfFout());
+    // Beste match binnen het budget; past er niets binnen, dan zonder grens.
+    let result = matchAirfryers(airfryers, answers);
+    if (answers.budget && !result.bestMatch) result = matchAirfryers(airfryers, answers, null);
     localStorage.setItem("airfryer_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("airfryer_bestType", result.bestType ?? "");
     localStorage.setItem("airfryer_filteredMatchedAirfryers", JSON.stringify(result.filteredMatchedAirfryers));
@@ -186,5 +243,22 @@ createQuiz3D({
     window.location.href = "airfryer/resultaat/";
   },
 
-  preload: ["af-gemiddeld", "af-klein", "af-groot", "af-dubbel", "eten-friet", "eten-grill", "eten-alles", "af-gemiddeld-glas"],
+  preload: ["af-gemiddeld", "af-klein", "af-groot", "af-dubbel", "af-gemiddeld-glas"],
+});
+
+// Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)
+function meetStap(st, id) {
+  const v = st[id];
+  window.phTrackEvent?.("quiz_stap", {
+    categorie: "airfryer", stap: id, nr: Q.findIndex(q => q.id === id) + 1,
+    antwoord: Array.isArray(v) ? [...v].sort().join("+") : String(v ?? ""),
+  });
+}
+
+// Grijze opties en live tellingen zodra de catalogus binnen is
+productsPromise.then(raw => {
+  if (!raw?.length) return;
+  catalogus = normalizeProducts(raw);
+  if (quiz.st.q >= 2) quiz.renderQuestion();
+  quiz.render();
 });

@@ -10,6 +10,12 @@ export const capaciteitLiterMin = {
   groot:     8,
 };
 
+// ─── Budgetvraag (sinds okt. 2026) ─────────────────────────────────────────
+// Twee maximumbedragen, plus "Geen voorkeur". Met een dubbele mand ligt de
+// prijs hoger, dus eigen bedragen; "maakt niet uit" krijgt die van alles.
+// Rond een derde en twee derde van de prijzen (live, 2+ winkels, okt. 2026).
+export const budgetCaps = { enkel: [100, 120], dubbel: [150, 200], alles: [110, 140] };
+
 // ─── Static fallback price groups (alleen als de dynamische berekening niets
 // oplevert, bv. vóór de catalogus geladen is) ───────────────────────────────
 export const priceGroupsFallback = [

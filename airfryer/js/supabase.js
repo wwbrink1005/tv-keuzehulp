@@ -68,6 +68,9 @@ function adaptRow(row) {
     dehydratiefunctie:    parseJaNee(row.dehydratiefunctie),
     warmhoudfunctie:      parseJaNee(row.warmhoudfunctie),
     kijkglas:             parseJaNee(row.kijkglas),
+    // Ruwe waarden: leeg = onbekend (parseJaNee maakt daar "Nee" van)
+    kijkglasRaw:          row.kijkglas ?? "",
+    stoomRaw:             row.stoomfunctie ?? "",
     display:              parseJaNee(row.display),
     displayType:          row.display_type ?? "",
     bediening:            row.bediening ?? "",
