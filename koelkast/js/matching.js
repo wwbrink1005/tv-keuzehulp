@@ -1,7 +1,11 @@
-import { gezinsgrootteMinCapaciteit, EXTRA_CHECKS } from "./data.js";
+import { gezinsgrootteMinCapaciteit, WENS, VRIEZER_WENS } from "./data.js";
 import { parsePrice } from "./utils.js";
+import { klant, isUitgezet } from "../../shared/klant.js";
 
 export const DEFAULT_MIN_AANBIEDERS = 2;
+// Wat telt als "zichtbaar" voor de lijstlengte en de budgetkaart. In de B2B-
+// embed is de klant de enige winkel, dus daar telt elke koelkast.
+export const MIN_ZICHTBAAR = klant ? 1 : DEFAULT_MIN_AANBIEDERS;
 
 export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
   const countAanbieders = item => (item.aanbieders ?? []).length;
@@ -16,111 +20,148 @@ export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_
   return { effectiveMin, result };
 }
 
-// A fridge has no natural performance-tier axis the way a GPU or monitor
-// panel does, so this category intentionally does NOT use a Budget/Mid/
-// Premium tier-scoring cascade. Instead: a hard plaatsing filter, a
-// gracefully-degrading sub-type filter, and soft preference filters — each
-// one narrows only if doing so doesn't zero out the candidate set.
-
-// ─── Hard filter: inbouw vs vrijstaand ─────────────────────────────────────────
+// ─── Harde filters: inbouw/vrijstaand en type of nis ──────────────────────────
 
 export function filterByPlaatsing(koelkasten, plaatsing) {
   if (plaatsing === "inbouw") return koelkasten.filter(k => k.plaatsing === "inbouw");
   return koelkasten.filter(k => k.plaatsing !== "inbouw");
 }
 
-// ─── Sub-partition: nishoogte bucket (inbouw) or vrijstaand-type ──────────────
-// Mandatory graceful degrade: if the exact bucket has zero matches, widen out
-// to the full plaatsing-filtered set instead of returning empty.
-
+// Gracieus: heeft de gekozen nis of het type geen enkele koelkast, dan alle
+// koelkasten van die plaatsing in plaats van een lege lijst.
 export function filterBySubGroup(koelkasten, plaatsing, subGroup) {
   if (!subGroup) return koelkasten;
-
-  if (plaatsing === "inbouw") {
-    const matched = koelkasten.filter(k => k.nishoogteGroup === Number(subGroup));
-    return matched.length > 0 ? matched : koelkasten;
-  }
-
-  const matched = koelkasten.filter(k => k.vrijstaandType === subGroup);
+  const matched = plaatsing === "inbouw"
+    ? koelkasten.filter(k => k.nishoogteGroup === Number(subGroup))
+    : koelkasten.filter(k => k.vrijstaandType === subGroup);
   return matched.length > 0 ? matched : koelkasten;
 }
 
-// ─── Soft preference: gezinsgrootte → hogere netto inhoud ─────────────────────
+/** Plaatsing + type/nis: de koelkasten die mogen meedoen (zonder budget). */
+export function poolVoor(koelkasten, answers) {
+  const opPlaatsing = filterByPlaatsing(koelkasten, answers?.plaatsing);
+  const sub = answers?.plaatsing === "inbouw" ? answers?.nishoogte : answers?.vrijstaandtype;
+  return filterBySubGroup(opPlaatsing, answers?.plaatsing, sub);
+}
 
-export function applyGezinsgrootteFilter(koelkasten, gezinsgrootte) {
+// ───────── Matching per koelkast (sinds 25-10-2026) ─────────
+// Zelfde opzet als de andere keuzehulpen: plaatsing, type/nis en budget zijn
+// een harde grens, elke koelkast krijgt een passcore en de lijst is alles wat
+// dicht bij de top zit. Vroeger: filters na elkaar en de goedkoopste als
+// "beste match", ook als die maar aan één wens voldeed.
+//
+// Passcore = 100
+//   - een wens (vriezer, extra) die hij niet heeft: −150, onbekend: −40
+//   - personen: −1,5 per 10 liter koelruimte te weinig (onbekend −5)
+//   - stil gewenst: −3 per dB boven het gemiddelde van de lijst (onbekend −4)
+//   - prijs: de duurste in de lijst verliest tot 5 punten
+// `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
+const WENS_STRAF = 150, WENS_ONBEKEND = 40;
+export const BAND_BESTE = 4;
+const BAND_LIJST = 10;
+const MIN_LIJST = 5;
+const MAX_LIJST = 30;
+const PRIJS_GEWICHT = 5;
+
+export const lijst = a => (Array.isArray(a) ? a : []).filter(v => v !== "geen");
+/** De extra's die als wens tellen (stil is een score, geen wens). */
+export const extraWensen = a => lijst(a?.extraAnswers).filter(w => WENS[w] && !isUitgezet(w));
+
+/** Vriezerwens uit de antwoorden ("" als die er niet is of niet geldt). */
+export const vriezerWens = a => (VRIEZER_WENS[a?.vriezer] ? a.vriezer : "");
+
+/** Heeft de koelkast deze wens? true / false / null (onbekend). */
+export function heeftWens(k, wens) {
+  if (VRIEZER_WENS[wens]) return VRIEZER_WENS[wens](k);
+  return WENS[wens] ? WENS[wens](k) : true;
+}
+
+/** Genoeg koelruimte voor het huishouden? true / false / null. */
+export function genoegInhoud(k, gezinsgrootte) {
   const min = gezinsgrootteMinCapaciteit[gezinsgrootte];
-  if (!min) return koelkasten;
-  const filtered = koelkasten.filter(k => k.nettoInhoudL !== null && k.nettoInhoudL >= min);
-  return filtered.length > 0 ? filtered : koelkasten;
+  if (!min) return true;
+  return Number.isFinite(k.nettoInhoudL) ? k.nettoInhoudL >= min : null;
 }
 
-// ─── Extra preferences (Q4) ─────────────────────────────────────────────────────
-
-export function applyExtraFilter(koelkasten, extraAnswers) {
-  if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
-    return koelkasten;
-  }
-
-  // Per wens versmallen, maar alleen als er dan nog iets overblijft
-  // (gracieus degraderen). Volgorde en regels staan in EXTRA_CHECKS
-  // (data.js), dezelfde definitie die de B2B-embed gebruikt om opties zonder
-  // data automatisch uit te zetten.
-  //
-  // Waterdispenser/ijsmaker komen vrijwel uitsluitend voor bij Amerikaanse/
-  // extra-brede koelkasten (84% resp. 38-42% dekking daar, vs. 1-4% bij
-  // standaard/inbouw/tafelmodel) — de vragenpagina toont ze dan ook alleen
-  // bij die types (isBreed in vragen.js), maar de filter zelf blijft
-  // generiek/gracieus zoals de rest.
-  let filtered = [...koelkasten];
-  for (const [wens, voldoet] of Object.entries(EXTRA_CHECKS)) {
-    if (!extraAnswers.includes(wens)) continue;
-    const subset = filtered.filter(voldoet);
-    if (subset.length > 0) filtered = subset;
-  }
-  return filtered;
+function wensStraf(heeft) {
+  if (heeft === true) return 0;
+  return heeft === false ? WENS_STRAF : WENS_ONBEKEND;
 }
 
-// ─── Main matching function ───────────────────────────────────────────────────
+function straffen(k, a, gemDb) {
+  let s = 0;
+  const vw = vriezerWens(a);
+  if (vw) s += wensStraf(heeftWens(k, vw));
+  for (const w of extraWensen(a)) s += wensStraf(heeftWens(k, w));
 
-export function matchKoelkasten(koelkasten, answers) {
-  if (!Array.isArray(koelkasten) || !answers?.plaatsing) {
-    return { bestMatch: null, bestType: null, filteredMatchedKoelkasten: [] };
+  const min = gezinsgrootteMinCapaciteit[a.gezinsgrootte];
+  if (min) s += Number.isFinite(k.nettoInhoudL) ? Math.max(0, min - k.nettoInhoudL) / 10 * 1.5 : 5;
+
+  if (lijst(a.extraAnswers).includes("stil") && !isUitgezet("stil")) {
+    s += Number.isFinite(k.geluidsniveauDb) ? Math.max(0, k.geluidsniveauDb - gemDb) * 3 : 4;
   }
+  return s;
+}
 
-  // 1. Hard filter: plaatsing
-  const filtered = filterByPlaatsing(koelkasten, answers.plaatsing);
-  if (filtered.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedKoelkasten: [] };
-  }
+// Plek van een prijs binnen een lijst: 0 = goedkoopste, 1 = duurste.
+function prijsPlek(pool) {
+  const prijzen = pool.map(k => parsePrice(k.prijs)).sort((x, y) => x - y);
+  return prijs => (prijzen.length < 2 ? 0 : prijzen.filter(x => x < prijs).length / (prijzen.length - 1));
+}
 
-  const subGroup = answers.plaatsing === "inbouw" ? answers.nishoogte : answers.vrijstaandtype;
-
-  // 2. Sub-partition (gracefully degrades internally)
-  let matched = filterBySubGroup(filtered, answers.plaatsing, subGroup);
-
-  // 3. Soft preference: gezinsgrootte
-  matched = applyGezinsgrootteFilter(matched, answers.gezinsgrootte);
-
-  // 4. Soft filters: extra's
-  matched = applyExtraFilter(matched, answers.extraAnswers ?? []);
-
-  // Mandatory end fallback: never return empty when the plaatsing-filtered
-  // set has stock.
-  if (matched.length === 0) {
-    let fallback = applyGezinsgrootteFilter(filtered, answers.gezinsgrootte);
-    fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
-    if (fallback.length === 0) fallback = [...filtered];
-    matched = fallback;
-  }
-
-  const bestType = answers.plaatsing === "inbouw" ? "Inbouw" : "Vrijstaand";
-
-  // Best match = cheapest in the matched set
-  const bestMatch = matched.reduce((cheapest, k) => {
-    return parsePrice(k.prijs) < parsePrice(cheapest.prijs) ? k : cheapest;
+export function scoreKoelkasten(pool, answers = {}) {
+  const plek = prijsPlek(pool);
+  const db = pool.map(k => k.geluidsniveauDb).filter(Number.isFinite);
+  const gemDb = db.length ? db.reduce((x, y) => x + y, 0) / db.length : 0;
+  return pool.map(k => {
+    const wens = 100 - straffen(k, answers, gemDb);
+    const fit = wens - PRIJS_GEWICHT * plek(parsePrice(k.prijs));
+    return { ...k, wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
   });
+}
 
-  return { bestMatch, bestType, filteredMatchedKoelkasten: matched };
+/** Beste match: de goedkoopste van de koelkasten die even goed passen als de beste. */
+export function kiesBesteMatch(lijstIn) {
+  const metScore = (lijstIn ?? []).filter(k => Number.isFinite(k?.fit));
+  if (!metScore.length) return null;
+  const top = Math.max(...metScore.map(k => k.fit));
+  return metScore.filter(k => k.fit >= top - BAND_BESTE).reduce((x, y) => {
+    const px = parsePrice(x.prijs), py = parsePrice(y.prijs);
+    return py < px || (py === px && y.fit > x.fit) ? y : x;
+  });
+}
+
+/**
+ * @param {object[]} koelkasten   genormaliseerde koelkasten (utils.normalizeProducts)
+ * @param {object} answers        antwoorden uit de quiz (answers.budget: maximum of null)
+ * @param {number|null} [budget]  overschrijft answers.budget (null = zonder grens)
+ */
+export function matchKoelkasten(koelkasten, answers, budget = answers?.budget) {
+  const leeg = { bestMatch: null, bestType: null, filteredMatchedKoelkasten: [], topWens: null };
+  if (!Array.isArray(koelkasten) || !answers?.plaatsing) return leeg;
+
+  const cap = Number(budget) || null;
+  const pool = poolVoor(koelkasten, answers).filter(k => !cap || parsePrice(k.prijs) <= cap);
+  if (pool.length === 0) return leeg;
+
+  const gescoord = scoreKoelkasten(pool, answers).sort((x, y) => y.fit - x.fit);
+  const top = gescoord[0].fit;
+  const uit = [];
+  let zichtbaar = 0;
+  for (const k of gescoord) {
+    if (zichtbaar >= MAX_LIJST) break;
+    if (k.fit < top - BAND_LIJST && zichtbaar >= MIN_LIJST) break;
+    uit.push(k);
+    if ((k.aanbieders ?? []).length >= MIN_ZICHTBAAR) zichtbaar++;
+  }
+  uit.sort((x, y) => parsePrice(x.prijs) - parsePrice(y.prijs));
+
+  return {
+    bestMatch: kiesBesteMatch(uit),
+    bestType: answers.plaatsing === "inbouw" ? "Inbouw" : "Vrijstaand",
+    filteredMatchedKoelkasten: uit,
+    topWens: Math.max(...uit.map(k => k.wens)),
+  };
 }
 
 // De kaartpunten ("Waarom dit bij jou past") staan in punten.js.

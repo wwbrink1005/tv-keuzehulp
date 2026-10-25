@@ -1,4 +1,5 @@
-import { classifyNishoogte, classifyPlaatsing, classifyVrijstaandType } from "./data.js";
+import { classifyNishoogte, classifyPlaatsing, classifyVrijstaandType, vriezerSoort } from "./data.js";
+import { klant } from "../../shared/klant.js";
 
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -54,6 +55,8 @@ export function normalizeProducts(rawProducts) {
     const afbeeldingen = Array.isArray(product.icecat_afbeeldingen) ? product.icecat_afbeeldingen : [];
 
     if (!product.merk) return [];
+    // Wijnkoelkasten horen niet in deze keuzehulp (Liebherr UW..., okt. 2026)
+    if (/wijn|\bwine\b/i.test(naam)) return [];
 
     const plaatsing = classifyPlaatsing(product.apparaatplaatsing);
     const vrijstaandType = plaatsing === "inbouw"
@@ -68,11 +71,20 @@ export function normalizeProducts(rawProducts) {
     const breedteMm = parseFloat(product.breedte_mm);
     const hoogteMm  = parseFloat(product.hoogte_mm);
     const diepteMm  = parseFloat(product.diepte_mm);
-    // Presence of either field is a good-enough signal for "heeft een
-    // vriesvak" — absence doesn't always mean "geen vriesvak" (Icecat mist
-    // deze spec soms ook bij modellen die er wél een hebben), maar dit is
-    // een zachte voorkeursfilter die gracieus degradeert, geen harde eis.
-    const heeftVriesvak = Boolean(product.vrieslades) || Boolean(product.vriescapaciteit);
+    // Vriezer en No Frost (okt. 2026), zie data.js vriezerSoort. Vroeger
+    // "heeft vrieslades of invriescapaciteit", maar ook koelkasten zonder
+    // vriesvak hebben bij Miele/Liebherr een invriescapaciteit ingevuld.
+    const vriezerL = parseFloat(product.vriezer_l);
+    const vriezer = vriezerSoort(Number.isFinite(vriezerL) ? vriezerL : null, naam, vrijstaandType, product.vrieslades);
+    // No Frost gaat over de vriezer. "automatisch_ontdooien" is bij Icecat
+    // en Liebherr het koelgedeelte (dat ontdooit vrijwel altijd vanzelf) en
+    // telt daarom alleen in klantdata (B2B), waar het No Frost betekent.
+    // Miele staat niet in Icecat en blokkeert scrapers: KFN = No Frost, KF niet.
+    const nfBron = product.nofrost_vriezer || (klant ? product.automatisch_ontdooien : "");
+    let nofrost = nfBron === "Ja" ? true : nfBron === "Nee" ? false : null;
+    if (nofrost === null && /\bKFN\s?\d/.test(naam)) nofrost = true;
+    else if (nofrost === null && /\bKF\s?\d/.test(naam)) nofrost = false;
+    if (vriezer === "zonder") nofrost = null;
 
     return [{
       merk:                  product.merk,
@@ -88,10 +100,13 @@ export function normalizeProducts(rawProducts) {
       energielabel:      product.energielabel ?? "",
       automatischOntdooien: product.automatisch_ontdooien ?? "",
       geluidsniveauDb:   Number.isFinite(geluidsniveauDb) ? geluidsniveauDb : null,
-      heeftVriesvak,
-      waterdispenser:    product.waterdispenser ?? "Nee",
-      ijsmaker:          product.ijsmaker       ?? "Nee",
-      versZone:          product.vers_zone      ?? "Nee",
+      vriezer,
+      vriezerL:          Number.isFinite(vriezerL) ? vriezerL : null,
+      nofrost,
+      // Leeg = onbekend, niet "Nee" (zie data.js WENS)
+      waterdispenser:    product.waterdispenser || "",
+      ijsmaker:          product.ijsmaker       || "",
+      versZone:          product.vers_zone      || "",
       afbeelding,
       afbeeldingen,
       aanbieders

@@ -62,6 +62,14 @@ kan `?bron=<pad>.json` de databron overschrijven (alleen op localhost/127.0.0.1)
 - **Geen `position: fixed` in de embed zonder correctie**: de iframe groeit mee en scrolt
   zelf niet, dus "vast" betekent vast t.o.v. de hele (lange) pagina. Zie `embed.css`.
 - **Hoogte meten tot het einde van de inhoud**, niet `scrollHeight` (krimpt nooit).
+- **De 2-winkelregel geldt niet in klantmodus**: elk klantproduct heeft één aanbieder (de klant).
+  Code die "zichtbaar" telt (lijstlengte, grijze opties, budgetkaart) gebruikt bij koelkast
+  `MIN_ZICHTBAAR` uit `matching.js` / `MIN_WINKELS` in `vragen.js`; met een vaste 2 wordt in de
+  embed alles grijs of verschijnt de hele categorie.
+- **Vriezeropties** (koelkast, okt. 2026) zetten zichzelf uit bij < 3 producten met sleutels
+  `vriezer-vriezer`, `vriezer-vriesvak`, `vriezer-zonder` (ook bruikbaar in `uitgezet`). Klantdata
+  heeft meestal geen vriezerinhoud; het type komt dan uit de titel ("koel-vriescombinatie",
+  "combi", "met/zonder vriesvak"). No Frost komt in klantmodus uit `automatisch_ontdooien`.
 - **Kleuren alleen via variabelen** (`--accent`, `--accent-dark`, `--c-accent`, ...).
   Doorzichtige tinten als `color-mix(in srgb, var(--accent) N%, transparent)`, pixelgelijk met
   het oude `rgba(9,84,163,…)`. `shared/quiz.css` (alleen tv-vragen) is nog niet omgezet.

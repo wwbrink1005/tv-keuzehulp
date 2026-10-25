@@ -1,4 +1,4 @@
-import { applyMinAanbiedersCascade } from "./matching.js";
+import { applyMinAanbiedersCascade, kiesBesteMatch } from "./matching.js";
 import { parsePrice, qs } from "./utils.js";
 import { fetchProducts } from "./supabase.js";
 import { resetProvidersRegistry } from "../../shared/aanbieders.js";
@@ -45,12 +45,15 @@ function displayOtherMatchesRedesign(lijst) {
 
   const minPrice = Math.min(...lijst.map(k => parsePrice(k.prijs)));
   const ctx = buildContext(lijst);
+  // Beste match uit de huidige (eventueel gefilterde) lijst
+  const beste = kiesBesteMatch(lijst);
 
   container.innerHTML = lijst
     .map((koelkast, index) => buildCardHtml({
       product: koelkast,
       index,
       isCheapest: parsePrice(koelkast.prijs) === minPrice,
+      isBeste: koelkast === beste,
       specs: buildSpecChips(koelkast),
       points: buildResultPoints(koelkast, currentAnswers, ctx),
     }))
@@ -81,10 +84,17 @@ const SORT_LABELS = {
   "price-desc": "Prijs (hoog-laag)"
 };
 
+// Op prijs, met de beste match bovenaan bij "laag-hoog"; bij "hoog-laag"
+// staat hij gewoon op zijn plek (zelfde als de andere keuzehulpen).
 function sortMatchesByPrice(matches, sortValue) {
   const list = Array.isArray(matches) ? [...matches] : [];
   list.sort((a, b) => parsePrice(a.prijs) - parsePrice(b.prijs));
-  if (sortValue === "price-desc") list.reverse();
+  if (sortValue === "price-desc") return list.reverse();
+  const beste = kiesBesteMatch(list);
+  if (beste) {
+    list.splice(list.indexOf(beste), 1);
+    list.unshift(beste);
+  }
   return list;
 }
 
@@ -155,6 +165,7 @@ function initSortControl() {
       const option = event.target.closest(".sort-option");
       if (!option) return;
       applySortAndRender(option.dataset.value || "price-asc");
+      window.phTrackEvent?.("sorteren", { categorie: "koelkast", volgorde: option.dataset.value || "price-asc" });
       setSortOpen(false);
     });
 

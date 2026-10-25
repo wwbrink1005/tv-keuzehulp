@@ -1,13 +1,21 @@
 // ─── Nishoogte groups (inbouw) ─────────────────────────────────────────────────
-// Real common niche-height values seen in the koelkasten catalog.
-export const nishoogteGroups = [88, 122, 140, 178, 194];
+// Real common niche-height values seen in the koelkasten catalog. 102 en 158
+// sinds okt. 2026: 22 inbouwkoelkasten (vooral de gangbare halfhoge nis van
+// 102 cm) vielen in geen enkele groep en verdwenen zodra je een nis koos.
+export const nishoogteGroups = [88, 102, 122, 140, 158, 178, 194];
+
+// Voor 102 en 158 zijn er geen eigen renders: de vragenpagina toont de
+// dichtstbijzijnde kast (zie vragen.js).
+export const nisRender = { 102: 122, 158: 140 };
 
 // Tolerance ranges per bucket (cm), used for both nis_hoogte_cm and the
 // hoogte_mm/10 fallback (see classifyNishoogte below).
 const nishoogteRanges = {
   88:  [80, 95],
-  122: [115, 130],
+  102: [96, 112],
+  122: [113, 130],
   140: [132, 150],
+  158: [151, 164],
   178: [165, 183],
   194: [184, 210],
 };
@@ -78,21 +86,65 @@ export const gezinsgrootteMinCapaciteit = {
   groot:     350,
 };
 
-// ─── "Stil" drempel voor de geluidsniveau-extra ────────────────────────────────
+// ─── "Stil" drempel voor de geluid-filter op de resultaatpagina ────────────────
 export const STIL_DB_THRESHOLD = 38;
 
-// ─── Extra wensen (vraag 4): wanneer voldoet een koelkast? ─────────────────────
-// Eén definitie voor de matching (applyExtraFilter) en voor het automatisch
-// uitzetten van opties waar een klant (B2B-embed) geen data voor heeft. De
-// volgorde is de volgorde waarin de matching versmalt.
+// ─── Budgetvraag (sinds okt. 2026) ─────────────────────────────────────────
+// Twee maximumbedragen per type of nis, plus "Geen voorkeur": rond een derde
+// en twee derde van de prijzen in de live catalogus (2+ winkels, okt. 2026).
+// De prijzen lopen per type ver uiteen (standaard rond €790, Amerikaans rond
+// €1.470), dus één set bedragen zou bij de helft van de types niets zeggen.
+// 140 en 158 cm hebben maar 5 en 3 koelkasten: daar zijn de bedragen grof.
+export const budgetCaps = {
+  standaard: [700, 950], "extra-breed": [850, 1100], amerikaans: [1150, 1700], tafelmodel: [450, 550],
+  88: [700, 1000], 102: [600, 850], 122: [700, 950], 140: [1450, 1600], 158: [1100, 1800],
+  178: [1000, 1650], 194: [1100, 2000], inbouw: [800, 1250],
+};
+/** Bedragen voor de gekozen plaatsing en type/nis ("" = nis onbekend). */
+export function budgetCapsVoor(plaatsing, sub) {
+  if (plaatsing === "inbouw") return budgetCaps[sub] ?? budgetCaps.inbouw;
+  return budgetCaps[sub] ?? budgetCaps.standaard;
+}
+
+// ─── Vriezer (sinds okt. 2026) ─────────────────────────────────────────────
+// "vriezer" = aparte vriezer (koel-vriescombinatie), "vriesvak" = klein vak
+// in de koelkast, "zonder" = alleen koelen, null = onbekend. Eerst de inhoud
+// van de vriezer (Icecat en de sites van Bosch, Siemens en Liebherr), dan de
+// productnaam. De naam van de winkel klopt niet altijd (Liebherr IRbi 3951:
+// "zonder vriesvak", maar heeft 16 liter), daarom gaat de inhoud voor.
+export const VRIESVAK_MAX_L = 40;
+export function vriezerSoort(vriezerL, naam, vrijstaandType, vrieslades) {
+  if (Number.isFinite(vriezerL)) return vriezerL <= 0 ? "zonder" : vriezerL < VRIESVAK_MAX_L ? "vriesvak" : "vriezer";
+  const t = String(naam ?? "");
+  if (/zonder\s+(vriesvak|vriezer|vriesgedeelte)/i.test(t)) return "zonder";
+  if (/met\s+vriesvak/i.test(t)) return "vriesvak";
+  if (/koel-?\s?vries|\bcombi\b|side[\s-]?by[\s-]?side|french[\s-]?door|multi[\s-]?door|\bKFN?\s?\d/i.test(t)) return "vriezer";
+  if (vrijstaandType === "amerikaans" || parseInt(vrieslades, 10) >= 2) return "vriezer";
+  return null;
+}
+
+// ─── Wensen: true / false / null (onbekend) ────────────────────────────────
+// Eén definitie voor de matching, de grijze opties op de vragenpagina, de
+// filters en het automatisch uitzetten van opties waar een klant (B2B-embed)
+// geen data voor heeft. Onbekend telt nooit als "nee".
+const jaNee = v => (v === "Ja" ? true : v === "Nee" ? false : null);
+export const WENS = {
+  energiezuinig:  k => (LABEL_VOLGORDE.includes(k.energielabel) ? ["A", "B", "C"].includes(k.energielabel) : null),
+  nofrost:        k => k.nofrost,
+  verszone:       k => jaNee(k.versZone),
+  waterdispenser: k => jaNee(k.waterdispenser),
+  ijsmaker:       k => jaNee(k.ijsmaker),
+};
+export const LABEL_VOLGORDE = ["A", "B", "C", "D", "E", "F", "G"];
+export const VRIEZER_WENS = {
+  vriezer:  k => (k.vriezer ? k.vriezer === "vriezer" : null),
+  vriesvak: k => (k.vriezer ? k.vriezer === "vriesvak" : null),
+  zonder:   k => (k.vriezer ? k.vriezer === "zonder" : null),
+};
+// Zeker waar (voor filters en het automatisch uitzetten in de B2B-embed).
 export const EXTRA_CHECKS = {
-  energiezuinig:  k => ["A", "B", "C"].includes(k.energielabel),
-  stil:           k => k.geluidsniveauDb !== null && k.geluidsniveauDb <= STIL_DB_THRESHOLD,
-  nofrost:        k => k.automatischOntdooien === "Ja",
-  vriesvak:       k => Boolean(k.heeftVriesvak),
-  verszone:       k => k.versZone === "Ja",
-  waterdispenser: k => k.waterdispenser === "Ja",
-  ijsmaker:       k => k.ijsmaker === "Ja",
+  ...Object.fromEntries(Object.entries(WENS).map(([w, f]) => [w, k => f(k) === true])),
+  stil: k => Number.isFinite(k.geluidsniveauDb),
 };
 
 // ─── Static fallback price groups (used only if dynamic computation yields

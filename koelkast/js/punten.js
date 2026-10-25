@@ -4,6 +4,7 @@
 // de gedeelde bouwstenen en uitgangspunten staan in shared/punten-basis.js.
 
 import { isUitgezet } from "../../shared/klant.js";
+import { heeftWens, extraWensen, vriezerWens } from "./matching.js";
 import {
   LABEL_RANG, esc, getal, cm, gemiddelde, leeg, opsomming,
   basisContext, opvallend, zochtRegel, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
@@ -22,6 +23,11 @@ export function buildContext(lijst, naam) {
     labels: lijst.map((p) => LABEL_RANG[p.energielabel]).filter(Boolean).sort((a, b) => a - b),
   };
 }
+
+const VRIEZER_TEKST = { vriezer: "met aparte vriezer", vriesvak: "met vriesvak", zonder: "zonder vriezer, alle ruimte voor koelen" };
+const WENS_TEKST = {
+  energiezuinig: "zuinig", nofrost: "No Frost", verszone: "met vers zone", waterdispenser: "met waterdispenser", ijsmaker: "met ijsmaker",
+};
 
 const LITERS_ADVIES = {
   klein:     { min: 0,   wie: "1 tot 2 personen" },
@@ -52,8 +58,6 @@ const LITERS_ADVIES = {
 export function buildResultPoints(k, answers, ctx) {
   const p = puntenLijst();
   const a = answers || {};
-  const wensen = Array.isArray(a.extraAnswers) ? a.extraAnswers : [];
-  const wil = (w) => wensen.includes(w);
 
   // ── 1. Alle vervulde keuzes in één regel ─────────────────────────────
   const delen = [];
@@ -66,13 +70,9 @@ export function buildResultPoints(k, answers, ctx) {
     if (a.vrijstaandtype === "extra-breed" && k.vrijstaandType === "extra-breed") vink("plaatsing", "extra breed");
     if (a.vrijstaandtype === "tafelmodel" && k.vrijstaandType === "tafelmodel") vink("plaatsing", "tafelmodel");
   }
-  if (wil("stil") && Number.isFinite(k.geluidsniveauDb) && k.geluidsniveauDb <= 38) vink("wens-stil", "stil");
-  if (wil("energiezuinig") && ["A", "B", "C"].includes(k.energielabel)) vink("wens-zuinig", "zuinig");
-  if (wil("nofrost") && k.automatischOntdooien === "Ja") vink("nofrost", "No Frost");
-  if (wil("vriesvak") && k.heeftVriesvak) vink("vriesvak", "met vriesvak");
-  if (wil("verszone") && k.versZone === "Ja") vink("verszone", "met vers zone");
-  if (wil("waterdispenser") && k.waterdispenser === "Ja") vink("water", "met waterdispenser");
-  if (wil("ijsmaker") && k.ijsmaker === "Ja") vink("ijs", "met ijsmaker");
+  const vw = vriezerWens(a);
+  if (vw && heeftWens(k, vw) === true) vink("vriezer", VRIEZER_TEKST[vw]);
+  for (const w of extraWensen(a)) if (heeftWens(k, w) === true) vink(w === "energiezuinig" ? "energie" : w, WENS_TEKST[w]);
 
   zochtRegel(p, delen);
 
@@ -117,7 +117,8 @@ export function buildResultPoints(k, answers, ctx) {
   }
 
   // ── 4. Kenmerken waar niet om gevraagd is, en het vangnet ────────────
-  if (k.automatischOntdooien === "Ja" && !isUitgezet("nofrost")) p.voeg(40, "nofrost", `<strong>No Frost</strong>: de vriezer hoeft nooit ontdooid te worden`);
+  if (k.nofrost === true && !isUitgezet("nofrost")) p.voeg(40, "nofrost", `<strong>No Frost</strong>: de vriezer hoeft nooit ontdooid te worden`);
+  if (k.vriezer === "vriezer" && Number.isFinite(k.vriezerL) && !a.vriezer) p.voeg(42, "vriezer", `<strong>${getal(k.vriezerL)} liter vriezer</strong> met eigen laden`);
   if (k.versZone === "Ja" && !isUitgezet("verszone")) p.voeg(41, "verszone", `<strong>Vers zone</strong> voor groente en vlees`);
   if (k.hoogteMm && k.breedteMm && k.diepteMm) {
     p.voeg(90, "maat", `<strong>${cm(k.hoogteMm)} × ${cm(k.breedteMm)} × ${cm(k.diepteMm)} cm</strong> (h × b × d)`);
@@ -128,7 +129,8 @@ export function buildResultPoints(k, answers, ctx) {
   // Laatste vangnet voor producten zonder energielabel of afmetingen in de
   // catalogus (ongeveer 1 op de 100): plaatsing is altijd bekend.
   if (Number.isFinite(k.geluidsniveauDb)) p.voeg(94, "geluid", `<strong>${getal(k.geluidsniveauDb)} dB</strong> geluidsniveau`);
-  if (k.heeftVriesvak && !isUitgezet("vriesvak")) p.voeg(95, "vriesvak", `<strong>Met vriesvak</strong>`);
+  if (k.vriezer === "vriesvak") p.voeg(95, "vriezer", Number.isFinite(k.vriezerL) ? `<strong>Vriesvak van ${getal(k.vriezerL)} liter</strong>` : `<strong>Met vriesvak</strong>`);
+  if (k.vriezer === "vriezer") p.voeg(95, "vriezer", Number.isFinite(k.vriezerL) ? `<strong>${getal(k.vriezerL)} liter vriezer</strong>` : `<strong>Met aparte vriezer</strong>`);
   p.voeg(96, "plaatsing", k.plaatsing === "inbouw"
     ? `<strong>Inbouwmodel</strong>, valt weg in je keukenkast`
     : `<strong>Vrijstaand</strong>, overal in huis te plaatsen`);
@@ -172,8 +174,10 @@ export function buildAlleSpecs(k, raw) {
     {
       titel: "Inhoud en indeling",
       rijen: [
-        ["Netto inhoud", Number.isFinite(k.nettoInhoudL) ? `${getal(k.nettoInhoudL)} liter` : null],
-        ["Vriescapaciteit", r.vriescapaciteit],
+        ["Netto inhoud koelen", Number.isFinite(k.nettoInhoudL) ? `${getal(k.nettoInhoudL)} liter` : null],
+        ["Netto inhoud vriezen", Number.isFinite(k.vriezerL) && k.vriezerL > 0 ? `${getal(k.vriezerL)} liter` : null],
+        ["Vriezer", { vriezer: "Aparte vriezer", vriesvak: "Vriesvak", zonder: "Geen" }[k.vriezer] ?? null],
+        ["Invriescapaciteit", r.vriescapaciteit],
         ["Vrieslades", r.vrieslades],
         ["Vers zone", k.versZone],
       ],
@@ -183,7 +187,7 @@ export function buildAlleSpecs(k, raw) {
       rijen: [
         ["Energielabel", k.energielabel],
         ["Geluidsniveau", Number.isFinite(k.geluidsniveauDb) ? `${getal(k.geluidsniveauDb)} dB` : null],
-        ["No Frost", r.automatisch_ontdooien],
+        ["No Frost (vriezer)", k.nofrost === true ? "Ja" : k.nofrost === false ? "Nee" : null],
         ["Plaatsing", r.apparaatplaatsing],
       ],
     },
