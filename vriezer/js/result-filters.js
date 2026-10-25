@@ -1,5 +1,11 @@
-import { matchVriezers, applyMinAanbiedersCascade, DEFAULT_MIN_AANBIEDERS } from "./matching.js";
-import { GESCHIKT_VOOR_GARAGE_KLASSEN } from "./data.js";
+import {
+  matchVriezers, kiesBesteMatch, heeftWens, extraWensen, lijst,
+  applyMinAanbiedersCascade, BAND_BESTE, DEFAULT_MIN_AANBIEDERS,
+} from "./matching.js";
+
+// No Frost en garage: true / false / null (onbekend), zie data.js
+const nofrostLabel = v => v.nofrost === true ? "Ja" : v.nofrost === false ? "Nee" : null;
+const garageLabel = v => v.garage === true ? "Ook voor een koude garage" : v.garage === false ? "Alleen binnenshuis" : null;
 import { computeDynamicPriceGroups, computeDynamicDimensionGroups, normalizeProducts, parsePrice, qs } from "./utils.js";
 import { updateResultMatches } from "./result.js";
 import { fetchProducts } from "./supabase.js";
@@ -151,8 +157,8 @@ function collectEnergielabelOptions(matches) {
 
 function collectNofrostOptions(matches) {
   const set = new Set();
-  matches.forEach(v => { if (v.automatischOntdooien) set.add(v.automatischOntdooien); });
-  return Array.from(set);
+  matches.forEach(v => { const l = nofrostLabel(v); if (l) set.add(l); });
+  return ["Ja", "Nee"].filter(l => set.has(l));
 }
 
 function collectGeluidOptions(matches) {
@@ -168,10 +174,10 @@ function collectGeluidOptions(matches) {
 function collectGarageOptions(matches) {
   const set = new Set();
   matches.forEach(v => {
-    if (!v.klimaatklasse) return;
-    set.add(GESCHIKT_VOOR_GARAGE_KLASSEN.includes(v.klimaatklasse) ? "Geschikt voor garage/schuur" : "Voor binnenshuis");
+    const l = garageLabel(v);
+    if (l) set.add(l);
   });
-  const order = ["Geschikt voor garage/schuur", "Voor binnenshuis"];
+  const order = ["Ook voor een koude garage", "Alleen binnenshuis"];
   return order.filter(l => set.has(l));
 }
 
@@ -210,7 +216,7 @@ function filterKeten() {
   }
 
   if (filterState.nofrost.size > 0) {
-    filtered = filtered.filter(v => filterState.nofrost.has(v.automatischOntdooien));
+    filtered = filtered.filter(v => filterState.nofrost.has(nofrostLabel(v)));
   }
 
   if (filterState.geluid.size > 0) {
@@ -222,11 +228,7 @@ function filterKeten() {
   }
 
   if (filterState.garage.size > 0) {
-    filtered = filtered.filter(v => {
-      if (!v.klimaatklasse) return false;
-      const label = GESCHIKT_VOOR_GARAGE_KLASSEN.includes(v.klimaatklasse) ? "Geschikt voor garage/schuur" : "Voor binnenshuis";
-      return filterState.garage.has(label);
-    });
+    filtered = filtered.filter(v => filterState.garage.has(garageLabel(v)));
   }
 
   if (filterState.breedteLabels.size > 0) {
@@ -432,7 +434,7 @@ function renderAllFilters() {
   }
 
   if (nofrostContainer && nofrostCard) {
-    renderFilterOptions(nofrostContainer, nofrostCard, collectNofrostOptions(matches), matches, v => v.automatischOntdooien, "nofrost");
+    renderFilterOptions(nofrostContainer, nofrostCard, collectNofrostOptions(matches), matches, nofrostLabel, "nofrost");
   }
 
   if (geluidContainer && geluidCard) {
@@ -440,7 +442,7 @@ function renderAllFilters() {
   }
 
   if (garageContainer && garageCard) {
-    renderFilterOptions(garageContainer, garageCard, collectGarageOptions(matches), matches, v => v.klimaatklasse ? (GESCHIKT_VOOR_GARAGE_KLASSEN.includes(v.klimaatklasse) ? "Geschikt voor garage/schuur" : "Voor binnenshuis") : null, "garage");
+    renderFilterOptions(garageContainer, garageCard, collectGarageOptions(matches), matches, garageLabel, "garage");
   }
 
   renderDimensionFilter(breedteContainer, breedteCard, filterState.breedteGroups, "breedteMm", filterState.breedteLabels, "breedteLabels");
@@ -457,6 +459,7 @@ function renderAllFilters() {
 function handleFilterChange(event) {
   const input = event.target.closest("input");
   if (!input) return;
+  meet("filter_gebruikt", { filter: input.closest(".filter-card")?.dataset.filter || input.name, waarde: input.value === "all" ? "alle" : String(input.value).slice(0, 40) });
 
   const name  = input.name;
   const value = input.value;
@@ -524,7 +527,13 @@ export async function initFilters() {
     allVriezers = [];
   }
 
-  const liveResult = matchVriezers(allVriezers, filterState.answers);
+  // Budget uit de quiz (maximumbedrag) is een echte grens, net als in de quiz.
+  // Past er niets binnen, dan zonder grens (zelfde vangnet).
+  const cap = Number(filterState.answers?.budget) || null;
+  const zonderGrens = matchVriezers(allVriezers, filterState.answers, null);
+  let liveResult = cap ? matchVriezers(allVriezers, filterState.answers, cap) : zonderGrens;
+  const budgetZonderMatch = Boolean(cap && !(liveResult.filteredMatchedVriezers?.length));
+  if (budgetZonderMatch) liveResult = zonderGrens;
   let baseMatches = Array.isArray(liveResult.filteredMatchedVriezers) ? liveResult.filteredMatchedVriezers : [];
 
   if (baseMatches.length === 0) {
@@ -571,4 +580,112 @@ export async function initFilters() {
   }
 
   applyFilters();
+  if (cap && filterState.baseMatches.length) initBudgetNote({ cap, result: liveResult, zonderGrens, budgetZonderMatch });
+  initMeting(cap);
+}
+
+function zetGroepen() {
+  filterState.priceGroups   = computeDynamicPriceGroups(filterState.baseMatches);
+  filterState.breedteGroups = computeDynamicDimensionGroups(filterState.baseMatches, "breedteMm");
+  filterState.diepteGroups  = computeDynamicDimensionGroups(filterState.baseMatches, "diepteMm");
+  filterState.hoogteGroups  = computeDynamicDimensionGroups(filterState.baseMatches, "hoogteMm");
+}
+
+// ───────── budget: "Meer budget?" en het vangnet als er niets binnen past ─────────
+const euroLabel = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const WENS_VOORDEEL = { nofrost: "een No Frost-vriezer", garage: "een vriezer die ook in een koude garage werkt" };
+
+// Welke wens heeft de beste vriezer boven het budget, die geen enkele
+// zichtbare vriezer binnen het budget zeker heeft? Dan noemen we die.
+function wensBovenBudget(buiten, binnen, a) {
+  const kandidaten = extraWensen(a).map(w => [WENS_VOORDEEL[w], v => heeftWens(v, w) === true]);
+  return kandidaten.find(([naam, f]) => naam && f(buiten) && !binnen.some(f))?.[0] ?? null;
+}
+
+function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch }) {
+  const binnenLijst = binnen.filteredMatchedVriezers ?? [];
+  const kaart = document.createElement("div");
+  kaart.className = "budget-kaart";
+  kaart.setAttribute("role", "note");
+
+  if (budgetZonderMatch) {
+    meet("budget_kaart", { actie: "niets_binnen_budget" });
+    kaart.innerHTML = `<p><strong>Binnen ${euroLabel(cap)} vonden we geen vriezer van dit soort.</strong> Dit zijn de vriezers die het best bij je wensen passen, vanaf de goedkoopste.</p>`;
+    plaatsBudgetKaart(kaart);
+    return;
+  }
+
+  // Alleen tonen als er boven het budget vriezers zijn die duidelijk beter
+  // bij de wensen passen (passcore zonder prijsdeel), bij 2+ winkels.
+  const zichtbaarBinnen = binnenLijst.filter(v => (v.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(v => v.wens)) : binnen.topWens;
+  const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;
+  const beter = (zonderGrens.filteredMatchedVriezers ?? []).filter(v => parsePrice(v.prijs) > cap && v.wens >= drempel);
+  const zichtbaar = beter.filter(v => (v.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
+  const goedkoopsteBuiten = zichtbaar.map(v => parsePrice(v.prijs)).filter(Number.isFinite).sort((a, b) => a - b)[0];
+  if (!goedkoopsteBuiten) return;
+  const buitenBeste = kiesBesteMatch(zichtbaar);
+  const reden = buitenBeste ? wensBovenBudget(buitenBeste, zichtbaarBinnen, filterState.answers) : null;
+  const meer = goedkoopsteBuiten - cap;
+  let toontBuiten = false;
+  const teken = () => {
+    kaart.innerHTML = toontBuiten
+      ? `<div class="budget-kaart-tekst"><strong>Je ziet nu vriezers boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
+         <button type="button" class="budget-kaart-btn">Terug naar vriezers tot ${euroLabel(cap)}</button>`
+      : reden
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${reden}</strong><span>Binnen je budget is dat er niet bij 2 of meer winkels. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze vriezers</button>`
+        : `<div class="budget-kaart-tekst"><strong>Meer budget? Er zijn vriezers die nog beter bij je wensen passen</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+           <button type="button" class="budget-kaart-btn">Bekijk deze vriezers</button>`;
+    kaart.querySelector(".budget-kaart-btn").addEventListener("click", () => {
+      toontBuiten = !toontBuiten;
+      meet("budget_kaart", { actie: toontBuiten ? "klik_meer_budget" : "klik_terug", reden: reden ? "wens" : "score" });
+      lijstSoort = toontBuiten ? "boven_budget" : "binnen_budget";
+      filterState.baseMatches = toontBuiten ? beter : binnenLijst;
+      zetGroepen();
+      // Andere lijst = verse start: alle filters terug naar standaard, zoals "Wis filters".
+      qs("#clearFiltersBtn")?.click();
+      teken();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+  teken();
+  plaatsBudgetKaart(kaart);
+  meet("budget_kaart", { actie: "getoond", reden: reden ? "wens" : "score", meer_euro: Math.round(meer) });
+}
+
+// De lijst wordt bij elk filter en elke sortering opnieuw getekend: zet de kaart
+// daarna steeds terug direct na de eerste vriezer.
+function plaatsBudgetKaart(kaart) {
+  const grid = qs("#otherMatchesGrid");
+  if (!grid) return;
+  const zet = () => {
+    const items = [...grid.children].filter(el => el !== kaart && !el.classList.contains("rcard-skelet"));
+    if (!items.length) return;
+    const na = items[0];
+    if (na.nextElementSibling === kaart) return;
+    waker.disconnect();
+    na.after(kaart);
+    waker.observe(grid, { childList: true });
+  };
+  const waker = new MutationObserver(zet);
+  waker.observe(grid, { childList: true });
+  zet();
+}
+
+// ───────── meting (Umami, via shared/consent.js) ─────────
+const meet = (naam, props) => window.phTrackEvent?.(naam, { categorie: "vriezer", ...props });
+let lijstSoort = "binnen_budget";
+
+function initMeting(cap) {
+  const budget = cap ? String(cap) : "geen_voorkeur";
+  const zichtbaar = () => document.querySelectorAll("#otherMatchesGrid > .rcard").length;
+  // Meegestuurd met elke winkelklik (shared/analytics.js)
+  window.phResultaatContext = () => ({ budget, lijst: zichtbaar(), lijst_soort: lijstSoort });
+  const a = filterState.answers ?? {};
+  const beste = kiesBesteMatch(filterKeten().filter(v => (v.aanbieders ?? []).length >= filterState.minAanbieders));
+  meet("resultaat_getoond", {
+    budget, soort: a.plaatsing ?? "", formaat: a.plaatsing === "inbouw" ? `nis-${a.nishoogte || "onbekend"}` : a.grootte || "maakt_niet_uit",
+    extra: lijst(a.extraAnswers).join("+"), lijst: zichtbaar(), beste_merk: beste?.merk ?? "",
+  });
 }

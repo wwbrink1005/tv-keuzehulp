@@ -1,4 +1,4 @@
-import { gezinsgrootteMinCapaciteit, STIL_DB_THRESHOLD, GESCHIKT_VOOR_GARAGE_KLASSEN } from "./data.js";
+import { LABEL_VOLGORDE } from "./data.js";
 import { parsePrice } from "./utils.js";
 
 export const DEFAULT_MIN_AANBIEDERS = 2;
@@ -16,115 +16,145 @@ export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_
   return { effectiveMin, result };
 }
 
-// Net als koelkast: geen Budget/Mid/Premium tier-cascade (geen natuurlijke
-// prestatie-as), maar een hard plaatsing-filter, een gracieus degraderend
-// sub-type-filter, en zachte voorkeursfilters.
-
-// ─── Hard filter: inbouw / vrijstaand kastmodel / vrieskist ───────────────────
+// ─── Harde filters: soort (inbouw / vrieskast / vrieskist) en nis of formaat ──
 
 export function filterByPlaatsing(vriezers, plaatsing) {
   return vriezers.filter(v => v.plaatsing === plaatsing);
 }
 
-// ─── Sub-partition: nishoogte (inbouw) of groottebucket (vrijstaand/vrieskist) ─
-// Mandatory graceful degrade: nul matches → val terug op de volledige
-// plaatsing-gefilterde set i.p.v. leeg terug te geven.
-
+// Gracieus: heeft de gekozen nis of het formaat geen enkele vriezer, dan alle
+// vriezers van die soort in plaats van een lege lijst.
 export function filterBySubGroup(vriezers, plaatsing, subGroup) {
   if (!subGroup) return vriezers;
-
-  if (plaatsing === "inbouw") {
-    const matched = vriezers.filter(v => v.nishoogteGroup === Number(subGroup));
-    return matched.length > 0 ? matched : vriezers;
-  }
-
-  const matched = vriezers.filter(v => v.grootteGroup === subGroup);
+  const matched = plaatsing === "inbouw"
+    ? vriezers.filter(v => v.nishoogteGroup === Number(subGroup))
+    : vriezers.filter(v => v.grootteGroup === subGroup);
   return matched.length > 0 ? matched : vriezers;
 }
 
-// ─── Soft preference: gezinsgrootte → hogere netto inhoud ─────────────────────
-
-export function applyGezinsgrootteFilter(vriezers, gezinsgrootte) {
-  const min = gezinsgrootteMinCapaciteit[gezinsgrootte];
-  if (!min) return vriezers;
-  const filtered = vriezers.filter(v => v.nettoInhoudL !== null && v.nettoInhoudL >= min);
-  return filtered.length > 0 ? filtered : vriezers;
+/** Soort + nis/formaat: de vriezers die mogen meedoen (zonder budget). */
+export function poolVoor(vriezers, answers) {
+  const sub = answers?.plaatsing === "inbouw" ? answers?.nishoogte : answers?.grootte;
+  return filterBySubGroup(filterByPlaatsing(vriezers, answers?.plaatsing), answers?.plaatsing, sub);
 }
 
-// ─── Extra preferences (Q4) ─────────────────────────────────────────────────────
+// ───────── Matching per vriezer (sinds 25-10-2026) ─────────
+// Zelfde opzet als de andere keuzehulpen: soort, nis/formaat en budget zijn
+// een harde grens, elke vriezer krijgt een passcore en de lijst is alles wat
+// dicht bij de top zit. Vroeger: filters na elkaar en de goedkoopste als
+// "beste match".
+//
+// Passcore = 100
+//   - een wens (No Frost, garage) die hij niet heeft: −150, onbekend: −40
+//   - zuinig gewenst: −5 per labelstap boven de zuinigste van de lijst (onbekend −6)
+//   - stil gewenst: −3 per dB boven het gemiddelde van de lijst (onbekend −4)
+//   - prijs: de duurste in de lijst verliest tot 5 punten
+// `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
+const WENS_STRAF = 150, WENS_ONBEKEND = 40;
+export const BAND_BESTE = 4;
+const BAND_LIJST = 10;
+const MIN_LIJST = 5;
+const MAX_LIJST = 30;
+const PRIJS_GEWICHT = 5;
 
-export function applyExtraFilter(vriezers, extraAnswers) {
-  if (!Array.isArray(extraAnswers) || extraAnswers.includes("geen") || extraAnswers.length === 0) {
-    return vriezers;
-  }
+export const lijst = a => (Array.isArray(a) ? a : []).filter(v => v !== "geen");
+// Zuinig en stil zijn een score; No Frost en garage zijn wensen.
+export const WENSEN = ["nofrost", "garage"];
+export const extraWensen = a => lijst(a?.extraAnswers).filter(w => WENSEN.includes(w));
 
-  let filtered = [...vriezers];
-
-  if (extraAnswers.includes("energiezuinig")) {
-    const zuinig = filtered.filter(v => ["A", "B", "C"].includes(v.energielabel));
-    if (zuinig.length > 0) filtered = zuinig;
-  }
-
-  if (extraAnswers.includes("stil")) {
-    const stil = filtered.filter(v => v.geluidsniveauDb !== null && v.geluidsniveauDb <= STIL_DB_THRESHOLD);
-    if (stil.length > 0) filtered = stil;
-  }
-
-  if (extraAnswers.includes("nofrost")) {
-    const nf = filtered.filter(v => v.automatischOntdooien === "Ja");
-    if (nf.length > 0) filtered = nf;
-  }
-
-  if (extraAnswers.includes("garage")) {
-    const geschikt = filtered.filter(v => v.klimaatklasse && GESCHIKT_VOOR_GARAGE_KLASSEN.includes(v.klimaatklasse));
-    if (geschikt.length > 0) filtered = geschikt;
-  }
-
-  return filtered;
+/** Heeft de vriezer deze wens? true / false / null (onbekend). */
+export function heeftWens(v, wens) {
+  if (wens === "nofrost") return v.nofrost;
+  if (wens === "garage") return v.garage;
+  return true;
 }
 
-// ─── Main matching function ───────────────────────────────────────────────────
+const labelRang = v => (LABEL_VOLGORDE.includes(v.energielabel) ? LABEL_VOLGORDE.indexOf(v.energielabel) : null);
 
-export function matchVriezers(vriezers, answers) {
-  if (!Array.isArray(vriezers) || !answers?.plaatsing) {
-    return { bestMatch: null, bestType: null, filteredMatchedVriezers: [] };
+function straffen(v, a, ctx) {
+  let s = 0;
+  for (const w of extraWensen(a)) {
+    const h = heeftWens(v, w);
+    s += h === true ? 0 : h === false ? WENS_STRAF : WENS_ONBEKEND;
   }
-
-  // 1. Hard filter: plaatsing
-  const filtered = filterByPlaatsing(vriezers, answers.plaatsing);
-  if (filtered.length === 0) {
-    return { bestMatch: null, bestType: null, filteredMatchedVriezers: [] };
+  const ex = lijst(a.extraAnswers);
+  if (ex.includes("energiezuinig")) {
+    const r = labelRang(v);
+    // 5 per stap: groter dan de marge van de Beste match (4), zodat een
+    // zuiniger label echt wint als je erom vraagt
+    s += r === null ? 6 : (r - ctx.besteLabel) * 5;
   }
-
-  const subGroup = answers.plaatsing === "inbouw" ? answers.nishoogte : answers.grootte;
-
-  // 2. Sub-partition (gracefully degrades internally)
-  let matched = filterBySubGroup(filtered, answers.plaatsing, subGroup);
-
-  // 3. Soft preference: gezinsgrootte
-  matched = applyGezinsgrootteFilter(matched, answers.gezinsgrootte);
-
-  // 4. Soft filters: extra's
-  matched = applyExtraFilter(matched, answers.extraAnswers ?? []);
-
-  // Mandatory end fallback: never return empty when the plaatsing-filtered
-  // set has stock.
-  if (matched.length === 0) {
-    let fallback = applyGezinsgrootteFilter(filtered, answers.gezinsgrootte);
-    fallback = applyExtraFilter(fallback, answers.extraAnswers ?? []);
-    if (fallback.length === 0) fallback = [...filtered];
-    matched = fallback;
+  if (ex.includes("stil")) {
+    s += Number.isFinite(v.geluidsniveauDb) ? Math.max(0, v.geluidsniveauDb - ctx.gemDb) * 3 : 4;
   }
+  return s;
+}
 
-  const bestTypeLabels = { inbouw: "Inbouw", vrijstaand: "Vrijstaand kastmodel", vrieskist: "Vrieskist" };
-  const bestType = bestTypeLabels[answers.plaatsing] ?? null;
+// Plek van een prijs binnen een lijst: 0 = goedkoopste, 1 = duurste.
+function prijsPlek(pool) {
+  const prijzen = pool.map(v => parsePrice(v.prijs)).sort((x, y) => x - y);
+  return prijs => (prijzen.length < 2 ? 0 : prijzen.filter(x => x < prijs).length / (prijzen.length - 1));
+}
 
-  // Best match = cheapest in the matched set
-  const bestMatch = matched.reduce((cheapest, v) => {
-    return parsePrice(v.prijs) < parsePrice(cheapest.prijs) ? v : cheapest;
+export function scoreVriezers(pool, answers = {}) {
+  const plek = prijsPlek(pool);
+  const db = pool.map(v => v.geluidsniveauDb).filter(Number.isFinite);
+  const rangen = pool.map(labelRang).filter(r => r !== null);
+  const ctx = {
+    gemDb: db.length ? db.reduce((x, y) => x + y, 0) / db.length : 0,
+    besteLabel: rangen.length ? Math.min(...rangen) : 0,
+  };
+  return pool.map(v => {
+    const wens = 100 - straffen(v, answers, ctx);
+    const fit = wens - PRIJS_GEWICHT * plek(parsePrice(v.prijs));
+    return { ...v, wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
   });
+}
 
-  return { bestMatch, bestType, filteredMatchedVriezers: matched };
+/** Beste match: de goedkoopste van de vriezers die even goed passen als de beste. */
+export function kiesBesteMatch(lijstIn) {
+  const metScore = (lijstIn ?? []).filter(v => Number.isFinite(v?.fit));
+  if (!metScore.length) return null;
+  const top = Math.max(...metScore.map(v => v.fit));
+  return metScore.filter(v => v.fit >= top - BAND_BESTE).reduce((x, y) => {
+    const px = parsePrice(x.prijs), py = parsePrice(y.prijs);
+    return py < px || (py === px && y.fit > x.fit) ? y : x;
+  });
+}
+
+const BEST_TYPE = { inbouw: "Inbouw", vrijstaand: "Vrijstaand kastmodel", vrieskist: "Vrieskist" };
+
+/**
+ * @param {object[]} vriezers     genormaliseerde vriezers (utils.normalizeProducts)
+ * @param {object} answers        antwoorden uit de quiz (answers.budget: maximum of null)
+ * @param {number|null} [budget]  overschrijft answers.budget (null = zonder grens)
+ */
+export function matchVriezers(vriezers, answers, budget = answers?.budget) {
+  const leeg = { bestMatch: null, bestType: null, filteredMatchedVriezers: [], topWens: null };
+  if (!Array.isArray(vriezers) || !answers?.plaatsing) return leeg;
+
+  const cap = Number(budget) || null;
+  const pool = poolVoor(vriezers, answers).filter(v => !cap || parsePrice(v.prijs) <= cap);
+  if (pool.length === 0) return leeg;
+
+  const gescoord = scoreVriezers(pool, answers).sort((x, y) => y.fit - x.fit);
+  const top = gescoord[0].fit;
+  const uit = [];
+  let zichtbaar = 0;
+  for (const v of gescoord) {
+    if (zichtbaar >= MAX_LIJST) break;
+    if (v.fit < top - BAND_LIJST && zichtbaar >= MIN_LIJST) break;
+    uit.push(v);
+    if ((v.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS) zichtbaar++;
+  }
+  uit.sort((x, y) => parsePrice(x.prijs) - parsePrice(y.prijs));
+
+  return {
+    bestMatch: kiesBesteMatch(uit),
+    bestType: BEST_TYPE[answers.plaatsing] ?? null,
+    filteredMatchedVriezers: uit,
+    topWens: Math.max(...uit.map(v => v.wens)),
+  };
 }
 
 // De kaartpunten ("Waarom dit bij jou past") staan in punten.js.

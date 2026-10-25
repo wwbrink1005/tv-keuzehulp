@@ -72,22 +72,59 @@ export function classifyVrieskistGrootte(nettoInhoudL) {
 
 /**
  * Hard-partitions een vriezer in 3 groepen: inbouw / vrijstaand kastmodel /
- * vrieskist. Icecat's "Type product" (Vrieskast vs Diepvrieskist) bepaalt
- * eerst of het een kist is; anders bepaalt "Apparaatplaatsing" inbouw vs
- * vrijstaand. "Onderbouw" (semi-inbouw) wordt bij "inbouw" ondergebracht —
- * beide hebben een nis-maat nodig, en het verschil is voor de gebruiker niet
- * relevant genoeg voor een aparte vraag-tak.
+ * vrieskist. Okt. 2026 aangescherpt, want 7 van de 109 vriezers zaten in de
+ * verkeerde groep:
+ *   - Icecat "Diepvrieskist" bij een smal tafelmodel (Whirlpool W55Z1 112W,
+ *     54 cm): een kist is breder dan 65 cm.
+ *   - Icecat "Onderbouw" bij Beko-tafelmodellen: dat is "past onder het
+ *     aanrecht", geen inbouw. Alleen inbouw als de naam het zegt.
+ *   - Geen plaatsing bij Bosch GUN/Siemens GU/Miele FNUS: dan de naam.
  */
-export function classifyPlaatsing(apparaatplaatsing, typeProduct) {
-  if (typeProduct === "Diepvrieskist") return "vrieskist";
-  if (apparaatplaatsing === "Ingebouwd" || apparaatplaatsing === "Onderbouw") return "inbouw";
+export function classifyPlaatsing(apparaatplaatsing, typeProduct, naam = "", breedteMm = null) {
+  const b = parseFloat(breedteMm);
+  const smal = Number.isFinite(b) && b >= 400 && b < 650;
+  if (typeProduct === "Diepvrieskist" && !smal) return "vrieskist";
+  if (/vrieskist|diepvrieskist/i.test(naam) && !smal) return "vrieskist";
+  const inbouwNaam = /inbouw|onderbouw|integreer/i.test(naam);
+  if (apparaatplaatsing === "Ingebouwd") return "inbouw";
+  if (apparaatplaatsing === "Onderbouw") return inbouwNaam ? "inbouw" : "vrijstaand";
+  if (!apparaatplaatsing && inbouwNaam) return "inbouw";
   return "vrijstaand";
 }
 
+/**
+ * No Frost: true / false / null. Uit de data (Icecat "No Frost system", of de
+ * sites van Bosch, Siemens en Liebherr); bij Miele, dat scrapers blokkeert,
+ * uit de modelnaam: FN.. = No Frost, F.. zonder N niet. Een vrieskist is nooit
+ * No Frost.
+ */
+export function nofrostVan(waarde, naam, plaatsing) {
+  if (plaatsing === "vrieskist") return false;
+  if (waarde === "Ja") return true;
+  if (waarde === "Nee") return false;
+  if (/^Miele\s+FN/i.test(naam)) return true;
+  if (/^Miele\s+F\s?\d/i.test(naam)) return false;
+  return null;
+}
+
+/**
+ * Werkt hij in een onverwarmde garage of schuur? true / false / null.
+ * Ja als hij tot 0 °C of kouder werkt (Icecat "Bedrijfstemperatuur", bv.
+ * "-15 - 43 °C") of "Freezerguard" heeft (Beko). Nee als alleen een
+ * klimaatklasse bekend is: SN begint bij +10 °C, N bij +16 °C.
+ */
+export function garageVan(bedrijfstemperatuur, klimaatklasse, naam) {
+  const m = String(bedrijfstemperatuur ?? "").match(/^\s*(-?\d+(?:[.,]\d+)?)/);
+  if (m) return parseFloat(m[1].replace(",", ".")) <= 0;
+  if (/freezer\s?guard/i.test(naam)) return true;
+  if (klimaatklasse) return false;
+  return null;
+}
+
 export const vrijstaandGrootteLabels = {
-  "klein":  "Kleine vrieskast",
-  "middel": "Middelgrote vrieskast",
-  "groot":  "Grote vrieskast",
+  "klein":  "Klein, tafelmodel dat onder het aanrecht past",
+  "middel": "Middelgroot, voor 2 tot 4 personen",
+  "groot":  "Groot, voor 4 personen of meer",
 };
 
 export const vrijstaandGrootteInhoud = {
@@ -98,8 +135,8 @@ export const vrijstaandGrootteInhoud = {
 
 export const vrieskistGrootteLabels = {
   "klein":  "Kleine vrieskist",
-  "middel": "Middelgrote vrieskist",
-  "groot":  "Grote vrieskist",
+  "middel": "Middelgrote vrieskist, voor een gezin",
+  "groot":  "Grote vrieskist, voor veel voorraad",
 };
 
 export const vrieskistGrootteInhoud = {
@@ -108,20 +145,24 @@ export const vrieskistGrootteInhoud = {
   "groot":  "300 liter of meer",
 };
 
-// ─── Gezinsgrootte → minimale netto inhoud (soft preference) ──────────────────
-export const gezinsgrootteMinCapaciteit = {
-  klein:     0,
-  gemiddeld: 150,
-  groot:     250,
+// ─── Budgetvraag (sinds okt. 2026) ─────────────────────────────────────────
+// Twee maximumbedragen per soort/formaat of nis, plus "Geen voorkeur": rond
+// een derde en twee derde van de prijzen (live catalogus, 2+ winkels).
+// Vrieskisten (10) en de inbouwnis van 122 cm (1) zijn te klein voor eigen
+// bedragen per formaat: die krijgen de bedragen van hun soort.
+export const budgetCaps = {
+  "vrijstaand-klein": [300, 600], "vrijstaand-middel": [800, 1100], "vrijstaand-groot": [850, 1000], vrijstaand: [700, 950],
+  vrieskist: [400, 500],
+  "inbouw-88": [700, 850], "inbouw-178": [1300, 1550], inbouw: [700, 1500],
 };
+/** Bedragen voor de gekozen soort en formaat/nis ("" = maakt niet uit / onbekend). */
+export function budgetCapsVoor(plaatsing, sub) {
+  return budgetCaps[`${plaatsing}-${sub}`] ?? budgetCaps[plaatsing] ?? budgetCaps.vrijstaand;
+}
 
-// ─── "Stil" drempel voor de geluidsniveau-extra ────────────────────────────────
+// "Stil" in de filter op de resultaatpagina
 export const STIL_DB_THRESHOLD = 38;
-
-// ─── Klimaatklasses die geschikt zijn voor een onverwarmde ruimte (garage/schuur) ──
-// SN/N gaan tot een lage ondergrens (10°C), maar voor een garage/schuur is
-// vooral de bovengrens (T = tot 43°C) relevant — ST/T-klasse aanbevolen.
-export const GESCHIKT_VOOR_GARAGE_KLASSEN = ["ST", "T", "SN-ST", "SN-T", "N-ST", "N-T"];
+export const LABEL_VOLGORDE = ["A", "B", "C", "D", "E", "F", "G"];
 
 // ─── Static fallback price groups (used only if dynamic computation yields
 // nothing, e.g. before the catalog has loaded) ─────────────────────────────────

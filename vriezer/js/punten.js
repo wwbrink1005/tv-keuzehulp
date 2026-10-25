@@ -5,7 +5,7 @@ import {
   esc, getal, cm, leeg, opsomming, ja, maten,
   maakContext, vergelijk, zochtRegel, energiePunt, puntenLijst, prijsPunten, winkelVangnet, schoonSpecs,
 } from "../../shared/punten-basis.js";
-import { STIL_DB_THRESHOLD, GESCHIKT_VOOR_GARAGE_KLASSEN } from "./data.js";
+import { extraWensen, heeftWens } from "./matching.js";
 
 const PLAATSING_LABELS = { inbouw: "Inbouw", vrijstaand: "Vrijstaand kastmodel", vrieskist: "Vrieskist" };
 
@@ -16,20 +16,12 @@ export function buildContext(lijst, naam) {
   });
 }
 
-const LITERS_ADVIES = {
-  klein:     { min: 0,   wie: "1 tot 2 personen" },
-  gemiddeld: { min: 150, wie: "3 tot 4 personen" },
-  groot:     { min: 250, wie: "5 personen of meer" },
-};
-
-const garageGeschikt = (v) => v.klimaatklasse && GESCHIKT_VOOR_GARAGE_KLASSEN.includes(v.klimaatklasse);
+const WENS_TEKST = { nofrost: "No Frost", garage: "werkt ook in een koude garage" };
 
 /** "Waarom dit bij jou past": precies 4 punten. */
 export function buildResultPoints(v, answers, ctx) {
   const p = puntenLijst();
   const a = answers || {};
-  const wensen = Array.isArray(a.extraAnswers) ? a.extraAnswers : [];
-  const wil = (w) => wensen.includes(w);
 
   // 1. Alle vervulde keuzes in één regel
   const delen = [];
@@ -39,10 +31,7 @@ export function buildResultPoints(v, answers, ctx) {
   } else if (a.plaatsing === "vrieskist" && v.plaatsing === "vrieskist") {
     vink("plaatsing", "vrieskist");
   }
-  if (wil("stil") && Number.isFinite(v.geluidsniveauDb) && v.geluidsniveauDb <= STIL_DB_THRESHOLD) vink("geluid-wens", "stil");
-  if (wil("energiezuinig") && ["A", "B", "C"].includes(v.energielabel)) vink("energie-wens", "zuinig");
-  if (wil("nofrost") && ja(v.automatischOntdooien)) vink("nofrost", "No Frost");
-  if (wil("garage") && garageGeschikt(v)) vink("garage", "geschikt voor garage of schuur");
+  for (const w of extraWensen(a)) if (heeftWens(v, w) === true) vink(w, WENS_TEKST[w]);
   zochtRegel(p, delen);
 
   // 2. Wat deze kaart onderscheidt binnen de lijst
@@ -57,20 +46,9 @@ export function buildResultPoints(v, answers, ctx) {
   energiePunt(p, ctx, v.energielabel);
   prijsPunten(p, v, ctx);
 
-  // 3. Inhoud vertaald naar het eigen huishouden
-  const advies = LITERS_ADVIES[a.gezinsgrootte];
-  if (advies && Number.isFinite(v.nettoInhoudL)) {
-    if (advies.min > 0 && v.nettoInhoudL >= advies.min) {
-      p.voeg(30, "inhoud", `<strong>${getal(v.nettoInhoudL)} liter</strong>, ruim genoeg voor ${advies.wie}`);
-    } else if (advies.min === 0 && v.nettoInhoudL <= 150) {
-      p.voeg(30, "inhoud", `<strong>${getal(v.nettoInhoudL)} liter</strong>: genoeg voor ${advies.wie}, zonder overbodige ruimte`);
-    }
-  }
-
-  // 4. Kenmerken waar niet om gevraagd is, en het vangnet
-  if (ja(v.automatischOntdooien)) p.voeg(40, "nofrost", `<strong>No Frost</strong>: hoeft nooit ontdooid te worden`);
-  // Bijna elke vriezer heeft een garage-klimaatklasse: daarom pas in het vangnet.
-  if (garageGeschikt(v)) p.voeg(95, "garage", `<strong>Klimaatklasse ${esc(v.klimaatklasse)}</strong>: werkt ook in een koude garage of schuur`);
+  // 3. Kenmerken waar niet om gevraagd is, en het vangnet
+  if (v.nofrost === true) p.voeg(40, "nofrost", `<strong>No Frost</strong>: hoeft nooit ontdooid te worden`);
+  if (v.garage === true) p.voeg(41, "garage", `<strong>Werkt tot −15 °C</strong>: ook in een koude garage of schuur`);
   p.voeg(90, "maat", maten(v.hoogteMm, v.breedteMm, v.diepteMm));
   if (Number.isFinite(v.nettoInhoudL)) p.voeg(91, "inhoud", `<strong>${getal(v.nettoInhoudL)} liter</strong> netto inhoud`);
   if (v.energielabel) p.voeg(92, "energie", `<strong>Energielabel ${esc(v.energielabel)}</strong>`);
@@ -101,7 +79,8 @@ export function buildAlleSpecs(v, raw) {
     { titel: "Inhoud en gebruik", rijen: [
       ["Netto inhoud", Number.isFinite(v.nettoInhoudL) ? `${getal(v.nettoInhoudL)} liter` : null],
       ["Type", PLAATSING_LABELS[v.plaatsing]],
-      ["No Frost", v.automatischOntdooien],
+      ["No Frost", v.nofrost === true ? "Ja" : v.nofrost === false ? "Nee" : null],
+      ["Werkt bij", v.bedrijfstemperatuur || null],
       ["Klimaatklasse", v.klimaatklasse],
     ] },
     { titel: "Verbruik", rijen: [

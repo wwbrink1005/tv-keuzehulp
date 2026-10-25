@@ -1,4 +1,4 @@
-import { classifyNishoogte, classifyPlaatsing, classifyVrijstaandGrootte, classifyVrieskistGrootte } from "./data.js";
+import { classifyNishoogte, classifyPlaatsing, classifyVrijstaandGrootte, classifyVrieskistGrootte, nofrostVan, garageVan } from "./data.js";
 
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -58,7 +58,7 @@ export function normalizeProducts(rawProducts) {
 
     const nettoInhoudL = parseFloat(product.netto_inhoud_l);
 
-    const plaatsing = classifyPlaatsing(product.apparaatplaatsing, product.type_product);
+    const plaatsing = classifyPlaatsing(product.apparaatplaatsing, product.type_product, naam, product.breedte_mm);
     const nishoogteGroup = plaatsing === "inbouw"
       ? classifyNishoogte(product.nis_hoogte_cm, product.hoogte_mm)
       : null;
@@ -85,9 +85,12 @@ export function normalizeProducts(rawProducts) {
       diepteMm:  Number.isFinite(diepteMm)  ? diepteMm  : null,
       nettoInhoudL:      Number.isFinite(nettoInhoudL) ? nettoInhoudL : null,
       energielabel:      product.energielabel ?? "",
-      automatischOntdooien: product.automatisch_ontdooien ?? "",
+      // No Frost en garage: true / false / null (onbekend), zie data.js
+      nofrost:           nofrostVan(product.automatisch_ontdooien, naam, plaatsing),
+      garage:            garageVan(product.bedrijfstemperatuur, product.klimaatklasse, naam),
       geluidsniveauDb:   Number.isFinite(geluidsniveauDb) ? geluidsniveauDb : null,
       klimaatklasse:     product.klimaatklasse ?? "",
+      bedrijfstemperatuur: product.bedrijfstemperatuur ?? "",
       afbeelding,
       afbeeldingen,
       aanbieders

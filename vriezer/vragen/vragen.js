@@ -3,10 +3,10 @@
 import { createQuiz3D, makeCamera, dimLine, spotColumn } from "../../shared/quiz3d.js";
 import {
   nishoogteGroups, vrijstaandGrootteLabels, vrijstaandGrootteInhoud,
-  vrieskistGrootteLabels, vrieskistGrootteInhoud,
+  vrieskistGrootteLabels, vrieskistGrootteInhoud, budgetCapsVoor,
 } from "../js/data.js";
-import { matchVriezers } from "../js/matching.js";
-import { normalizeProducts } from "../js/utils.js";
+import { matchVriezers, poolVoor, heeftWens } from "../js/matching.js";
+import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 
 const camera = makeCamera({ camY: -(1.3 + 2.45) });
@@ -62,33 +62,89 @@ const grootteQ = kist => ({
   why: kist
     ? "Vrieskisten variëren sterk in inhoud. Een kleine kist is prima voor incidenteel invriezen; een middelgrote of grote kist is handig als je structureel veel wilt invriezen of grote, onregelmatig gevormde etenswaren wilt bewaren."
     : "Een kleine/compacte vrieskast past ook in een kleine ruimte, zoals een bijkeuken of studio. Een middelgrote of grote vrieskast biedt meer opbergruimte voor een gezin.",
-  options: ["klein", "middel", "groot"].map(v => ({
+  options: [...["klein", "middel", "groot"].map(v => ({
     v, label: `${(kist ? vrieskistGrootteLabels : vrijstaandGrootteLabels)[v]} <span class="muted">(${(kist ? vrieskistGrootteInhoud : vrijstaandGrootteInhoud)[v]})</span>`,
-  })),
+    price: { klein: "€", middel: "€€", groot: "€€€" }[v],
+  })), { v: "maakt-niet-uit", label: "Maakt niet uit", price: "€" }],
 });
-const Q_GEZIN = {
-  id: "gezinsgrootte", type: "radio",
-  title: "Voor hoeveel personen vries je in?",
-  sub: "Kijk alvast naar binnen: hoeveel ruimte heb je nodig?",
-  why: "Hoe meer personen in huis, hoe meer voorraad er meestal in de vriezer moet passen. We houden hiermee rekening bij de inhoud (in liters) die we adviseren, maar filteren nooit zo streng dat je geen passende vriezer meer te zien krijgt.",
-  options: [{ v: "klein", label: "Klein huishouden, 1 tot 2 personen", price: "€" }, { v: "gemiddeld", label: "Gemiddeld huishouden, 3 tot 4 personen", price: "€€" }, { v: "groot", label: "Groot huishouden, 5 personen of meer", price: "€€€" }],
-};
+// Sinds okt. 2026: geen vraag "voor hoeveel personen" meer. Het formaat gaat
+// al over liters; samen gaven ze tegenstrijdige eisen ("klein" + "5 personen").
+const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
+const subVan = st => (st.plaatsing === "inbouw" ? st.nishoogte ?? "" : st.grootte && st.grootte !== "maakt-niet-uit" ? st.grootte : "");
+const budgetVraag = st => ({
+  id: "budget", type: "radio",
+  title: "Wat wil je maximaal uitgeven?",
+  sub: "Je krijgt de beste vriezer binnen je budget.",
+  why: "Met je budget zoeken we de beste vriezer die je ook echt wilt kopen. De bedragen passen bij het soort en formaat dat je koos. Past een vriezer die nog beter bij je wensen past net niet binnen je bedrag, dan laten we dat op de resultaatpagina zien.",
+  options: [...budgetCapsVoor(st.plaatsing, subVan(st)).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }],
+});
 const Q_EXTRA = {
   id: "extra", type: "check", exclusive: "geen",
   title: "Wat is nog meer belangrijk voor jou?",
   sub: "Je keuzes verschijnen op de vriezer zelf.",
-  why: "Energiezuinig betekent een lager verbruik op je energierekening. Stil in gebruik is prettig als de vriezer dicht bij een woon- of slaapkamer staat. No Frost betekent dat je nooit meer handmatig hoeft te ontdooien. Geschikt voor garage/schuur betekent dat de vriezer ook goed werkt in een onverwarmde ruimte.",
-  options: [{ v: "energiezuinig", label: "Energiezuinig, laag energieverbruik", price: "€€" }, { v: "stil", label: "Stil in gebruik", price: "€€" }, { v: "nofrost", label: "Nooit ontdooien (No Frost)", price: "€€" }, { v: "garage", label: "Geschikt voor garage/schuur", price: "€" }, { v: "geen", label: "Geen extra wensen", price: "€" }],
+  why: "No Frost betekent dat je nooit meer handmatig hoeft te ontdooien; vrieskisten hebben dat niet. Bij zuinig en stil komen de zuinigste en stilste van dit soort bovenaan. De meeste vriezers werken pas vanaf +10 °C; voor een onverwarmde garage of schuur heb je er een nodig die ook bij vorst werkt.",
+  options: [
+    { v: "nofrost", label: "Nooit ontdooien (No Frost)", price: "€€", when: st => st.plaatsing !== "vrieskist" },
+    { v: "energiezuinig", label: "Zo zuinig mogelijk", price: "€€" },
+    { v: "stil", label: "Stiller dan de meeste", price: "€€" },
+    { v: "garage", label: "Ook in een koude garage of schuur (tot −15 °C)", price: "€€" },
+    { v: "geen", label: "Geen extra wensen", price: "€" },
+  ],
 };
 
-const SPOT_TEXT = { energiezuinig: "Laag <b>energieverbruik</b>", stil: "Stil: <b>38 dB</b> of minder", nofrost: "<b>No Frost</b>: nooit ontdooien", garage: "Werkt ook in <b>garage of schuur</b>" };
-const LITERS = {
-  klein: ["1 tot 2 personen", "Een kleine vriezer tot zo'n 150 liter is meestal ruim genoeg."],
-  gemiddeld: ["3 tot 4 personen", "Reken op minimaal 150 liter, zodat er ook plek is voor een voorraadje."],
-  groot: ["5 personen of meer", "Kies 250 liter of meer. Een grote vrieskast of vrieskist past dan het best."],
-};
+const SPOT_TEXT = { energiezuinig: "<b>Zuinig</b> voor zijn soort", stil: "<b>Stiller</b> dan de meeste", nofrost: "<b>No Frost</b>: nooit ontdooien", garage: "Werkt ook in een <b>koude garage</b>" };
 
-const size = st => st.grootte || "middel";
+const vragen = st => [Q_PLAATSING, st.plaatsing === "inbouw" ? Q_NIS : grootteQ(st.plaatsing === "vrieskist"), budgetVraag(st), Q_EXTRA];
+const QID = st => vragen(st)[st.q]?.id;
+
+// ───────── live catalogus: budgettelling en grijze opties ─────────
+let catalogus = null;
+const capVan = v => (v && v !== "geen" ? Number(v) : null);
+const zichtbaarIn = st => poolVoor(catalogus ?? [], { plaatsing: st.plaatsing, nishoogte: st.nishoogte, grootte: subVan(st) })
+  .filter(v => (v.aanbieders ?? []).length >= 2);
+const welke = st => ({ inbouw: "inbouwvriezers", vrijstaand: "vrieskasten", vrieskist: "vrieskisten" }[st.plaatsing] ?? "vriezers") + (st.plaatsing === "inbouw" && st.nishoogte ? ` voor een nis van ${st.nishoogte} cm` : "");
+function budgetCaption(st) {
+  const cap = capVan(st.budget);
+  if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste vriezer binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
+  if (!catalogus) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", cap ? "We zoeken de beste vriezer binnen dit bedrag." : "We kiezen puur op je wensen."];
+  const prijzen = zichtbaarIn(st).map(v => parsePrice(v.prijs));
+  if (!prijzen.length) return [cap ? `Tot ${euro(cap)}` : "Geen voorkeur", "We zoeken de beste vriezer die bij je keuzes past."];
+  const binnen = cap ? prijzen.filter(x => x <= cap) : prijzen;
+  if (!cap) return ["Geen voorkeur", `Alle ${prijzen.length} ${welke(st)} doen mee, van ${euro(Math.min(...prijzen))} tot ${euro(Math.max(...prijzen))}.`];
+  if (!binnen.length) return [`Tot ${euro(cap)}`, `Geen ${welke(st)} tot ${euro(cap)}; de goedkoopste kost ${euro(Math.min(...prijzen))}. We tonen dan de best passende.`];
+  return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} ${welke(st)} ${binnen.length === 1 ? "kost" : "kosten"} ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}.`];
+}
+// Grijs als geen vriezer bij 2+ winkels binnen soort, nis/formaat en budget
+// het zeker heeft, samen met de andere aangevinkte wensen.
+const EIS = { extra: { nofrost: v => heeftWens(v, "nofrost") === true, garage: v => heeftWens(v, "garage") === true } };
+function metBeschikbaarheid(st, q) {
+  if (!catalogus || !EIS[q.id]) return q;
+  const cap = capVan(st.budget), alle = zichtbaarIn(st);
+  const binnen = cap ? alle.filter(v => parsePrice(v.prijs) <= cap) : alle;
+  return { ...q, options: q.options.map(o => {
+    const eis = EIS[q.id][o.v];
+    if (!eis || (o.when && !o.when(st))) return o;
+    let andere = st.extra.filter(e => e !== o.v && EIS.extra[e]).map(e => EIS.extra[e]);
+    if (!binnen.some(v => andere.every(f => f(v)))) andere = [];
+    if (binnen.some(v => eis(v) && andere.every(f => f(v)))) return o;
+    if (!alle.some(eis)) return { ...o, disabled: true, note: `Geen van deze ${welke(st)} kan dat.` };
+    const erboven = alle.filter(v => eis(v) && andere.every(f => f(v))).map(v => parsePrice(v.prijs));
+    const note = cap && erboven.length ? (andere.length && binnen.some(eis) ? `Samen met je andere keuzes pas vanaf ${euro(Math.min(...erboven))}.` : `Niet tot ${euro(cap)}; wel vanaf ${euro(Math.min(...erboven))}.`)
+      : "Niet in combinatie met je andere keuzes.";
+    return { ...o, disabled: true, note };
+  }) };
+}
+function extraCaption(st) {
+  const wensen = st.extra.filter(e => EIS.extra[e]);
+  if (!st.extra.some(e => e !== "geen")) return st.extra.length ? ["Geen extra wensen", "We kiezen puur op soort, formaat en prijs."] : ["Extra's", "Vink aan wat je belangrijk vindt; het verschijnt op de vriezer."];
+  if (!catalogus || !wensen.length) return ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."];
+  const cap = capVan(st.budget);
+  const l = zichtbaarIn(st).filter(v => !cap || parsePrice(v.prijs) <= cap);
+  const n = l.filter(v => wensen.every(w => EIS.extra[w](v))).length;
+  return ["Jouw extra's", `${n} van de ${l.length} ${welke(st)}${cap ? " binnen je budget" : ""} ${n === 1 ? "heeft" : "hebben"} zeker ${wensen.length > 1 ? "alles wat je koos" : wensen[0] === "nofrost" ? "No Frost" : "garagebestendigheid"}.`];
+}
+
+const size = st => (["klein", "middel", "groot"].includes(st.grootte) ? st.grootte : "middel");
 const nisCm = st => (st.nishoogte ? parseInt(st.nishoogte, 10) : 178);
 const nisTop = st => (nisCm(st) <= 95 ? 0.87 : INBOUW.z0 + nisCm(st) / 100);
 // het object in beeld: { x0, w, h, yf } in meters
@@ -98,17 +154,18 @@ function obj(st) {
   return { x0: X0, ...KAST[size(st)], zb: 0 };
 }
 
-createQuiz3D({
+const quiz = createQuiz3D({
   camera,
-  steps: 4,
-  state: { plaatsing: null, nishoogte: null, grootte: null, gezinsgrootte: null, extra: [] },
+  steps: st => vragen(st).length,
+  state: { plaatsing: null, nishoogte: null, grootte: null, budget: null, extra: [] },
   imgPath: n => `vriezer/vragen/img/${n}.webp`,
-  question: st => [Q_PLAATSING, st.plaatsing === "inbouw" ? Q_NIS : grootteQ(st.plaatsing === "vrieskist"), Q_GEZIN, Q_EXTRA][st.q],
+  question: st => metBeschikbaarheid(st, vragen(st)[st.q]),
 
   images(st) {
     if (st.plaatsing === "inbouw") return [`inbouw-${nisCm(st)}`];
     const kind = st.plaatsing === "vrieskist" ? "kist" : "kast";
-    return [`${kind}-${size(st)}-${st.q === 2 ? "open" : "dicht"}`];
+    // bij de budgetvraag kijk je naar binnen (vroeger de personenvraag)
+    return [`${kind}-${size(st)}-${QID(st) === "budget" ? "open" : "dicht"}`];
   },
 
   focus(st) {
@@ -122,14 +179,15 @@ createQuiz3D({
     const add = r => { svg += r.svg; html += r.html; };
     const o = obj(st);
     const x1 = o.x0 + o.w;
-    if (st.q === 1 && st.plaatsing !== "inbouw" && st.grootte) {
+    const id = QID(st);
+    if (id === "grootte" && st.grootte && st.grootte !== "maakt-niet-uit") {
       add(dimLine(ctx, [o.x0, o.yf, o.h + 0.07], [x1, o.yf, o.h + 0.07], `<b>${Math.round(o.w * 100)} cm</b> breed`));
       add(dimLine(ctx, [x1 + 0.08, o.yf, 0], [x1 + 0.08, o.yf, o.h], `<b>${Math.round(o.h * 100)} cm</b> hoog`));
     }
-    if (st.q === 1 && st.plaatsing === "inbouw" && st.nishoogte) {
+    if (id === "nishoogte" && st.nishoogte) {
       add(dimLine(ctx, [INBOUW.x1 + 0.08, INBOUW.yf, INBOUW.z0], [INBOUW.x1 + 0.08, INBOUW.yf, nisTop(st)], `nis <b>${nisCm(st)} cm</b>`));
     }
-    if (st.q === 3) {
+    if (id === "extra") {
       const keys = ["energiezuinig", "nofrost", "stil", "garage"].filter(k => st.extra.includes(k));
       const inb = st.plaatsing === "inbouw";
       const x = o.x0 + o.w / 2, y = inb ? -0.45 : o.yf;
@@ -140,48 +198,58 @@ createQuiz3D({
     return { svg, html };
   },
 
-  hideCaption: (st, mobile) => st.q === 3 && !mobile,
+  hideCaption: (st, mobile) => QID(st) === "extra" && !mobile && st.extra.some(e => e !== "geen") && !st.extra.some(e => EIS.extra[e]),
 
   caption(st) {
-    switch (st.q) {
-      case 0:
+    switch (QID(st)) {
+      case "plaatsing":
         return {
           inbouw: ["Inbouw", "Weggewerkt achter een keukenfront. Hij moet passen in de nis van je keukenkast."],
           vrijstaand: ["Vrijstaand kastmodel", "Rechtop, met laden: overzichtelijk en makkelijk te vinden wat je zoekt."],
           vrieskist: ["Vrieskist", "Liggend met een deksel: veel ruimte, ook voor grote of onregelmatige dingen."],
         }[st.plaatsing] ?? ["Jouw keuken", "Kies het soort vriezer. De keuken verandert mee."];
-      case 1:
+      case "nishoogte":
+      case "grootte":
         if (st.plaatsing === "inbouw") {
           if (st.nishoogte) return [`Nis van ${st.nishoogte} cm`, +st.nishoogte <= 95 ? "Een onderbouwvriezer onder het aanrecht: compact en helemaal weggewerkt." : "De kastkolom heeft een nis op deze hoogte. Alleen vriezers die precies passen tonen we."];
           if (st.nishoogte === "") return ["Nishoogte onbekend", "Geen probleem: we tonen dan alle inbouwvriezers, ongeacht hoogte."];
           return ["Hoogte van de nis", "Meet de binnenhoogte van de opening. De kast in beeld past zich aan je keuze aan."];
         }
+        if (st.grootte === "maakt-niet-uit") return ["Maakt niet uit", "We kijken naar alle formaten; de beste prijs telt mee."];
         if (st.grootte) {
           const kist = st.plaatsing === "vrieskist";
           const o = obj(st);
           return [(kist ? vrieskistGrootteLabels : vrijstaandGrootteLabels)[st.grootte], `${(kist ? vrieskistGrootteInhoud : vrijstaandGrootteInhoud)[st.grootte]}, ongeveer ${Math.round(o.w * 100)} × ${Math.round(o.h * 100)} cm. Het aanrecht is 90 cm hoog.`];
         }
         return ["Formaat", "Kies een formaat en zie hoe groot hij in de keuken staat."];
-      case 2:
-        return st.gezinsgrootte ? LITERS[st.gezinsgrootte] : ["Kijk naar binnen", "Hoe meer mensen, hoe meer liter je nodig hebt. Kies je huishouden."];
+      case "budget":
+        return budgetCaption(st);
       default:
-        if (st.extra.some(e => e !== "geen")) return ["Jouw extra's", "De gemarkeerde punten laten zien waar je keuzes zitten."];
-        return ["Extra's", "Vink aan wat je belangrijk vindt; het verschijnt op de vriezer."];
+        return extraCaption(st);
     }
   },
 
-  onBack(st) { if (st.q === 0) { st.grootte = null; st.nishoogte = null; } },
+  // Terug naar vraag 1 of 2: soort of formaat kan veranderen, en daarmee de budgetbedragen.
+  onBack(st) {
+    if (st.q === 0) { st.grootte = null; st.nishoogte = null; }
+    if (st.q <= 1) st.budget = null;
+  },
+
+  onNext(st, id) { meetStap(st, id); },
 
   async finish(st) {
+    meetStap(st, "extra");
     const answers = {
       plaatsing: st.plaatsing ?? "",
       nishoogte: st.plaatsing === "inbouw" ? (st.nishoogte ?? "") : "",
-      grootte: st.plaatsing !== "inbouw" ? (st.grootte ?? "") : "",
-      gezinsgrootte: st.gezinsgrootte ?? "",
-      extraAnswers: st.extra,
+      grootte: st.plaatsing !== "inbouw" ? subVan(st) : "",
+      budget: capVan(st.budget),
+      extraAnswers: st.extra.filter(e => e !== "nofrost" || st.plaatsing !== "vrieskist"),
     };
-    const raw = await productenOfFout();
-    const result = matchVriezers(normalizeProducts(raw ?? []), answers);
+    const vriezers = normalizeProducts(await productenOfFout());
+    // Beste match binnen het budget; past er niets binnen, dan zonder grens.
+    let result = matchVriezers(vriezers, answers);
+    if (answers.budget && !result.bestMatch) result = matchVriezers(vriezers, answers, null);
     localStorage.setItem("vriezer_bestMatch", JSON.stringify(result.bestMatch));
     localStorage.setItem("vriezer_bestType", result.bestType ?? "");
     localStorage.setItem("vriezer_filteredMatchedVriezers", JSON.stringify(result.filteredMatchedVriezers));
@@ -191,4 +259,21 @@ createQuiz3D({
 
   preload: ["kast-middel-dicht", "inbouw-178", "kist-middel-dicht", "kast-klein-dicht", "kast-groot-dicht", "kist-klein-dicht", "kist-groot-dicht",
     "kast-middel-open", "kist-middel-open", ...nishoogteGroups.map(n => `inbouw-${n}`)],
+});
+
+// Meting: waar haken mensen af, en wat kiezen ze (o.a. de budgetvraag)
+function meetStap(st, id) {
+  const v = st[id];
+  window.phTrackEvent?.("quiz_stap", {
+    categorie: "vriezer", stap: id, nr: vragen(st).findIndex(q => q.id === id) + 1,
+    antwoord: Array.isArray(v) ? [...v].sort().join("+") : String(v ?? ""),
+  });
+}
+
+// Grijze opties en live tellingen zodra de catalogus binnen is
+productsPromise.then(raw => {
+  if (!raw?.length) return;
+  catalogus = normalizeProducts(raw);
+  if (["extra", "budget"].includes(QID(quiz.st))) quiz.renderQuestion();
+  quiz.render();
 });

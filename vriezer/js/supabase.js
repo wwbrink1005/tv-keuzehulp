@@ -35,6 +35,7 @@ function adaptRow(row) {
     automatisch_ontdooien:  row.automatisch_ontdooien ?? "",
     geluidsniveau_db:       row.geluidsniveau_db,
     klimaatklasse:          row.klimaatklasse ?? "",
+    bedrijfstemperatuur:    row.bedrijfstemperatuur ?? "",
     icecat_afbeelding:      row.icecat_afbeelding  ?? "",
     icecat_afbeeldingen:    Array.isArray(row.icecat_afbeeldingen) ? row.icecat_afbeeldingen : [],
     aanbieders:             adaptAanbieders(row),
