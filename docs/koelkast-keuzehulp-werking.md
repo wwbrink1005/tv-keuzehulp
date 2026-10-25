@@ -76,7 +76,7 @@ wel vanaf €607.", "Niet bij een nis van 102 cm.").
 |---|---|
 | Wens (vriezer, extra) die hij niet heeft / onbekend | −150 / −40 |
 | Koelruimte kleiner dan nodig | −1,5 per 10 liter (onbekend −5) |
-| Stil gewenst | −3 per dB boven het gemiddelde van de lijst (onbekend −4) |
+| Stil gewenst | −2 per dB boven de stilste van de lijst (onbekend −6) |
 | Prijs | de duurste in de lijst verliest tot 5 punten |
 
 *Code: `koelkast/js/matching.js` (scoreKoelkasten).*

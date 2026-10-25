@@ -46,8 +46,11 @@ export function poolVoor(vriezers, answers) {
 //
 // Passcore = 100
 //   - een wens (No Frost, garage) die hij niet heeft: −150, onbekend: −40
-//   - zuinig gewenst: −5 per labelstap boven de zuinigste van de lijst (onbekend −6)
-//   - stil gewenst: −3 per dB boven het gemiddelde van de lijst (onbekend −4)
+//   - zuinig gewenst: −5 per labelstap boven de zuinigste van de lijst
+//     (onbekend −15, als drie stappen: onbekend mag niet winnen van een bekend label)
+//   - stil gewenst: −2 per dB boven de stilste van de lijst (onbekend −6).
+//     Bewust de stilste, niet het gemiddelde: anders won een luider model op
+//     prijs (zelfde regel als vaatwasser, okt. 2026).
 //   - prijs: de duurste in de lijst verliest tot 5 punten
 // `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
 const WENS_STRAF = 150, WENS_ONBEKEND = 40;
@@ -82,10 +85,10 @@ function straffen(v, a, ctx) {
     const r = labelRang(v);
     // 5 per stap: groter dan de marge van de Beste match (4), zodat een
     // zuiniger label echt wint als je erom vraagt
-    s += r === null ? 6 : (r - ctx.besteLabel) * 5;
+    s += r === null ? 15 : (r - ctx.besteLabel) * 5;
   }
   if (ex.includes("stil")) {
-    s += Number.isFinite(v.geluidsniveauDb) ? Math.max(0, v.geluidsniveauDb - ctx.gemDb) * 3 : 4;
+    s += Number.isFinite(v.geluidsniveauDb) ? (v.geluidsniveauDb - ctx.stilste) * 2 : 6;
   }
   return s;
 }
@@ -101,7 +104,7 @@ export function scoreVriezers(pool, answers = {}) {
   const db = pool.map(v => v.geluidsniveauDb).filter(Number.isFinite);
   const rangen = pool.map(labelRang).filter(r => r !== null);
   const ctx = {
-    gemDb: db.length ? db.reduce((x, y) => x + y, 0) / db.length : 0,
+    stilste: db.length ? Math.min(...db) : 0,
     besteLabel: rangen.length ? Math.min(...rangen) : 0,
   };
   return pool.map(v => {

@@ -53,7 +53,9 @@ export function poolVoor(koelkasten, answers) {
 // Passcore = 100
 //   - een wens (vriezer, extra) die hij niet heeft: −150, onbekend: −40
 //   - personen: −1,5 per 10 liter koelruimte te weinig (onbekend −5)
-//   - stil gewenst: −3 per dB boven het gemiddelde van de lijst (onbekend −4)
+//   - stil gewenst: −2 per dB boven de stilste van de lijst (onbekend −6).
+//     Bewust de stilste, niet het gemiddelde: anders won een luider model op
+//     prijs (zelfde regel als vaatwasser, okt. 2026).
 //   - prijs: de duurste in de lijst verliest tot 5 punten
 // `wens` is dezelfde score zonder het prijsdeel (voor de "Meer budget?"-kaart).
 const WENS_STRAF = 150, WENS_ONBEKEND = 40;
@@ -88,7 +90,7 @@ function wensStraf(heeft) {
   return heeft === false ? WENS_STRAF : WENS_ONBEKEND;
 }
 
-function straffen(k, a, gemDb) {
+function straffen(k, a, stilste) {
   let s = 0;
   const vw = vriezerWens(a);
   if (vw) s += wensStraf(heeftWens(k, vw));
@@ -98,7 +100,7 @@ function straffen(k, a, gemDb) {
   if (min) s += Number.isFinite(k.nettoInhoudL) ? Math.max(0, min - k.nettoInhoudL) / 10 * 1.5 : 5;
 
   if (lijst(a.extraAnswers).includes("stil") && !isUitgezet("stil")) {
-    s += Number.isFinite(k.geluidsniveauDb) ? Math.max(0, k.geluidsniveauDb - gemDb) * 3 : 4;
+    s += Number.isFinite(k.geluidsniveauDb) ? (k.geluidsniveauDb - stilste) * 2 : 6;
   }
   return s;
 }
@@ -112,9 +114,9 @@ function prijsPlek(pool) {
 export function scoreKoelkasten(pool, answers = {}) {
   const plek = prijsPlek(pool);
   const db = pool.map(k => k.geluidsniveauDb).filter(Number.isFinite);
-  const gemDb = db.length ? db.reduce((x, y) => x + y, 0) / db.length : 0;
+  const stilste = db.length ? Math.min(...db) : 0;
   return pool.map(k => {
-    const wens = 100 - straffen(k, answers, gemDb);
+    const wens = 100 - straffen(k, answers, stilste);
     const fit = wens - PRIJS_GEWICHT * plek(parsePrice(k.prijs));
     return { ...k, wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
   });

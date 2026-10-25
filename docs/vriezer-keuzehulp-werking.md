@@ -65,8 +65,8 @@ heeft, met de reden erbij ("Niet tot €800; wel vanaf €999.", "Geen van deze 
 | Situatie | Punten |
 |---|---|
 | Wens (No Frost, garage) die hij niet heeft / onbekend | −150 / −40 |
-| Zuinig gewenst | −5 per labelstap boven de zuinigste van de lijst (onbekend −6) |
-| Stil gewenst | −3 per dB boven het gemiddelde van de lijst (onbekend −4) |
+| Zuinig gewenst | −5 per labelstap boven de zuinigste van de lijst (onbekend −15) |
+| Stil gewenst | −2 per dB boven de stilste van de lijst (onbekend −6) |
 | Prijs | de duurste in de lijst verliest tot 5 punten |
 
 Een labelstap is bewust 5 punten, meer dan de marge van de Beste match (4): wie "zo zuinig
