@@ -127,7 +127,7 @@ een extra wens.
 ## 4. Van scores naar de lijst
 
 1. Alle laptops tot **10 punten onder de beste score**.
-2. **Minimaal 5**, **maximaal 30**.
+2. **Minimaal 5**, **maximaal 20** (was 30; in de Ads-test klikte bijna niemand voorbij plek 20).
 3. **Beste match:** van de laptops tot 4 punten onder de top de goedkoopste; bij zwaar of zeer
    zwaar gebruik eerst de krachtigste klasse daarvan.
 4. Beste match bovenaan met badge, de rest van goedkoop naar duur.
