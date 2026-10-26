@@ -28,8 +28,9 @@ en als meerdere printers ongeveer even goed passen de goedkoopste daarvan.
 - **Ook weggelaten: losse onderdelen en verbruiksartikelen** die in de feed staan, zoals een
   drum, fuser, invoerrol of losse cartridge (sinds 18-10-2026; een invoerrol van €19 kon
   anders Beste match worden).
-- Ongeveer 460 printers doen mee; zo'n 126 daarvan zijn bij 2 of meer winkels te koop. Alleen
-  die tonen we standaard (filter "2+ winkels").
+- **Printers die alleen bol of alleen MediaMarkt verkoopt, laten we weg** (sinds 27-10-2026, zelfde
+  regel als laptop). Wat overblijft (~133): printers bij 2 of meer winkels, plus printers die alleen
+  Coolblue, Expert of EP verkoopt. Die tonen we allemaal: het standaardfilter is "Alle winkels".
 
 ### De soort printer
 
@@ -165,7 +166,7 @@ printer zonder die wens altijd onder de printers die hem wel hebben, wat de soor
 ## 4. Van scores naar de lijst
 
 1. Alle printers tot **10 punten onder de beste score**.
-2. **Minimaal 5** die bij 2 of meer winkels te koop zijn (aangevuld met de volgende beste).
+2. **Minimaal 5** (aangevuld met de volgende beste).
 3. **Maximaal 20** (was 30; in de Ads-test klikte bijna niemand voorbij plek 20).
 4. **De Beste match:** van de printers tot **4 punten onder de beste score** de **goedkoopste**,
    maar alleen als het soort printer minstens zo goed past als dat van de best scorende (sinds
@@ -219,7 +220,7 @@ standaard.
 Simulatie van **alle 11.664 antwoordcombinaties** (gebruik × budget × alle antwoorden) tegen de
 live catalogus. Uitkomst 18-10-2026:
 
-- 0 keer een lege lijst, altijd minstens 5 printers bij 2+ winkels
+- 0 keer een lege lijst, altijd minstens 5 printers
 - 0 keer een printer boven het budget
 - 0 keer een Beste match zonder kleur terwijl je kleur wilt, of zonder scanner terwijl je wilt
   scannen

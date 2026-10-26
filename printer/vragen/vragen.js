@@ -5,7 +5,7 @@
 // de uitvoerlade, zodat inhoud en aantal kunnen wisselen.
 // Motor: shared/quiz3d.js. Uitleg van de matching: docs/printer-keuzehulp-werking.md.
 import { createQuiz3D, makeCamera, spotColumn, placeQuad } from "../../shared/quiz3d.js";
-import { matchPrinters, heeftGroteLade } from "../js/matching.js";
+import { matchPrinters, heeftGroteLade, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { budgetCapsByGebruik } from "../js/data.js";
@@ -59,12 +59,12 @@ const capVan = v => (v && v !== "geen" ? Number(v) : null);
 const GEBRUIK_WOORD = { thuis: "privégebruik", foto: "foto's", kantoor: "je werk" };
 
 // Wat het gekozen budget betekent, uit de live catalogus (null zolang die laadt).
-// Telt de printers die je standaard op de resultaatpagina ziet (bij 2+ winkels);
+// Telt de printers die je standaard op de resultaatpagina ziet;
 // bij foto's alleen printers die in kleur printen.
 let catalogus = null;
 function budgetInfo(g, cap) {
   if (!catalogus) return null;
-  const relevant = catalogus.filter(p => (p.aanbieders ?? []).length >= 2 && (g !== "foto" || p.kanKleurenPrinten === "Ja") && !(p.alleenFoto && g !== "foto"));
+  const relevant = catalogus.filter(p => (p.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS && (g !== "foto" || p.kanKleurenPrinten === "Ja") && !(p.alleenFoto && g !== "foto"));
   const binnen = cap ? relevant.filter(p => parsePrice(p.prijs) <= cap) : relevant;
   const prijzen = binnen.map(p => parsePrice(p.prijs)).filter(Number.isFinite);
   const alle = relevant.map(p => parsePrice(p.prijs)).filter(Number.isFinite);
@@ -314,7 +314,7 @@ function meetStap(st, id) {
 
 // ───────── opties grijs als geen printer ze waar kan maken ─────────
 // Een wens (kleur, scannen, een extra) is grijs als er binnen je budget geen
-// printer bij 2+ winkels is die eraan voldoet samen met je eerdere wensen en,
+// zichtbare printer is die eraan voldoet samen met je eerdere wensen en,
 // bij de extra's, met wat je al hebt aangevinkt (bv. "Compact" na "A3").
 const EIS = {
   kleur: { soms: p => p.kanKleurenPrinten === "Ja", vaak: p => p.kanKleurenPrinten === "Ja" },
@@ -332,7 +332,7 @@ function eisenVoor(st, id, behalve) {
 function metBeschikbaarheid(st, id, opties) {
   if (!catalogus || !EIS[id]) return opties;
   const cap = capVan(st.budget);
-  const vergelijkbaar = catalogus.filter(p => (p.aanbieders ?? []).length >= 2 && !(p.alleenFoto && st.gebruik !== "foto"));
+  const vergelijkbaar = catalogus.filter(p => (p.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS && !(p.alleenFoto && st.gebruik !== "foto"));
   const binnen = cap ? vergelijkbaar.filter(p => parsePrice(p.prijs) <= cap) : vergelijkbaar;
   return opties.map(o => {
     const eis = EIS[id][o.v];

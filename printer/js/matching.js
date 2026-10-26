@@ -1,7 +1,9 @@
 import { SOORTEN, soortPunten, GROTE_LADE_MIN } from "./data.js";
 import { parsePrice } from "./utils.js";
 
-export const DEFAULT_MIN_AANBIEDERS = 2;
+// "Alle winkels": printers die alleen bol of alleen MediaMarkt verkoopt, zitten al niet in
+// de catalogus (utils.js normalizeProducts). Was 2 tot 27-10-2026.
+export const DEFAULT_MIN_AANBIEDERS = 1;
 
 export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
   const countAanbieders = item => (item.aanbieders ?? []).length;
@@ -35,7 +37,7 @@ export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_
 const PUNTEN_PER_SOORTPUNT = 3;
 export const BAND_BESTE = 4;   // binnen zoveel punten van de top = even goed → goedkoopste is de beste match
 const BAND_LIJST = 10;         // de lijst: alles binnen zoveel punten van de top
-const MIN_LIJST = 5;           // en minstens zoveel printers die bij 2+ winkels te koop zijn
+const MIN_LIJST = 5;           // en minstens zoveel die standaard zichtbaar zijn
 const MAX_LIJST = 20;          // was 30; in de Ads-test viel 1 van de 144 winkelkliks voorbij plek 20 (26-10-2026)
 
 /** Punten per soort voor deze antwoorden (hoger = past beter). */
@@ -187,7 +189,7 @@ export function matchPrinters(printers, budget, answers) {
   const gescoord = scorePrinters(pool, answers ?? {}).sort((x, y) => y.fit - x.fit);
   const top = gescoord[0].fit;
   // Alles binnen de band, maar door tot er minstens MIN_LIJST printers in zitten
-  // die door het standaardfilter "2+ winkels" op de resultaatpagina komen.
+  // die door het standaardfilter "aantal winkels" op de resultaatpagina komen.
   const lijst = [];
   let zichtbaar = 0;
   for (const p of gescoord) {

@@ -495,8 +495,8 @@ function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
 
   // Alleen tonen als er boven het budget printers zijn die duidelijk beter bij de
   // wensen passen (passcore zonder prijsdeel, zie matching.js), en die je ook
-  // standaard te zien krijgt (2+ winkels).
-  // Vergelijk met wat je binnen budget echt ziet (2+ winkels).
+  // standaard te zien krijgt.
+  // Vergelijk met wat je binnen budget echt ziet.
   const zichtbaarBinnen = binnenLijst.filter(p => (p.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
   const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(p => p.wens)) : binnen.topWens;
   const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;
