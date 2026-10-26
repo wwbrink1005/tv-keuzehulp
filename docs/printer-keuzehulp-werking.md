@@ -166,7 +166,7 @@ printer zonder die wens altijd onder de printers die hem wel hebben, wat de soor
 
 1. Alle printers tot **10 punten onder de beste score**.
 2. **Minimaal 5** die bij 2 of meer winkels te koop zijn (aangevuld met de volgende beste).
-3. **Maximaal 30.**
+3. **Maximaal 20** (was 30; in de Ads-test klikte bijna niemand voorbij plek 20).
 4. **De Beste match:** van de printers tot **4 punten onder de beste score** de **goedkoopste**,
    maar alleen als het soort printer minstens zo goed past als dat van de best scorende (sinds
    26-10-2026: anders won bij "vaak in kleur" een cartridgeprinter van €50 van een EcoTank van €155).

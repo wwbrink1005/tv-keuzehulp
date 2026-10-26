@@ -36,7 +36,7 @@ const PUNTEN_PER_SOORTPUNT = 3;
 export const BAND_BESTE = 4;   // binnen zoveel punten van de top = even goed → goedkoopste is de beste match
 const BAND_LIJST = 10;         // de lijst: alles binnen zoveel punten van de top
 const MIN_LIJST = 5;           // en minstens zoveel printers die bij 2+ winkels te koop zijn
-const MAX_LIJST = 30;          // maar nooit meer dan 30 zichtbare
+const MAX_LIJST = 20;          // was 30; in de Ads-test viel 1 van de 144 winkelkliks voorbij plek 20 (26-10-2026)
 
 /** Punten per soort voor deze antwoorden (hoger = past beter). */
 export function berekenSoortScores(answers = {}) {
