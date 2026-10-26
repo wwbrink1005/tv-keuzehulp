@@ -77,7 +77,7 @@ samen met je eerdere keuzes, met de reden erbij.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 30 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
 stofzuigers tot 4 punten onder de top de goedkoopste.
 
 Filters: o.a. prijs, gewicht, met/zonder zak, merk, functies (allergiefilter, huisdieren,

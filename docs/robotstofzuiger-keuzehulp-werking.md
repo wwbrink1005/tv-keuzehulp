@@ -79,7 +79,7 @@ het gekozen station en de al aangevinkte extra's, met de reden erbij ("Niet tot 
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 30 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
 robots tot 4 punten onder de top de goedkoopste.
 
 Filters: o.a. prijs, merk, hoogte robot en station, functies (station wast dweilpads, zelflegend,

@@ -78,7 +78,7 @@ mogelijk" kiest, krijgt dan ook echt de zuinigste binnen zijn budget.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 30 bij 2+ winkels (als er zoveel zijn;
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels (als er zoveel zijn;
 vrieskisten en inbouw zijn er maar weinig). Beste match: van de vriezers tot 4 punten onder de top
 de goedkoopste.
 

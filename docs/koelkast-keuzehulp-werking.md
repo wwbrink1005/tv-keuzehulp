@@ -85,7 +85,7 @@ wel vanaf €607.", "Niet bij een nis van 102 cm.").
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 30 zichtbaar (2+ winkels; in de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 zichtbaar (2+ winkels; in de
 winkelversie telt elke koelkast). Beste match: van de koelkasten tot 4 punten onder de top de
 goedkoopste.
 

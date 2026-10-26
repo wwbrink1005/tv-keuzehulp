@@ -169,7 +169,7 @@ eindigen als hij verder goed past.
 1. **Welke tv's komen in de lijst?** Alle tv's tot **10 punten onder de beste score**.
 2. **Minimaal 5:** zijn dat er minder dan 5 die bij 2 of meer winkels te koop zijn, dan vullen
    we aan met de volgende beste, tot er 5 zijn (als ze er zijn).
-3. **Maximaal 30:** nooit meer dan 30 tv's, anders wordt het weer een catalogus.
+3. **Maximaal 20:** nooit meer dan 20 tv's (was 30; in de Ads-tests klikte bijna niemand voorbij plek 20).
 4. **De Beste match:** van alle tv's tot **4 punten onder de beste score** (die passen "even
    goed") kiezen we de **goedkoopste**. Een duurdere tv wint alleen als hij echt iets beter past.
 5. **Volgorde:** de Beste match staat bovenaan, met een blauwe rand en een badge. De rest staat

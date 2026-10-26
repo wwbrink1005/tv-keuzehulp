@@ -92,7 +92,7 @@ ontbreken ervan.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 30 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
 soundbars tot 4 punten onder de top de goedkoopste. Daarna van goedkoop naar duur.
 
 Filters: prijs, merk, geluidservaring, **functies** (losse subwoofer, Dolby Atmos/DTS:X, losse

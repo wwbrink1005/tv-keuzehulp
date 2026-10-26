@@ -65,7 +65,7 @@ met de reden erbij ("Niet tot €100; wel vanaf €219.").
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 30 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
 airfryers tot 4 punten onder de top de goedkoopste.
 
 ---

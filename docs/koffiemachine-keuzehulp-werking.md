@@ -89,7 +89,7 @@ de eerdere keuzes, met de reden erbij ("Samen met je andere keuzes pas vanaf €
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 30. Beste match: van de machines tot 4
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de machines tot 4
 punten onder de top de goedkoopste.
 
 ---

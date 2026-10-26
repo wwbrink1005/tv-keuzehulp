@@ -71,7 +71,7 @@ const WENS = 150, WENS_ONBEKEND = 50;
 export const BAND_BESTE = 4;
 const BAND_LIJST = 10;
 const MIN_LIJST = 5;
-const MAX_LIJST = 30;
+const MAX_LIJST = 20;          // was 30; in de Ads-test viel 1 van de 144 winkelkliks voorbij plek 20 (26-10-2026)
 const PRIJS_GEWICHT = 6;
 
 function wensStraf(heeft) {

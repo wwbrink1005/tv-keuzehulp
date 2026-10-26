@@ -80,7 +80,7 @@ Elke desktop begint met **100 punten**.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 30 bij 2+ winkels (minder als er van
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels (minder als er van
 het gekozen type en systeem minder zijn, zoals een Windows-mini-pc). Beste match: van de desktops
 tot 4 punten onder de top de goedkoopste; bij intensief gebruik eerst de krachtigste klasse.
 Filters: o.a. processorklasse (vroeger "GPU Klasse"), losse videokaart, werkgeheugen, opslag.

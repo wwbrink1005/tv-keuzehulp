@@ -75,7 +75,7 @@ een bekend label C.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 30 bij 2+ winkels (smal: er zijn er maar
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels (smal: er zijn er maar
 6). Beste match: van de vaatwassers tot 4 punten onder de top de goedkoopste.
 
 ---
