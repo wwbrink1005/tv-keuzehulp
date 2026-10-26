@@ -1,3 +1,4 @@
+import { metVerzendkosten } from "../../shared/aanbieders.js";
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -70,7 +71,8 @@ export function normalizeProducts(rawProducts) {
     const rawAanbieders = Array.isArray(product.aanbieders) ? product.aanbieders : [];
     const aanbieders = rawAanbieders
       .map(a => ({ ...a, prijs: parseFloat(String(a.prijs || "").replace(",", ".")) }))
-      .filter(a => a.url && Number.isFinite(a.prijs) && a.prijs > 0);
+      .filter(a => a.url && Number.isFinite(a.prijs) && a.prijs > 0)
+      .map(metVerzendkosten);
     if (aanbieders.length === 0) return [];
     // Laptops die alleen bol of alleen MediaMarkt verkoopt, laten we weg: daar zitten veel
     // (niet zo genoemde) refurbished en verouderde zakelijke laptops tussen, en de gebruiker

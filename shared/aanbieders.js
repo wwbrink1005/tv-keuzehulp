@@ -81,7 +81,22 @@ export function normaliseLevertijd(raw) {
   return { label: value, dagen: 99 };
 }
 
+/**
+ * Telt bekende verzendkosten op bij de prijs van een aanbieder (bv. Acer €19,99, Expert
+ * €6,95 bij kleine apparaten), zodat sorteren, "Goedkoopste keuze", het budget en de Beste
+ * match met wat je echt betaalt rekenen. Het label wordt dan "incl. €19,99 verzending".
+ * Verwacht een aanbieder waarvan prijs al een getal is (27-10-2026).
+ */
+export function metVerzendkosten(a) {
+  const vk = parseFloat(String(a?.verzendkosten ?? "").replace(",", "."));
+  if (!Number.isFinite(vk) || vk <= 0 || !Number.isFinite(a?.prijs)) return a;
+  return { ...a, prijs: Math.round((a.prijs + vk) * 100) / 100, verzendkosten: `incl:${vk}` };
+}
+
 export function normaliseVerzendkosten(verzendkosten) {
+  // Al bij de prijs opgeteld (metVerzendkosten): "incl:19.99"
+  const incl = String(verzendkosten ?? "").match(/^incl:(\d+(?:\.\d+)?)$/);
+  if (incl) return { label: `incl. €${Number(incl[1]).toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} verzending`, gratis: false };
   const val = parseFloat(String(verzendkosten ?? "").replace(",", "."));
   if (!Number.isFinite(val) || val <= 0) return { label: "Gratis verzending", gratis: true };
   return {

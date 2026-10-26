@@ -25,6 +25,9 @@ de laptop die het best past, en als meerdere ongeveer even goed passen de goedko
   Daar zaten veel niet zo genoemde refurbished en verouderde zakelijke laptops tussen. Wat
   overblijft (~485): laptops bij 2 of meer winkels, plus laptops die alleen Coolblue, Expert, EP
   of Acer zelf verkoopt. Die tonen we allemaal: het standaardfilter is "Alle winkels".
+- **Verzendkosten tellen mee in de prijs** als de winkel ze zelf opgeeft in de feed (Acer: €19,99).
+  Sorteren, "Goedkoopste keuze", het budget en de Beste match rekenen met de totaalprijs; de
+  kaart toont "incl. €19,99 verzending". Regel: `metVerzendkosten` in `shared/aanbieders.js`.
 - Sinds 19-10-2026 halen we extra op (migratie `keuzehulp-pipeline/migrations/laptops_extra_specs.sql`):
   batterijcapaciteit (Wh), verversing (Hz), numeriek toetsenblok, vingerafdruklezer en soort
   laptop (Chromebook, 2-in-1, workstation). De Hz stond hiervoor bij elke laptop vast op 60.
