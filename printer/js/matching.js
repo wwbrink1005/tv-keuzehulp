@@ -140,7 +140,7 @@ export function scorePrinters(pool, answers = {}) {
     const achter = Math.max(0, top - (ss[p.soort] ?? 0));
     const wens = 100 - achter * PUNTEN_PER_SOORTPUNT - straffen(p, answers) + bonussen(p, answers);
     const fit = wens - gewicht * plek(parsePrice(p.prijs));
-    return { ...p, wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
+    return { ...p, soortAchter: achter, wens: Math.round(wens * 10) / 10, fit: Math.round(fit * 10) / 10 };
   });
 }
 
@@ -150,13 +150,21 @@ export function idealeSoort(answers) {
   return SOORTEN.reduce((a, b) => (ss[b] > ss[a] ? b : a));
 }
 
-/** Beste match: de goedkoopste van de printers die even goed passen als de beste. */
+/**
+ * Beste match: de goedkoopste van de printers die even goed passen als de beste.
+ * "Even goed" = binnen BAND_BESTE punten én een soort printer die minstens zo goed
+ * past als die van de best scorende. Anders won bij "vaak in kleur" + "maakt niet
+ * uit" een cartridgeprinter van €50 (score 97) van een EcoTank van €155 (98): op
+ * papier bijna gelijk, maar wie vaak in kleur print is met cartridges duurder uit.
+ */
 export function kiesBesteMatch(lijst) {
   const metScore = (lijst ?? []).filter(p => Number.isFinite(p?.fit));
   if (!metScore.length) return null;
-  const top = Math.max(...metScore.map(p => p.fit));
+  const beste = metScore.reduce((a, b) => (b.fit > a.fit ? b : a));
+  const top = beste.fit;
+  const maxAchter = Number.isFinite(beste.soortAchter) ? beste.soortAchter : Infinity;
   return metScore
-    .filter(p => p.fit >= top - BAND_BESTE)
+    .filter(p => p.fit >= top - BAND_BESTE && !(p.soortAchter > maxAchter))
     .reduce((a, b) => {
       const pa = parsePrice(a.prijs), pb = parsePrice(b.prijs);
       return pb < pa || (pb === pa && b.fit > a.fit) ? b : a;

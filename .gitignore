@@ -11,3 +11,6 @@ klanten/testdata/
 
 # 3D-render assets (Poly Haven, opnieuw op te halen met tools/3d-render/assets_ophalen.py)
 tools/3d-render/assets/
+
+# Umami API-sleutel (alleen-lezen analyse, nooit committen)
+umami-api-key.txt
