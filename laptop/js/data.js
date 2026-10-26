@@ -59,7 +59,9 @@ export const PROCESSOR_TIERS = {
   Budget:    ["i3"],
   Mid:       ["i5", "Ryzen 5"],
   Krachtig:  ["i7", "Ryzen 7"],
-  Topklasse: ["i9"]
+  // NVIDIA RTX Spark N1X / Grace (Arm, 2026): laptops van €3.000-7.000, vielen eerst op "Mid"
+  // en kwamen zo bij licht gebruik bovenaan (26-10-2026).
+  Topklasse: ["i9", "N1X", "RTX Spark", "NVIDIA Grace"]
 };
 
 export const TIER_ORDER = ["Budget", "Mid", "Krachtig", "Topklasse"];

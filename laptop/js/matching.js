@@ -52,9 +52,11 @@ export function heeftDedicatedGpu(gpu) {
 // Gamen vraagt een losse videokaart. Voor creatief werk (foto, video) volstaat
 // ook de ingebouwde grafische chip van een Apple M Pro/Max: die zijn daar juist
 // sterk in.
-function voldoetAanGpuWens(l, gebruik) {
+function voldoetAanGpuWens(l, gebruik, intensiteit) {
   if (gebruik.includes("gaming")) return heeftDedicatedGpu(l.gpu);
-  if (gebruik.includes("creatief")) return heeftDedicatedGpu(l.gpu) || /\bM\d+\s+(pro|max|ultra)\b/i.test(l.processor ?? "");
+  // Creatief bij licht of normaal gebruik (af en toe foto's bewerken) kan prima zonder
+  // losse videokaart. Anders werd dat altijd een gamelaptop of MacBook Pro (26-10-2026).
+  if (gebruik.includes("creatief") && (intensiteit === "zwaar" || intensiteit === "extreem")) return heeftDedicatedGpu(l.gpu) || /\bM\d+\s+(pro|max|ultra)\b/i.test(l.processor ?? "");
   return true;
 }
 
@@ -125,7 +127,7 @@ function straffen(l, a) {
   if (os) s += l.os ? (l.os === os ? 0 : OS_MIS) : WENS_ONBEKEND;
   // Zonder losse videokaart is een laptop onbruikbaar om te gamen: dat weegt
   // dubbel. Bij creatief werk weegt hij even zwaar als een extra wens.
-  if (!voldoetAanGpuWens(l, gebruik)) s += gebruik.includes("gaming") ? 2 * WENS : WENS;
+  if (!voldoetAanGpuWens(l, gebruik, a.intensiteit)) s += gebruik.includes("gaming") ? 2 * WENS : WENS;
   if (a.opslag === "gemiddeld") s += wensStraf(l.opslag == null ? null : l.opslag >= 512);
   if (a.opslag === "veel") s += wensStraf(l.opslag == null ? null : l.opslag >= 1000);
   for (const e of extraWensen(a)) s += wensStraf(heeftExtra(l, e));

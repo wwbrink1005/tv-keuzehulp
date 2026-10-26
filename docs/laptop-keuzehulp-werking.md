@@ -87,7 +87,7 @@ passende klasse.
 |---|---|---|
 | Besturingssysteem | −1.000 | −50 |
 | Losse videokaart bij gamen | −300 | |
-| Videokaart (of Apple M Pro/Max) bij creatief werk | −150 | |
+| Videokaart (of Apple M Pro/Max) bij creatief werk, **alleen bij zwaar of zeer zwaar gebruik** (sinds 26-10-2026; daarvoor kreeg ook licht creatief werk altijd een gamelaptop) | −150 | |
 | Opslag (512 GB / 1 TB) | −150 | −50 |
 | Elke extra wens | −150 | −50 |
 
