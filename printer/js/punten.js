@@ -78,14 +78,9 @@ export function buildResultPoints(pr, answers, ctx) {
  * Eerlijke kanttekening onder de punten. HP+ / Instant Ink (modelnummer op
  * "e"): werkt alleen met een HP-account en originele HP-cartridges.
  */
-export function buildNote(pr, answers) {
-  const a = answers || {};
-  const notities = [];
-  if (pr?.hpPlus) notities.push("HP+ printer: werkt alleen met een HP-account, internet en originele HP-cartridges.");
-  // Goedkoop in aanschaf, duur in gebruik: eerlijk melden bij wie veel inkt gebruikt.
-  const veelInkt = a.kleur === "vaak" || a.volume === "regelmatig" || a.volume === "veel";
-  if (pr?.soort === "cartridge" && veelInkt) notities.push("Let op: bij jouw gebruik zijn cartridges duur per pagina. Een printer met navulbare inkttanks is op termijn meestal goedkoper.");
-  return notities.join(" ");
+export function buildNote(pr) {
+  if (!pr?.hpPlus) return "";
+  return "HP+ printer: werkt alleen met een HP-account, internet en originele HP-cartridges.";
 }
 
 export function buildSpecChips(pr) {

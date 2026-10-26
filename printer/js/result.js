@@ -57,7 +57,7 @@ function displayOtherMatchesRedesign(filteredMatchedPrinters) {
       const specs = buildSpecChips(printer);
       const points = buildResultPoints(printer, currentAnswers, ctx);
 
-      return buildCardHtml({ product: printer, index, isCheapest, isBeste, specs, points, note: buildNote(printer, currentAnswers) });
+      return buildCardHtml({ product: printer, index, isCheapest, isBeste, specs, points, note: buildNote(printer) });
     })
     .join("");
   meetScroll(container);

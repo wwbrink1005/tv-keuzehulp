@@ -205,9 +205,6 @@ standaard.
 - **Inkttankprinters** bij wie vaak in kleur, regelmatig of veel print (of goedkoop printen wil):
   het punt "Navulbare inkttanks: bij jouw gebruik veel goedkoper per pagina dan cartridges" staat
   bovenaan.
-- **Cartridgeprinters** bij wie vaak in kleur, regelmatig of veel print, krijgen een grijze regel:
-  "Let op: bij jouw gebruik zijn cartridges duur per pagina. Een printer met navulbare inkttanks is
-  op termijn meestal goedkoper."
 - **HP+-printers** krijgen eronder een grijze regel: "HP+ printer: werkt alleen met een
   HP-account, internet en originele HP-cartridges."
 - Onder "Alle specificaties" staan onder meer soort, dubbelzijdig, papierformaat, papierlade,
