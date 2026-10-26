@@ -167,7 +167,9 @@ printer zonder die wens altijd onder de printers die hem wel hebben, wat de soor
 1. Alle printers tot **10 punten onder de beste score**.
 2. **Minimaal 5** die bij 2 of meer winkels te koop zijn (aangevuld met de volgende beste).
 3. **Maximaal 30.**
-4. **De Beste match:** van de printers tot **4 punten onder de beste score** de **goedkoopste**.
+4. **De Beste match:** van de printers tot **4 punten onder de beste score** de **goedkoopste**,
+   maar alleen als het soort printer minstens zo goed past als dat van de best scorende (sinds
+   26-10-2026: anders won bij "vaak in kleur" een cartridgeprinter van €50 van een EcoTank van €155).
 5. **Volgorde:** Beste match bovenaan (blauwe rand, badge), daarna van goedkoop naar duur.
 
 ### Filters
@@ -200,6 +202,12 @@ standaard.
 - "Waarom dit bij jou past": altijd 4 punten, de kaart toont er 3. De eerste regel bevestigt de
   vervulde wensen ("Precies wat je zocht: print in kleur, ook scannen en kopiëren en navulbare
   inkttanks").
+- **Inkttankprinters** bij wie vaak in kleur, regelmatig of veel print (of goedkoop printen wil):
+  het punt "Navulbare inkttanks: bij jouw gebruik veel goedkoper per pagina dan cartridges" staat
+  bovenaan.
+- **Cartridgeprinters** bij wie vaak in kleur, regelmatig of veel print, krijgen een grijze regel:
+  "Let op: bij jouw gebruik zijn cartridges duur per pagina. Een printer met navulbare inkttanks is
+  op termijn meestal goedkoper."
 - **HP+-printers** krijgen eronder een grijze regel: "HP+ printer: werkt alleen met een
   HP-account, internet en originele HP-cartridges."
 - Onder "Alle specificaties" staan onder meer soort, dubbelzijdig, papierformaat, papierlade,
@@ -240,6 +248,7 @@ Vraag het aan Claude: "draai de simulatie van de printer-matching opnieuw".
 | `budget_kaart` | "Meer budget?"-kaart | `actie`: getoond, klik_meer_budget, klik_terug, niets_binnen_budget |
 | `filter_gebruikt` | Filter aangeklikt | `filter`, `waarde` |
 | `sorteren` | Andere volgorde | `volgorde` |
+| `lijst_scroll` | Kaart 3, 6, 10 of 20 voor de helft in beeld (één keer per drempel) | `tot`, `lijst` |
 
 Plus de algemene `quiz_gestart` en `quiz_voltooid`. Zelf testen zonder mee te tellen: open de
 site één keer met `?nietmeten` erachter.

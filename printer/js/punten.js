@@ -49,7 +49,11 @@ export function buildResultPoints(pr, answers, ctx) {
   });
   prijsPunten(p, pr, ctx);
 
-  // 3. Wat de soort printer betekent voor de kosten
+  // 3. Wat de soort printer betekent voor de kosten. Wie vaak in kleur of veel print
+  // (of goedkoop printen wil), heeft het meeste aan inkttanks: dan bovenaan (26-10-2026,
+  // uit de analyse: tankprinters zijn daar het betere advies maar vielen weg).
+  const veelInkt = a.kleur === "vaak" || a.volume === "regelmatig" || a.volume === "veel" || a.kosten === "printen";
+  if (pr.soort === "tank" && veelInkt) p.voeg(11, "inkt", `<strong>Navulbare inkttanks</strong>: bij jouw gebruik veel goedkoper per pagina dan cartridges`);
   if (pr.soort === "tank") p.voeg(30, "inkt", `<strong>Navulbare inkttanks</strong>: veel lagere kosten per pagina dan cartridges`);
   else if (pr.soort === "laserZw" || pr.soort === "laserKleur") p.voeg(31, "inkt", `<strong>Toner</strong> in plaats van inkt: voordelig per pagina en droogt niet in`);
   if (a.gebruik === "foto" && pr.zonderWitranden === "Ja") p.voeg(32, "witranden", `<strong>Foto's zonder witranden</strong>, tot de rand bedrukt`);
@@ -74,9 +78,14 @@ export function buildResultPoints(pr, answers, ctx) {
  * Eerlijke kanttekening onder de punten. HP+ / Instant Ink (modelnummer op
  * "e"): werkt alleen met een HP-account en originele HP-cartridges.
  */
-export function buildNote(pr) {
-  if (!pr?.hpPlus) return "";
-  return "HP+ printer: werkt alleen met een HP-account, internet en originele HP-cartridges.";
+export function buildNote(pr, answers) {
+  const a = answers || {};
+  const notities = [];
+  if (pr?.hpPlus) notities.push("HP+ printer: werkt alleen met een HP-account, internet en originele HP-cartridges.");
+  // Goedkoop in aanschaf, duur in gebruik: eerlijk melden bij wie veel inkt gebruikt.
+  const veelInkt = a.kleur === "vaak" || a.volume === "regelmatig" || a.volume === "veel";
+  if (pr?.soort === "cartridge" && veelInkt) notities.push("Let op: bij jouw gebruik zijn cartridges duur per pagina. Een printer met navulbare inkttanks is op termijn meestal goedkoper.");
+  return notities.join(" ");
 }
 
 export function buildSpecChips(pr) {

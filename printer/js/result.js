@@ -57,9 +57,10 @@ function displayOtherMatchesRedesign(filteredMatchedPrinters) {
       const specs = buildSpecChips(printer);
       const points = buildResultPoints(printer, currentAnswers, ctx);
 
-      return buildCardHtml({ product: printer, index, isCheapest, isBeste, specs, points, note: buildNote(printer) });
+      return buildCardHtml({ product: printer, index, isCheapest, isBeste, specs, points, note: buildNote(printer, currentAnswers) });
     })
     .join("");
+  meetScroll(container);
 
   // Hartje en specificatieblok komen erbij zodra de ruwe catalogus binnen
   // is; alleen als er intussen niet opnieuw gerenderd is (filter aangeklikt).
@@ -78,6 +79,30 @@ function displayOtherMatchesRedesign(filteredMatchedPrinters) {
 
 let baseMatches = [];
 let currentAnswers = null;
+
+// Meting: hoe ver bezoekers in de lijst kijken (26-10-2026, voor de vraag waarom
+// "tot €200" weinig doorklikt). Eén event per drempel per bezoek: kaart 3, 6, 10, 20
+// voor minstens de helft in beeld geweest.
+const SCROLL_DREMPELS = [3, 6, 10, 20];
+const scrollGemeld = new Set();
+let scrollWaker = null;
+function meetScroll(container) {
+  if (!("IntersectionObserver" in window)) return;
+  scrollWaker?.disconnect();
+  const kaarten = () => [...container.querySelectorAll(":scope > .rcard")];
+  scrollWaker = new IntersectionObserver(items => {
+    for (const it of items) {
+      if (!it.isIntersecting) continue;
+      const nr = kaarten().indexOf(it.target) + 1;
+      for (const d of SCROLL_DREMPELS) {
+        if (nr < d || scrollGemeld.has(d)) continue;
+        scrollGemeld.add(d);
+        window.phTrackEvent?.("lijst_scroll", { categorie: "printer", tot: d, lijst: kaarten().length });
+      }
+    }
+  }, { threshold: 0.5 });
+  kaarten().forEach(k => scrollWaker.observe(k));
+}
 let currentType = "";
 let currentSort = "price-asc";
 
