@@ -60,6 +60,7 @@ function displayOtherMatchesRedesign(filteredMatchedLaptops) {
       return buildCardHtml({ product: laptop, index, isCheapest, isBeste, specs, points });
     })
     .join("");
+  meetScroll(container);
 
   // Hartje en specificatieblok komen erbij zodra de ruwe catalogus binnen
   // is; alleen als er intussen niet opnieuw gerenderd is (filter aangeklikt).
@@ -78,6 +79,29 @@ function displayOtherMatchesRedesign(filteredMatchedLaptops) {
 
 let baseMatches = [];
 let currentAnswers = null;
+
+// Meting: hoe ver bezoekers in de lijst kijken (sinds 27-10-2026, zelfde als printer). Eén event per drempel per bezoek: kaart 3, 6, 10, 20
+// voor minstens de helft in beeld geweest.
+const SCROLL_DREMPELS = [3, 6, 10, 20];
+const scrollGemeld = new Set();
+let scrollWaker = null;
+function meetScroll(container) {
+  if (!("IntersectionObserver" in window)) return;
+  scrollWaker?.disconnect();
+  const kaarten = () => [...container.querySelectorAll(":scope > .rcard")];
+  scrollWaker = new IntersectionObserver(items => {
+    for (const it of items) {
+      if (!it.isIntersecting) continue;
+      const nr = kaarten().indexOf(it.target) + 1;
+      for (const d of SCROLL_DREMPELS) {
+        if (nr < d || scrollGemeld.has(d)) continue;
+        scrollGemeld.add(d);
+        window.phTrackEvent?.("lijst_scroll", { categorie: "laptop", tot: d, lijst: kaarten().length });
+      }
+    }
+  }, { threshold: 0.5 });
+  kaarten().forEach(k => scrollWaker.observe(k));
+}
 let currentType = "";
 let currentSort = "price-asc";
 
