@@ -1,7 +1,9 @@
 import { getProcessorTier, isLangeAccu, scoringSystem, sizeGroupToAllowedSizes, TIER_ORDER } from "./data.js";
 import { parsePrice } from "./utils.js";
 
-export const DEFAULT_MIN_AANBIEDERS = 2;
+// "Alle winkels": laptops die alleen bol of alleen MediaMarkt verkoopt, zitten al niet in
+// de catalogus (utils.js normalizeProducts). Was 2 tot 26-10-2026.
+export const DEFAULT_MIN_AANBIEDERS = 1;
 
 export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
   const countAanbieders = item => (item.aanbieders ?? []).length;
@@ -222,7 +224,7 @@ export function matchLaptops(laptops, sizeGroup, budget, answers) {
   const gescoord = scoreLaptops(pool, answers ?? {}).sort((x, y) => y.fit - x.fit);
   const top = gescoord[0].fit;
   // Alles binnen de band, maar door tot er minstens MIN_LIJST laptops in zitten
-  // die door het standaardfilter "2+ winkels" op de resultaatpagina komen.
+  // die door het standaardfilter "aantal winkels" op de resultaatpagina komen.
   const lijst = [];
   let zichtbaar = 0;
   for (const l of gescoord) {

@@ -9,16 +9,16 @@ export const sizeGroupToAllowedSizes = {
 };
 
 // ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
-// Twee maximumbedragen plus "Geen voorkeur", voor elk formaat gelijk (wens
-// gebruiker: €1.000 als laagste was te veel geld). Uit de live catalogus (okt.
-// 2026, laptops bij 2+ winkels): tot €800 zijn er 16 / 26 / 8 (13-14 / 15-16 /
-// 17-18 inch); vanaf ongeveer €700 een degelijke Windows-laptop met 16 GB en
-// 512 GB, daaronder vooral Chromebooks en instapmodellen. Herzien als de
+// Drie maximumbedragen plus "Geen voorkeur", voor elk formaat gelijk. Sinds
+// 26-10-2026 €600 / €800 / €1.200 (was €800 / €1.300): de gebruiker weet dat
+// veel mensen €500-600 in gedachten hebben, en "tot €1.000" als tweede stap
+// voelde te zwaar. Uit de Ads-test (20-25 okt): 62% koos de laagste optie (€800),
+// aangeklikte laptops mediaan €649, verkochte laptop €599. Herzien als de
 // prijzen flink verschuiven.
 export const budgetCapsBySize = {
-  "licht-compact":  [800, 1300],
-  "middenweg":      [800, 1300],
-  "groot-krachtig": [800, 1300],
+  "licht-compact":  [600, 800, 1200],
+  "middenweg":      [600, 800, 1200],
+  "groot-krachtig": [600, 800, 1200],
 };
 
 // ─── Lange accuduur ─────────────────────────────────────────────────────────

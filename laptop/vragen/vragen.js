@@ -7,6 +7,7 @@ import { calculateScores, matchLaptops, heeftExtra } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { budgetCapsBySize, sizeGroupToAllowedSizes } from "../js/data.js";
+import { DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 
 const camera = makeCamera({ camY: -2.15, camZ: 1.25, shiftY: -0.14 });
 const productsPromise = fetchProducts().catch(() => null);
@@ -153,7 +154,7 @@ let catalogus = null;
 function budgetInfo(g, cap) {
   if (!catalogus || !g) return null;
   const maten = sizeGroupToAllowedSizes[g] ?? [];
-  const inMaat = catalogus.filter(l => maten.includes(l.schermdiagonaal) && (l.aanbieders ?? []).length >= 2);
+  const inMaat = catalogus.filter(l => maten.includes(l.schermdiagonaal) && (l.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
   const binnen = cap ? inMaat.filter(l => parsePrice(l.prijs) <= cap) : inMaat;
   const prijzen = binnen.map(l => parsePrice(l.prijs)).filter(Number.isFinite);
   const alle = inMaat.map(l => parsePrice(l.prijs)).filter(Number.isFinite);
@@ -169,7 +170,7 @@ function osOpties(st) {
   const basis = Q.find(q => q.id === "os").options;
   if (!catalogus || !st.formaat) return basis;
   const cap = capVan(st.budget);
-  const zichtbaar = catalogus.filter(l => (l.aanbieders ?? []).length >= 2);
+  const zichtbaar = catalogus.filter(l => (l.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
   return basis.map(o => {
     const systeem = OS_SYSTEEM[o.v];
     if (!systeem) return o;
@@ -215,7 +216,7 @@ function gebruikEis(st) {
 function metBeschikbaarheid(st, id, opties) {
   if (!catalogus || !EIS[id]) return opties;
   const cap = capVan(st.budget), os = OS_SYSTEEM[st.os], maten = sizeGroupToAllowedSizes[st.formaat] ?? [];
-  let vergelijkbaar = catalogus.filter(l => (l.aanbieders ?? []).length >= 2 && maten.includes(l.schermdiagonaal));
+  let vergelijkbaar = catalogus.filter(l => (l.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS && maten.includes(l.schermdiagonaal));
   if (os && vergelijkbaar.some(l => l.os === os)) vergelijkbaar = vergelijkbaar.filter(l => l.os === os);
   const binnen = cap ? vergelijkbaar.filter(l => parsePrice(l.prijs) <= cap) : vergelijkbaar;
   const tot = Q.findIndex(q => q.id === id);
@@ -258,7 +259,7 @@ const OS_TEKST = {
 function osInfo(g, os) {
   if (!catalogus) return null;
   const maten = sizeGroupToAllowedSizes[g || "middenweg"] ?? [];
-  const lijst = catalogus.filter(l => maten.includes(l.schermdiagonaal) && (l.aanbieders ?? []).length >= 2 && l.os === OS_NAAM[os]);
+  const lijst = catalogus.filter(l => maten.includes(l.schermdiagonaal) && (l.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS && l.os === OS_NAAM[os]);
   const prijzen = lijst.map(l => parsePrice(l.prijs)).filter(Number.isFinite);
   return { lijst, vanaf: prijzen.length ? Math.min(...prijzen) : null };
 }
@@ -289,7 +290,7 @@ function extraCaption(st) {
                                              : ["Extra's", "Vink aan wat je belangrijk vindt. Op de laptop zie je waar het zit."];
   if (!catalogus) return ["Jouw extra's", "De punten op de laptop laten zien waar je keuzes zitten."];
   const cap = capVan(st.budget), os = OS_NAAM[st.os], maten = sizeGroupToAllowedSizes[st.formaat || "middenweg"] ?? [];
-  const lijst = catalogus.filter(l => maten.includes(l.schermdiagonaal) && (l.aanbieders ?? []).length >= 2
+  const lijst = catalogus.filter(l => maten.includes(l.schermdiagonaal) && (l.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS
     && (!cap || parsePrice(l.prijs) <= cap) && (!os || l.os === os));
   const n = lijst.filter(l => wensen.every(w => heeftExtra(l, w) === true)).length;
   const keuzes = ["formaat", cap && "budget", os && "systeem"].filter(Boolean);

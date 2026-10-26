@@ -21,8 +21,10 @@ de laptop die het best past, en als meerdere ongeveer even goed passen de goedko
 
 - Supabase, tabel `laptops`, dagelijks bijgewerkt door de `keuzehulp-pipeline` (prijzen van de
   winkels, specificaties van Icecat, MacBooks via de Apple-scraper).
-- Ruim 1.850 laptops doen mee; ongeveer 300 zijn bij 2 of meer winkels te koop. Alleen die tonen
-  we standaard (filter "2+ winkels").
+- **Laptops die alleen bol of alleen MediaMarkt verkoopt, laten we weg** (sinds 26-10-2026).
+  Daar zaten veel niet zo genoemde refurbished en verouderde zakelijke laptops tussen. Wat
+  overblijft (~485): laptops bij 2 of meer winkels, plus laptops die alleen Coolblue, Expert, EP
+  of Acer zelf verkoopt. Die tonen we allemaal: het standaardfilter is "Alle winkels".
 - Sinds 19-10-2026 halen we extra op (migratie `keuzehulp-pipeline/migrations/laptops_extra_specs.sql`):
   batterijcapaciteit (Wh), verversing (Hz), numeriek toetsenblok, vingerafdruklezer en soort
   laptop (Chromebook, 2-in-1, workstation). De Hz stond hiervoor bij elke laptop vast op 60.
@@ -59,9 +61,9 @@ USB-C is geen wens meer: 210 van de 212 laptops laden via USB-C.
 
 | Formaat | Opties |
 |---|---|
-| 13–14 inch | tot €800, tot €1.300, geen voorkeur |
-| 15–16 inch | tot €800, tot €1.300, geen voorkeur |
-| 17–18 inch | tot €800, tot €1.300, geen voorkeur |
+| 13–14 inch | tot €600, tot €800, tot €1.200, geen voorkeur |
+| 15–16 inch | tot €600, tot €800, tot €1.200, geen voorkeur |
+| 17–18 inch | tot €600, tot €800, tot €1.200, geen voorkeur |
 
 Onder de vraag staat hoeveel laptops binnen het bedrag vallen ("26 van de 152 laptops van dit
 formaat kosten €800 of minder"). Past er **niets** binnen, dan tonen we de best passende
@@ -125,7 +127,7 @@ een extra wens.
 ## 4. Van scores naar de lijst
 
 1. Alle laptops tot **10 punten onder de beste score**.
-2. **Minimaal 5** die bij 2 of meer winkels te koop zijn, **maximaal 30**.
+2. **Minimaal 5**, **maximaal 30**.
 3. **Beste match:** van de laptops tot 4 punten onder de top de goedkoopste; bij zwaar of zeer
    zwaar gebruik eerst de krachtigste klasse daarvan.
 4. Beste match bovenaan met badge, de rest van goedkoop naar duur.
@@ -141,14 +143,13 @@ Prijs, schermgrootte, merk, processor, paneel, werkgeheugen, resolutie, touchscr
 ## 5. De "Meer budget?"-kaart
 
 Passen laptops boven het budget duidelijk beter (minstens 4 punten, zonder het prijsdeel) dan
-wat je binnen budget **ziet** (2+ winkels), dan staat direct na de eerste laptop een kaart.
+wat je binnen budget **ziet**, dan staat direct na de eerste laptop een kaart.
 Mist binnen budget de videokaart die gamen of creatief werk vraagt, dan zegt de kaart dat:
 
 > **Meer budget? Dan krijg je een laptop met een losse videokaart, die je nodig hebt om te gamen**
-> Binnen je budget is die er niet bij 2 of meer winkels. Vanaf €1.299, €499 boven je budget.
+> Binnen je budget is die er niet. Vanaf €1.299, €499 boven je budget.
 
-Onder €1.300 zijn gaminglaptops bijna altijd maar bij één winkel te koop; die staan onder
-"Aantal winkels: Alle winkels".
+Goedkope gaminglaptops die alleen bol of MediaMarkt verkoopt, zitten niet in de catalogus.
 
 *Code: `laptop/js/result-filters.js` (initBudgetNote).*
 

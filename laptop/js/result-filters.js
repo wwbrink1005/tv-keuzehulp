@@ -712,8 +712,8 @@ function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch })
   }
 
   // Alleen tonen als er boven het budget laptops zijn die duidelijk beter bij de
-  // wensen passen (passcore zonder prijsdeel) en die je standaard ziet (2+ winkels).
-  // Vergelijk met wat je binnen budget echt ziet (2+ winkels): een gaminglaptop
+  // wensen passen (passcore zonder prijsdeel) en die je standaard ziet.
+  // Vergelijk met wat je binnen budget echt ziet: een gaminglaptop
   // van €999 die maar bij 1 winkel te koop is, staat standaard niet in beeld.
   const zichtbaarBinnen = binnenLijst.filter(l => (l.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
   const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(l => l.wens)) : binnen.topWens;
@@ -738,7 +738,7 @@ function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch })
       ? `<div class="budget-kaart-tekst"><strong>Je ziet nu laptops boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
          <button type="button" class="budget-kaart-btn">Terug naar laptops tot ${euroLabel(cap)}</button>`
       : gpuReden
-        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${gebruik.includes("gaming") ? "een laptop met een losse videokaart, die je nodig hebt om te gamen" : "een laptop met een krachtige grafische chip voor foto- en videobewerking"}</strong><span>Binnen je budget is die er niet bij 2 of meer winkels. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${gebruik.includes("gaming") ? "een laptop met een losse videokaart, die je nodig hebt om te gamen" : "een laptop met een krachtige grafische chip voor foto- en videobewerking"}</strong><span>Binnen je budget is die er niet. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
          <button type="button" class="budget-kaart-btn">Bekijk deze laptops</button>`
       : hoger
         ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan past ${wat} nog beter bij je wensen</strong><span>${voordeel}. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>

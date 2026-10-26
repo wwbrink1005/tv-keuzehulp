@@ -61,6 +61,8 @@ function geheugenUitNamen(namen) {
 /**
  * Normalizes raw laptop products from Supabase to a consistent internal shape.
  */
+const ALLEEN_NIET = { bol: true, MediaMarkt: true };
+
 export function normalizeProducts(rawProducts) {
   if (!Array.isArray(rawProducts)) return [];
 
@@ -70,6 +72,12 @@ export function normalizeProducts(rawProducts) {
       .map(a => ({ ...a, prijs: parseFloat(String(a.prijs || "").replace(",", ".")) }))
       .filter(a => a.url && Number.isFinite(a.prijs) && a.prijs > 0);
     if (aanbieders.length === 0) return [];
+    // Laptops die alleen bol of alleen MediaMarkt verkoopt, laten we weg: daar zitten veel
+    // (niet zo genoemde) refurbished en verouderde zakelijke laptops tussen, en de gebruiker
+    // wil ze niet als losse aanbieder tonen. Wat overblijft, ligt bij 2+ winkels of alleen bij
+    // Coolblue, Expert of EP (eigen, nieuw assortiment). Daardoor kan het standaardfilter op
+    // "Alle winkels" (26-10-2026).
+    if (aanbieders.length === 1 && ALLEEN_NIET[aanbieders[0].winkel]) return [];
 
     const naam = String(product.titel || "").trim() || aanbieders.map(a => String(a.productnaam || "").trim()).find(Boolean) || "";
     if (!naam) return [];
