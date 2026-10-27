@@ -2,7 +2,7 @@ import { applyMinAanbiedersCascade, isPerfectMatch, kiesBesteMatch } from "./mat
 import { formatPriceLabel, formatScherpte, parsePrice, qs } from "./utils.js";
 import { normaliseVerzendkosten, resetProvidersRegistry } from "../../shared/aanbieders.js";
 import { toonGeenUitslag, toonGeenFilterResultaat } from "../../shared/resultaat-status.js";
-import { buildCardHtml } from "../../shared/resultaat-kaart.js";
+import { buildCardHtml, escapeHtml, isWebUrl } from "../../shared/resultaat-kaart.js";
 import { fetchProducts } from "./supabase.js";
 import { buildContext, buildResultPoints, buildSpecChips, buildAlleSpecs } from "./punten.js";
 import { initFavorieten } from "../../shared/favorieten.js";
@@ -37,15 +37,15 @@ function renderBestMatchProviders(tv) {
         const priceLabel = formatPriceLabel(p.prijs);
         const shippingLabel = normaliseVerzendkosten(p.verzendkosten).label;
         return `
-          <a href="${p.url}" class="provider-btn" target="_blank" rel="noopener noreferrer" aria-label="${p.winkel}: \u20ac${priceLabel}, ${p.levertijd}" data-winkel="${p.winkel}" data-prijs="${p.prijs ?? ""}">
-            <span class="provider-name">${p.winkel}</span>
+          <a href="${isWebUrl(p.url) ? escapeHtml(p.url) : "#"}" class="provider-btn" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(p.winkel)}: \u20ac${priceLabel}, ${escapeHtml(p.levertijd)}" data-winkel="${escapeHtml(p.winkel)}" data-prijs="${escapeHtml(p.prijs)}">
+            <span class="provider-name">${escapeHtml(p.winkel)}</span>
             <span class="provider-price">\u20ac\u00a0${priceLabel}</span>
             <span class="provider-meta">
               <span class="provider-delivery">
                 <i data-lucide="truck" aria-hidden="true"></i>
-                <span class="provider-delivery-text">${p.levertijd}</span>
+                <span class="provider-delivery-text">${escapeHtml(p.levertijd)}</span>
               </span>
-              <span class="provider-shipping">${shippingLabel}</span>
+              <span class="provider-shipping">${escapeHtml(shippingLabel)}</span>
             </span>
             <span class="provider-chevron" aria-hidden="true">
               <i data-lucide="chevron-right"></i>

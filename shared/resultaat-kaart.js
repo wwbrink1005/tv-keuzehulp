@@ -35,9 +35,14 @@ const TRUCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 
 const MAX_PUNTEN = 3;
 
-function escapeHtml(value) {
+export function escapeHtml(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/** Winkellinks komen uit externe feeds: alleen http(s), nooit javascript: e.d. */
+export function isWebUrl(url) {
+  return /^https?:\/\//i.test(String(url ?? "").trim());
 }
 
 function formatPriceLabel(prijs) {
@@ -96,7 +101,7 @@ function deliveryHtml(a) {
 
 function shopsHtml(aanbieders) {
   const lijst = (Array.isArray(aanbieders) ? aanbieders : [])
-    .filter((a) => a && a.url)
+    .filter((a) => a && isWebUrl(a.url))
     .sort((a, b) => parsePrijs(a.prijs) - parsePrijs(b.prijs));
   if (lijst.length === 0) return { cta: "", delivery: "", rest: "" };
 
