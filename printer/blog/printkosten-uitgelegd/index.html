@@ -5,12 +5,12 @@
     <base href="../../../">
     <link rel="icon" type="image/png" sizes="48x48" href="logo's/favicon-48.png"><link rel="icon" type="image/png" sizes="192x192" href="logo's/favicon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Printkosten per pagina: wat kost printen écht? | producthulp.nl</title>
-    <meta name="description" content="Wat zijn de printkosten per pagina? De aanschafprijs van een printer is maar het begin. We rekenen voor wat inkt en toner je écht kosten per afdruk." />
+    <title>Printkosten per pagina berekenen – inkjet, inkttank of laser | producthulp.nl</title>
+    <meta name="description" content="Bereken je printkosten per pagina en over een paar jaar: inkjet, inkttank of laser. Met echte cartridgeprijzen en de goedkoopste printers voor hoeveel jij print." />
     <link rel="canonical" href="https://producthulp.nl/printer/blog/printkosten-uitgelegd/" />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="Printkosten per pagina: wat kost printen écht?" />
-    <meta property="og:description" content="Wat zijn de printkosten per pagina? Zo bereken je de werkelijke kosten van printen, inclusief inkt- en tonerprijzen." />
+    <meta property="og:title" content="Printkosten per pagina berekenen – inkjet, inkttank of laser" />
+    <meta property="og:description" content="Vul in hoeveel je print en zie welke printer over een paar jaar het goedkoopst is. Gerekend met 222 echte cartridges, inktflessen en toners." />
     <meta property="og:url" content="https://producthulp.nl/printer/blog/printkosten-uitgelegd/" />
     <meta property="og:image" content="https://producthulp.nl/printer/blog/printkosten-uitgelegd/images/printkosten-uitgelegd.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,6 +26,7 @@
     <script src="shared/consent.js" defer></script>
     <script src="shared/analytics.js" defer></script>
     <script src="shared/blog-article.js" defer></script>
+    <script type="module" src="printer/js/printkosten.js"></script>
 
     <script type="application/ld+json">
     {
@@ -34,7 +35,7 @@
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://producthulp.nl/" },
         { "@type": "ListItem", "position": 2, "name": "Printers", "item": "https://producthulp.nl/printer/" },
-        { "@type": "ListItem", "position": 3, "name": "Printkosten per pagina: wat kost printen écht?", "item": "https://producthulp.nl/printer/blog/printkosten-uitgelegd/" }
+        { "@type": "ListItem", "position": 3, "name": "Printkosten per pagina berekenen", "item": "https://producthulp.nl/printer/blog/printkosten-uitgelegd/" }
       ]
     }
     </script>
@@ -42,15 +43,75 @@
     {
       "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "Printkosten per pagina: wat kost printen écht?",
-      "description": "Wat zijn de printkosten per pagina? Zo bereken je de werkelijke kosten van printen, inclusief inkt- en tonerprijzen.",
+      "headline": "Printkosten per pagina berekenen: wat kost printen écht?",
+      "description": "Bereken je printkosten per pagina en over een paar jaar: inkjet, inkttank of laser, met echte cartridgeprijzen.",
       "author": { "@type": "Organization", "name": "producthulp.nl" },
       "publisher": { "@type": "Organization", "name": "producthulp.nl" },
       "datePublished": "2026-08-07",
-      "dateModified": "2026-09-24",
+      "dateModified": "2026-10-28",
       "mainEntityOfPage": "https://producthulp.nl/printer/blog/printkosten-uitgelegd/"
     }
     </script>
+
+    <style>
+      .pk-tool {
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: 26px 28px 28px;
+        margin: 8px 0 24px;
+        background: var(--color-white);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      }
+      .pk-tool h2 { font-size: 20px; font-weight: 700; margin: 0 0 18px; }
+      .pk-veld { margin-bottom: 18px; }
+      .pk-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+      .pk-label output { font-weight: 700; color: var(--color-primary); }
+      .pk-tool input[type="range"] { width: 100%; accent-color: var(--color-primary); }
+      .pk-knoppen { display: flex; flex-wrap: wrap; gap: 8px; }
+      .pk-knoppen button {
+        font: inherit; font-size: 14px; font-weight: 600;
+        padding: 8px 14px; border-radius: var(--radius-full);
+        border: 1px solid var(--color-border); background: var(--color-white);
+        color: var(--color-text); cursor: pointer;
+      }
+      .pk-knoppen button[aria-pressed="true"] { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+      .pk-knoppen.is-klein button { font-size: 13px; padding: 5px 11px; font-weight: 500; }
+      .pk-uitslag { border-top: 1px solid var(--color-border); margin-top: 22px; padding-top: 20px; }
+      .pk-conclusie { font-size: 17px; line-height: 1.55; margin: 0 0 8px; }
+      .pk-uitleg { font-size: 14.5px; color: var(--color-text-secondary); margin: 0 0 16px; line-height: 1.55; }
+      .pk-rijen { display: grid; gap: 12px; margin: 16px 0 20px; }
+      .pk-rij-kop { display: flex; justify-content: space-between; font-size: 14.5px; font-weight: 600; margin-bottom: 5px; }
+      .pk-balk { height: 10px; border-radius: var(--radius-full); background: var(--color-bg); overflow: hidden; }
+      .pk-balk i { display: block; height: 100%; border-radius: inherit; background: #b7c6dc; }
+      .pk-rij.is-beste .pk-balk i { background: var(--color-accent); }
+      .pk-rij.is-beste .pk-rij-kop strong { color: #0b8a61; }
+      .pk-rij-voet { font-size: 12.5px; color: var(--color-text-secondary); margin-top: 4px; }
+      .pk-rij.is-nvt .pk-rij-kop { color: var(--color-text-secondary); font-weight: 500; }
+      .pk-sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-secondary); margin: 8px 0 10px; }
+      .pk-printers { display: grid; gap: 10px; margin-bottom: 20px; }
+      .pk-printer { display: flex; align-items: center; gap: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 14px; }
+      .pk-printer img { width: 64px; height: 48px; object-fit: contain; flex-shrink: 0; }
+      .pk-printer-tekst { flex: 1; min-width: 0; }
+      .pk-printer-naam { font-size: 14px; font-weight: 600; margin: 0; line-height: 1.35; }
+      .pk-printer-prijs { font-size: 13px; color: var(--color-text-secondary); margin: 2px 0 0; }
+      .pk-printer-link { font-size: 13.5px; font-weight: 700; color: var(--color-primary); text-decoration: none; white-space: nowrap; }
+      .pk-printer-link:hover { text-decoration: underline; }
+      .pk-cta {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--color-primary); color: #fff; text-decoration: none;
+        font-size: 15.5px; font-weight: 700; padding: 14px 24px; border-radius: var(--radius-md);
+      }
+      .pk-cta:hover { background: var(--color-primary-dark); }
+      .pk-cta svg { width: 16px; height: 16px; }
+      .pk-cta-uitleg { font-size: 13px; color: var(--color-text-secondary); margin: 8px 0 0; }
+      .pk-bron { font-size: 12.5px; color: var(--color-text-secondary); margin: 16px 0 0; line-height: 1.5; }
+      @media (max-width: 560px) {
+        .pk-tool { padding: 20px 18px 22px; }
+        .pk-printer { flex-wrap: wrap; }
+        .pk-printer-link { width: 100%; padding-left: 78px; }
+        .pk-cta { width: 100%; justify-content: center; }
+      }
+    </style>
   </head>
   <body>
     <main>
@@ -61,7 +122,7 @@
           <li aria-hidden="true">/</li>
           <li><a href="printer/">Printers</a></li>
           <li aria-hidden="true">/</li>
-          <li aria-current="page">Printkosten per pagina: wat kost printen écht?</li>
+          <li aria-current="page">Printkosten per pagina berekenen</li>
         </ol>
       </nav>
 
@@ -71,11 +132,11 @@
 
             <span class="article-tag">Printers kiezen</span>
 
-            <span class="article-date">· Laatst bijgewerkt op 24 september 2026</span>
+            <span class="article-date">· Laatst bijgewerkt op 28 oktober 2026</span>
 
           </div>
-          <h1>Printkosten per pagina: wat kost printen écht?</h1>
-          <p class="article-intro">Een goedkope printer kan op de lange termijn duurder uitpakken dan een duurder model, omdat de gebruikskosten per pagina flink kunnen verschillen.</p>
+          <h1>Printkosten per pagina berekenen: wat kost printen écht?</h1>
+          <p class="article-intro">Een goedkope printer kan over een paar jaar de duurste zijn. Vul hieronder in hoeveel je print, en zie wat een inkjet, inkttank- of laserprinter je in totaal kost, inclusief de printer zelf.</p>
         </header>
 
         <div class="wrap">
@@ -92,28 +153,86 @@
         </div>
 
         <div class="wrap">
-          <div class="article-hero-img">
-            <img
-              src="printer/blog/printkosten-uitgelegd/images/printkosten-uitgelegd.png"
-              alt="Inktcartridges en tonerpoeder"
-              onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 640 360%22%3E%3Crect width=%22640%22 height=%22360%22 fill=%22%23f5f5f7%22/%3E%3Cpath d=%22M256 150h30v60h-30zM354 150h30v60h-30z%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%223%22/%3E%3Crect x=%22220%22 y=%22120%22 width=%2280%22 height=%2260%22 rx=%228%22 fill=%22none%22 stroke=%22%230954a3%22 stroke-width=%223%22/%3E%3Crect x=%22340%22 y=%22120%22 width=%2280%22 height=%2260%22 rx=%228%22 fill=%22none%22 stroke=%22%2310b981%22 stroke-width=%223%22/%3E%3C/svg%3E'"
-              loading="lazy"
-            />
-          </div>
+          <section class="pk-tool" id="printkostenTool" aria-labelledby="pkTitel">
+            <h2 id="pkTitel">Bereken je printkosten</h2>
+
+            <div class="pk-veld">
+              <label class="pk-label" for="pkPaginas">Hoeveel print je? <output id="pkPaginasUit" for="pkPaginas">50 pagina's per maand</output></label>
+              <input type="range" id="pkPaginas" min="5" max="500" step="5" value="50" />
+              <div class="pk-knoppen is-klein" aria-label="Snel kiezen">
+                <button type="button" data-ppm="10">10</button>
+                <button type="button" data-ppm="25">25</button>
+                <button type="button" data-ppm="50">50</button>
+                <button type="button" data-ppm="100">100</button>
+                <button type="button" data-ppm="250">250</button>
+              </div>
+            </div>
+
+            <div class="pk-veld">
+              <span class="pk-label" id="pkKleurLabel">Hoeveel daarvan in kleur?</span>
+              <div class="pk-knoppen" role="group" aria-labelledby="pkKleurLabel">
+                <button type="button" data-kleur="0" aria-pressed="false">Alleen zwart-wit</button>
+                <button type="button" data-kleur="0.1" aria-pressed="true">Een beetje (10%)</button>
+                <button type="button" data-kleur="0.25" aria-pressed="false">Een kwart</button>
+                <button type="button" data-kleur="0.5" aria-pressed="false">De helft</button>
+              </div>
+            </div>
+
+            <div class="pk-veld">
+              <span class="pk-label" id="pkJarenLabel">Over hoeveel jaar?</span>
+              <div class="pk-knoppen" role="group" aria-labelledby="pkJarenLabel">
+                <button type="button" data-jaren="2" aria-pressed="false">2 jaar</button>
+                <button type="button" data-jaren="3" aria-pressed="true">3 jaar</button>
+                <button type="button" data-jaren="5" aria-pressed="false">5 jaar</button>
+              </div>
+            </div>
+
+            <div class="pk-uitslag" id="pkUitslag" aria-live="polite">
+              <noscript><p class="pk-uitleg">Zet JavaScript aan om de rekentool te gebruiken. De vaste bedragen staan hieronder in de tabel.</p></noscript>
+            </div>
+
+            <p class="pk-bron">Gerekend met originele cartridges, inktflessen en toners (prijzen van 28 oktober 2026) en de inkt die al bij een nieuwe printer zit. Printerprijzen zijn de actuele instapprijzen uit onze vergelijking. Papier en stroom tellen niet mee.</p>
+          </section>
         </div>
 
         <div class="article-body wrap">
-          <h2>Waarom de aanschafprijs niet het hele verhaal is</h2>
-          <p>Sommige printers worden bewust goedkoop verkocht, terwijl de bijbehorende inktcartridges relatief duur zijn. Print je veel, dan tikken die kosten per pagina flink aan over de levensduur van de printer.</p>
-          <p>Kijk daarom niet alleen naar de aanschafprijs, maar ook naar hoeveel de vervangende cartridges of tonercassettes kosten.</p>
+          <h2>Wat kost printen per pagina?</h2>
+          <p>We hebben 222 losse, originele cartridges, inktflessen en toners naast elkaar gezet: de prijs gedeeld door het aantal pagina's dat de fabrikant volgens de ISO-norm opgeeft. Dit is de mediaan per soort printer:</p>
+          <div class="article-table-wrap">
+            <table class="article-table">
+              <thead>
+                <tr><th>Soort printer</th><th>Zwart-wit</th><th>Kleur</th><th>Inkt bij de printer</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Inkjet met cartridges</strong></td><td>7,2 ct</td><td>18,1 ct</td><td>± 120 pagina's</td></tr>
+                <tr><td><strong>Inkttankprinter</strong></td><td>0,4 ct</td><td>1,2 ct</td><td>± 4.500 pagina's</td></tr>
+                <tr><td><strong>Laser zwart-wit</strong></td><td>5,6 ct</td><td>kan niet</td><td>± 700 pagina's</td></tr>
+                <tr><td><strong>Laser kleur</strong></td><td>6,0 ct</td><td>25,8 ct</td><td>± 800 pagina's</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Een kleurenpagina kost meer omdat er naast zwart ook cyaan, magenta en geel op komt. Het verschil tussen de soorten is enorm: een zwart-witpagina uit een inkttank kost minder dan een tiende van een pagina uit een gewone cartridge.</p>
 
-          <h2>Kosten per pagina: inkt versus toner</h2>
-          <p>Inktcartridges hebben doorgaans een lagere capaciteit dan tonercassettes, waardoor je bij een inkjetprinter vaker nieuwe cartridges moet kopen.</p>
-          <p>Laserprinters hebben over het algemeen lagere kosten per pagina bij tekstdocumenten, terwijl inkjetprinters concurrerender zijn bij incidenteel gebruik en foto's.</p>
+          <h2>Vanaf hoeveel pagina's is een inkttankprinter goedkoper?</h2>
+          <p>Een inkttankprinter kost in aanschaf rond de €220, een eenvoudige inkjet met cartridges rond de €85. Dat verschil haal je alleen in als je genoeg print. Over drie jaar gerekend:</p>
+          <ul>
+            <li><strong>Alleen zwart-wit:</strong> de inkttank wordt goedkoper vanaf ongeveer 55 pagina's per maand.</li>
+            <li><strong>Een kwart in kleur:</strong> al vanaf ongeveer 45 pagina's per maand.</li>
+            <li><strong>De helft in kleur:</strong> vanaf ongeveer 35 pagina's per maand.</li>
+          </ul>
+          <p>Print je minder, dan is een gewone inkjet over drie jaar goedkoper. Print je meer, dan loopt het verschil snel op: bij 100 pagina's per maand kost een inkjet met cartridges ruim €330 en een inkttankprinter nog steeds ongeveer €220, omdat je met de meegeleverde flessen dan nog niet door je inkt heen bent.</p>
 
-          <h2>Zo bereken je je werkelijke printkosten</h2>
-          <p>Kijk naar de opgegeven paginacapaciteit van een cartridge of tonercassette, en deel de prijs daarvan door dat aantal pagina's. Zo krijg je een eerlijke kosten-per-pagina vergelijking tussen verschillende printers.</p>
-          <p>Print je slechts af en toe een paar pagina's per maand, dan wegen deze kosten minder zwaar mee dan bij dagelijks of zakelijk gebruik.</p>
+          <h2>Is een laserprinter niet het goedkoopst?</h2>
+          <p>Voor de kosten per pagina niet meer. Een zwart-witlaser kost met originele toner ongeveer 5,6 cent per pagina, tegen 0,4 cent bij een inkttank. Een laser heeft andere voordelen: hij print sneller, de tekst is scherper en toner droogt niet in. Print je af en toe een paar pagina's en wil je nooit een opgedroogde cartridge, dan is dat een goede reden voor een laser. Alleen om geld te besparen is het niet nodig.</p>
+
+          <h2>Zo hebben we gerekend</h2>
+          <p>Per soort printer nemen we de instapprijs uit onze vergelijking, tellen we de inkt of toner op die je nodig hebt nadat de meegeleverde inkt op is, en rekenen we met de mediaan van wat originele cartridges per pagina kosten. Wat er niet in zit:</p>
+          <ul>
+            <li><strong>Inkt die verloren gaat.</strong> Een inkjet reinigt zijn printkop af en toe en dat kost inkt, vooral als je weinig print. Bij weinig gebruik valt een cartridgeprinter in werkelijkheid dus iets duurder uit.</li>
+            <li><strong>Huismerkcartridges.</strong> Die zijn vaak een stuk goedkoper dan originele, maar niet elke printer accepteert ze.</li>
+            <li><strong>Papier en stroom.</strong> Die zijn bij elke soort ongeveer gelijk.</li>
+          </ul>
+          <p>Het aantal pagina's per cartridge is gemeten volgens de ISO-normen 19752 en 24711, met ongeveer 5% bedekking per pagina. Print je veel foto's of volle vlakken, dan haal je minder pagina's uit een cartridge.</p>
 
           <div class="summary-box">
             <h3>
@@ -121,20 +240,20 @@
               Kort samengevat
             </h3>
             <ul>
-              <li>Een goedkope printer kan duurdere cartridges hebben</li>
-              <li>Bereken kosten per pagina, niet alleen de aanschafprijs</li>
-              <li>Laser is vaak voordeliger per pagina bij veel tekst</li>
-              <li>Weinig gebruik: de aanschafprijs weegt zwaarder mee</li>
+              <li>Een pagina uit een cartridge kost ongeveer 7 cent, uit een inkttank minder dan een halve cent</li>
+              <li>Vanaf zo'n 35 tot 55 pagina's per maand is een inkttankprinter over drie jaar goedkoper</li>
+              <li>Print je minder, dan is een eenvoudige inkjet goedkoper</li>
+              <li>Een laser kies je om snelheid en scherpe tekst, niet om de kosten per pagina</li>
             </ul>
           </div>
 
-          <p>Onze keuzehulp houdt rekening met je printvolume, zodat het advies niet alleen naar de aanschafprijs kijkt maar ook naar wat printen je op termijn kost.</p>
+          <p>De keuzehulp neemt hoeveel je print en in kleur mee, samen met wat je verder belangrijk vindt, zoals scannen, dubbelzijdig printen of een compact formaat.</p>
         </div>
 
         <div class="wrap">
           <div class="article-cta">
             <h3>Wil je een printer die ook op lange termijn voordelig is?</h3>
-            <p>Beantwoord vier korte vragen en ontvang direct een persoonlijk printeradvies.</p>
+            <p>Beantwoord een paar korte vragen en ontvang direct een persoonlijk printeradvies.</p>
             <a class="article-cta-btn guide-cta" href="printer/vragen/">
               Start de printer keuzehulp
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -142,7 +261,7 @@
           </div>
         </div>
 
-      
+
         <div class="wrap">
           <div class="article-related">
             <p class="article-related-title">Meer over printers</p>

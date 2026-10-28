@@ -357,7 +357,9 @@ export function createQuiz3D(cfg) {
     renderQuestion(); render();
   }
 
-  // Alleen voor het testen van losse stappen: #q=2&plaatsing=vrijstaand&extra=a,b
+  // Antwoorden vooraf invullen: #q=2&plaatsing=vrijstaand&extra=a,b. Voor het testen
+  // van losse stappen, en de printkosten-rekentool (printer/js/printkosten.js) stuurt
+  // bezoekers zo door met volume, kleur en kosten al ingevuld.
   if (location.hash.length > 1) {
     const h = new URLSearchParams(location.hash.slice(1));
     h.forEach((v, k) => {
