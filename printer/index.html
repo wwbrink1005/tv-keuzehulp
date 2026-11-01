@@ -284,6 +284,44 @@
       }
 
       /* -- Blog teasers -- */
+      .all-articles { margin-top: 40px; }
+      .all-articles-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--color-text-secondary);
+        margin: 0 0 16px;
+      }
+      .all-articles-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 32px;
+      }
+      .all-articles-list a {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 9px;
+        font-size: 14.5px;
+        line-height: 1.45;
+        color: var(--color-text);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+      .all-articles-list a::before {
+        content: "\2192";
+        color: var(--color-primary);
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .all-articles-list a:hover { color: var(--color-primary); }
+      @media (max-width: 700px) {
+        .all-articles-list { grid-template-columns: 1fr; }
+      }
+
       .blog-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -487,6 +525,13 @@
               </div>
             </a>
           </div>
+
+            <div class="all-articles">
+              <p class="all-articles-title">Meer artikelen over printers</p>
+              <ul class="all-articles-list">
+                <li><a href="printer/blog/printerinkt-per-liter/">Printerinkt uit een cartridge is twaalf keer zo duur als uit een fles</a></li>
+              </ul>
+            </div>
         </div>
       </section>
 

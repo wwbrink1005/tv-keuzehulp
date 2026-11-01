@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="../../../">
+    <link rel="icon" type="image/png" sizes="48x48" href="logo's/favicon-48.png"><link rel="icon" type="image/png" sizes="192x192" href="logo's/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wat kost printerinkt per liter? Cartridge tegen fles</title>
+    <meta name="description" content="We vergeleken 87 originele cartridges en inktflessen. Inkt uit een cartridge kost gemiddeld €3.186 per liter, uit een fles €267. Dat is twaalf keer zo veel." />
+    <link rel="canonical" href="https://producthulp.nl/printer/blog/printerinkt-per-liter/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Printerinkt uit een cartridge is twaalf keer zo duur als uit een fles" />
+    <meta property="og:description" content="€3.186 tegen €267 per liter: de uitkomst van een vergelijking van 87 originele cartridges en inktflessen." />
+    <meta property="og:url" content="https://producthulp.nl/printer/blog/printerinkt-per-liter/" />
+    <meta property="og:image" content="https://producthulp.nl/printer/blog/printerinkt-per-liter/images/printerinkt-per-liter.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="stylesheet" href="shared/menu.css" />
+    <link rel="stylesheet" href="shared/footer.css" />
+    <link rel="stylesheet" href="shared/blog-article.css" />
+    <script src="shared/vendor/lucide-1.62.0.min.js"></script>
+    <script src="shared/menu.js" defer></script>
+    <script src="shared/footer.js" defer></script>
+    <script src="shared/consent.js" defer></script>
+    <script src="shared/analytics.js" defer></script>
+    <script src="shared/blog-article.js" defer></script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://producthulp.nl/" },
+        { "@type": "ListItem", "position": 2, "name": "Printers", "item": "https://producthulp.nl/printer/" },
+        { "@type": "ListItem", "position": 3, "name": "Wat kost printerinkt per liter?", "item": "https://producthulp.nl/printer/blog/printerinkt-per-liter/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Printerinkt uit een cartridge is twaalf keer zo duur als uit een fles",
+      "description": "We vergeleken 87 originele cartridges en inktflessen. Inkt uit een cartridge kost gemiddeld €3.186 per liter, uit een fles €267.",
+      "author": { "@type": "Organization", "name": "producthulp.nl" },
+      "publisher": { "@type": "Organization", "name": "producthulp.nl" },
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-01",
+      "mainEntityOfPage": "https://producthulp.nl/printer/blog/printerinkt-per-liter/"
+    }
+    </script>
+
+    <style>
+      .pi-cijfers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 8px 0 24px; }
+      .pi-cijfer { border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 20px 22px; }
+      .pi-cijfer-label { font-size: 14px; font-weight: 600; color: var(--color-text-secondary); margin: 0 0 4px; }
+      .pi-cijfer-getal { font-size: clamp(30px, 6vw, 42px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+      .pi-cijfer-sub { font-size: 13px; color: var(--color-text-secondary); margin: 6px 0 0; }
+      .pi-grafiek { border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 22px 24px; margin: 0 0 18px; }
+      .pi-grafiek h3 { font-size: 16px; font-weight: 700; margin: 0 0 4px; }
+      .pi-legenda { display: flex; gap: 18px; font-size: 13px; color: var(--color-text-secondary); margin: 0 0 16px; }
+      .pi-legenda span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; background: var(--kleur); }
+      .pi-merk { margin-bottom: 14px; }
+      .pi-merk:last-child { margin-bottom: 0; }
+      .pi-merk-naam { font-size: 14px; font-weight: 600; margin: 0 0 5px; }
+      .pi-rij { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+      .pi-balk { height: 16px; min-width: 4px; border-radius: 0 4px 4px 0; }
+      .pi-waarde { font-size: 13px; font-weight: 600; color: var(--color-text); white-space: nowrap; }
+      @media (max-width: 480px) { .pi-cijfers { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <main>
+
+      <nav class="breadcrumb wrap" aria-label="Kruimelpad">
+        <ol>
+          <li><a href="index.html">Home</a></li>
+          <li aria-hidden="true">/</li>
+          <li><a href="printer/">Printers</a></li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page">Wat kost printerinkt per liter?</li>
+        </ol>
+      </nav>
+
+      <article>
+        <header class="article-header wrap">
+          <div class="article-meta-row">
+
+            <span class="article-tag">Onderzoek</span>
+
+            <span class="article-date">· Prijzen van 1 november 2026</span>
+
+          </div>
+          <h1>Printerinkt uit een cartridge is twaalf keer zo duur als uit een fles</h1>
+          <p class="article-intro">We zetten 87 originele cartridges en inktflessen van HP, Canon en Epson naast elkaar en rekenden de prijs om naar een liter. Het verschil is groter dan we hadden verwacht: zelfs de goedkoopste cartridge is ruim twee keer zo duur als de duurste fles.</p>
+        </header>
+
+        <div class="wrap">
+          <div class="pi-cijfers">
+            <div class="pi-cijfer">
+              <p class="pi-cijfer-label">Uit een cartridge</p>
+              <p class="pi-cijfer-getal">€3.186</p>
+              <p class="pi-cijfer-sub">per liter, mediaan van 59 cartridges</p>
+            </div>
+            <div class="pi-cijfer">
+              <p class="pi-cijfer-label">Uit een inktfles</p>
+              <p class="pi-cijfer-getal">€267</p>
+              <p class="pi-cijfer-sub">per liter, mediaan van 28 flessen</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="wrap">
+          <div class="article-top-cta" id="articleTopCta">
+            <div class="article-top-cta-text">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/></svg>
+              <span>Liever meteen persoonlijk advies dan zelf uitzoeken? Doe de gratis keuzehulp.</span>
+            </div>
+            <a class="article-top-cta-btn guide-cta" href="printer/vragen/">
+              Start de printer keuzehulp
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="article-body wrap">
+          <h2>Per merk: overal hetzelfde beeld</h2>
+          <p>Het verschil geldt voor elk merk dat we konden vergelijken. Bij HP is een liter uit een cartridge ruim vijftien keer zo duur als uit een fles, bij Canon bijna negen keer en bij Epson bijna veertien keer.</p>
+
+          <figure class="pi-grafiek" style="margin-left:0;margin-right:0">
+            <h3>Prijs per liter printerinkt</h3>
+            <div class="pi-legenda">
+              <span style="--kleur:#0954a3">Cartridge</span>
+              <span style="--kleur:#10b981">Inktfles</span>
+            </div>
+            <div class="pi-merk">
+              <p class="pi-merk-naam">HP</p>
+              <div class="pi-rij" title="HP cartridge: €3.293 per liter, 24 producten"><div class="pi-balk" style="width:68%;background:#0954a3"></div><span class="pi-waarde">€3.293</span></div>
+              <div class="pi-rij" title="HP inktfles: €214 per liter, 4 producten"><div class="pi-balk" style="width:4.4%;background:#10b981"></div><span class="pi-waarde">€214</span></div>
+            </div>
+            <div class="pi-merk">
+              <p class="pi-merk-naam">Canon</p>
+              <div class="pi-rij" title="Canon cartridge: €2.599 per liter, 19 producten"><div class="pi-balk" style="width:54%;background:#0954a3"></div><span class="pi-waarde">€2.599</span></div>
+              <div class="pi-rij" title="Canon inktfles: €296 per liter, 6 producten"><div class="pi-balk" style="width:6.2%;background:#10b981"></div><span class="pi-waarde">€296</span></div>
+            </div>
+            <div class="pi-merk">
+              <p class="pi-merk-naam">Epson</p>
+              <div class="pi-rij" title="Epson cartridge: €4.266 per liter, 16 producten"><div class="pi-balk" style="width:88%;background:#0954a3"></div><span class="pi-waarde">€4.266</span></div>
+              <div class="pi-rij" title="Epson inktfles: €312 per liter, 18 producten"><div class="pi-balk" style="width:6.2%;background:#10b981"></div><span class="pi-waarde">€312</span></div>
+            </div>
+          </figure>
+
+          <div class="article-table-wrap">
+            <table class="article-table">
+              <thead>
+                <tr><th>Merk</th><th>Cartridge</th><th>Aantal</th><th>Inktfles</th><th>Aantal</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>HP</strong></td><td>€3.293</td><td>24</td><td>€214</td><td>4</td></tr>
+                <tr><td><strong>Canon</strong></td><td>€2.599</td><td>19</td><td>€296</td><td>6</td></tr>
+                <tr><td><strong>Epson</strong></td><td>€4.266</td><td>16</td><td>€312</td><td>18</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>Vijf voorbeelden</h2>
+          <p>De uitersten liggen ver uit elkaar. Een kleurencartridge HP 301 bevat 3 milliliter inkt, omgerekend bijna €11.000 per liter.</p>
+          <div class="article-table-wrap">
+            <table class="article-table">
+              <thead>
+                <tr><th>Product</th><th>Inhoud</th><th>Prijs</th><th>Per liter</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>HP 301 kleur</strong></td><td>3 ml</td><td>€32,95</td><td>€10.983</td></tr>
+                <tr><td><strong>HP 305 kleur</strong></td><td>2 ml</td><td>€15,49</td><td>€7.745</td></tr>
+                <tr><td><strong>Canon PG-560XL zwart</strong></td><td>14,3 ml</td><td>€32,95</td><td>€2.304</td></tr>
+                <tr><td><strong>Epson 104 zwart (fles)</strong></td><td>65 ml</td><td>€11,99</td><td>€184</td></tr>
+                <tr><td><strong>Epson 102 zwart (fles)</strong></td><td>127 ml</td><td>€17,99</td><td>€142</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>Waarom is inkt uit een cartridge zo duur?</h2>
+          <p>Bij een deel van de cartridges betaal je niet alleen voor inkt. Bij bijvoorbeeld de HP 301 zit de printkop in de cartridge, en die vervang je dus elke keer mee. Daarnaast kost de printer zelf minder: een eenvoudige inkjet met cartridges is er vanaf rond de €80, een inkttankprinter begint rond de €215. Bij een inkttankprinter betaal je dus meer vooraf en minder voor de inkt.</p>
+
+          <h2>Tip als je bij cartridges blijft: kies XL</h2>
+          <p>Een XL-cartridge kost meer, maar per liter is hij een stuk goedkoper. De mediaan ligt bij XL-cartridges op €3.058 per liter, tegen €4.907 bij standaardcartridges. Print je regelmatig, dan bespaart dat dus al flink zonder dat je een andere printer hoeft te kopen.</p>
+
+          <h2>Is een printer met inktflessen dan altijd goedkoper?</h2>
+          <p>Nee. De prijs per liter zegt niet alles, want de printer zelf is duurder. Over drie jaar wordt een inkttankprinter goedkoper vanaf ongeveer 35 tot 55 pagina's per maand, afhankelijk van hoeveel je in kleur print. Print je minder, dan is een eenvoudige inkjet met cartridges goedkoper. Met onze rekentool kun je <a href="printer/blog/printkosten-uitgelegd/">je printkosten per pagina berekenen</a> voor jouw situatie.</p>
+
+          <h2>Zo hebben we het onderzocht</h2>
+          <ul>
+            <li><strong>Producten:</strong> 59 losse, originele cartridges en 28 originele inktflessen van HP, Canon en Epson. Multipacks en huismerken tellen niet mee.</li>
+            <li><strong>Prijzen:</strong> de laagste prijs per product bij twee grote Nederlandse webwinkels op 1 november 2026.</li>
+            <li><strong>Inhoud:</strong> het aantal milliliter uit de productgegevens van Icecat. Vijf producten vielen af omdat die inhoud niet kon kloppen met het opgegeven aantal pagina's. De inhoud van de HP 301 en de Epson 102 hebben we ook apart nagekeken.</li>
+            <li><strong>Berekening:</strong> prijs gedeeld door inhoud, omgerekend naar een liter. De genoemde bedragen zijn medianen: de helft van de producten is duurder, de helft goedkoper.</li>
+            <li><strong>Wat er niet in zit:</strong> Brother, omdat daarvan geen betrouwbare inhoud bekend was, en ruim 120 productregels zonder opgegeven inhoud. De uitkomst zegt niets over welke cartridges het meest verkocht worden, en inkt van verschillende merken is niet één op één vergelijkbaar.</li>
+          </ul>
+
+          <div class="summary-box">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/></svg>
+              Kort samengevat
+            </h3>
+            <ul>
+              <li>Inkt uit een cartridge kost gemiddeld €3.186 per liter, uit een fles €267</li>
+              <li>Zelfs de goedkoopste cartridge is ruim twee keer zo duur als de duurste fles</li>
+              <li>XL-cartridges zijn per liter duidelijk goedkoper dan standaardcartridges</li>
+              <li>Een printer met inktflessen loont vanaf ongeveer 35 tot 55 pagina's per maand</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="wrap">
+          <div class="article-cta">
+            <h3>Op zoek naar een printer die bij je past?</h3>
+            <p>Beantwoord een paar korte vragen en ontvang direct een persoonlijk printeradvies.</p>
+            <a class="article-cta-btn guide-cta" href="printer/vragen/">
+              Start de printer keuzehulp
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+        </div>
+
+
+        <div class="wrap">
+          <div class="article-related">
+            <p class="article-related-title">Meer over printers</p>
+            <div class="article-related-grid">
+              <a class="article-related-card" href="printer/blog/all-in-one-printer-nodig/">
+                <div class="article-related-card-img">
+                  <img src="printer/blog/all-in-one-printer-nodig/images/all-in-one-printer-nodig.png" alt="" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect width=%22400%22 height=%22300%22 fill=%22%23f5f5f7%22/%3E%3Cg transform=%22translate(183,133)%22%3E%3Cpath d=%22m17 2-5 5-5-5%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3Crect width=%2220%22 height=%2215%22 x=%222%22 y=%227%22 rx=%222%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3C/g%3E%3C/svg%3E'" />
+                </div>
+                <h4>Printer en scanner ineen: heb je een all-in-one printer nodig?</h4>
+              </a>
+              <a class="article-related-card" href="printer/blog/inkjet-vs-laser/">
+                <div class="article-related-card-img">
+                  <img src="printer/blog/inkjet-vs-laser/images/inkjet-vs-laser.png" alt="" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect width=%22400%22 height=%22300%22 fill=%22%23f5f5f7%22/%3E%3Cg transform=%22translate(183,133)%22%3E%3Cpath d=%22m17 2-5 5-5-5%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3Crect width=%2220%22 height=%2215%22 x=%222%22 y=%227%22 rx=%222%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3C/g%3E%3C/svg%3E'" />
+                </div>
+                <h4>Inkjet of laser: welke printer past bij jou?</h4>
+              </a>
+              <a class="article-related-card" href="printer/blog/printkosten-uitgelegd/">
+                <div class="article-related-card-img">
+                  <img src="printer/blog/printkosten-uitgelegd/images/printkosten-uitgelegd.png" alt="" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect width=%22400%22 height=%22300%22 fill=%22%23f5f5f7%22/%3E%3Cg transform=%22translate(183,133)%22%3E%3Cpath d=%22m17 2-5 5-5-5%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3Crect width=%2220%22 height=%2215%22 x=%222%22 y=%227%22 rx=%222%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%221.5%22/%3E%3C/g%3E%3C/svg%3E'" />
+                </div>
+                <h4>Printkosten per pagina berekenen: wat kost printen écht?</h4>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </article>
+
+      <div class="sticky-cta" id="stickyCta">
+        <span>Op zoek naar een printer die bij je past?</span>
+        <a class="sticky-cta-btn guide-cta" href="printer/vragen/">
+          Start de keuzehulp
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+
+    </main>
+  </body>
+</html>
