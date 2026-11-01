@@ -1,7 +1,9 @@
 import { getMonitorTier, inMaatGroep, is4KOfMeer, resolutiePixels, AANBEVOLEN_SCHERPTE } from "./data.js";
 import { parsePrice } from "./utils.js";
 
-export const DEFAULT_MIN_AANBIEDERS = 2;
+// "Alle winkels": monitoren die alleen bol of alleen MediaMarkt verkoopt, zitten al niet in
+// de catalogus (utils.js normalizeProducts). Was 2 tot 1 november 2026.
+export const DEFAULT_MIN_AANBIEDERS = 1;
 
 export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
   const countAanbieders = item => (item.aanbieders ?? []).length;
@@ -115,9 +117,10 @@ function straffen(m, a) {
   }
   if (gamet(a) && ms(m) > 4) s += 4;
   // Wie de hele dag achter het scherm zit, heeft veel aan een voet die je op
-  // ooghoogte zet. 8 punten: meer dan het verschil waarbinnen de goedkoopste
-  // Beste match wordt (BAND_BESTE), dus een vaste voet wint niet meer op prijs.
-  if (gebruik.includes("thuiswerk")) s += { false: 8, null: 3 }[jaNee(m.hoogteVerstelbaar)] ?? 0;
+  // ooghoogte zet. 8 punten (onbekend: 5): meer dan het verschil waarbinnen de
+  // goedkoopste Beste match wordt (BAND_BESTE), dus een vaste of onbekende voet wint
+  // niet op prijs van een monitor waarvan zeker is dat hij verstelbaar is (onbekend was 3).
+  if (gebruik.includes("thuiswerk")) s += { false: 8, null: 5 }[jaNee(m.hoogteVerstelbaar)] ?? 0;
   // "24 inch" omvat ook 21,5 en 22 inch; die zijn merkbaar kleiner.
   if (a.schermgrootte === "compact" && m.schermdiagonaal < 23) s += 6;
   return s;
@@ -176,7 +179,7 @@ export function matchMonitors(monitors, sizeGroup, budget, answers) {
   const gescoord = scoreMonitors(pool, { ...(answers ?? {}), schermgrootte: sizeGroup }).sort((x, y) => y.fit - x.fit);
   const top = gescoord[0].fit;
   // Alles binnen de band, maar door tot er minstens MIN_LIJST monitoren in
-  // zitten die door het standaardfilter "2+ winkels" op de resultaatpagina komen.
+  // zitten die door het standaardfilter "aantal winkels" op de resultaatpagina komen.
   const uit = [];
   let zichtbaar = 0;
   for (const m of gescoord) {

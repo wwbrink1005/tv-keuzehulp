@@ -4,7 +4,7 @@
 // (render/scene.py). Beeld op het scherm zet placeQuad() er precies op.
 // Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, dimLine, placeQuad } from "../../shared/quiz3d.js";
-import { matchMonitors, heeftWens, voldoetAanGame } from "../js/matching.js";
+import { matchMonitors, heeftWens, voldoetAanGame, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { budgetCapsBySize, inMaatGroep } from "../js/data.js";
@@ -144,9 +144,9 @@ const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
 const budgetOpties = g => [...(budgetCapsBySize[g] ?? budgetCapsBySize.standaard).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }];
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
 // De live catalogus (null zolang die laadt). Telt de monitoren die je
-// standaard ziet (2+ winkels).
+// standaard ziet.
 let catalogus = null;
-const vanMaat = g => (catalogus ?? []).filter(m => inMaatGroep(m, g) && (m.aanbieders ?? []).length >= 2);
+const vanMaat = g => (catalogus ?? []).filter(m => inMaatGroep(m, g) && (m.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
 function budgetCaption(st) {
   const cap = capVan(st.budget);
   if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste monitor binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
@@ -160,7 +160,7 @@ function budgetCaption(st) {
 
 // ───────── opties grijs als geen monitor ze waar kan maken ─────────
 // Zelfde idee als bij laptop en printer: grijs als er binnen maat en budget
-// geen monitor bij 2+ winkels is die er zeker aan voldoet, samen met je
+// geen zichtbare monitor is die er zeker aan voldoet, samen met je
 // eerdere wensen (gamevraag, beeld) en de al aangevinkte opties van deze vraag.
 // Alleen wat zeker is telt, net als in het bijschrift.
 const EIS = {

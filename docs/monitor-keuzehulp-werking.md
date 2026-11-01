@@ -1,8 +1,7 @@
 # Hoe de monitor-keuzehulp werkt
 
 Uitleg in gewone taal: van de eerste vraag tot de lijst met monitoren op de resultaatpagina.
-Stand: 21 oktober 2026 (nieuwe opzet met budget en score per monitor, zoals tv, printer,
-laptop en wasmachine).
+Stand: 1 november 2026 (budget per maat herzien, winkelregel en verzendkosten zoals bij laptop).
 
 ---
 
@@ -33,6 +32,11 @@ Alles komt uit Icecat. Sinds oktober 2026 halen we er zes velden extra uit
 Ook gerepareerd: Icecat noemt een gebogen scherm "Gebogen", maar de site herkende alleen
 "curved". Gebogen monitoren zonder dat woord in de naam telden als vlak.
 
+**Welke monitoren doen mee (sinds 1 november 2026):** monitoren die alleen bol of alleen MediaMarkt
+verkoopt, laten we weg. Over blijven ~318: monitoren bij 2 of meer winkels, plus monitoren die alleen
+Coolblue, Expert, EP of Acer verkoopt. Het standaardfilter is daarom "Alle winkels". Verzendkosten die
+een winkel zelf opgeeft (Acer €19,99) tellen mee in de prijs; de kaart toont "incl. €19,99 verzending".
+
 **Regel:** wat onbekend is, telt nooit als "nee". In de matching kost onbekend minder punten,
 en een optie in de vragen wordt alleen grijs als het zeker niet kan.
 
@@ -51,14 +55,15 @@ en een optie in de vragen wordt alleen grijs als het zeker niet kan.
 
 | Maat | Budgetopties |
 |---|---|
-| 24 inch | tot €150, tot €250, geen voorkeur |
-| 27 inch | tot €200, tot €400, geen voorkeur |
-| 32 inch en ultrawide | tot €400, tot €750, geen voorkeur |
+| 24 inch | tot €120, tot €200, geen voorkeur |
+| 27 inch | tot €200, tot €300, tot €500, geen voorkeur |
+| 32 inch | tot €400, tot €600, tot €900, geen voorkeur |
+| Ultrawide | tot €300, tot €500, tot €800, geen voorkeur |
 
-*Bedragen in `monitor/js/data.js` (budgetCapsBySize): rond een derde en twee derde van de
-prijzen bij 2+ winkels.*
+*Bedragen in `monitor/js/data.js` (budgetCapsBySize): op punten waar je echt iets extra's krijgt
+(verstelbare voet, USB-C laden, 4K, OLED), met kleine stappen.*
 
-**Grijze opties.** Een optie wordt grijs als geen monitor bij 2+ winkels binnen maat en budget
+**Grijze opties.** Een optie wordt grijs als geen monitor binnen maat en budget
 hem zeker heeft, samen met je eerdere wensen. De reden staat eronder: "Niet tot €400; wel vanaf
 €649", "Niet in combinatie met je andere keuzes" of "Niet in 24 inch".
 
@@ -80,7 +85,7 @@ Elke monitor begint met **100 punten**.
 | Creatief: kleurbereik onder 99% sRGB en onder 90% DCI-P3 / onbekend | −15 / −6 |
 | Creatief: lager dan QHD / VA- of TN-paneel | −8 / −6 |
 | Gamen: reactietijd boven 4 ms | −4 |
-| Thuiswerk: niet in hoogte verstelbaar / onbekend | −8 / −3 |
+| Thuiswerk: niet in hoogte verstelbaar / onbekend | −8 / −5 |
 | 24 inch gekozen, scherm kleiner dan 23 inch | −6 |
 | Gamen: 165 Hz of meer; competitief met 1 ms of sneller; console met 4K | +2 / +2 / +3 |
 | Creatief: 95% DCI-P3 of meer | +3 |
@@ -92,7 +97,7 @@ Elke monitor begint met **100 punten**.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de
 monitoren tot 4 punten onder de top de goedkoopste. Daarna van goedkoop naar duur.
 
 Filters: prijs, schermgrootte, merk, schermtype, resolutie, verversingssnelheid,
@@ -108,14 +113,14 @@ budget duidelijk beter passen dan wat je binnen budget ziet. Heeft de beste daar
 binnen je budget niet te krijgen is (bv. HDMI 2.1, 240 Hz, USB-C laden of de scherpte die bij de
 maat hoort), dan noemt de kaart die. Metingen: `quiz_stap`, `resultaat_getoond` (budget, maat,
 gebruik, aantal, merk van de Beste match), `budget_kaart`, `filter_gebruikt`, `sorteren`,
-`affiliate_klik`.
+`affiliate_klik`, `lijst_scroll` (kaart 3, 6, 10 of 20 in beeld).
 
 ---
 
 ## 6. Controleren
 
-Simulatie van 10.032 antwoordcombinaties (21-10-2026): 0 keer leeg, altijd minstens 5 bij 2+
-winkels, 0 keer boven budget; in alle 3.248 combinaties waarin een monitor aan alle wensen
-voldeed, was de Beste match zo'n monitor. AOC is vaak Beste match (in ongeveer 40% van de
+Simulatie van 11.760 antwoordcombinaties (1-11-2026): 0 keer leeg, altijd minstens 5 als ze
+bestaan, 0 keer boven budget; als een monitor aan alle wensen voldeed, was de Beste match zo'n
+monitor. AOC is vaak Beste match (in ongeveer 40% van de
 combinaties, terwijl AOC 15% van het aanbod is): AOC is bij gelijke score meestal de
 goedkoopste, niet omdat andere merken gegevens missen.

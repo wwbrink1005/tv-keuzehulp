@@ -64,16 +64,18 @@ export const priceGroupsBySize = {
 };
 
 // ─── Budgetvraag ("Wat wil je maximaal uitgeven?") ─────────────────────────
-// Twee maximumbedragen plus "Geen voorkeur", per maat. Uit de live catalogus
-// (okt. 2026, 2+ winkels): rond een derde en twee derde van de prijzen
-// (24": €119/€150, 27": €182/€361, 32": €379/€749, ultrawide: €338/€759).
-// Bij 24 inch liggen de prijzen dicht op elkaar; €150 en €250 laten zien dat
-// je voor meer geld vooral hoogteverstelling en USB-C krijgt.
+// Maximumbedragen plus "Geen voorkeur", per maat (herzien 1 november 2026). Geen vaste
+// derde-delen meer, maar bedragen waarop je echt iets extra's krijgt (live catalogus):
+// 24": €120 Full HD met verstelbare voet, €200 ook laptop laden via USB-C.
+// 27": €200 QHD met verstelbare voet of 4K, €300 het midden, €500 ook OLED (vanaf €329).
+// 32": €400 4K met verstelbare voet, €600 het midden, €900 ook OLED.
+// Ultrawide: €300 scherp met USB-C, €500 het midden, €800 ook OLED.
+// Kleine stappen: bij laptop duwde een te grote stap mensen naar de laagste optie.
 export const budgetCapsBySize = {
-  compact:   [150, 250],
-  standaard: [200, 400],
-  groot:     [400, 750],
-  ultrawide: [400, 750],
+  compact:   [120, 200],
+  standaard: [200, 300, 500],
+  groot:     [400, 600, 900],
+  ultrawide: [300, 500, 800],
 };
 
 // Hoe scherp een scherm van deze maat minstens hoort te zijn (pixels), en hoe

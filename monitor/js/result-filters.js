@@ -309,7 +309,8 @@ function renderMinAanbiedersOptions(container, card) {
     const labelText = document.createElement("span");
     labelText.className = "filter-label";
     labelText.append(document.createTextNode(n === 1 ? "Alle winkels" : `${n}+ winkels`));
-    if (n === DEFAULT_MIN_AANBIEDERS) {
+    // "Aanbevolen" alleen als de standaard een echte keuze is (2+); bij "Alle winkels" overbodig.
+    if (n === DEFAULT_MIN_AANBIEDERS && n > 1) {
       labelText.classList.add("has-badge");
       const recommended = document.createElement("span");
       recommended.className = "filter-recommended-badge";
@@ -584,7 +585,7 @@ function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch })
 
   // Alleen tonen als er boven het budget monitoren zijn die duidelijk beter bij de
   // wensen passen (passcore zonder prijsdeel). Vergelijk met wat je binnen budget
-  // echt ziet (2+ winkels), en tel erboven ook alleen wat je standaard ziet.
+  // echt ziet, en tel erboven ook alleen wat je standaard ziet.
   const zichtbaarBinnen = binnenLijst.filter(m => (m.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
   const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(m => m.wens)) : binnen.topWens;
   const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;
@@ -601,7 +602,7 @@ function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch })
       ? `<div class="budget-kaart-tekst"><strong>Je ziet nu monitoren boven je budget</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}. Liever binnen je budget blijven?</span></div>
          <button type="button" class="budget-kaart-btn">Terug naar monitoren tot ${euroLabel(cap)}</button>`
       : reden
-        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${reden}</strong><span>Binnen je budget is dat er niet bij 2 of meer winkels. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
+        ? `<div class="budget-kaart-tekst"><strong>Meer budget? Dan krijg je ${reden}</strong><span>Binnen je budget is dat er niet. Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
            <button type="button" class="budget-kaart-btn">Bekijk deze monitoren</button>`
         : `<div class="budget-kaart-tekst"><strong>Meer budget? Er zijn monitoren die nog beter bij je wensen passen</strong><span>Vanaf ${euroLabel(goedkoopsteBuiten)}, ${euroLabel(meer)} boven je budget.</span></div>
            <button type="button" class="budget-kaart-btn">Bekijk deze monitoren</button>`;
