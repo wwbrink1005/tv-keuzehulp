@@ -1,3 +1,8 @@
+import { metVerzendkosten } from "../../shared/aanbieders.js";
+
+// Producten die alleen bol of alleen MediaMarkt verkoopt, doen niet mee (november 2026).
+const ALLEEN_NIET = { bol: true, MediaMarkt: true };
+
 export const qs  = (selector, root = document) => root.querySelector(selector);
 export const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -73,8 +78,12 @@ export function normalizeProducts(rawProducts) {
     const rawAanbieders = Array.isArray(product.aanbieders) ? product.aanbieders : [];
     const aanbieders = rawAanbieders
       .map(a => ({ ...a, prijs: parseFloat(String(a.prijs || "").replace(",", ".")) }))
-      .filter(a => a.url && Number.isFinite(a.prijs) && a.prijs > 0);
+      .filter(a => a.url && Number.isFinite(a.prijs) && a.prijs > 0)
+      .map(metVerzendkosten);
     if (aanbieders.length === 0) return [];
+    // Zelfde regel als laptop, printer en monitor: wat overblijft ligt bij 2+ winkels of
+    // alleen bij Coolblue, Expert, EP of Acer; daardoor kan het standaardfilter op "Alle winkels".
+    if (aanbieders.length === 1 && ALLEEN_NIET[aanbieders[0].winkel]) return [];
 
     const naam = String(product.titel || "").trim() || aanbieders.map(a => String(a.productnaam || "").trim()).find(Boolean) || "";
     if (!naam) return [];

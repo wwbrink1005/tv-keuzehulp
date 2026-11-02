@@ -5,7 +5,7 @@ import {
   nishoogteGroups, vrijstaandGrootteLabels, vrijstaandGrootteInhoud,
   vrieskistGrootteLabels, vrieskistGrootteInhoud, budgetCapsVoor,
 } from "../js/data.js";
-import { matchVriezers, poolVoor, heeftWens } from "../js/matching.js";
+import { matchVriezers, poolVoor, heeftWens, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 
@@ -101,7 +101,7 @@ const QID = st => vragen(st)[st.q]?.id;
 let catalogus = null;
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
 const zichtbaarIn = st => poolVoor(catalogus ?? [], { plaatsing: st.plaatsing, nishoogte: st.nishoogte, grootte: subVan(st) })
-  .filter(v => (v.aanbieders ?? []).length >= 2);
+  .filter(v => (v.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
 const welke = st => ({ inbouw: "inbouwvriezers", vrijstaand: "vrieskasten", vrieskist: "vrieskisten" }[st.plaatsing] ?? "vriezers") + (st.plaatsing === "inbouw" && st.nishoogte ? ` voor een nis van ${st.nishoogte} cm` : "");
 function budgetCaption(st) {
   const cap = capVan(st.budget);
@@ -114,7 +114,7 @@ function budgetCaption(st) {
   if (!binnen.length) return [`Tot ${euro(cap)}`, `Geen ${welke(st)} tot ${euro(cap)}; de goedkoopste kost ${euro(Math.min(...prijzen))}. We tonen dan de best passende.`];
   return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} ${welke(st)} ${binnen.length === 1 ? "kost" : "kosten"} ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}.`];
 }
-// Grijs als geen vriezer bij 2+ winkels binnen soort, nis/formaat en budget
+// Grijs als geen vriezer binnen soort, nis/formaat en budget
 // het zeker heeft, samen met de andere aangevinkte wensen.
 const EIS = { extra: { nofrost: v => heeftWens(v, "nofrost") === true, garage: v => heeftWens(v, "garage") === true } };
 function metBeschikbaarheid(st, q) {

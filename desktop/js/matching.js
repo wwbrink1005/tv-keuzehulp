@@ -1,7 +1,9 @@
 import { scoringSystem, TIER_ORDER } from "./data.js";
 import { parsePrice } from "./utils.js";
 
-export const DEFAULT_MIN_AANBIEDERS = 2;
+// "Alle winkels": producten die alleen bol of alleen MediaMarkt verkoopt, zitten al niet in
+// de catalogus (utils.js normalizeProducts). Was 2 tot november 2026.
+export const DEFAULT_MIN_AANBIEDERS = 1;
 
 export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
   const countAanbieders = item => (item.aanbieders ?? []).length;

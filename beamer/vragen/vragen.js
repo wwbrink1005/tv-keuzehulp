@@ -4,7 +4,7 @@
 // Het projectiescherm, het beeld en de lichtbundel tekent de pagina zelf met de
 // camera uit Blender, zodat alles exact aansluit. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, spotColumn } from "../../shared/quiz3d.js";
-import { matchBeamers, heeftWens, helderGenoeg, scherpGenoeg, draagbaarGenoeg } from "../js/matching.js";
+import { matchBeamers, heeftWens, helderGenoeg, scherpGenoeg, draagbaarGenoeg, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { BUDGET_CAPS } from "../js/data.js";
 import { fetchProducts } from "../js/supabase.js";
@@ -88,7 +88,7 @@ const NA = (st, id) => st.q >= Q.findIndex(q => q.id === id);   // deze vraag be
 // ───────── live catalogus: budgettelling en grijze opties ─────────
 let catalogus = null;
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
-const zichtbaar = () => (catalogus ?? []).filter(b => (b.aanbieders ?? []).length >= 2);
+const zichtbaar = () => (catalogus ?? []).filter(b => (b.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
 function budgetCaption(st) {
   const cap = capVan(st.budget);
   if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste beamer binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
@@ -99,7 +99,7 @@ function budgetCaption(st) {
   return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} beamers kosten ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}. We zoeken de beste die bij je wensen past.`];
 }
 
-// Grijs als er binnen het budget geen beamer bij 2+ winkels is die er zeker aan
+// Grijs als er binnen het budget geen beamer is die er zeker aan
 // voldoet, samen met je eerdere keuzes. Zelfde regel als bij de andere
 // keuzehulpen; bij een keuzerondje telt het eigen antwoord niet als eis.
 const EIS = {

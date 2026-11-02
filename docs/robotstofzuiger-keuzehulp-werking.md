@@ -21,6 +21,11 @@ daarvan.
 Zo'n 56 robots bij 2+ winkels (€189-1.199), vooral Roborock (19), Dreame (17) en Ecovacs (12).
 **iRobot zit niet in de feeds.**
 
+**Welke robots doen mee (sinds 2 november 2026):** robots die alleen bol of alleen MediaMarkt
+verkoopt (zo'n 134), laten we weg, zelfde regel als laptop, printer en monitor. Robots die alleen
+Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 10 erbij). Het standaardfilter is
+daarom "Alle winkels".
+
 **Vervallen als vraag**, omdat vrijwel elke robot het heeft: LiDAR-navigatie, dweilen, wifi/app,
 Alexa en Google. Ze staan nog wel als filter op de resultaatpagina.
 
@@ -53,7 +58,7 @@ boven 600 minuten ook.
 | 5 | Is stil belangrijk? | Ja / Nee | Ja: −2 per dB boven het gemiddelde |
 | 6 | Wat nog meer? | Huisdieren (20.000 Pa+), Past onder lage meubels (max 9 cm), Hoge drempels (4 cm+), Geen | **Wensen** |
 
-**Grijze opties.** Grijs als geen robot bij 2+ winkels binnen het budget het zeker heeft, samen met
+**Grijze opties.** Grijs als geen robot binnen het budget het zeker heeft, samen met
 het gekozen station en de al aangevinkte extra's, met de reden erbij ("Niet tot €400; wel vanaf
 €648."). Bij de stationvraag kan nog niets grijs, want die komt vóór het budget.
 
@@ -79,7 +84,7 @@ het gekozen station en de al aangevinkte extra's, met de reden erbij ("Niet tot 
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de
 robots tot 4 punten onder de top de goedkoopste.
 
 Filters: o.a. prijs, merk, hoogte robot en station, functies (station wast dweilpads, zelflegend,

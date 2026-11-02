@@ -5,7 +5,7 @@
 // waterkoeling) is vervallen, want die gegevens zijn er bij vrijwel geen
 // desktop; budget en Windows/Mac kwamen erbij. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, spotColumn, placeQuad } from "../../shared/quiz3d.js";
-import { matchDesktops, voldoetAanGebruik, genoegOpslag, OS_WENS } from "../js/matching.js";
+import { matchDesktops, voldoetAanGebruik, genoegOpslag, OS_WENS, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { budgetCapsByType } from "../js/data.js";
 import { fetchProducts } from "../js/supabase.js";
@@ -93,7 +93,7 @@ const capVan = v => (v && v !== "geen" ? Number(v) : null);
 const budgetOpties = t => [...(budgetCapsByType[t] ?? budgetCapsByType["maakt-niet-uit"]).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }];
 const TYPE_NAAM = { tower: "tower", "mini-pc": "mini-pc", "all-in-one": "all-in-one" };
 let catalogus = null;
-const vanType = st => (catalogus ?? []).filter(d => (d.aanbieders ?? []).length >= 2
+const vanType = st => (catalogus ?? []).filter(d => (d.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS
   && (!st.behuizing || st.behuizing === "maakt-niet-uit" || d.behuizingCategory === st.behuizing));
 const typeTekst = st => (TYPE_NAAM[st.behuizing] ? ` van het type ${TYPE_NAAM[st.behuizing]}` : "");
 function budgetCaption(st) {

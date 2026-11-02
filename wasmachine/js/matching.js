@@ -1,7 +1,9 @@
 import { capaciteitGroupToAllowedCapaciteit, heeftWasprogramma, isCapaciteitInGroup } from "./data.js";
 import { parsePrice } from "./utils.js";
 
-export const DEFAULT_MIN_AANBIEDERS = 2;
+// "Alle winkels": producten die alleen bol of alleen MediaMarkt verkoopt, zitten al niet in
+// de catalogus (utils.js normalizeProducts). Was 2 tot november 2026.
+export const DEFAULT_MIN_AANBIEDERS = 1;
 
 export function applyMinAanbiedersCascade(matches, startThreshold = DEFAULT_MIN_AANBIEDERS) {
   const countAanbieders = item => (item.aanbieders ?? []).length;
@@ -129,7 +131,7 @@ export function matchWasmachines(wasmachines, capaciteitGroup, budget, answers) 
   const gescoord = scoreWasmachines(pool, { ...answers, capaciteitGroup }).sort((x, y) => y.fit - x.fit);
   const top = gescoord[0].fit;
   // Alles binnen de band, maar door tot er minstens MIN_LIJST wasmachines in
-  // zitten die door het standaardfilter "2+ winkels" op de resultaatpagina komen.
+  // zitten die door het standaardfilter "aantal winkels" op de resultaatpagina komen.
   const resultaat = [];
   let zichtbaar = 0;
   for (const w of gescoord) {

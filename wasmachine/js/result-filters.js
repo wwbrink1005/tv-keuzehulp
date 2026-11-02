@@ -352,7 +352,8 @@ function renderMinAanbiedersOptions(container, card) {
     const labelText = document.createElement("span");
     labelText.className = "filter-label";
     labelText.append(document.createTextNode(n === 1 ? "Alle winkels" : `${n}+ winkels`));
-    if (n === DEFAULT_MIN_AANBIEDERS) {
+    // "Aanbevolen" alleen als de standaard een echte keuze is (2+); bij "Alle winkels" overbodig.
+    if (n === DEFAULT_MIN_AANBIEDERS && n > 1) {
       labelText.classList.add("has-badge");
       const recommended = document.createElement("span");
       recommended.className = "filter-recommended-badge";
@@ -646,7 +647,7 @@ function initBudgetNote(cap, binnen, zonderGrens, budgetZonderMatch) {
   }
 
   // Alleen tonen als er boven het budget wasmachines zijn die duidelijk beter bij
-  // de wensen passen dan wat je binnen budget ziet (2+ winkels).
+  // de wensen passen dan wat je binnen budget ziet.
   const zichtbaarBinnen = binnenLijst.filter(w => (w.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
   const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(w => w.wens)) : binnen.topWens;
   const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;

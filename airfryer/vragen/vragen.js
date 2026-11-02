@@ -4,7 +4,7 @@
 // het eten op de plank ervoor zijn transparante lagen (render/scene.py). Het display
 // tekent de pagina zelf in perspectief. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, placeQuad } from "../../shared/quiz3d.js";
-import { matchAirfryers, heeftWens, mandWens } from "../js/matching.js";
+import { matchAirfryers, heeftWens, mandWens, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { capaciteitLiterMin, budgetCaps } from "../js/data.js";
@@ -81,7 +81,7 @@ const vraag = st => {
 // ───────── live catalogus: budgettelling en grijze opties ─────────
 let catalogus = null;
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
-const zichtbaarIn = st => (catalogus ?? []).filter(af => (af.aanbieders ?? []).length >= 2 && (!mandWens(st) || heeftWens(af, mandWens(st)) === true));
+const zichtbaarIn = st => (catalogus ?? []).filter(af => (af.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS && (!mandWens(st) || heeftWens(af, mandWens(st)) === true));
 const welke = st => (st.dubbeleMand === "ja" ? "airfryers met een dubbele mand" : st.dubbeleMand === "nee" ? "airfryers met 1 mand" : "airfryers");
 function budgetCaption(st) {
   const cap = capVan(st.budget);
@@ -94,7 +94,7 @@ function budgetCaption(st) {
   if (!binnen.length) return [`Tot ${euro(cap)}`, `Geen ${welke(st)} tot ${euro(cap)}; de goedkoopste kost ${euro(Math.min(...prijzen))}. We tonen dan de best passende.`];
   return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} ${welke(st)} ${binnen.length === 1 ? "kost" : "kosten"} ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}.`];
 }
-// Grijs als geen airfryer bij 2+ winkels binnen mand en budget het zeker
+// Grijs als geen airfryer binnen mand en budget het zeker
 // heeft, samen met de andere aangevinkte wens.
 const EIS = { extra: { kijkglas: af => heeftWens(af, "kijkglas") === true, stomen: af => heeftWens(af, "stomen") === true } };
 function metBeschikbaarheid(st, q) {

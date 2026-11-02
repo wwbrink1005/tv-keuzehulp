@@ -160,8 +160,9 @@ const QID = st => vragen(st)[st.q]?.id;
 // ───────── live catalogus: budgettelling en grijze opties ─────────
 let catalogus = null;
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
-// De 2-winkelregel geldt niet in de B2B-embed: daar is de klant de enige winkel.
-const MIN_WINKELS = klant ? 1 : 2;
+// Alle winkels tellen mee: alleen-bol en alleen-MediaMarkt zitten al niet in de catalogus
+// (utils.js), en in de B2B-embed is de klant de enige winkel. Was 2 tot november 2026.
+const MIN_WINKELS = 1;
 const zichtbaarIn = st => poolVoor(catalogus ?? [], { plaatsing: st.plaatsing, nishoogte: st.nishoogte, vrijstaandtype: st.vrijstaandtype })
   .filter(k => (k.aanbieders ?? []).length >= MIN_WINKELS);
 const welke = st => (st.plaatsing === "inbouw" ? (st.nishoogte ? `inbouwkoelkasten voor een nis van ${st.nishoogte} cm` : "inbouwkoelkasten") : ({
@@ -178,7 +179,7 @@ function budgetCaption(st) {
   if (!binnen.length) return [`Tot ${euro(cap)}`, `Geen ${welke(st)} tot ${euro(cap)}; de goedkoopste kost ${euro(Math.min(...prijzen))}. We tonen dan de best passende.`];
   return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} ${welke(st)} ${binnen.length === 1 ? "kost" : "kosten"} ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}.`];
 }
-// Grijs als geen koelkast bij 2+ winkels binnen type/nis en budget het zeker
+// Grijs als geen koelkast binnen type/nis en budget het zeker
 // heeft, samen met de vriezerkeuze en de al aangevinkte extra's.
 const EIS = {
   vriezer: Object.fromEntries(Object.keys(VRIEZER_WENS).map(v => [v, k => heeftWens(k, v) === true])),

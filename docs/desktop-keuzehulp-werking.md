@@ -19,6 +19,12 @@ even goed passen de goedkoopste daarvan (bij intensief gebruik eerst de krachtig
 
 Zo'n 50 desktops bij 2+ winkels, vanaf €724; goedkope instappers zijn er niet.
 
+**Welke desktops doen mee (sinds 2 november 2026):** desktops die alleen bol of alleen MediaMarkt
+verkoopt (zo'n 531), laten we weg, zelfde regel als laptop, printer en monitor. Desktops die alleen
+Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 81 erbij). Het standaardfilter is
+daarom "Alle winkels". Verzendkosten die een winkel zelf opgeeft (Acer €19,99) tellen mee in de
+prijs; de kaart toont dan "incl. €19,99 verzending".
+
 **Processor.** De pipeline zocht het Icecat-veld "Processor", dat in de desktopcategorie niet
 bestaat. Daardoor kende de keuzehulp tot oktober 2026 geen enkele processor (behalve bij Macs, via
 de Apple-scraper) en koos hij alleen op de videokaart. Nu: "Processorfamilie", "Processormodel",
@@ -80,7 +86,7 @@ Elke desktop begint met **100 punten**.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels (minder als er van
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 (minder als er van
 het gekozen type en systeem minder zijn, zoals een Windows-mini-pc). Beste match: van de desktops
 tot 4 punten onder de top de goedkoopste; bij intensief gebruik eerst de krachtigste klasse.
 Filters: o.a. processorklasse (vroeger "GPU Klasse"), losse videokaart, werkgeheugen, opslag.

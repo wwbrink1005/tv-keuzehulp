@@ -32,6 +32,29 @@ function updateMatchCount(count) {
 
 let renderVolgnummer = 0;
 
+// Meting: hoe ver bezoekers in de lijst kijken (sinds november 2026, zelfde als printer, laptop en
+// monitor). Eén event per drempel per bezoek: kaart 3, 6, 10, 20 voor minstens de helft in beeld.
+const SCROLL_DREMPELS = [3, 6, 10, 20];
+const scrollGemeld = new Set();
+let scrollWaker = null;
+function meetScroll(container) {
+  if (!("IntersectionObserver" in window)) return;
+  scrollWaker?.disconnect();
+  const kaarten = () => [...container.querySelectorAll(":scope > .rcard")];
+  scrollWaker = new IntersectionObserver(items => {
+    for (const it of items) {
+      if (!it.isIntersecting) continue;
+      const nr = kaarten().indexOf(it.target) + 1;
+      for (const d of SCROLL_DREMPELS) {
+        if (nr < d || scrollGemeld.has(d)) continue;
+        scrollGemeld.add(d);
+        window.phTrackEvent?.("lijst_scroll", { categorie: "koelkast", tot: d, lijst: kaarten().length });
+      }
+    }
+  }, { threshold: 0.5 });
+  kaarten().forEach(k => scrollWaker.observe(k));
+}
+
 function displayOtherMatchesRedesign(lijst) {
   const mijnRender = ++renderVolgnummer;
   resetProvidersRegistry();
@@ -58,6 +81,7 @@ function displayOtherMatchesRedesign(lijst) {
       points: buildResultPoints(koelkast, currentAnswers, ctx),
     }))
     .join("");
+  meetScroll(container);
 
   // Hartje en specificatieblok komen erbij zodra de ruwe catalogus binnen
   // is; alleen als er intussen niet opnieuw gerenderd is (filter aangeklikt).

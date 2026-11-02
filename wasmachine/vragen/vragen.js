@@ -8,7 +8,7 @@
 // beelden zijn niet opnieuw gemaakt: bestaande beelden hangen nu aan het
 // vraag-id i.p.v. het vraagnummer; de nieuwe vragen hebben nog geen eigen beeld.
 import { createQuiz3D, makeCamera, placeQuad } from "../../shared/quiz3d.js";
-import { matchWasmachines, heeftProgramma, EXTRA_KENMERK } from "../js/matching.js";
+import { matchWasmachines, heeftProgramma, EXTRA_KENMERK, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { capaciteitGroupToAllowedCapaciteit, budgetCapsByCapaciteit, isCapaciteitInGroup } from "../js/data.js";
@@ -45,7 +45,7 @@ const euro = n => "€" + Math.round(n).toLocaleString("nl-NL");
 const budgetOpties = g => [...(budgetCapsByCapaciteit[g] ?? budgetCapsByCapaciteit.gemiddeld).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }];
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
 let catalogus = null;
-const vergelijkbaar = () => (catalogus ?? []).filter(w => (w.aanbieders ?? []).length >= 2);
+const vergelijkbaar = () => (catalogus ?? []).filter(w => (w.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
 function budgetCaption(st) {
   const cap = capVan(st.budget);
   if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste wasmachine binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
@@ -116,7 +116,7 @@ const Q = [
 const QID = st => Q[st.q]?.id;
 
 // ───────── opties grijs als geen wasmachine ze waar kan maken ─────────
-// Grijs als er binnen huishouden en budget geen wasmachine bij 2+ winkels is
+// Grijs als er binnen huishouden en budget geen wasmachine is
 // die het zeker heeft, samen met de eerdere wensen en wat al is aangevinkt.
 const EIS = {
   programma: Object.fromEntries(["allergie", "sport", "outdoor", "dekbed", "snel"].map(p => [p, w => heeftProgramma(w, p) === true])),

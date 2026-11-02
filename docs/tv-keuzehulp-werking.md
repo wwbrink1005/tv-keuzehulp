@@ -22,6 +22,11 @@ goedkoopste daarvan. Daaronder staan de andere goed passende tv's, van goedkoop 
 - Een tv doet alleen mee als we de maat, het type, de scherpte, de Hz en minstens één winkel
   met een prijs weten.
 
+**Welke tv's doen mee (sinds 2 november 2026):** tv's die alleen bol of alleen MediaMarkt verkoopt
+(zo'n 431), laten we weg, zelfde regel als laptop, printer en monitor. Tv's die alleen Coolblue,
+Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 104 erbij). Het standaardfilter is daarom "Alle
+winkels".
+
 ### Het type wordt gecontroleerd
 
 Icecat zet bij zo'n 15% van de tv's het verkeerde type (bijvoorbeeld een Mini LED-tv als "LED",
@@ -167,7 +172,7 @@ eindigen als hij verder goed past.
 ## 4. Van scores naar de lijst
 
 1. **Welke tv's komen in de lijst?** Alle tv's tot **10 punten onder de beste score**.
-2. **Minimaal 5:** zijn dat er minder dan 5 die bij 2 of meer winkels te koop zijn, dan vullen
+2. **Minimaal 5:** zijn dat er minder dan 5, dan vullen
    we aan met de volgende beste, tot er 5 zijn (als ze er zijn).
 3. **Maximaal 20:** nooit meer dan 20 tv's (was 30; in de Ads-tests klikte bijna niemand voorbij plek 20).
 4. **De Beste match:** van alle tv's tot **4 punten onder de beste score** (die passen "even
@@ -179,7 +184,7 @@ eindigen als hij verder goed past.
 
 - **Filters** (links, of de knop "Filters" op mobiel): prijs, maat, merk, paneeltype,
   resolutie, Hz, HDMI-poorten, **HDR**, **modeljaar**, kleur, winkel en aantal winkels.
-- **Standaard staat "2+ winkels" aan**, zodat er alleen tv's staan die je kunt vergelijken.
+- **Standaard staat "Alle winkels" aan**: alleen-bol en alleen-MediaMarkt zitten al niet in de lijst.
 - Na elke filterkeuze wordt de **Beste match opnieuw gekozen** uit wat er overblijft. Kies je
   bijvoorbeeld alleen Samsung, dan krijgt de best passende Samsung de badge.
 - **Sorteren** op prijs hoog-laag kan ook; dan staat de Beste match gewoon op zijn plek.

@@ -22,6 +22,12 @@ Zo'n 390 koelkasten bij 2+ winkels. **Bosch, Siemens, Liebherr en Miele (zo'n 26
 Icecat**; hun gegevens komen van de eigen sites (`bosch_scraper.py` enz. in de pipeline). Miele.nl
 blokkeert scrapers sinds okt. 2026; daar komt het vriezertype uit de naam.
 
+**Welke koelkasten doen mee (sinds 2 november 2026):** koelkasten die alleen bol of alleen
+MediaMarkt verkoopt (zo'n 609), laten we weg, zelfde regel als laptop, printer en monitor.
+Koelkasten die alleen Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 178 erbij). Het
+standaardfilter is daarom "Alle winkels". In de winkelversie (embed) geldt de regel niet: daar is de
+klant de enige winkel.
+
 **Vriezer** (`vriezer` in `js/utils.js`, regels in `js/data.js` `vriezerSoort`):
 
 | Soort | Hoe herkend |
@@ -64,7 +70,7 @@ die twee; de vragenpagina toont de kast van 122 en 140 cm.
 **Budgetbedragen** (`budgetCaps` in `js/data.js`): rond een derde en twee derde van de prijzen per
 type of nis. Bijvoorbeeld standaard €700/€950, Amerikaans €1.150/€1.700, nis 178 cm €1.000/€1.650.
 
-**Grijze opties.** Grijs als geen koelkast bij 2+ winkels binnen type/nis en budget het zeker
+**Grijze opties.** Grijs als geen koelkast binnen type/nis en budget het zeker
 heeft, samen met de vriezerkeuze en de al aangevinkte extra's, met de reden erbij ("Niet tot €600;
 wel vanaf €607.", "Niet bij een nis van 102 cm.").
 
@@ -85,8 +91,7 @@ wel vanaf €607.", "Niet bij een nis van 102 cm.").
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 zichtbaar (2+ winkels; in de
-winkelversie telt elke koelkast). Beste match: van de koelkasten tot 4 punten onder de top de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de koelkasten tot 4 punten onder de top de
 goedkoopste.
 
 Filters: prijs, plaatsing, merk, inhoud, energielabel, geluid, **vriezer** (nieuw), functies (No

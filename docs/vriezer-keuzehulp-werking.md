@@ -21,6 +21,11 @@ Zo'n 110 vriezers bij 2+ winkels: ~80 vrieskasten, ~18 inbouw, ~10 vrieskisten. 
 Siemens en Miele (ruim 60) staan niet in Icecat; hun gegevens komen van de eigen sites. Miele.nl
 blokkeert scrapers sinds okt. 2026; daar volgt No Frost uit de modelnaam (FN = No Frost, F niet).
 
+**Welke vriezers doen mee (sinds 2 november 2026):** vriezers die alleen bol of alleen MediaMarkt
+verkoopt (zo'n 105), laten we weg, zelfde regel als laptop, printer en monitor. Vriezers die alleen
+Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 37 erbij). Het standaardfilter is
+daarom "Alle winkels".
+
 **Soort** (`classifyPlaatsing` in `js/data.js`), okt. 2026 aangescherpt:
 - Icecat "Diepvrieskist" bij een smal tafelmodel (onder 65 cm breed) is een vrieskast.
 - Icecat "Onderbouw" bij Beko-tafelmodellen is "past onder het aanrecht", geen inbouw.
@@ -55,7 +60,7 @@ tegenstrijdige eisen. Het formaat noemt nu zelf voor hoeveel personen het ongeve
 Vrieskast klein €300/€600, middel €800/€1.100, groot €850/€1.000; vrieskist €400/€500; inbouw 88 cm
 €700/€850, 178 cm €1.300/€1.550.
 
-**Grijze opties.** Grijs als geen vriezer bij 2+ winkels binnen soort, maat en budget het zeker
+**Grijze opties.** Grijs als geen vriezer binnen soort, maat en budget het zeker
 heeft, met de reden erbij ("Niet tot €800; wel vanaf €999.", "Geen van deze vrieskisten kan dat.").
 
 ---
@@ -78,7 +83,7 @@ mogelijk" kiest, krijgt dan ook echt de zuinigste binnen zijn budget.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels (als er zoveel zijn;
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 (als er zoveel zijn;
 vrieskisten en inbouw zijn er maar weinig). Beste match: van de vriezers tot 4 punten onder de top
 de goedkoopste.
 

@@ -4,7 +4,7 @@
 // dezelfde scène als de robotstofzuiger-test). Vloervlakken, stof en accu tekent
 // de pagina zelf in perspectief. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera } from "../../shared/quiz3d.js";
-import { matchStofzuigers, heeftExtra, voldoetAanZak, LOOPTIJD_MIN, ACTIERADIUS_MIN } from "../js/matching.js";
+import { matchStofzuigers, heeftExtra, voldoetAanZak, LOOPTIJD_MIN, ACTIERADIUS_MIN, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 
@@ -96,7 +96,7 @@ const QID = st => vragen(st)[st.q]?.id;
 let catalogus = null;
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
 const budgetOpties = st => [...(BUDGET_CAPS[st.stofzuigerType] ?? BUDGET_CAPS.Cilinderstofzuiger).map(c => ({ v: String(c), label: `Tot ${euro(c)}` })), { v: "geen", label: "Geen voorkeur" }];
-const vanType = st => (catalogus ?? []).filter(x => (x.aanbieders ?? []).length >= 2 && x.stofzuigerType === st.stofzuigerType);
+const vanType = st => (catalogus ?? []).filter(x => (x.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS && x.stofzuigerType === st.stofzuigerType);
 function budgetCaption(st) {
   const cap = capVan(st.budget);
   if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste stofzuiger binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
@@ -108,7 +108,7 @@ function budgetCaption(st) {
   if (!binnen.length) return [`Tot ${euro(cap)}`, `Binnen dit bedrag vonden we geen ${naam}. We tonen dan de ${naam} die het best bij je passen, net erboven.`];
   return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} ${naam} kosten ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}. We zoeken de beste die bij je wensen past.`];
 }
-// Grijs als geen stofzuiger bij 2+ winkels van dit type binnen het budget het
+// Grijs als geen stofzuiger van dit type binnen het budget het
 // zeker heeft, samen met de eerdere keuzes (zak) en de al aangevinkte extra's.
 const EIS = {
   zak: { met_zak: x => voldoetAanZak(x, "met_zak") === true, zonder_zak: x => voldoetAanZak(x, "zonder_zak") === true },

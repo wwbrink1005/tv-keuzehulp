@@ -21,6 +21,11 @@ Zo'n 170 vaatwassers bij 2+ winkels: ~105 inbouw, ~65 vrijstaand. Bosch, Siemens
 120) komen van de eigen sites, de rest uit Icecat. 12 zijn 45 cm breed; bij inbouw zijn 19 XXL
 (86-87 cm hoog).
 
+**Welke vaatwassers doen mee (sinds 2 november 2026):** vaatwassers die alleen bol of alleen
+MediaMarkt verkoopt (zo'n 406), laten we weg, zelfde regel als laptop, printer en monitor.
+Vaatwassers die alleen Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 69 erbij). Het
+standaardfilter is daarom "Alle winkels".
+
 **Waarom de oude extra's weg zijn:** per merk wel of niet ingevuld, dus een filter liet hele merken
 stil vallen. Kinderslot alleen bij Beko en Miele, invertermotor alleen bij AEG, wifi onbekend bij
 Miele/Beko/Whirlpool, AquaStop hebben Bosch/Siemens/Miele allemaal. De afwasprogramma's: eco,
@@ -51,7 +56,7 @@ wel als filter op de resultaatpagina.
 **Vervallen:** personen (82% van de 60 cm-modellen heeft 13 of 14 couverts; groot gezin is nu
 "15+ couverts", klein huishouden "45 cm smal"), geluid en energie als aparte vraag, afwasprogramma's.
 
-**Grijze opties.** Grijs als geen vaatwasser bij 2+ winkels binnen plaatsing, maat en budget het
+**Grijze opties.** Grijs als geen vaatwasser binnen plaatsing, maat en budget het
 zeker heeft, met de reden erbij.
 
 ---
@@ -75,7 +80,7 @@ een bekend label C.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels (smal: er zijn er maar
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 (smal: er zijn er maar
 6). Beste match: van de vaatwassers tot 4 punten onder de top de goedkoopste.
 
 ---

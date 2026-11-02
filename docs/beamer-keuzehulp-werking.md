@@ -20,6 +20,12 @@ passende, en als meerdere even goed passen de goedkoopste daarvan.
 
 Het aanbod is klein: 36 beamers bij 2+ winkels, van €139 tot €3.195.
 
+**Welke beamers doen mee (sinds 2 november 2026):** beamers die alleen bol of alleen MediaMarkt
+verkoopt (zo'n 75), laten we weg, zelfde regel als laptop, printer en monitor. Beamers die alleen
+Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 29 erbij). Het standaardfilter is
+daarom "Alle winkels". Verzendkosten die een winkel zelf opgeeft (Acer €19,99) tellen mee in de
+prijs; de kaart toont dan "incl. €19,99 verzending".
+
 **Helderheid.** Icecat's "Projector helderheid" (ANSI-lumen) ontbrak bij 7 beamers, vooral dure
 lasermodellen. Sinds oktober 2026 halen we ook "Helderheid projector" op, maar gebruiken die
 alleen als het ISO- of ANSI-lumen is: "LED-lumen" is een marketingmaat die 20 tot 40 keer te hoog
@@ -55,7 +61,7 @@ en een optie in de vragen wordt alleen grijs als het zeker niet kan.
 
 "Ingebouwde speakers" is vervallen: 34 van de 36 beamers hebben ze.
 
-**Grijze opties.** Een optie wordt grijs als geen beamer bij 2+ winkels binnen het budget hem
+**Grijze opties.** Een optie wordt grijs als geen beamer binnen het budget hem
 zeker waarmaakt, samen met je eerdere keuzes. De reden staat eronder ("Niet tot €1.000; wel
 vanaf €1.359").
 
@@ -85,7 +91,7 @@ Inputlag (belangrijk voor gamers) staat niet in de gegevens.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de
 beamers tot 4 punten onder de top de goedkoopste. Daarna van goedkoop naar duur.
 
 ---

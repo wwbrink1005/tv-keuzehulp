@@ -4,7 +4,7 @@
 // lagen (render/scene.py). Route, dweilbanen en vloeroppervlak tekent de pagina zelf
 // in perspectief op de vloer. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera } from "../../shared/quiz3d.js";
-import { matchRobotstofzuigers, heeftExtra, heeftStation } from "../js/matching.js";
+import { matchRobotstofzuigers, heeftExtra, heeftStation, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { woninggrootteMinLooptijd, BUDGET_CAPS, LAAG_MAX_MM, HOGE_DREMPEL_CM, HUISDIER_PA } from "../js/data.js";
@@ -93,7 +93,7 @@ const QID = st => Q[st.q]?.id;
 // ───────── live catalogus: budgettelling en grijze opties ─────────
 let catalogus = null;
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
-const zichtbaar = () => (catalogus ?? []).filter(r => (r.aanbieders ?? []).length >= 2);
+const zichtbaar = () => (catalogus ?? []).filter(r => (r.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
 function budgetCaption(st) {
   const cap = capVan(st.budget);
   if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste robot binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
@@ -106,7 +106,7 @@ function budgetCaption(st) {
   if (!cap) return ["Geen voorkeur", `Alle ${prijzen.length} robots doen mee, van ${euro(Math.min(...prijzen))} tot ${euro(Math.max(...prijzen))}.${stationRegel}`];
   return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} robots kosten ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}.${stationRegel}`];
 }
-// Grijs als geen robot bij 2+ winkels binnen het budget het zeker heeft, samen
+// Grijs als geen robot binnen het budget het zeker heeft, samen
 // met het gekozen station en de al aangevinkte extra's.
 const EIS = {
   station: { alles: r => heeftStation(r, "alles") === true, zelflegend: r => heeftStation(r, "zelflegend") === true },

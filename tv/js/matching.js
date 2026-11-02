@@ -12,7 +12,9 @@ import {
 // snapshot) en result-filters.js (live herberekening + het filter zelf),
 // zodat de eerste paint al meteen de juiste, gefilterde telling toont i.p.v.
 // heel kort de ongefilterde (incl. 1-winkel-producten) telling te flashen.
-export const DEFAULT_MIN_AANBIEDERS = 2;
+// "Alle winkels": producten die alleen bol of alleen MediaMarkt verkoopt, zitten al niet in
+// de catalogus (utils.js normalizeProducts). Was 2 tot november 2026.
+export const DEFAULT_MIN_AANBIEDERS = 1;
 
 // Filtert op minimaal `startThreshold` winkels, met een cascade-fallback:
 // levert dat 0 resultaten op, dan wordt de drempel stap voor stap verlaagd
@@ -256,7 +258,7 @@ export function matchTVs(tvs, sizeGroup, priceGroup, answers, scores) {
   const gescoord = scoreTVs(pool, sizeGroup, answers ?? {}, scores ?? {}).sort((a, b) => b.fit - a.fit);
   const top = gescoord[0].fit;
   // Alles binnen de band, maar door tot er minstens MIN_LIJST tv's in zitten die ook
-  // door het standaardfilter "2+ winkels" op de resultaatpagina komen; anders bleven
+  // door het standaardfilter "aantal winkels" op de resultaatpagina komen; anders bleven
   // er daar soms maar 2 over van een lijst van 5.
   const lijst = [];
   let zichtbaar = 0;

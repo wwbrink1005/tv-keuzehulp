@@ -5,7 +5,7 @@
 // (render/scene.py). Display, energielabel en labels tekent de pagina zelf.
 // Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, placeQuad } from "../../shared/quiz3d.js";
-import { matchVaatwassers, poolVoor, heeftWens } from "../js/matching.js";
+import { matchVaatwassers, poolVoor, heeftWens, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { budgetCaps, RUIM_COUVERTS } from "../js/data.js";
@@ -107,7 +107,7 @@ const QID = st => vragen(st)[st.q]?.id;
 let catalogus = null;
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
 const zichtbaarIn = st => poolVoor(catalogus ?? [], { plaatsing: st.plaatsing, maat: st.maat })
-  .filter(v => (v.aanbieders ?? []).length >= 2);
+  .filter(v => (v.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS);
 const welke = st => (st.maat === "smal" ? "smalle " : "") + (st.plaatsing === "vrijstaand" ? "vrijstaande vaatwassers" : "inbouwvaatwassers");
 function budgetCaption(st) {
   const cap = capVan(st.budget);
@@ -120,7 +120,7 @@ function budgetCaption(st) {
   if (!binnen.length) return [`Tot ${euro(cap)}`, `Geen ${welke(st)} tot ${euro(cap)}; de goedkoopste kost ${euro(Math.min(...prijzen))}. We tonen dan de best passende.`];
   return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} ${welke(st)} ${binnen.length === 1 ? "kost" : "kosten"} ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}.`];
 }
-// Grijs als geen vaatwasser bij 2+ winkels binnen plaatsing, maat en budget
+// Grijs als geen vaatwasser binnen plaatsing, maat en budget
 // het zeker heeft, samen met de andere aangevinkte wensen.
 const EIS = { extra: Object.fromEntries(["droog", "besteklade", "ruim"].map(w => [w, v => heeftWens(v, w) === true])) };
 function metBeschikbaarheid(st, q) {

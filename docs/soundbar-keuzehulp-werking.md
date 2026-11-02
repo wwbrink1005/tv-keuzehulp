@@ -21,6 +21,11 @@ de goedkoopste daarvan.
 Het aanbod is klein: zo'n 50 soundbars bij 2+ winkels. 38 daarvan staan in Icecat; Sonos, Sony
 en een paar Denons niet.
 
+**Welke soundbars doen mee (sinds 2 november 2026):** soundbars die alleen bol of alleen MediaMarkt
+verkoopt (zo'n 89), laten we weg, zelfde regel als laptop, printer en monitor. Soundbars die alleen
+Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 9 erbij). Het standaardfilter is daarom
+"Alle winkels".
+
 **Losse subwoofer.** Icecat's "Meegeleverde subwoofer" staat ook op "Ja" bij soundbars met de
 bas ín de bar (TCL S45H, Hisense HS2000). Sinds oktober 2026 halen we ook "Subwoofer locatie",
 "Gewicht subwoofer" en "Subwoofer-connectiviteit" op; die zeggen of hij echt los staat. Een
@@ -60,7 +65,7 @@ en een optie in de vragen wordt alleen grijs als het zeker niet kan.
 "Aan de muur hangen" is vervallen: dat kan bij vrijwel elke soundbar (41 van de 41 waarvan
 het bekend is).
 
-**Grijze opties.** Een optie wordt grijs als geen soundbar bij 2+ winkels binnen breedte en
+**Grijze opties.** Een optie wordt grijs als geen soundbar binnen breedte en
 budget hem zeker heeft, samen met je eerdere keuzes. De reden staat eronder ("Niet tot €250;
 wel vanaf €391", "Niet in deze breedte").
 
@@ -92,7 +97,7 @@ ontbreken ervan.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de
 soundbars tot 4 punten onder de top de goedkoopste. Daarna van goedkoop naar duur.
 
 Filters: prijs, merk, geluidservaring, **functies** (losse subwoofer, Dolby Atmos/DTS:X, losse

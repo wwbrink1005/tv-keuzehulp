@@ -344,7 +344,8 @@ function renderMinAanbiedersOptions(container, card) {
     const labelText = document.createElement("span");
     labelText.className = "filter-label";
     labelText.append(document.createTextNode(n === 1 ? "Alle winkels" : `${n}+ winkels`));
-    if (n === DEFAULT_MIN_AANBIEDERS) {
+    // "Aanbevolen" alleen als de standaard een echte keuze is (2+); bij "Alle winkels" overbodig.
+    if (n === DEFAULT_MIN_AANBIEDERS && n > 1) {
       labelText.classList.add("has-badge");
       const recommended = document.createElement("span");
       recommended.className = "filter-recommended-badge";
@@ -635,7 +636,7 @@ function initBudgetNote({ cap, result: binnen, zonderGrens, budgetZonderMatch })
 
   // Alleen tonen als er boven het budget koelkasten zijn die duidelijk beter
   // bij de wensen passen (passcore zonder prijsdeel). Vergelijk met wat je
-  // binnen budget echt ziet (2+ winkels), en tel erboven ook alleen dat.
+  // binnen budget echt ziet, en tel erboven ook alleen dat.
   const zichtbaarBinnen = binnenLijst.filter(k => (k.aanbieders ?? []).length >= MIN_ZICHTBAAR);
   const topBinnen = zichtbaarBinnen.length ? Math.max(...zichtbaarBinnen.map(k => k.wens)) : binnen.topWens;
   const drempel = (topBinnen ?? -Infinity) + BAND_BESTE;

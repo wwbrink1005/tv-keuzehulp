@@ -22,6 +22,11 @@ Zo'n 140 stofzuigers bij 2+ winkels: ~97 met snoer (€89-448) en ~44 steelstofz
 Bosch (57) en Miele (30) staan niet in Icecat; hun gegevens komen van de eigen sites. **Dyson zit
 niet in de feeds**, ook niet bij 1 winkel.
 
+**Welke stofzuigers doen mee (sinds 2 november 2026):** stofzuigers die alleen bol of alleen
+MediaMarkt verkoopt (zo'n 194), laten we weg, zelfde regel als laptop, printer en monitor.
+Stofzuigers die alleen Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 85 erbij). Het
+standaardfilter is daarom "Alle winkels".
+
 **Uit de productnaam** (vooral voor Bosch en Miele), aangevuld met Icecat voor de andere merken:
 
 | Kenmerk | Uit de naam | Uit Icecat |
@@ -56,7 +61,7 @@ Het echte verschil (parketborstel) is nu een extra.
 | 5 | Is stil belangrijk? | Ja / Nee | Ja: −3 per dB boven het gemiddelde van het type |
 | 6 | Wat nog meer? | Huisdieren, Allergie, Parketborstel; bij steel ook Dweilen, Extra accu | **Wensen** |
 
-**Grijze opties.** Grijs als geen stofzuiger bij 2+ winkels binnen type en budget het zeker heeft,
+**Grijze opties.** Grijs als geen stofzuiger binnen type en budget het zeker heeft,
 samen met je eerdere keuzes, met de reden erbij.
 
 ---
@@ -77,7 +82,7 @@ samen met je eerdere keuzes, met de reden erbij.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de
 stofzuigers tot 4 punten onder de top de goedkoopste.
 
 Filters: o.a. prijs, gewicht, met/zonder zak, merk, functies (allergiefilter, huisdieren,

@@ -20,6 +20,12 @@ uitgesproken wens niet heeft, komt altijd onder de machines die hem wel hebben. 
 Zo'n 540 koffiemachines, bijna allemaal met Icecat-data: ~250 volautomaten, ~45 halfautomaten,
 ~175 capsule/padmachines, ~65 filterapparaten.
 
+**Welke koffiemachines doen mee (sinds 2 november 2026):** 1 winkel bleef genoeg, maar
+koffiemachines die alleen bol of alleen MediaMarkt verkoopt, laten we weg (zo'n 267, zelfde regel
+als laptop, printer en monitor). Siemens, Gaggia, Miele en Saeco blijven; KitchenAid (22, alleen bij
+bol) valt weg. Verzendkosten die een winkel zelf opgeeft (Expert €6,95) tellen mee in de prijs; de
+kaart toont dan "incl. €6,95 verzending".
+
 **Ook 1 winkel telt** (besluit okt. 2026, alleen bij koffiemachines). Winkels verkopen eigen
 modelvarianten van volautomaten (Siemens EQ alleen bij Coolblue of alleen bij Expert als
 "extraKlasse"). Met de 2-winkelregel bleven 21 van de 237 volautomaten over, zonder Siemens,

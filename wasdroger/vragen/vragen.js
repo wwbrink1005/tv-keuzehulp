@@ -4,7 +4,7 @@
 // de droger tekent de pagina zelf in perspectief op het zwarte glas.
 // Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, placeQuad } from "../../shared/quiz3d.js";
-import { matchWasdrogers, heeftProgramma, EXTRA_KENMERK, STIL_DREMPEL } from "../js/matching.js";
+import { matchWasdrogers, heeftProgramma, EXTRA_KENMERK, STIL_DREMPEL, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 import { capaciteitGroupToAllowedCapaciteit, isCapaciteitInGroup, BUDGET_CAPS } from "../js/data.js";
@@ -91,7 +91,7 @@ const QID = st => Q[st.q]?.id;
 // ───────── live catalogus: budgettelling en grijze opties ─────────
 let catalogus = null;
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
-const vanMaat = st => (catalogus ?? []).filter(w => (w.aanbieders ?? []).length >= 2 && isCapaciteitInGroup(w.capaciteit, st.capaciteitGroup));
+const vanMaat = st => (catalogus ?? []).filter(w => (w.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS && isCapaciteitInGroup(w.capaciteit, st.capaciteitGroup));
 function budgetCaption(st) {
   const cap = capVan(st.budget);
   if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste droger binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
@@ -102,7 +102,7 @@ function budgetCaption(st) {
   if (!binnen.length) return [`Tot ${euro(cap)}`, "Binnen dit bedrag vonden we geen droger die groot genoeg is. We tonen dan de drogers die het best bij je passen, net erboven."];
   return [`Tot ${euro(cap)}`, `${binnen.length} van de ${prijzen.length} drogers die groot genoeg zijn kosten ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}. We zoeken de beste die bij je wensen past.`];
 }
-// Grijs als geen droger bij 2+ winkels binnen maat en budget het zeker heeft,
+// Grijs als geen droger binnen maat en budget het zeker heeft,
 // samen met je eerdere programma's en de al aangevinkte opties (zelfde regel als
 // bij de andere keuzehulpen).
 const EIS = {

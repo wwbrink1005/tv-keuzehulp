@@ -22,6 +22,12 @@ waarvan 42 bij 2+ winkels. **Ninja, Princess, Inventum en Tristar ontbreken** (o
 in de pipeline opgelost worden; de keuzehulp rekent alles uit de live data, dus nieuwe merken doen
 vanzelf mee. Herbereken dan wel de budgetbedragen.
 
+**Welke airfryers doen mee (sinds 2 november 2026):** airfryers die alleen bol of alleen MediaMarkt
+verkoopt (zo'n 103), laten we weg, zelfde regel als laptop, printer en monitor. Airfryers die alleen
+Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 13 erbij). Het standaardfilter is
+daarom "Alle winkels". Verzendkosten die een winkel zelf opgeeft (Expert €6,95) tellen mee in de
+prijs; de kaart toont dan "incl. €6,95 verzending".
+
 **Kijkglas en stomen**: ja, nee of onbekend (`js/utils.js`). Leeg telde eerst stil als "nee".
 Stomen ook uit de naam ("Met Stoomfunctie"). Kijkglas is bij 27 van de 42 onbekend, vooral bij
 Tefal: met "kijkglas" aangevinkt komen die onder de airfryers waarvan het zeker is.
@@ -45,7 +51,7 @@ vaatwasserbestendig hebben vrijwel alle airfryers. Ze staan nog wel als filter.
 | 3 | Wat wil je maximaal uitgeven? | 1 mand €100/€120, dubbel €150/€200, maakt niet uit €110/€140, Geen voorkeur | **Harde grens** |
 | 4 | Nog iets belangrijk? | Kijkglas, Ook stomen, Compact, Geen | Kijkglas en stomen: **wensen**; compact: score |
 
-**Grijze opties.** Grijs als geen airfryer bij 2+ winkels binnen mand en budget het zeker heeft,
+**Grijze opties.** Grijs als geen airfryer binnen mand en budget het zeker heeft,
 met de reden erbij ("Niet tot €100; wel vanaf €219.").
 
 ---
@@ -65,7 +71,7 @@ met de reden erbij ("Niet tot €100; wel vanaf €219.").
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de
 airfryers tot 4 punten onder de top de goedkoopste.
 
 ---

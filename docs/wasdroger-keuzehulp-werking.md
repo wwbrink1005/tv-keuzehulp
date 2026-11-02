@@ -20,6 +20,11 @@ goedkoopste daarvan.
 Zo'n 100 drogers bij 2+ winkels, €399 tot €2.519, vrijwel allemaal warmtepomp en 8 of 9 kg.
 59 komen uit Icecat, de rest van de eigen sites (Bosch, Siemens, Miele).
 
+**Welke drogers doen mee (sinds 2 november 2026):** drogers die alleen bol of alleen MediaMarkt
+verkoopt (zo'n 128), laten we weg, zelfde regel als laptop, printer en monitor. Drogers die alleen
+Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 36 erbij). Het standaardfilter is
+daarom "Alle winkels".
+
 | Gegeven | Bekend bij | Opmerking |
 |---|---|---|
 | Capaciteit, prijs, geluid, energielabel | alle 100 | |
@@ -50,7 +55,7 @@ en een optie in de vragen wordt alleen grijs als het zeker niet kan.
 | 4 | Welke droogprogramma's wil je zeker hebben? | Wol, Sport en outdoor, Stoom, Allergie/hygiëne, Beddengoed en dons | **Wensen** |
 | 5 | Wat is nog meer belangrijk? | Extra zuinig (energielabel A), Bediening met een app | **Wensen** |
 
-**Grijze opties.** Grijs als geen droger bij 2+ winkels binnen maat en budget het zeker heeft,
+**Grijze opties.** Grijs als geen droger binnen maat en budget het zeker heeft,
 samen met je eerdere keuzes. De reden staat eronder: "Niet tot €700; wel vanaf €759", of, als
 de optie op zich wel binnen het budget bestaat maar niet samen met je andere keuzes, "Samen met
 je andere keuzes pas vanaf €759".
@@ -83,7 +88,7 @@ bij Miele (zie boven).
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de
 drogers tot 4 punten onder de top de goedkoopste. Daarna van goedkoop naar duur.
 
 ---

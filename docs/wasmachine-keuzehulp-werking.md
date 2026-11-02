@@ -24,6 +24,11 @@ die scrapers maar een klein deel: bij elke Bosch en Siemens stond hetzelfde inge
 programma's, en motor, dosering, app en droogklasse ontbraken. Wie "stoom" of "invertermotor"
 koos, kreeg daardoor nooit een van die merken.
 
+**Welke wasmachines doen mee (sinds 2 november 2026):** wasmachines die alleen bol of alleen
+MediaMarkt verkoopt (zo'n 183), laten we weg, zelfde regel als laptop, printer en monitor.
+Wasmachines die alleen Coolblue, Expert, EP of Acer verkoopt, doen nu wel mee (zo'n 87 erbij). Het
+standaardfilter is daarom "Alle winkels".
+
 Wat er nu is:
 
 | Merk(en) | Bron | Wat we hebben |
@@ -89,7 +94,7 @@ in" niets over.
 
 ## 4. Van scores naar de lijst
 
-Alles tot 10 punten onder de top, minimaal 5 en maximaal 20 bij 2+ winkels. Beste match: van de
+Alles tot 10 punten onder de top, minimaal 5 en maximaal 20. Beste match: van de
 wasmachines tot 4 punten onder de top de goedkoopste. Daarna van goedkoop naar duur.
 
 Filters: prijs, capaciteit, merk, type, energielabel, toerental, kleur, **functies** (droogklasse

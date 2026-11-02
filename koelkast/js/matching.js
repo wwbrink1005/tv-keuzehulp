@@ -2,7 +2,9 @@ import { gezinsgrootteMinCapaciteit, WENS, VRIEZER_WENS } from "./data.js";
 import { parsePrice } from "./utils.js";
 import { klant, isUitgezet } from "../../shared/klant.js";
 
-export const DEFAULT_MIN_AANBIEDERS = 2;
+// "Alle winkels": producten die alleen bol of alleen MediaMarkt verkoopt, zitten al niet in
+// de catalogus (utils.js normalizeProducts). Was 2 tot november 2026.
+export const DEFAULT_MIN_AANBIEDERS = 1;
 // Wat telt als "zichtbaar" voor de lijstlengte en de budgetkaart. In de B2B-
 // embed is de klant de enige winkel, dus daar telt elke koelkast.
 export const MIN_ZICHTBAAR = klant ? 1 : DEFAULT_MIN_AANBIEDERS;

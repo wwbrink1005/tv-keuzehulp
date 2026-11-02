@@ -5,7 +5,7 @@
 // camera op ware grootte op de muur zetten. Motor: shared/quiz3d.js.
 import { createQuiz3D, makeCamera, dimLine, spotColumn } from "../../shared/quiz3d.js";
 import { tvGrootteToBreedteGroup, breedteGroepLabels, BUDGET_CAPS } from "../js/data.js";
-import { matchSoundbars, heeftWens, voldoetAanSubwoofer, pastBreedte } from "../js/matching.js";
+import { matchSoundbars, heeftWens, voldoetAanSubwoofer, pastBreedte, DEFAULT_MIN_AANBIEDERS } from "../js/matching.js";
 import { normalizeProducts, parsePrice } from "../js/utils.js";
 import { fetchProducts } from "../js/supabase.js";
 
@@ -82,10 +82,10 @@ const QID = st => QUESTIONS[st.q]?.id;
 const NA = (st, id) => st.q >= QUESTIONS.findIndex(q => q.id === id);   // deze vraag bereikt of voorbij
 
 // ───────── live catalogus: budgettelling en grijze opties ─────────
-// Telt de soundbars die je standaard ziet (2+ winkels) binnen de gekozen breedte.
+// Telt de soundbars die je standaard ziet  binnen de gekozen breedte.
 let catalogus = null;
 const capVan = v => (v && v !== "geen" ? Number(v) : null);
-const binnenBreedte = st => (catalogus ?? []).filter(sb => (sb.aanbieders ?? []).length >= 2 && pastBreedte(sb, st.breedte));
+const binnenBreedte = st => (catalogus ?? []).filter(sb => (sb.aanbieders ?? []).length >= DEFAULT_MIN_AANBIEDERS && pastBreedte(sb, st.breedte));
 function budgetCaption(st) {
   const cap = capVan(st.budget);
   if (!st.budget) return ["Jouw budget", "Kies wat je maximaal wilt uitgeven. Je krijgt de beste soundbar binnen dat bedrag, en op de resultaatpagina zie je wat meer budget oplevert."];
@@ -98,7 +98,7 @@ function budgetCaption(st) {
   return [`Tot ${euro(cap)}`, `${binnen.length} van de ${alle.length} soundbars${maat} kosten ${euro(cap)} of minder, vanaf ${euro(Math.min(...binnen))}. We zoeken de beste die bij je wensen past.`];
 }
 
-// Grijs als er binnen breedte en budget geen soundbar bij 2+ winkels is die er
+// Grijs als er binnen breedte en budget geen soundbar is die er
 // zeker aan voldoet, samen met het subwooferantwoord en de al aangevinkte
 // extra's. Zelfde regel als bij laptop, printer en monitor.
 const EIS = {
